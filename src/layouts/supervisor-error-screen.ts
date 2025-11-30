@@ -5,8 +5,8 @@ import { atLeastVersion } from "../common/config/version";
 import { applyThemesOnElement } from "../common/dom/apply_themes_on_element";
 import "../components/ha-card";
 import { haStyle } from "../resources/styles";
-import { documentationUrl } from "../util/documentation-url";
 import type { HomeAssistant } from "../types";
+import { documentationUrl } from "../util/documentation-url";
 import "./hass-subpage";
 
 @customElement("supervisor-error-screen")
@@ -43,7 +43,7 @@ class SupervisorErrorScreen extends LitElement {
               <li>
                 <a
                   class="supervisor_error-link"
-                  href="http://homeassistant.local:4357"
+                  href="http://192.168.0.11:4357"
                   target="_blank"
                   rel="noreferrer"
                 >

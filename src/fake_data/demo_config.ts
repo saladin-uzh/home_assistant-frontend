@@ -72,7 +72,7 @@ export const demoConfig: HassConfig = {
   recovery_mode: false,
   safe_mode: false,
   state: STATE_RUNNING,
-  internal_url: "http://homeassistant.local:8123",
+  internal_url: "http://192.168.0.11:8123",
   external_url: null,
   currency: "USD",
   language: "en",
