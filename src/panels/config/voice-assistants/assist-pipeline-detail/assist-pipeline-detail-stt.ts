@@ -1,29 +1,29 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import type { LocalizeKeys } from "../../../../common/translations/localize";
-import "../../../../components/ha-form/ha-form";
-import type { AssistPipeline } from "../../../../data/assist_pipeline";
-import type { HomeAssistant } from "../../../../types";
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import type { LocalizeKeys } from '../../../../common/translations/localize'
+import '../../../../components/ha-form/ha-form'
+import type { AssistPipeline } from '../../../../data/assist_pipeline'
+import type { HomeAssistant } from '../../../../types'
 
-@customElement("assist-pipeline-detail-stt")
+@customElement('assist-pipeline-detail-stt')
 export class AssistPipelineDetailSTT extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public data?: Partial<AssistPipeline>;
+  @property({ attribute: false }) public data?: Partial<AssistPipeline>
 
-  @state() private _supportedLanguages?: string[];
+  @state() private _supportedLanguages?: string[]
 
   private _schema = memoizeOne(
     (language?: string, supportedLanguages?: string[]) =>
       [
         {
-          name: "",
-          type: "grid",
+          name: '',
+          type: 'grid',
           schema: [
             {
-              name: "stt_engine",
+              name: 'stt_engine',
               selector: {
                 stt: {
                   language,
@@ -32,24 +32,24 @@ export class AssistPipelineDetailSTT extends LitElement {
             },
             supportedLanguages?.length
               ? {
-                  name: "stt_language",
+                  name: 'stt_language',
                   required: true,
                   selector: {
                     language: { languages: supportedLanguages, no_sort: true },
                   },
                 }
-              : { name: "", type: "constant" },
+              : { name: '', type: 'constant' },
           ] as const,
         },
       ] as const
-  );
+  )
 
   private _computeLabel = (schema): string =>
     schema.name
       ? this.hass.localize(
           `ui.panel.config.voice_assistants.assistants.pipeline.detail.form.${schema.name}` as LocalizeKeys
         )
-      : "";
+      : ''
 
   protected render() {
     return html`
@@ -74,11 +74,11 @@ export class AssistPipelineDetailSTT extends LitElement {
           @supported-languages-changed=${this._supportedLanguagesChanged}
         ></ha-form>
       </div>
-    `;
+    `
   }
 
   private _supportedLanguagesChanged(ev) {
-    this._supportedLanguages = ev.detail.value;
+    this._supportedLanguages = ev.detail.value
 
     if (
       !this.data?.stt_language ||
@@ -86,10 +86,10 @@ export class AssistPipelineDetailSTT extends LitElement {
     ) {
       // wait for update of conversation_engine
       setTimeout(() => {
-        const value = { ...this.data };
-        value.stt_language = this._supportedLanguages?.[0] ?? null;
-        fireEvent(this, "value-changed", { value });
-      }, 0);
+        const value = { ...this.data }
+        value.stt_language = this._supportedLanguages?.[0] ?? null
+        fireEvent(this, 'value-changed', { value })
+      }, 0)
     }
   }
 
@@ -116,11 +116,11 @@ export class AssistPipelineDetailSTT extends LitElement {
       margin-top: 0;
       margin-bottom: 0;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "assist-pipeline-detail-stt": AssistPipelineDetailSTT;
+    'assist-pipeline-detail-stt': AssistPipelineDetailSTT
   }
 }

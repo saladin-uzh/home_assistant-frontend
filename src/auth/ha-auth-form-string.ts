@@ -1,15 +1,15 @@
 /* eslint-disable lit/prefer-static-styles */
-import type { TemplateResult } from "lit";
-import { html } from "lit";
-import { customElement } from "lit/decorators";
-import { HaFormString } from "../components/ha-form/ha-form-string";
-import "../components/ha-icon-button";
-import "./ha-auth-textfield";
+import type { TemplateResult } from 'lit'
+import { html } from 'lit'
+import { customElement } from 'lit/decorators'
+import { HaFormString } from '../components/ha-form/ha-form-string'
+import '../components/ha-icon-button'
+import './ha-auth-textfield'
 
-@customElement("ha-auth-form-string")
+@customElement('ha-auth-form-string')
 export class HaAuthFormString extends HaFormString {
   protected createRenderRoot() {
-    return this;
+    return this
   }
 
   protected render(): TemplateResult {
@@ -42,11 +42,11 @@ export class HaAuthFormString extends HaFormString {
         !this.isPassword
           ? this.stringType
           : this.unmaskedPassword
-            ? "text"
-            : "password"
+            ? 'text'
+            : 'password'
       }
         .label=${this.label}
-        .value=${this.data || ""}
+        .value=${this.data || ''}
         .helper=${this.helper}
         helperPersistent
         .disabled=${this.disabled}
@@ -61,18 +61,18 @@ export class HaAuthFormString extends HaFormString {
               html`<div style="width: 24px"></div>`
             : this.schema.description?.suffix
         }
-        .validationMessage=${this.schema.required ? this.localize?.("ui.panel.page-authorize.form.error_required") : undefined}
+        .validationMessage=${this.schema.required ? this.localize?.('ui.panel.page-authorize.form.error_required') : undefined}
         @input=${this._valueChanged}
         @change=${this._valueChanged}
         ></ha-auth-textfield>
         ${this.renderIcon()}
       </ha-auth-textfield>
-    `;
+    `
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-auth-form-string": HaAuthFormString;
+    'ha-auth-form-string': HaAuthFormString
   }
 }

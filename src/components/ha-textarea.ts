@@ -1,18 +1,18 @@
-import { TextAreaBase } from "@material/mwc-textarea/mwc-textarea-base";
-import { styles as textfieldStyles } from "@material/mwc-textfield/mwc-textfield.css";
-import { styles as textareaStyles } from "@material/mwc-textarea/mwc-textarea.css";
-import type { PropertyValues } from "lit";
-import { css } from "lit";
-import { customElement, property } from "lit/decorators";
+import { TextAreaBase } from '@material/mwc-textarea/mwc-textarea-base'
+import { styles as textfieldStyles } from '@material/mwc-textfield/mwc-textfield.css'
+import { styles as textareaStyles } from '@material/mwc-textarea/mwc-textarea.css'
+import type { PropertyValues } from 'lit'
+import { css } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
-@customElement("ha-textarea")
+@customElement('ha-textarea')
 export class HaTextArea extends TextAreaBase {
-  @property({ type: Boolean, reflect: true }) autogrow = false;
+  @property({ type: Boolean, reflect: true }) autogrow = false
 
   updated(changedProperties: PropertyValues) {
-    super.updated(changedProperties);
-    if (this.autogrow && changedProperties.has("value")) {
-      this.mdcRoot.dataset.value = this.value + '=\u200B"'; // add a zero-width space to correctly wrap
+    super.updated(changedProperties)
+    if (this.autogrow && changedProperties.has('value')) {
+      this.mdcRoot.dataset.value = this.value + '=\u200B"' // add a zero-width space to correctly wrap
     }
   }
 
@@ -60,11 +60,11 @@ export class HaTextArea extends TextAreaBase {
         }
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-textarea": HaTextArea;
+    'ha-textarea': HaTextArea
   }
 }

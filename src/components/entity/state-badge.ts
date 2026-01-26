@@ -1,44 +1,44 @@
-import { mdiAlert } from "@mdi/js";
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { CSSResultGroup, PropertyValues } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { property, state } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import { styleMap } from "lit/directives/style-map";
-import { computeDomain } from "../../common/entity/compute_domain";
-import { computeStateDomain } from "../../common/entity/compute_state_domain";
+import { mdiAlert } from '@mdi/js'
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { CSSResultGroup, PropertyValues } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { property, state } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import { styleMap } from 'lit/directives/style-map'
+import { computeDomain } from '../../common/entity/compute_domain'
+import { computeStateDomain } from '../../common/entity/compute_state_domain'
 import {
   stateColorBrightness,
   stateColorCss,
-} from "../../common/entity/state_color";
-import { iconColorCSS } from "../../common/style/icon_color_css";
-import { cameraUrlWithWidthHeight } from "../../data/camera";
-import { CLIMATE_HVAC_ACTION_TO_MODE } from "../../data/climate";
-import type { HomeAssistant } from "../../types";
-import "../ha-state-icon";
+} from '../../common/entity/state_color'
+import { iconColorCSS } from '../../common/style/icon_color_css'
+import { cameraUrlWithWidthHeight } from '../../data/camera'
+import { CLIMATE_HVAC_ACTION_TO_MODE } from '../../data/climate'
+import type { HomeAssistant } from '../../types'
+import '../ha-state-icon'
 
 export class StateBadge extends LitElement {
-  public hass?: HomeAssistant;
+  public hass?: HomeAssistant
 
-  @property({ attribute: false }) public stateObj?: HassEntity;
+  @property({ attribute: false }) public stateObj?: HassEntity
 
-  @property({ attribute: false }) public overrideIcon?: string;
+  @property({ attribute: false }) public overrideIcon?: string
 
-  @property({ attribute: false }) public overrideImage?: string;
+  @property({ attribute: false }) public overrideImage?: string
 
   // Cannot be a boolean attribute because undefined is treated different than
   // false.  When it is undefined, state is still colored for light entities.
-  @property({ attribute: false }) public stateColor?: boolean;
+  @property({ attribute: false }) public stateColor?: boolean
 
-  @property() public color?: string;
+  @property() public color?: string
 
   // @todo Consider reworking to eliminate need for attribute since it is manipulated internally
-  @property({ type: Boolean, reflect: true }) public icon = true;
+  @property({ type: Boolean, reflect: true }) public icon = true
 
-  @state() private _iconStyle: Record<string, string | undefined> = {};
+  @state() private _iconStyle: Record<string, string | undefined> = {}
 
   connectedCallback(): void {
-    super.connectedCallback();
+    super.connectedCallback()
     if (
       this.hasUpdated &&
       this.overrideImage === undefined &&
@@ -46,55 +46,53 @@ export class StateBadge extends LitElement {
         this.stateObj?.attributes.entity_picture_local)
     ) {
       // Update image on connect, so we get new auth token
-      this.requestUpdate("stateObj");
+      this.requestUpdate('stateObj')
     }
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
     if (
       this.overrideImage === undefined &&
       (this.stateObj?.attributes.entity_picture ||
         this.stateObj?.attributes.entity_picture_local)
     ) {
       // Clear image on disconnect so we don't fetch with old auth when we reconnect
-      this.style.backgroundImage = "";
+      this.style.backgroundImage = ''
     }
   }
 
   private get _stateColor() {
-    const domain = this.stateObj
-      ? computeStateDomain(this.stateObj)
-      : undefined;
-    return this.stateColor ?? domain === "light";
+    const domain = this.stateObj ? computeStateDomain(this.stateObj) : undefined
+    return this.stateColor ?? domain === 'light'
   }
 
   protected render() {
-    const stateObj = this.stateObj;
+    const stateObj = this.stateObj
 
     // We either need a `stateObj` or one override
     if (!stateObj && !this.overrideIcon && !this.overrideImage) {
       return html`<div class="missing">
         <ha-svg-icon .path=${mdiAlert}></ha-svg-icon>
-      </div>`;
+      </div>`
     }
 
-    const cls = this.getClass();
+    const cls = this.getClass()
     if (cls) {
       cls.forEach((toSet, className) => {
         if (!toSet) {
-          this.classList.remove(className);
+          this.classList.remove(className)
         } else {
-          this.classList.add(className);
+          this.classList.add(className)
         }
-      });
+      })
     }
 
     if (!this.icon) {
-      return nothing;
+      return nothing
     }
 
-    const domain = stateObj ? computeStateDomain(stateObj) : undefined;
+    const domain = stateObj ? computeStateDomain(stateObj) : undefined
 
     return html`<ha-state-icon
       .hass=${this.hass}
@@ -103,29 +101,29 @@ export class StateBadge extends LitElement {
       data-state=${ifDefined(stateObj?.state)}
       .icon=${this.overrideIcon}
       .stateObj=${stateObj}
-    ></ha-state-icon>`;
+    ></ha-state-icon>`
   }
 
   public willUpdate(changedProps: PropertyValues<this>) {
-    super.willUpdate(changedProps);
+    super.willUpdate(changedProps)
     if (
-      !changedProps.has("stateObj") &&
-      !changedProps.has("overrideImage") &&
-      !changedProps.has("overrideIcon") &&
-      !changedProps.has("stateColor") &&
-      !changedProps.has("color")
+      !changedProps.has('stateObj') &&
+      !changedProps.has('overrideImage') &&
+      !changedProps.has('overrideIcon') &&
+      !changedProps.has('stateColor') &&
+      !changedProps.has('color')
     ) {
-      return;
+      return
     }
-    const stateObj = this.stateObj;
+    const stateObj = this.stateObj
 
-    const iconStyle: Record<string, string> = {};
-    let backgroundImage = "";
+    const iconStyle: Record<string, string> = {}
+    let backgroundImage = ''
 
-    this.icon = true;
+    this.icon = true
 
     if (stateObj) {
-      const domain = computeDomain(stateObj.entity_id);
+      const domain = computeDomain(stateObj.entity_id)
       if (this.overrideImage === undefined) {
         // hide icon if we have entity picture
         if (
@@ -135,81 +133,81 @@ export class StateBadge extends LitElement {
         ) {
           let imageUrl =
             stateObj.attributes.entity_picture_local ||
-            stateObj.attributes.entity_picture;
+            stateObj.attributes.entity_picture
           if (this.hass) {
-            imageUrl = this.hass.hassUrl(imageUrl);
+            imageUrl = this.hass.hassUrl(imageUrl)
           }
-          if (domain === "camera") {
-            imageUrl = cameraUrlWithWidthHeight(imageUrl, 80, 80);
+          if (domain === 'camera') {
+            imageUrl = cameraUrlWithWidthHeight(imageUrl, 80, 80)
           }
-          backgroundImage = `url(${imageUrl})`;
-          this.icon = false;
+          backgroundImage = `url(${imageUrl})`
+          this.icon = false
         } else if (this.color) {
           // Externally provided overriding color wins over state color
-          iconStyle.color = this.color;
+          iconStyle.color = this.color
         } else if (this._stateColor) {
-          const color = stateColorCss(stateObj);
+          const color = stateColorCss(stateObj)
           if (color) {
-            iconStyle.color = color;
+            iconStyle.color = color
           }
           if (stateObj.attributes.rgb_color) {
-            iconStyle.color = `rgb(${stateObj.attributes.rgb_color.join(",")})`;
+            iconStyle.color = `rgb(${stateObj.attributes.rgb_color.join(',')})`
           }
           if (stateObj.attributes.brightness) {
-            const brightness = stateObj.attributes.brightness;
-            if (typeof brightness !== "number") {
+            const brightness = stateObj.attributes.brightness
+            if (typeof brightness !== 'number') {
               const errorMessage = `Type error: state-badge expected number, but type of ${
                 stateObj.entity_id
-              }.attributes.brightness is ${typeof brightness} (${brightness})`;
+              }.attributes.brightness is ${typeof brightness} (${brightness})`
               // eslint-disable-next-line
-              console.warn(errorMessage);
+              console.warn(errorMessage)
             }
-            iconStyle.filter = stateColorBrightness(stateObj);
+            iconStyle.filter = stateColorBrightness(stateObj)
           }
           if (stateObj.attributes.hvac_action) {
-            const hvacAction = stateObj.attributes.hvac_action;
+            const hvacAction = stateObj.attributes.hvac_action
             if (hvacAction in CLIMATE_HVAC_ACTION_TO_MODE) {
               iconStyle.color = stateColorCss(
                 stateObj,
                 CLIMATE_HVAC_ACTION_TO_MODE[hvacAction]
-              )!;
+              )!
             } else {
-              delete iconStyle.color;
+              delete iconStyle.color
             }
           }
         }
       } else if (this.overrideImage) {
-        let imageUrl = this.overrideImage;
+        let imageUrl = this.overrideImage
         if (this.hass) {
-          imageUrl = this.hass.hassUrl(imageUrl);
+          imageUrl = this.hass.hassUrl(imageUrl)
         }
-        backgroundImage = `url(${imageUrl})`;
-        this.icon = false;
+        backgroundImage = `url(${imageUrl})`
+        this.icon = false
       }
     }
 
-    this._iconStyle = iconStyle;
-    this.style.backgroundImage = backgroundImage;
+    this._iconStyle = iconStyle
+    this.style.backgroundImage = backgroundImage
   }
 
   protected getClass() {
     const cls = new Map(
-      ["has-no-radius", "has-media-image", "has-image"].map((_cls) => [
+      ['has-no-radius', 'has-media-image', 'has-image'].map(_cls => [
         _cls,
         false,
       ])
-    );
+    )
     if (this.stateObj) {
-      const domain = computeDomain(this.stateObj.entity_id);
-      if (domain === "update") {
-        cls.set("has-no-radius", true);
-      } else if (domain === "media_player" || domain === "camera") {
-        cls.set("has-media-image", true);
-      } else if (this.style.backgroundImage !== "") {
-        cls.set("has-image", true);
+      const domain = computeDomain(this.stateObj.entity_id)
+      if (domain === 'update') {
+        cls.set('has-no-radius', true)
+      } else if (domain === 'media_player' || domain === 'camera') {
+        cls.set('has-media-image', true)
+      } else if (this.style.backgroundImage !== '') {
+        cls.set('has-image', true)
       }
     }
-    return cls;
+    return cls
   }
 
   static get styles(): CSSResultGroup {
@@ -256,14 +254,14 @@ export class StateBadge extends LitElement {
           color: #fce588;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "state-badge": StateBadge;
+    'state-badge': StateBadge
   }
 }
 
-customElements.define("state-badge", StateBadge);
+customElements.define('state-badge', StateBadge)

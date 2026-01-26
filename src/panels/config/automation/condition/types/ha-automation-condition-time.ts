@@ -1,32 +1,32 @@
-import { html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { firstWeekdayIndex } from "../../../../../common/datetime/first_weekday";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import type { LocalizeFunc } from "../../../../../common/translations/localize";
-import "../../../../../components/ha-form/ha-form";
-import type { SchemaUnion } from "../../../../../components/ha-form/types";
-import type { TimeCondition } from "../../../../../data/automation";
-import type { FrontendLocaleData } from "../../../../../data/translation";
-import type { HomeAssistant } from "../../../../../types";
-import type { ConditionElement } from "../ha-automation-condition-row";
+import { html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { firstWeekdayIndex } from '../../../../../common/datetime/first_weekday'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import type { LocalizeFunc } from '../../../../../common/translations/localize'
+import '../../../../../components/ha-form/ha-form'
+import type { SchemaUnion } from '../../../../../components/ha-form/types'
+import type { TimeCondition } from '../../../../../data/automation'
+import type { FrontendLocaleData } from '../../../../../data/translation'
+import type { HomeAssistant } from '../../../../../types'
+import type { ConditionElement } from '../ha-automation-condition-row'
 
-const DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
+const DAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const
 
-@customElement("ha-automation-condition-time")
+@customElement('ha-automation-condition-time')
 export class HaTimeCondition extends LitElement implements ConditionElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public condition!: TimeCondition;
+  @property({ attribute: false }) public condition!: TimeCondition
 
-  @state() private _inputModeBefore?: boolean;
+  @state() private _inputModeBefore?: boolean
 
-  @state() private _inputModeAfter?: boolean;
+  @state() private _inputModeAfter?: boolean
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
   public static get defaultConfig(): TimeCondition {
-    return { condition: "time" };
+    return { condition: 'time' }
   }
 
   private _schema = memoizeOne(
@@ -36,82 +36,82 @@ export class HaTimeCondition extends LitElement implements ConditionElement {
       inputModeAfter?: boolean,
       inputModeBefore?: boolean
     ) => {
-      const dayIndex = firstWeekdayIndex(locale);
+      const dayIndex = firstWeekdayIndex(locale)
       const sortedDays = DAYS.slice(dayIndex, DAYS.length).concat(
         DAYS.slice(0, dayIndex)
-      );
+      )
       return [
         {
-          name: "mode_after",
-          type: "select",
+          name: 'mode_after',
+          type: 'select',
           required: true,
           options: [
             [
-              "value",
+              'value',
               localize(
-                "ui.panel.config.automation.editor.conditions.type.time.type_value"
+                'ui.panel.config.automation.editor.conditions.type.time.type_value'
               ),
             ],
             [
-              "input",
+              'input',
               localize(
-                "ui.panel.config.automation.editor.conditions.type.time.type_input"
+                'ui.panel.config.automation.editor.conditions.type.time.type_input'
               ),
             ],
           ],
         },
         {
-          name: "after",
+          name: 'after',
           selector: inputModeAfter
             ? {
                 entity: {
                   filter: [
-                    { domain: "input_datetime" },
-                    { domain: "time" },
-                    { domain: "sensor", device_class: "timestamp" },
+                    { domain: 'input_datetime' },
+                    { domain: 'time' },
+                    { domain: 'sensor', device_class: 'timestamp' },
                   ],
                 },
               }
             : { time: {} },
         },
         {
-          name: "mode_before",
-          type: "select",
+          name: 'mode_before',
+          type: 'select',
           required: true,
           options: [
             [
-              "value",
+              'value',
               localize(
-                "ui.panel.config.automation.editor.conditions.type.time.type_value"
+                'ui.panel.config.automation.editor.conditions.type.time.type_value'
               ),
             ],
             [
-              "input",
+              'input',
               localize(
-                "ui.panel.config.automation.editor.conditions.type.time.type_input"
+                'ui.panel.config.automation.editor.conditions.type.time.type_input'
               ),
             ],
           ],
         },
         {
-          name: "before",
+          name: 'before',
           selector: inputModeBefore
             ? {
                 entity: {
                   filter: [
-                    { domain: "input_datetime" },
-                    { domain: "time" },
-                    { domain: "sensor", device_class: "timestamp" },
+                    { domain: 'input_datetime' },
+                    { domain: 'time' },
+                    { domain: 'sensor', device_class: 'timestamp' },
                   ],
                 },
               }
             : { time: {} },
         },
         {
-          type: "multi_select",
-          name: "weekday",
+          type: 'multi_select',
+          name: 'weekday',
           options: sortedDays.map(
-            (day) =>
+            day =>
               [
                 day,
                 localize(
@@ -120,34 +120,34 @@ export class HaTimeCondition extends LitElement implements ConditionElement {
               ] as const
           ),
         },
-      ] as const;
+      ] as const
     }
-  );
+  )
 
   protected render() {
     const inputModeBefore =
       this._inputModeBefore ??
-      (this.condition.before?.startsWith("input_datetime.") ||
-        this.condition.before?.startsWith("time.") ||
-        this.condition.before?.startsWith("sensor."));
+      (this.condition.before?.startsWith('input_datetime.') ||
+        this.condition.before?.startsWith('time.') ||
+        this.condition.before?.startsWith('sensor.'))
     const inputModeAfter =
       this._inputModeAfter ??
-      (this.condition.after?.startsWith("input_datetime.") ||
-        this.condition.after?.startsWith("time.") ||
-        this.condition.after?.startsWith("sensor."));
+      (this.condition.after?.startsWith('input_datetime.') ||
+        this.condition.after?.startsWith('time.') ||
+        this.condition.after?.startsWith('sensor.'))
 
     const schema = this._schema(
       this.hass.localize,
       this.hass.locale,
       inputModeAfter,
       inputModeBefore
-    );
+    )
 
     const data = {
-      mode_before: inputModeBefore ? "input" : "value",
-      mode_after: inputModeAfter ? "input" : "value",
+      mode_before: inputModeBefore ? 'input' : 'value',
+      mode_after: inputModeAfter ? 'input' : 'value',
       ...this.condition,
-    };
+    }
 
     return html`
       <ha-form
@@ -158,28 +158,28 @@ export class HaTimeCondition extends LitElement implements ConditionElement {
         @value-changed=${this._valueChanged}
         .computeLabel=${this._computeLabelCallback}
       ></ha-form>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent): void {
-    ev.stopPropagation();
-    const newValue = ev.detail.value;
+    ev.stopPropagation()
+    const newValue = ev.detail.value
 
-    this._inputModeAfter = newValue.mode_after === "input";
-    this._inputModeBefore = newValue.mode_before === "input";
+    this._inputModeAfter = newValue.mode_after === 'input'
+    this._inputModeBefore = newValue.mode_before === 'input'
 
-    delete newValue.mode_after;
-    delete newValue.mode_before;
+    delete newValue.mode_after
+    delete newValue.mode_before
 
-    Object.keys(newValue).forEach((key) =>
+    Object.keys(newValue).forEach(key =>
       newValue[key] === undefined ||
-      newValue[key] === "" ||
+      newValue[key] === '' ||
       (Array.isArray(newValue[key]) && newValue[key].length === 0)
         ? delete newValue[key]
         : {}
-    );
+    )
 
-    fireEvent(this, "value-changed", { value: newValue });
+    fireEvent(this, 'value-changed', { value: newValue })
   }
 
   private _computeLabelCallback = (
@@ -187,11 +187,11 @@ export class HaTimeCondition extends LitElement implements ConditionElement {
   ): string =>
     this.hass.localize(
       `ui.panel.config.automation.editor.conditions.type.time.${schema.name}`
-    );
+    )
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-condition-time": HaTimeCondition;
+    'ha-automation-condition-time': HaTimeCondition
   }
 }

@@ -1,143 +1,143 @@
-import { mdiClose } from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import { fireEvent } from "../common/dom/fire_event";
-import { stopPropagation } from "../common/dom/stop_propagation";
-import "./ha-icon-button";
-import "./ha-input-helper-text";
-import "./ha-list-item";
-import "./ha-select";
-import "./ha-textfield";
-import type { HaTextField } from "./ha-textfield";
+import { mdiClose } from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import { fireEvent } from '../common/dom/fire_event'
+import { stopPropagation } from '../common/dom/stop_propagation'
+import './ha-icon-button'
+import './ha-input-helper-text'
+import './ha-list-item'
+import './ha-select'
+import './ha-textfield'
+import type { HaTextField } from './ha-textfield'
 
 export interface TimeChangedEvent {
-  days?: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-  milliseconds: number;
-  amPm?: "AM" | "PM";
+  days?: number
+  hours: number
+  minutes: number
+  seconds: number
+  milliseconds: number
+  amPm?: 'AM' | 'PM'
 }
 
-@customElement("ha-base-time-input")
+@customElement('ha-base-time-input')
 export class HaBaseTimeInput extends LitElement {
   /**
    * Label for the input
    */
-  @property() label?: string;
+  @property() label?: string
 
   /**
    * Helper for the input
    */
-  @property() helper?: string;
+  @property() helper?: string
 
   /**
    * auto validate time inputs
    */
-  @property({ attribute: "auto-validate", type: Boolean }) autoValidate = false;
+  @property({ attribute: 'auto-validate', type: Boolean }) autoValidate = false
 
   /**
    * determines if inputs are required
    */
-  @property({ type: Boolean }) public required = false;
+  @property({ type: Boolean }) public required = false
 
   /**
    * 12 or 24 hr format
    */
-  @property({ type: Number }) format: 12 | 24 = 12;
+  @property({ type: Number }) format: 12 | 24 = 12
 
   /**
    * disables the inputs
    */
-  @property({ type: Boolean }) disabled = false;
+  @property({ type: Boolean }) disabled = false
 
   /**
    * day
    */
-  @property({ type: Number }) days = 0;
+  @property({ type: Number }) days = 0
 
   /**
    * hour
    */
-  @property({ type: Number }) hours = 0;
+  @property({ type: Number }) hours = 0
 
   /**
    * minute
    */
-  @property({ type: Number }) minutes = 0;
+  @property({ type: Number }) minutes = 0
 
   /**
    * second
    */
-  @property({ type: Number }) seconds = 0;
+  @property({ type: Number }) seconds = 0
 
   /**
    * milli second
    */
-  @property({ type: Number }) milliseconds = 0;
+  @property({ type: Number }) milliseconds = 0
 
   /**
    * Label for the day input
    */
-  @property({ type: String, attribute: "day-label" }) dayLabel = "";
+  @property({ type: String, attribute: 'day-label' }) dayLabel = ''
 
   /**
    * Label for the hour input
    */
-  @property({ type: String, attribute: "hour-label" }) hourLabel = "";
+  @property({ type: String, attribute: 'hour-label' }) hourLabel = ''
 
   /**
    * Label for the min input
    */
-  @property({ type: String, attribute: "min-label" }) minLabel = "";
+  @property({ type: String, attribute: 'min-label' }) minLabel = ''
 
   /**
    * Label for the sec input
    */
-  @property({ type: String, attribute: "sec-label" }) secLabel = "";
+  @property({ type: String, attribute: 'sec-label' }) secLabel = ''
 
   /**
    * Label for the milli sec input
    */
-  @property({ type: String, attribute: "ms-label" }) millisecLabel = "";
+  @property({ type: String, attribute: 'ms-label' }) millisecLabel = ''
 
   /**
    * show the sec field
    */
-  @property({ attribute: "enable-second", type: Boolean })
-  public enableSecond = false;
+  @property({ attribute: 'enable-second', type: Boolean })
+  public enableSecond = false
 
   /**
    * show the milli sec field
    */
-  @property({ attribute: "enable-millisecond", type: Boolean })
-  public enableMillisecond = false;
+  @property({ attribute: 'enable-millisecond', type: Boolean })
+  public enableMillisecond = false
 
   /**
    * show the day field
    */
-  @property({ attribute: "enable-day", type: Boolean })
-  public enableDay = false;
+  @property({ attribute: 'enable-day', type: Boolean })
+  public enableDay = false
 
   /**
    * limit hours input
    */
-  @property({ attribute: "no-hours-limit", type: Boolean })
-  public noHoursLimit = false;
+  @property({ attribute: 'no-hours-limit', type: Boolean })
+  public noHoursLimit = false
 
   /**
    * AM or PM
    */
-  @property({ attribute: false }) amPm: "AM" | "PM" = "AM";
+  @property({ attribute: false }) amPm: 'AM' | 'PM' = 'AM'
 
-  @property({ type: Boolean, reflect: true }) public clearable?: boolean;
+  @property({ type: Boolean, reflect: true }) public clearable?: boolean
 
   protected render(): TemplateResult {
     return html`
       ${this.label
-        ? html`<label>${this.label}${this.required ? " *" : ""}</label>`
+        ? html`<label>${this.label}${this.required ? ' *' : ''}</label>`
         : nothing}
       <div class="time-input-wrap-wrap">
         <div class="time-input-wrap">
@@ -200,8 +200,8 @@ export class HaBaseTimeInput extends LitElement {
             max="59"
             min="0"
             .disabled=${this.disabled}
-            .suffix=${this.enableSecond ? ":" : ""}
-            class=${this.enableSecond ? "has-suffix" : ""}
+            .suffix=${this.enableSecond ? ':' : ''}
+            class=${this.enableSecond ? 'has-suffix' : ''}
           >
           </ha-textfield>
           ${this.enableSecond
@@ -221,8 +221,8 @@ export class HaBaseTimeInput extends LitElement {
                 max="59"
                 min="0"
                 .disabled=${this.disabled}
-                .suffix=${this.enableMillisecond ? ":" : ""}
-                class=${this.enableMillisecond ? "has-suffix" : ""}
+                .suffix=${this.enableMillisecond ? ':' : ''}
+                class=${this.enableMillisecond ? 'has-suffix' : ''}
               >
               </ha-textfield>`
             : nothing}
@@ -275,43 +275,43 @@ export class HaBaseTimeInput extends LitElement {
             >${this.helper}</ha-input-helper-text
           >`
         : nothing}
-    `;
+    `
   }
 
   private _clearValue(): void {
-    fireEvent(this, "value-changed");
+    fireEvent(this, 'value-changed')
   }
 
   private _valueChanged(ev: InputEvent) {
-    const textField = ev.currentTarget as HaTextField;
+    const textField = ev.currentTarget as HaTextField
     this[textField.name] =
-      textField.name === "amPm" ? textField.value : Number(textField.value);
+      textField.name === 'amPm' ? textField.value : Number(textField.value)
     const value: TimeChangedEvent = {
       hours: this.hours,
       minutes: this.minutes,
       seconds: this.seconds,
       milliseconds: this.milliseconds,
-    };
+    }
     if (this.enableDay) {
-      value.days = this.days;
+      value.days = this.days
     }
     if (this.format === 12) {
-      value.amPm = this.amPm;
+      value.amPm = this.amPm
     }
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value,
-    });
+    })
   }
 
   private _onFocus(ev: FocusEvent) {
-    (ev.currentTarget as HaTextField).select();
+    ;(ev.currentTarget as HaTextField).select()
   }
 
   /**
    * Format time fragments
    */
   private _formatValue(value: number, padding = 2) {
-    return value.toString().padStart(padding, "0");
+    return value.toString().padStart(padding, '0')
   }
 
   /**
@@ -319,12 +319,12 @@ export class HaBaseTimeInput extends LitElement {
    */
   private get _hourMax() {
     if (this.noHoursLimit) {
-      return undefined;
+      return undefined
     }
     if (this.format === 12) {
-      return 12;
+      return 12
     }
-    return 23;
+    return 23
   }
 
   static styles = css`
@@ -415,11 +415,11 @@ export class HaBaseTimeInput extends LitElement {
       padding-top: 8px;
       line-height: var(--ha-line-height-condensed);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-base-time-input": HaBaseTimeInput;
+    'ha-base-time-input': HaBaseTimeInput
   }
 }

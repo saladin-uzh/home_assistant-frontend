@@ -1,43 +1,43 @@
-import type { HomeAssistant } from "../types";
+import type { HomeAssistant } from '../types'
 
 export interface InputText {
-  id: string;
-  name: string;
-  icon?: string;
-  initial?: string;
-  min?: number;
-  max?: number;
-  pattern?: string;
-  mode?: "text" | "password";
+  id: string
+  name: string
+  icon?: string
+  initial?: string
+  min?: number
+  max?: number
+  pattern?: string
+  mode?: 'text' | 'password'
 }
 
 export interface InputTextMutableParams {
-  name: string;
-  icon: string;
-  initial: string;
-  min: number;
-  max: number;
-  pattern: string;
-  mode: "text" | "password";
+  name: string
+  icon: string
+  initial: string
+  min: number
+  max: number
+  pattern: string
+  mode: 'text' | 'password'
 }
 
 export const setValue = (hass: HomeAssistant, entity: string, value: string) =>
-  hass.callService(entity.split(".", 1)[0], "set_value", {
+  hass.callService(entity.split('.', 1)[0], 'set_value', {
     value,
     entity_id: entity,
-  });
+  })
 
 export const fetchInputText = (hass: HomeAssistant) =>
-  hass.callWS<InputText[]>({ type: "input_text/list" });
+  hass.callWS<InputText[]>({ type: 'input_text/list' })
 
 export const createInputText = (
   hass: HomeAssistant,
   values: InputTextMutableParams
 ) =>
   hass.callWS<InputText>({
-    type: "input_text/create",
+    type: 'input_text/create',
     ...values,
-  });
+  })
 
 export const updateInputText = (
   hass: HomeAssistant,
@@ -45,13 +45,13 @@ export const updateInputText = (
   updates: Partial<InputTextMutableParams>
 ) =>
   hass.callWS<InputText>({
-    type: "input_text/update",
+    type: 'input_text/update',
     input_text_id: id,
     ...updates,
-  });
+  })
 
 export const deleteInputText = (hass: HomeAssistant, id: string) =>
   hass.callWS({
-    type: "input_text/delete",
+    type: 'input_text/delete',
     input_text_id: id,
-  });
+  })

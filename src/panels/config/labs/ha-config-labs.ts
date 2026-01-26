@@ -1,45 +1,45 @@
-import { mdiFlask, mdiHelpCircle, mdiOpenInNew } from "@mdi/js";
-import type { PropertyValues, TemplateResult } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import type { LocalizeFunc } from "../../../common/translations/localize";
-import { extractSearchParam } from "../../../common/url/search-params";
-import { domainToName } from "../../../data/integration";
+import { mdiFlask, mdiHelpCircle, mdiOpenInNew } from '@mdi/js'
+import type { PropertyValues, TemplateResult } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import type { LocalizeFunc } from '../../../common/translations/localize'
+import { extractSearchParam } from '../../../common/url/search-params'
+import { domainToName } from '../../../data/integration'
 import {
   labsUpdatePreviewFeature,
   subscribeLabFeatures,
-} from "../../../data/labs";
-import type { LabPreviewFeature } from "../../../data/labs";
-import { showConfirmationDialog } from "../../../dialogs/generic/show-dialog-box";
-import type { HomeAssistant } from "../../../types";
-import { SubscribeMixin } from "../../../mixins/subscribe-mixin";
-import { brandsUrl } from "../../../util/brands-url";
-import { showToast } from "../../../util/toast";
-import { documentationUrl } from "../../../util/documentation-url";
-import { haStyle } from "../../../resources/styles";
-import { showLabsPreviewFeatureEnableDialog } from "./show-dialog-labs-preview-feature-enable";
+} from '../../../data/labs'
+import type { LabPreviewFeature } from '../../../data/labs'
+import { showConfirmationDialog } from '../../../dialogs/generic/show-dialog-box'
+import type { HomeAssistant } from '../../../types'
+import { SubscribeMixin } from '../../../mixins/subscribe-mixin'
+import { brandsUrl } from '../../../util/brands-url'
+import { showToast } from '../../../util/toast'
+import { documentationUrl } from '../../../util/documentation-url'
+import { haStyle } from '../../../resources/styles'
+import { showLabsPreviewFeatureEnableDialog } from './show-dialog-labs-preview-feature-enable'
 import {
   showLabsProgressDialog,
   closeLabsProgressDialog,
-} from "./show-dialog-labs-progress";
-import "../../../components/ha-alert";
-import "../../../components/ha-button";
-import "../../../components/ha-card";
-import "../../../components/ha-icon-button";
-import "../../../components/ha-markdown";
-import "../../../components/ha-switch";
-import "../../../layouts/hass-subpage";
+} from './show-dialog-labs-progress'
+import '../../../components/ha-alert'
+import '../../../components/ha-button'
+import '../../../components/ha-card'
+import '../../../components/ha-icon-button'
+import '../../../components/ha-markdown'
+import '../../../components/ha-switch'
+import '../../../layouts/hass-subpage'
 
-@customElement("ha-config-labs")
+@customElement('ha-config-labs')
 class HaConfigLabs extends SubscribeMixin(LitElement) {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @state() private _preview_features: LabPreviewFeature[] = [];
+  @state() private _preview_features: LabPreviewFeature[] = []
 
-  @state() private _highlightedPreviewFeature?: string;
+  @state() private _highlightedPreviewFeature?: string
 
   private _sortedPreviewFeatures = memoizeOne(
     (localize: LocalizeFunc, features: LabPreviewFeature[]) =>
@@ -49,38 +49,38 @@ class HaConfigLabs extends SubscribeMixin(LitElement) {
           domainToName(localize, b.domain)
         )
       )
-  );
+  )
 
   public hassSubscribe() {
     return [
-      subscribeLabFeatures(this.hass.connection, (features) => {
+      subscribeLabFeatures(this.hass.connection, features => {
         // Load title translations for integrations with preview features
-        const domains = [...new Set(features.map((f) => f.domain))];
-        this.hass.loadBackendTranslation("title", domains);
+        const domains = [...new Set(features.map(f => f.domain))]
+        this.hass.loadBackendTranslation('title', domains)
 
-        this._preview_features = features;
+        this._preview_features = features
       }),
-    ];
+    ]
   }
 
   protected firstUpdated(changedProps: PropertyValues): void {
-    super.firstUpdated(changedProps);
+    super.firstUpdated(changedProps)
     // Load preview_features translations
-    this.hass.loadBackendTranslation("preview_features");
-    this._handleUrlParams();
+    this.hass.loadBackendTranslation('preview_features')
+    this._handleUrlParams()
   }
 
   private _handleUrlParams(): void {
     // Check for feature parameters in URL
-    const domain = extractSearchParam("domain");
-    const previewFeature = extractSearchParam("preview_feature");
+    const domain = extractSearchParam('domain')
+    const previewFeature = extractSearchParam('preview_feature')
     if (domain && previewFeature) {
-      const previewFeatureId = `${domain}.${previewFeature}`;
-      this._highlightedPreviewFeature = previewFeatureId;
+      const previewFeatureId = `${domain}.${previewFeature}`
+      this._highlightedPreviewFeature = previewFeatureId
       // Wait for next render to ensure cards are in DOM
       this.updateComplete.then(() => {
-        this._scrollToPreviewFeature(previewFeatureId);
-      });
+        this._scrollToPreviewFeature(previewFeatureId)
+      })
     }
   }
 
@@ -88,26 +88,26 @@ class HaConfigLabs extends SubscribeMixin(LitElement) {
     const sortedFeatures = this._sortedPreviewFeatures(
       this.hass.localize,
       this._preview_features
-    );
+    )
 
     return html`
       <hass-subpage
         .hass=${this.hass}
         .narrow=${this.narrow}
         back-path="/config/system"
-        .header=${this.hass.localize("ui.panel.config.labs.caption")}
+        .header=${this.hass.localize('ui.panel.config.labs.caption')}
       >
         ${sortedFeatures.length
           ? html`
               <a
                 slot="toolbar-icon"
-                href=${documentationUrl(this.hass, "/integrations/labs/")}
+                href=${documentationUrl(this.hass, '/integrations/labs/')}
                 target="_blank"
                 rel="noopener noreferrer"
-                .title=${this.hass.localize("ui.common.help")}
+                .title=${this.hass.localize('ui.common.help')}
               >
                 <ha-icon-button
-                  .label=${this.hass.localize("ui.common.help")}
+                  .label=${this.hass.localize('ui.common.help')}
                   .path=${mdiHelpCircle}
                 ></ha-icon-button>
               </a>
@@ -119,17 +119,17 @@ class HaConfigLabs extends SubscribeMixin(LitElement) {
                 <div class="empty">
                   <ha-svg-icon .path=${mdiFlask}></ha-svg-icon>
                   <h1>
-                    ${this.hass.localize("ui.panel.config.labs.empty.title")}
+                    ${this.hass.localize('ui.panel.config.labs.empty.title')}
                   </h1>
                   ${this.hass.localize(
-                    "ui.panel.config.labs.empty.description"
+                    'ui.panel.config.labs.empty.description'
                   )}
                   <a
-                    href=${documentationUrl(this.hass, "/integrations/labs/")}
+                    href=${documentationUrl(this.hass, '/integrations/labs/')}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    ${this.hass.localize("ui.panel.config.labs.learn_more")}
+                    ${this.hass.localize('ui.panel.config.labs.learn_more')}
                     <ha-svg-icon .path=${mdiOpenInNew}></ha-svg-icon>
                   </a>
                 </div>
@@ -138,28 +138,28 @@ class HaConfigLabs extends SubscribeMixin(LitElement) {
                 <ha-card outlined>
                   <div class="card-content intro-card">
                     <h1>
-                      ${this.hass.localize("ui.panel.config.labs.intro_title")}
+                      ${this.hass.localize('ui.panel.config.labs.intro_title')}
                     </h1>
                     <p class="intro-text">
                       ${this.hass.localize(
-                        "ui.panel.config.labs.intro_description"
+                        'ui.panel.config.labs.intro_description'
                       )}
                     </p>
                     <ha-alert alert-type="warning">
                       ${this.hass.localize(
-                        "ui.panel.config.labs.intro_warning"
+                        'ui.panel.config.labs.intro_warning'
                       )}
                     </ha-alert>
                   </div>
                 </ha-card>
 
-                ${sortedFeatures.map((preview_feature) =>
+                ${sortedFeatures.map(preview_feature =>
                   this._renderPreviewFeature(preview_feature)
                 )}
               `}
         </div>
       </hass-subpage>
-    `;
+    `
   }
 
   private _renderPreviewFeature(
@@ -167,34 +167,34 @@ class HaConfigLabs extends SubscribeMixin(LitElement) {
   ): TemplateResult {
     const featureName = this.hass.localize(
       `component.${preview_feature.domain}.preview_features.${preview_feature.preview_feature}.name`
-    );
+    )
 
     const description = this.hass.localize(
       `component.${preview_feature.domain}.preview_features.${preview_feature.preview_feature}.description`
-    );
+    )
 
     const integrationName = domainToName(
       this.hass.localize,
       preview_feature.domain
-    );
+    )
 
     const integrationNameWithCustomLabel = !preview_feature.is_built_in
-      ? `${integrationName} • ${this.hass.localize("ui.panel.config.labs.custom_integration")}`
-      : integrationName;
+      ? `${integrationName} • ${this.hass.localize('ui.panel.config.labs.custom_integration')}`
+      : integrationName
 
-    const previewFeatureId = `${preview_feature.domain}.${preview_feature.preview_feature}`;
-    const isHighlighted = this._highlightedPreviewFeature === previewFeatureId;
+    const previewFeatureId = `${preview_feature.domain}.${preview_feature.preview_feature}`
+    const isHighlighted = this._highlightedPreviewFeature === previewFeatureId
 
     // Build description with learn more link if available
     const descriptionWithLink = preview_feature.learn_more_url
-      ? `${description}\n\n[${this.hass.localize("ui.panel.config.labs.learn_more")}](${preview_feature.learn_more_url})`
-      : description;
+      ? `${description}\n\n[${this.hass.localize('ui.panel.config.labs.learn_more')}](${preview_feature.learn_more_url})`
+      : description
 
     return html`
       <ha-card
         outlined
         data-feature-id=${previewFeatureId}
-        class=${isHighlighted ? "highlighted" : ""}
+        class=${isHighlighted ? 'highlighted' : ''}
       >
         <div class="card-content">
           <div class="card-header">
@@ -202,7 +202,7 @@ class HaConfigLabs extends SubscribeMixin(LitElement) {
               alt=""
               src=${brandsUrl({
                 domain: preview_feature.domain,
-                type: "icon",
+                type: 'icon',
                 useFallback: true,
                 darkOptimized: this.hass.themes?.darkMode,
               })}
@@ -216,7 +216,10 @@ class HaConfigLabs extends SubscribeMixin(LitElement) {
               <h2>${featureName}</h2>
             </div>
           </div>
-          <ha-markdown .content=${descriptionWithLink} breaks></ha-markdown>
+          <ha-markdown
+            .content=${descriptionWithLink}
+            breaks
+          ></ha-markdown>
         </div>
         <div class="card-actions">
           <div>
@@ -229,7 +232,7 @@ class HaConfigLabs extends SubscribeMixin(LitElement) {
                     rel="noopener noreferrer"
                   >
                     ${this.hass.localize(
-                      "ui.panel.config.labs.provide_feedback"
+                      'ui.panel.config.labs.provide_feedback'
                     )}
                   </ha-button>
                 `
@@ -242,82 +245,82 @@ class HaConfigLabs extends SubscribeMixin(LitElement) {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    ${this.hass.localize("ui.panel.config.labs.report_issue")}
+                    ${this.hass.localize('ui.panel.config.labs.report_issue')}
                   </ha-button>
                 `
               : nothing}
           </div>
           <ha-button
             appearance="filled"
-            .variant=${preview_feature.enabled ? "danger" : "brand"}
+            .variant=${preview_feature.enabled ? 'danger' : 'brand'}
             @click=${this._handleToggle}
             .preview_feature=${preview_feature}
           >
             ${this.hass.localize(
               preview_feature.enabled
-                ? "ui.panel.config.labs.disable"
-                : "ui.panel.config.labs.enable"
+                ? 'ui.panel.config.labs.disable'
+                : 'ui.panel.config.labs.enable'
             )}
           </ha-button>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   private _scrollToPreviewFeature(previewFeatureId: string): void {
     const card = this.shadowRoot?.querySelector(
       `[data-feature-id="${previewFeatureId}"]`
-    ) as HTMLElement;
+    ) as HTMLElement
     if (card) {
-      card.scrollIntoView({ behavior: "smooth", block: "center" });
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' })
       // Clear highlight after animation
       setTimeout(() => {
-        this._highlightedPreviewFeature = undefined;
-      }, 3000);
+        this._highlightedPreviewFeature = undefined
+      }, 3000)
     }
   }
 
   private async _handleToggle(ev: Event): Promise<void> {
     const buttonEl = ev.currentTarget as HTMLElement & {
-      preview_feature: LabPreviewFeature;
-    };
-    const preview_feature = buttonEl.preview_feature;
-    const enabled = !preview_feature.enabled;
-    const previewFeatureId = `${preview_feature.domain}.${preview_feature.preview_feature}`;
+      preview_feature: LabPreviewFeature
+    }
+    const preview_feature = buttonEl.preview_feature
+    const enabled = !preview_feature.enabled
+    const previewFeatureId = `${preview_feature.domain}.${preview_feature.preview_feature}`
 
     if (enabled) {
       // Show custom enable dialog with backup option
       showLabsPreviewFeatureEnableDialog(this, {
         preview_feature,
         previewFeatureId,
-        onConfirm: async (shouldCreateBackup) => {
+        onConfirm: async shouldCreateBackup => {
           await this._performToggle(
             previewFeatureId,
             enabled,
             shouldCreateBackup
-          );
+          )
         },
-      });
-      return;
+      })
+      return
     }
 
     // Show simple confirmation dialog for disable
     const confirmed = await showConfirmationDialog(this, {
-      title: this.hass.localize("ui.panel.config.labs.disable_title"),
+      title: this.hass.localize('ui.panel.config.labs.disable_title'),
       text:
         this.hass.localize(
           `component.${preview_feature.domain}.preview_features.${preview_feature.preview_feature}.disable_confirmation`
-        ) || this.hass.localize("ui.panel.config.labs.disable_confirmation"),
-      confirmText: this.hass.localize("ui.panel.config.labs.disable"),
-      dismissText: this.hass.localize("ui.common.cancel"),
+        ) || this.hass.localize('ui.panel.config.labs.disable_confirmation'),
+      confirmText: this.hass.localize('ui.panel.config.labs.disable'),
+      dismissText: this.hass.localize('ui.common.cancel'),
       destructive: true,
-    });
+    })
 
     if (!confirmed) {
-      return;
+      return
     }
 
-    await this._performToggle(previewFeatureId, enabled, false);
+    await this._performToggle(previewFeatureId, enabled, false)
   }
 
   private async _performToggle(
@@ -326,17 +329,17 @@ class HaConfigLabs extends SubscribeMixin(LitElement) {
     createBackup: boolean
   ): Promise<void> {
     if (createBackup) {
-      showLabsProgressDialog(this, { enabled });
+      showLabsProgressDialog(this, { enabled })
     }
 
-    const parts = previewFeatureId.split(".", 2);
+    const parts = previewFeatureId.split('.', 2)
     if (parts.length !== 2) {
       showToast(this, {
-        message: this.hass.localize("ui.common.unknown_error"),
-      });
-      return;
+        message: this.hass.localize('ui.common.unknown_error'),
+      })
+      return
     }
-    const [domain, preview_feature] = parts;
+    const [domain, preview_feature] = parts
 
     try {
       await labsUpdatePreviewFeature(
@@ -345,37 +348,37 @@ class HaConfigLabs extends SubscribeMixin(LitElement) {
         preview_feature,
         enabled,
         createBackup
-      );
+      )
     } catch (err: any) {
       if (createBackup) {
-        closeLabsProgressDialog();
+        closeLabsProgressDialog()
       }
       const errorMessage =
-        err?.message || this.hass.localize("ui.common.unknown_error");
+        err?.message || this.hass.localize('ui.common.unknown_error')
       showToast(this, {
         message: this.hass.localize(
           enabled
-            ? "ui.panel.config.labs.enable_failed"
-            : "ui.panel.config.labs.disable_failed",
+            ? 'ui.panel.config.labs.enable_failed'
+            : 'ui.panel.config.labs.disable_failed',
           { error: errorMessage }
         ),
-      });
-      return;
+      })
+      return
     }
 
     // Close dialog before showing success toast
     if (createBackup) {
-      closeLabsProgressDialog();
+      closeLabsProgressDialog()
     }
 
     // Show success toast - collection will auto-update via labs_updated event
     showToast(this, {
       message: this.hass.localize(
         enabled
-          ? "ui.panel.config.labs.enabled_success"
-          : "ui.panel.config.labs.disabled_success"
+          ? 'ui.panel.config.labs.enabled_success'
+          : 'ui.panel.config.labs.disabled_success'
       ),
-    });
+    })
   }
 
   static styles = [
@@ -540,11 +543,11 @@ class HaConfigLabs extends SubscribeMixin(LitElement) {
         gap: var(--ha-space-2);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-config-labs": HaConfigLabs;
+    'ha-config-labs': HaConfigLabs
   }
 }

@@ -1,43 +1,43 @@
-import { ResizeController } from "@lit-labs/observers/resize-controller";
-import { mdiDotsVertical } from "@mdi/js";
-import type { PropertyValues } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { styleMap } from "lit/directives/style-map";
-import { applyThemesOnElement } from "../../../common/dom/apply_themes_on_element";
-import { fireEvent } from "../../../common/dom/fire_event";
-import { stateColorCss } from "../../../common/entity/state_color";
-import "../../../components/ha-card";
-import "../../../components/ha-icon-button";
-import type { HumidifierEntity } from "../../../data/humidifier";
-import "../../../state-control/humidifier/ha-state-control-humidifier-humidity";
-import type { HomeAssistant } from "../../../types";
-import "../card-features/hui-card-features";
-import type { LovelaceCardFeatureContext } from "../card-features/types";
-import { computeLovelaceEntityName } from "../common/entity/compute-lovelace-entity-name";
-import { findEntities } from "../common/find-entities";
-import { createEntityNotFoundWarning } from "../components/hui-warning";
+import { ResizeController } from '@lit-labs/observers/resize-controller'
+import { mdiDotsVertical } from '@mdi/js'
+import type { PropertyValues } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { styleMap } from 'lit/directives/style-map'
+import { applyThemesOnElement } from '../../../common/dom/apply_themes_on_element'
+import { fireEvent } from '../../../common/dom/fire_event'
+import { stateColorCss } from '../../../common/entity/state_color'
+import '../../../components/ha-card'
+import '../../../components/ha-icon-button'
+import type { HumidifierEntity } from '../../../data/humidifier'
+import '../../../state-control/humidifier/ha-state-control-humidifier-humidity'
+import type { HomeAssistant } from '../../../types'
+import '../card-features/hui-card-features'
+import type { LovelaceCardFeatureContext } from '../card-features/types'
+import { computeLovelaceEntityName } from '../common/entity/compute-lovelace-entity-name'
+import { findEntities } from '../common/find-entities'
+import { createEntityNotFoundWarning } from '../components/hui-warning'
 import type {
   LovelaceCard,
   LovelaceCardEditor,
   LovelaceGridOptions,
-} from "../types";
-import type { HumidifierCardConfig } from "./types";
+} from '../types'
+import type { HumidifierCardConfig } from './types'
 
-@customElement("hui-humidifier-card")
+@customElement('hui-humidifier-card')
 export class HuiHumidifierCard extends LitElement implements LovelaceCard {
   private _resizeController = new ResizeController(this, {
-    callback: (entries) => {
+    callback: entries => {
       const container = entries[0]?.target.shadowRoot?.querySelector(
-        ".container"
-      ) as HTMLElement | undefined;
-      return container?.clientHeight;
+        '.container'
+      ) as HTMLElement | undefined
+      return container?.clientHeight
     },
-  });
+  })
 
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import("../editor/config-elements/hui-humidifier-card-editor");
-    return document.createElement("hui-humidifier-card-editor");
+    await import('../editor/config-elements/hui-humidifier-card-editor')
+    return document.createElement('hui-humidifier-card-editor')
   }
 
   public static getStubConfig(
@@ -45,69 +45,69 @@ export class HuiHumidifierCard extends LitElement implements LovelaceCard {
     entities: string[],
     entitiesFallback: string[]
   ): HumidifierCardConfig {
-    const includeDomains = ["humidifier"];
-    const maxEntities = 1;
+    const includeDomains = ['humidifier']
+    const maxEntities = 1
     const foundEntities = findEntities(
       hass,
       maxEntities,
       entities,
       entitiesFallback,
       includeDomains
-    );
+    )
 
     return {
-      type: "humidifier",
-      entity: foundEntities[0] || "",
+      type: 'humidifier',
+      entity: foundEntities[0] || '',
       features: [
         {
-          type: "humidifier-toggle",
+          type: 'humidifier-toggle',
         },
       ],
-    };
+    }
   }
 
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: HumidifierCardConfig;
+  @state() private _config?: HumidifierCardConfig
 
-  @state() private _featureContext: LovelaceCardFeatureContext = {};
+  @state() private _featureContext: LovelaceCardFeatureContext = {}
 
   public getCardSize(): number {
-    return 7;
+    return 7
   }
 
   public setConfig(config: HumidifierCardConfig): void {
-    if (!config.entity || config.entity.split(".")[0] !== "humidifier") {
-      throw new Error("Specify an entity from within the humidifier domain");
+    if (!config.entity || config.entity.split('.')[0] !== 'humidifier') {
+      throw new Error('Specify an entity from within the humidifier domain')
     }
 
-    this._config = config;
+    this._config = config
     this._featureContext = {
       entity_id: config.entity,
-    };
+    }
   }
 
   private _handleMoreInfo() {
-    fireEvent(this, "hass-more-info", {
+    fireEvent(this, 'hass-more-info', {
       entityId: this._config!.entity,
-    });
+    })
   }
 
   protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
+    super.updated(changedProps)
 
     if (
       !this._config ||
       !this.hass ||
-      (!changedProps.has("hass") && !changedProps.has("_config"))
+      (!changedProps.has('hass') && !changedProps.has('_config'))
     ) {
-      return;
+      return
     }
 
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
-    const oldConfig = changedProps.get("_config") as
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined
+    const oldConfig = changedProps.get('_config') as
       | HumidifierCardConfig
-      | undefined;
+      | undefined
 
     if (
       !oldHass ||
@@ -115,35 +115,35 @@ export class HuiHumidifierCard extends LitElement implements LovelaceCard {
       oldHass.themes !== this.hass.themes ||
       oldConfig.theme !== this._config.theme
     ) {
-      applyThemesOnElement(this, this.hass.themes, this._config.theme);
+      applyThemesOnElement(this, this.hass.themes, this._config.theme)
     }
   }
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
-    const stateObj = this.hass.states[this._config.entity] as HumidifierEntity;
+    const stateObj = this.hass.states[this._config.entity] as HumidifierEntity
 
     if (!stateObj) {
       return html`
         <hui-warning .hass=${this.hass}>
           ${createEntityNotFoundWarning(this.hass, this._config.entity)}
         </hui-warning>
-      `;
+      `
     }
 
     const name = computeLovelaceEntityName(
       this.hass,
       stateObj,
       this._config.name
-    );
+    )
 
-    const color = stateColorCss(stateObj);
+    const color = stateColorCss(stateObj)
 
     const controlMaxWidth = this._resizeController.value
       ? `${this._resizeController.value}px`
-      : undefined;
+      : undefined
 
     return html`
       <ha-card>
@@ -163,7 +163,7 @@ export class HuiHumidifierCard extends LitElement implements LovelaceCard {
         <ha-icon-button
           class="more-info"
           .label=${this.hass!.localize(
-            "ui.panel.lovelace.cards.show_more_info"
+            'ui.panel.lovelace.cards.show_more_info'
           )}
           .path=${mdiDotsVertical}
           @click=${this._handleMoreInfo}
@@ -172,7 +172,7 @@ export class HuiHumidifierCard extends LitElement implements LovelaceCard {
         ${this._config.features?.length
           ? html`<hui-card-features
               style=${styleMap({
-                "--feature-color": color,
+                '--feature-color': color,
               })}
               .hass=${this.hass}
               .context=${this._featureContext}
@@ -180,25 +180,25 @@ export class HuiHumidifierCard extends LitElement implements LovelaceCard {
             ></hui-card-features>`
           : nothing}
       </ha-card>
-    `;
+    `
   }
 
   public getGridOptions(): LovelaceGridOptions {
-    const columns = 12;
-    let rows = 5;
-    let min_rows = 2;
-    const min_columns = 6;
+    const columns = 12
+    let rows = 5
+    let min_rows = 2
+    const min_columns = 6
     if (this._config?.features?.length) {
-      const featureHeight = Math.ceil((this._config.features.length * 2) / 3);
-      rows += featureHeight;
-      min_rows += featureHeight;
+      const featureHeight = Math.ceil((this._config.features.length * 2) / 3)
+      rows += featureHeight
+      min_rows += featureHeight
     }
     return {
       columns,
       rows,
       min_columns,
       min_rows,
-    };
+    }
   }
 
   static styles = css`
@@ -244,7 +244,7 @@ export class HuiHumidifierCard extends LitElement implements LovelaceCard {
     }
 
     .container:before {
-      content: "";
+      content: '';
       display: block;
       padding-top: 100%;
     }
@@ -270,11 +270,11 @@ export class HuiHumidifierCard extends LitElement implements LovelaceCard {
       flex: none;
       padding: 0 12px 12px 12px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-humidifier-card": HuiHumidifierCard;
+    'hui-humidifier-card': HuiHumidifierCard
   }
 }

@@ -1,14 +1,14 @@
-import { fontStyles } from "../roboto";
-import { animationStyles } from "./animations.globals";
-import { colorDerivedVariables, colorStylesCollection } from "./color";
-import { coreDerivedVariables, coreStyles } from "./core.globals";
-import { mainDerivedVariables, mainStyles } from "./main.globals";
-import { semanticStyles } from "./semantic.globals";
+import { fontStyles } from '../roboto'
+import { animationStyles } from './animations.globals'
+import { colorDerivedVariables, colorStylesCollection } from './color'
+import { coreDerivedVariables, coreStyles } from './core.globals'
+import { mainDerivedVariables, mainStyles } from './main.globals'
+import { semanticStyles } from './semantic.globals'
 import {
   typographyDerivedVariables,
   typographyStyles,
-} from "./typography.globals";
-import { waMainDerivedVariables, waMainStyles } from "./wa.globals";
+} from './typography.globals'
+import { waMainDerivedVariables, waMainStyles } from './wa.globals'
 
 export const themeStyles = [
   coreStyles.toString(),
@@ -19,7 +19,7 @@ export const themeStyles = [
   fontStyles.toString(),
   waMainStyles.toString(),
   animationStyles.toString(),
-].join("");
+].join('')
 
 export const derivedStyles = {
   ...coreDerivedVariables,
@@ -27,4 +27,4 @@ export const derivedStyles = {
   ...typographyDerivedVariables,
   ...colorDerivedVariables,
   ...waMainDerivedVariables,
-};
+}

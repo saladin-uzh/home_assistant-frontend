@@ -1,60 +1,63 @@
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
-@customElement("hui-marquee")
+@customElement('hui-marquee')
 class HuiMarquee extends LitElement {
-  @property() public text?: string;
+  @property() public text?: string
 
-  @property({ type: Boolean }) public active = false;
+  @property({ type: Boolean }) public active = false
 
   // @todo Consider reworking to eliminate need for attribute since it is manipulated internally
-  @property({ reflect: true, type: Boolean }) public animating = false;
+  @property({ reflect: true, type: Boolean }) public animating = false
 
   protected firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
+    super.firstUpdated(changedProps)
 
-    this.addEventListener("mouseover", () => this.classList.add("hovering"), {
+    this.addEventListener('mouseover', () => this.classList.add('hovering'), {
       // Capture because we need to run before a parent sets active on us.
       // Hovering will disable the overflow, allowing us to calc if we overflow.
       capture: true,
-    });
+    })
 
-    this.addEventListener("mouseout", () => this.classList.remove("hovering"));
+    this.addEventListener('mouseout', () => this.classList.remove('hovering'))
   }
 
   protected updated(changedProperties: PropertyValues): void {
-    super.updated(changedProperties);
+    super.updated(changedProperties)
 
-    if (changedProperties.has("text") && this.animating) {
-      this.animating = false;
+    if (changedProperties.has('text') && this.animating) {
+      this.animating = false
     }
 
     if (
-      changedProperties.has("active") &&
+      changedProperties.has('active') &&
       this.active &&
       this.offsetWidth < this.scrollWidth
     ) {
-      this.animating = true;
+      this.animating = true
     }
   }
 
   protected render() {
     if (!this.text) {
-      return nothing;
+      return nothing
     }
 
     return html`
-      <div class="marquee-inner" @animationiteration=${this._onIteration}>
+      <div
+        class="marquee-inner"
+        @animationiteration=${this._onIteration}
+      >
         <span>${this.text}</span>
-        ${this.animating ? html` <span>${this.text}</span> ` : ""}
+        ${this.animating ? html` <span>${this.text}</span> ` : ''}
       </div>
-    `;
+    `
   }
 
   private _onIteration() {
     if (!this.active) {
-      this.animating = false;
+      this.animating = false
     }
   }
 
@@ -100,11 +103,11 @@ class HuiMarquee extends LitElement {
         transform: translateX(-50%);
       }
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-marquee": HuiMarquee;
+    'hui-marquee': HuiMarquee
   }
 }

@@ -1,16 +1,16 @@
-import { ListItemBase } from "@material/mwc-list/mwc-list-item-base";
-import { styles } from "@material/mwc-list/mwc-list-item.css";
-import type { CSSResultGroup } from "lit";
-import { css } from "lit";
-import { customElement } from "lit/decorators";
+import { ListItemBase } from '@material/mwc-list/mwc-list-item-base'
+import { styles } from '@material/mwc-list/mwc-list-item.css'
+import type { CSSResultGroup } from 'lit'
+import { css } from 'lit'
+import { customElement } from 'lit/decorators'
 
-@customElement("ha-list-item")
+@customElement('ha-list-item')
 export class HaListItem extends ListItemBase {
   protected renderRipple() {
     if (this.noninteractive) {
-      return "";
+      return ''
     }
-    return super.renderRipple();
+    return super.renderRipple()
   }
 
   static get styles(): CSSResultGroup {
@@ -35,8 +35,8 @@ export class HaListItem extends ListItemBase {
             var(--mdc-list-side-padding, 20px)
           );
         }
-        :host([graphic="avatar"]:not([twoLine])),
-        :host([graphic="icon"]:not([twoLine])) {
+        :host([graphic='avatar']:not([twoLine])),
+        :host([graphic='icon']:not([twoLine])) {
           height: 48px;
         }
         span.material-icons:first-of-type {
@@ -57,7 +57,7 @@ export class HaListItem extends ListItemBase {
           align-items: center;
           flex-shrink: 0;
         }
-        :host([graphic="icon"]:not([twoline]))
+        :host([graphic='icon']:not([twoline]))
           .mdc-deprecated-list-item__graphic {
           margin-inline-end: var(
             --mdc-list-item-graphic-margin,
@@ -96,7 +96,7 @@ export class HaListItem extends ListItemBase {
         }
       `,
       // safari workaround - must be explicit
-      document.dir === "rtl"
+      document.dir === 'rtl'
         ? css`
             span.material-icons:first-of-type,
             span.material-icons:last-of-type {
@@ -105,12 +105,12 @@ export class HaListItem extends ListItemBase {
             }
           `
         : css``,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-list-item": HaListItem;
+    'ha-list-item': HaListItem
   }
 }

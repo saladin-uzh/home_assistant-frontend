@@ -1,22 +1,22 @@
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import "./hat-logbook-note";
-import "./hat-trace-timeline";
-import type { LogbookEntry } from "../../data/logbook";
-import type { TraceExtended } from "../../data/trace";
-import type { HomeAssistant } from "../../types";
-import type { NodeInfo } from "./hat-script-graph";
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import './hat-logbook-note'
+import './hat-trace-timeline'
+import type { LogbookEntry } from '../../data/logbook'
+import type { TraceExtended } from '../../data/trace'
+import type { HomeAssistant } from '../../types'
+import type { NodeInfo } from './hat-script-graph'
 
-@customElement("ha-trace-timeline")
+@customElement('ha-trace-timeline')
 export class HaTraceTimeline extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public trace!: TraceExtended;
+  @property({ attribute: false }) public trace!: TraceExtended
 
-  @property({ attribute: false }) public logbookEntries!: LogbookEntry[];
+  @property({ attribute: false }) public logbookEntries!: LogbookEntry[]
 
-  @property({ attribute: false }) public selected!: NodeInfo;
+  @property({ attribute: false }) public selected!: NodeInfo
 
   protected render(): TemplateResult {
     return html`
@@ -32,7 +32,7 @@ export class HaTraceTimeline extends LitElement {
         .hass=${this.hass}
         .domain=${this.trace.domain}
       ></hat-logbook-note>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -43,12 +43,12 @@ export class HaTraceTimeline extends LitElement {
           padding: 16px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-trace-timeline": HaTraceTimeline;
+    'ha-trace-timeline': HaTraceTimeline
   }
 }

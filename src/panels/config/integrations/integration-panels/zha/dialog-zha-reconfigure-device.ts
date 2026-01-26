@@ -1,73 +1,73 @@
-import { mdiCheckCircle, mdiCloseCircle } from "@mdi/js";
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import "../../../../../components/ha-spinner";
-import { createCloseHeading } from "../../../../../components/ha-dialog";
-import "../../../../../components/ha-svg-icon";
-import "../../../../../components/ha-tooltip";
-import "../../../../../components/ha-button";
+import { mdiCheckCircle, mdiCloseCircle } from '@mdi/js'
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import '../../../../../components/ha-spinner'
+import { createCloseHeading } from '../../../../../components/ha-dialog'
+import '../../../../../components/ha-svg-icon'
+import '../../../../../components/ha-tooltip'
+import '../../../../../components/ha-button'
 import type {
   AttributeConfigurationStatus,
   Cluster,
   ClusterConfigurationEvent,
   ClusterConfigurationStatus,
-} from "../../../../../data/zha";
+} from '../../../../../data/zha'
 import {
   fetchClustersForZhaDevice,
   reconfigureNode,
   ZHA_CHANNEL_CFG_DONE,
   ZHA_CHANNEL_MSG_BIND,
   ZHA_CHANNEL_MSG_CFG_RPT,
-} from "../../../../../data/zha";
-import { haStyleDialog } from "../../../../../resources/styles";
-import type { HomeAssistant } from "../../../../../types";
-import type { ZHAReconfigureDeviceDialogParams } from "./show-dialog-zha-reconfigure-device";
+} from '../../../../../data/zha'
+import { haStyleDialog } from '../../../../../resources/styles'
+import type { HomeAssistant } from '../../../../../types'
+import type { ZHAReconfigureDeviceDialogParams } from './show-dialog-zha-reconfigure-device'
 
-@customElement("dialog-zha-reconfigure-device")
+@customElement('dialog-zha-reconfigure-device')
 class DialogZHAReconfigureDevice extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _status?: string;
+  @state() private _status?: string
 
-  @state() private _stages?: string[];
+  @state() private _stages?: string[]
 
   @state() private _clusterConfigurationStatuses? = new Map<
     number,
     ClusterConfigurationStatus
-  >();
+  >()
 
   @state() private _params: ZHAReconfigureDeviceDialogParams | undefined =
-    undefined;
+    undefined
 
-  @state() private _allSuccessful = true;
+  @state() private _allSuccessful = true
 
-  @state() private _showDetails = false;
+  @state() private _showDetails = false
 
-  private _subscribed?: Promise<UnsubscribeFunc>;
+  private _subscribed?: Promise<UnsubscribeFunc>
 
   public showDialog(params: ZHAReconfigureDeviceDialogParams): void {
-    this._params = params;
-    this._clusterConfigurationStatuses = new Map();
-    this._stages = undefined;
+    this._params = params
+    this._clusterConfigurationStatuses = new Map()
+    this._stages = undefined
   }
 
   public closeDialog(): void {
-    this._unsubscribe();
-    this._params = undefined;
-    this._status = undefined;
-    this._stages = undefined;
-    this._clusterConfigurationStatuses = undefined;
-    this._showDetails = false;
-    this._allSuccessful = true;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._unsubscribe()
+    this._params = undefined
+    this._status = undefined
+    this._stages = undefined
+    this._clusterConfigurationStatuses = undefined
+    this._showDetails = false
+    this._allSuccessful = true
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -77,7 +77,7 @@ class DialogZHAReconfigureDevice extends LitElement {
         .heading=${createCloseHeading(
           this.hass,
           this.hass.localize(`ui.dialogs.zha_reconfigure_device.heading`) +
-            ": " +
+            ': ' +
             (this._params.device.user_given_name || this._params.device.name)
         )}
       >
@@ -85,13 +85,13 @@ class DialogZHAReconfigureDevice extends LitElement {
           ? html`
               <p>
                 ${this.hass.localize(
-                  "ui.dialogs.zha_reconfigure_device.introduction"
+                  'ui.dialogs.zha_reconfigure_device.introduction'
                 )}
               </p>
               <p>
                 <em>
                   ${this.hass.localize(
-                    "ui.dialogs.zha_reconfigure_device.battery_device_warning"
+                    'ui.dialogs.zha_reconfigure_device.battery_device_warning'
                   )}
                 </em>
               </p>
@@ -100,12 +100,12 @@ class DialogZHAReconfigureDevice extends LitElement {
                 @click=${this._startReconfiguration}
               >
                 ${this.hass.localize(
-                  "ui.dialogs.zha_reconfigure_device.start_reconfiguration"
+                  'ui.dialogs.zha_reconfigure_device.start_reconfiguration'
                 )}
               </ha-button>
             `
           : ``}
-        ${this._status === "started"
+        ${this._status === 'started'
           ? html`
               <div class="flex-container">
                 <ha-spinner></ha-spinner>
@@ -113,13 +113,13 @@ class DialogZHAReconfigureDevice extends LitElement {
                   <p>
                     <b>
                       ${this.hass.localize(
-                        "ui.dialogs.zha_reconfigure_device.in_progress"
+                        'ui.dialogs.zha_reconfigure_device.in_progress'
                       )}
                     </b>
                   </p>
                   <p>
                     ${this.hass.localize(
-                      "ui.dialogs.zha_reconfigure_device.run_in_background"
+                      'ui.dialogs.zha_reconfigure_device.run_in_background'
                     )}
                   </p>
                 </div>
@@ -137,12 +137,15 @@ class DialogZHAReconfigureDevice extends LitElement {
                       `ui.dialogs.zha_reconfigure_device.button_show`
                     )}
               </ha-button>
-              <ha-button slot="primaryAction" @click=${this.closeDialog}>
-                ${this.hass.localize("ui.common.close")}
+              <ha-button
+                slot="primaryAction"
+                @click=${this.closeDialog}
+              >
+                ${this.hass.localize('ui.common.close')}
               </ha-button>
             `
           : ``}
-        ${this._status === "failed"
+        ${this._status === 'failed'
           ? html`
               <div class="flex-container">
                 <ha-svg-icon
@@ -152,13 +155,16 @@ class DialogZHAReconfigureDevice extends LitElement {
                 <div class="status">
                   <p>
                     ${this.hass.localize(
-                      "ui.dialogs.zha_reconfigure_device.configuration_failed"
+                      'ui.dialogs.zha_reconfigure_device.configuration_failed'
                     )}
                   </p>
                 </div>
               </div>
-              <ha-button slot="primaryAction" @click=${this.closeDialog}>
-                ${this.hass.localize("ui.common.close")}
+              <ha-button
+                slot="primaryAction"
+                @click=${this.closeDialog}
+              >
+                ${this.hass.localize('ui.common.close')}
               </ha-button>
               <ha-button
                 appearance="plain"
@@ -175,7 +181,7 @@ class DialogZHAReconfigureDevice extends LitElement {
               </ha-button>
             `
           : ``}
-        ${this._status === "finished"
+        ${this._status === 'finished'
           ? html`
               <div class="flex-container">
                 <ha-svg-icon
@@ -185,13 +191,16 @@ class DialogZHAReconfigureDevice extends LitElement {
                 <div class="status">
                   <p>
                     ${this.hass.localize(
-                      "ui.dialogs.zha_reconfigure_device.configuration_complete"
+                      'ui.dialogs.zha_reconfigure_device.configuration_complete'
                     )}
                   </p>
                 </div>
               </div>
-              <ha-button slot="primaryAction" @click=${this.closeDialog}>
-                ${this.hass.localize("ui.common.close")}
+              <ha-button
+                slot="primaryAction"
+                @click=${this.closeDialog}
+              >
+                ${this.hass.localize('ui.common.close')}
               </ha-button>
               <ha-button
                 appearance="plain"
@@ -212,7 +221,7 @@ class DialogZHAReconfigureDevice extends LitElement {
           ? html`
               <div class="stages">
                 ${this._stages.map(
-                  (stage) => html`
+                  stage => html`
                     <span class="stage">
                       <ha-svg-icon
                         .path=${mdiCheckCircle}
@@ -224,7 +233,7 @@ class DialogZHAReconfigureDevice extends LitElement {
                 )}
               </div>
             `
-          : ""}
+          : ''}
         ${this._showDetails
           ? html`
               <div class="wrapper">
@@ -249,7 +258,7 @@ class DialogZHAReconfigureDevice extends LitElement {
                       ${Array.from(
                         this._clusterConfigurationStatuses.values()
                       ).map(
-                        (clusterStatus) => html`
+                        clusterStatus => html`
                           <div class="grid-item">
                             ${clusterStatus.cluster.name}
                           </div>
@@ -272,7 +281,7 @@ class DialogZHAReconfigureDevice extends LitElement {
                                       ></ha-svg-icon>
                                     </span>
                                   `
-                              : ""}
+                              : ''}
                           </div>
                           <div class="grid-item">
                             ${clusterStatus.attributes.size > 0
@@ -293,10 +302,10 @@ class DialogZHAReconfigureDevice extends LitElement {
                                     ${Array.from(
                                       clusterStatus.attributes.values()
                                     ).map(
-                                      (attribute) => html`
+                                      attribute => html`
                                         <span class="grid-item">
                                           ${attribute.name}:
-                                          ${attribute.status === "SUCCESS"
+                                          ${attribute.status === 'SUCCESS'
                                             ? html`
                                                 <span class="stage">
                                                   <ha-svg-icon
@@ -330,22 +339,22 @@ class DialogZHAReconfigureDevice extends LitElement {
                                     )}
                                   </div>
                                 `
-                              : ""}
+                              : ''}
                           </div>
                         `
                       )}
                     `
-                  : ""}
+                  : ''}
               </div>
             `
-          : ""}
+          : ''}
       </ha-dialog>
-    `;
+    `
   }
 
   private async _startReconfiguration(): Promise<void> {
     if (!this.hass || !this._params) {
-      return;
+      return
     }
     this._clusterConfigurationStatuses = new Map(
       (
@@ -358,68 +367,68 @@ class DialogZHAReconfigureDevice extends LitElement {
           attributes: new Map<number, AttributeConfigurationStatus>(),
         },
       ])
-    );
-    this._subscribe(this._params);
-    this._status = "started";
+    )
+    this._subscribe(this._params)
+    this._status = 'started'
   }
 
   private _handleMessage(message: ClusterConfigurationEvent): void {
     if (message.type === ZHA_CHANNEL_CFG_DONE) {
-      this._unsubscribe();
-      this._status = this._allSuccessful ? "finished" : "failed";
+      this._unsubscribe()
+      this._status = this._allSuccessful ? 'finished' : 'failed'
     } else {
       const clusterConfigurationStatus =
         this._clusterConfigurationStatuses!.get(
           message.zha_channel_msg_data.cluster_id
-        );
+        )
       if (message.type === ZHA_CHANNEL_MSG_BIND) {
         if (!this._stages) {
-          this._stages = ["binding"];
+          this._stages = ['binding']
         }
-        const success = message.zha_channel_msg_data.success;
-        clusterConfigurationStatus!.bindSuccess = success;
-        this._allSuccessful = this._allSuccessful && success;
+        const success = message.zha_channel_msg_data.success
+        clusterConfigurationStatus!.bindSuccess = success
+        this._allSuccessful = this._allSuccessful && success
       }
       if (message.type === ZHA_CHANNEL_MSG_CFG_RPT) {
-        if (this._stages && !this._stages.includes("reporting")) {
-          this._stages.push("reporting");
+        if (this._stages && !this._stages.includes('reporting')) {
+          this._stages.push('reporting')
         }
-        const attributes = message.zha_channel_msg_data.attributes;
-        Object.keys(attributes).forEach((name) => {
-          const attribute = attributes[name];
-          clusterConfigurationStatus!.attributes.set(attribute.id, attribute);
+        const attributes = message.zha_channel_msg_data.attributes
+        Object.keys(attributes).forEach(name => {
+          const attribute = attributes[name]
+          clusterConfigurationStatus!.attributes.set(attribute.id, attribute)
           this._allSuccessful =
             this._allSuccessful &&
             !(
               attribute.status in
-              ["FAILURE", "UNSUPPORTED_ATTRIBUTE", "UNREPORTABLE_ATTRIBUTE"]
-            );
-        });
+              ['FAILURE', 'UNSUPPORTED_ATTRIBUTE', 'UNREPORTABLE_ATTRIBUTE']
+            )
+        })
       }
-      this.requestUpdate();
+      this.requestUpdate()
     }
   }
 
   private _unsubscribe(): void {
     if (this._subscribed) {
-      this._subscribed.then((unsub) => unsub());
-      this._subscribed = undefined;
+      this._subscribed.then(unsub => unsub())
+      this._subscribed = undefined
     }
   }
 
   private _subscribe(params: ZHAReconfigureDeviceDialogParams): void {
     if (!this.hass) {
-      return;
+      return
     }
     this._subscribed = reconfigureNode(
       this.hass,
       params.device.ieee,
       this._handleMessage.bind(this)
-    );
+    )
   }
 
   private _toggleDetails() {
-    this._showDetails = !this._showDetails;
+    this._showDetails = !this._showDetails
   }
 
   static get styles(): CSSResultGroup {
@@ -479,12 +488,12 @@ class DialogZHAReconfigureDevice extends LitElement {
           margin-inline-start: initial;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-zha-reconfigure-device": DialogZHAReconfigureDevice;
+    'dialog-zha-reconfigure-device': DialogZHAReconfigureDevice
   }
 }

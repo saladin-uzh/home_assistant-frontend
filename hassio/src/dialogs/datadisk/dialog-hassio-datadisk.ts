@@ -1,62 +1,62 @@
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../src/common/dom/fire_event";
-import "../../../../src/components/ha-dialog";
-import "../../../../src/components/ha-button";
-import "../../../../src/components/ha-list-item";
-import "../../../../src/components/ha-select";
-import "../../../../src/components/ha-spinner";
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../src/common/dom/fire_event'
+import '../../../../src/components/ha-dialog'
+import '../../../../src/components/ha-button'
+import '../../../../src/components/ha-list-item'
+import '../../../../src/components/ha-select'
+import '../../../../src/components/ha-spinner'
 import {
   extractApiErrorMessage,
   ignoreSupervisorError,
-} from "../../../../src/data/hassio/common";
-import type { DatadiskList } from "../../../../src/data/hassio/host";
-import { listDatadisks, moveDatadisk } from "../../../../src/data/hassio/host";
-import type { Supervisor } from "../../../../src/data/supervisor/supervisor";
-import { showAlertDialog } from "../../../../src/dialogs/generic/show-dialog-box";
-import { haStyle, haStyleDialog } from "../../../../src/resources/styles";
-import type { HomeAssistant } from "../../../../src/types";
-import type { HassioDatatiskDialogParams } from "./show-dialog-hassio-datadisk";
+} from '../../../../src/data/hassio/common'
+import type { DatadiskList } from '../../../../src/data/hassio/host'
+import { listDatadisks, moveDatadisk } from '../../../../src/data/hassio/host'
+import type { Supervisor } from '../../../../src/data/supervisor/supervisor'
+import { showAlertDialog } from '../../../../src/dialogs/generic/show-dialog-box'
+import { haStyle, haStyleDialog } from '../../../../src/resources/styles'
+import type { HomeAssistant } from '../../../../src/types'
+import type { HassioDatatiskDialogParams } from './show-dialog-hassio-datadisk'
 
 const calculateMoveTime = memoizeOne((supervisor: Supervisor): number => {
   // Assume a speed of 30 MB/s.
-  const moveTime = (supervisor.host.disk_used * 1000) / 60 / 30;
-  const rebootTime = (supervisor.host.startup_time * 4) / 60;
-  return Math.ceil((moveTime + rebootTime) / 10) * 10;
-});
+  const moveTime = (supervisor.host.disk_used * 1000) / 60 / 30
+  const rebootTime = (supervisor.host.startup_time * 4) / 60
+  return Math.ceil((moveTime + rebootTime) / 10) * 10
+})
 
-@customElement("dialog-hassio-datadisk")
+@customElement('dialog-hassio-datadisk')
 class HassioDatadiskDialog extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private dialogParams?: HassioDatatiskDialogParams;
+  @state() private dialogParams?: HassioDatatiskDialogParams
 
-  @state() private selectedDevice?: string;
+  @state() private selectedDevice?: string
 
-  @state() private devices?: DatadiskList["devices"];
+  @state() private devices?: DatadiskList['devices']
 
-  @state() private moving = false;
+  @state() private moving = false
 
   public showDialog(params: HassioDatatiskDialogParams) {
-    this.dialogParams = params;
-    listDatadisks(this.hass).then((data) => {
-      this.devices = data.devices;
-    });
+    this.dialogParams = params
+    listDatadisks(this.hass).then(data => {
+      this.devices = data.devices
+    })
   }
 
   public closeDialog(): void {
-    this.dialogParams = undefined;
-    this.selectedDevice = undefined;
-    this.devices = undefined;
-    this.moving = false;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this.dialogParams = undefined
+    this.selectedDevice = undefined
+    this.devices = undefined
+    this.moving = false
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this.dialogParams) {
-      return nothing;
+      return nothing
     }
     return html`
       <ha-dialog
@@ -64,22 +64,25 @@ class HassioDatadiskDialog extends LitElement {
         scrimClickAction
         escapeKeyAction
         .heading=${this.moving
-          ? this.dialogParams.supervisor.localize("dialog.datadisk_move.moving")
-          : this.dialogParams.supervisor.localize("dialog.datadisk_move.title")}
+          ? this.dialogParams.supervisor.localize('dialog.datadisk_move.moving')
+          : this.dialogParams.supervisor.localize('dialog.datadisk_move.title')}
         @closed=${this.closeDialog}
         ?hideActions=${this.moving}
       >
         ${this.moving
-          ? html`<ha-spinner aria-label="Moving" size="large"></ha-spinner>
+          ? html`<ha-spinner
+                aria-label="Moving"
+                size="large"
+              ></ha-spinner>
               <p class="progress-text">
                 ${this.dialogParams.supervisor.localize(
-                  "dialog.datadisk_move.moving_desc"
+                  'dialog.datadisk_move.moving_desc'
                 )}
               </p>`
           : html` ${this.devices?.length
                 ? html`
                     ${this.dialogParams.supervisor.localize(
-                      "dialog.datadisk_move.description",
+                      'dialog.datadisk_move.description',
                       {
                         current_path: this.dialogParams.supervisor.os.data_disk,
                         time: calculateMoveTime(this.dialogParams.supervisor),
@@ -89,13 +92,13 @@ class HassioDatadiskDialog extends LitElement {
 
                     <ha-select
                       .label=${this.dialogParams.supervisor.localize(
-                        "dialog.datadisk_move.select_device"
+                        'dialog.datadisk_move.select_device'
                       )}
                       @selected=${this._selectDevice}
                       dialogInitialFocus
                     >
                       ${this.devices.map(
-                        (device) =>
+                        device =>
                           html`<ha-list-item .value=${device}
                             >${device}</ha-list-item
                           >`
@@ -104,10 +107,10 @@ class HassioDatadiskDialog extends LitElement {
                   `
                 : this.devices === undefined
                   ? this.dialogParams.supervisor.localize(
-                      "dialog.datadisk_move.loading_devices"
+                      'dialog.datadisk_move.loading_devices'
                     )
                   : this.dialogParams.supervisor.localize(
-                      "dialog.datadisk_move.no_devices"
+                      'dialog.datadisk_move.no_devices'
                     )}
 
               <ha-button
@@ -117,7 +120,7 @@ class HassioDatadiskDialog extends LitElement {
                 dialogInitialFocus
               >
                 ${this.dialogParams.supervisor.localize(
-                  "dialog.datadisk_move.cancel"
+                  'dialog.datadisk_move.cancel'
                 )}
               </ha-button>
 
@@ -127,30 +130,30 @@ class HassioDatadiskDialog extends LitElement {
                 @click=${this._moveDatadisk}
               >
                 ${this.dialogParams.supervisor.localize(
-                  "dialog.datadisk_move.move"
+                  'dialog.datadisk_move.move'
                 )}
               </ha-button>`}
       </ha-dialog>
-    `;
+    `
   }
 
   private _selectDevice(ev) {
-    this.selectedDevice = ev.target.value;
+    this.selectedDevice = ev.target.value
   }
 
   private async _moveDatadisk() {
-    this.moving = true;
+    this.moving = true
     try {
-      await moveDatadisk(this.hass, this.selectedDevice!);
+      await moveDatadisk(this.hass, this.selectedDevice!)
     } catch (err: any) {
       if (this.hass.connection.connected && !ignoreSupervisorError(err)) {
         showAlertDialog(this, {
           title: this.dialogParams!.supervisor.localize(
-            "system.host.failed_to_move"
+            'system.host.failed_to_move'
           ),
           text: extractApiErrorMessage(err),
-        });
-        this.closeDialog();
+        })
+        this.closeDialog()
       }
     }
   }
@@ -173,12 +176,12 @@ class HassioDatadiskDialog extends LitElement {
           text-align: center;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-hassio-datadisk": HassioDatadiskDialog;
+    'dialog-hassio-datadisk': HassioDatadiskDialog
   }
 }

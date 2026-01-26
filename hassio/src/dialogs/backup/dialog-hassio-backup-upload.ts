@@ -1,47 +1,47 @@
-import { mdiClose } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../../src/common/dom/fire_event";
-import "../../../../src/components/ha-header-bar";
-import "../../../../src/components/ha-icon-button";
-import "../../../../src/components/ha-dialog";
-import type { HassDialog } from "../../../../src/dialogs/make-dialog-manager";
-import { haStyleDialog } from "../../../../src/resources/styles";
-import type { HomeAssistant } from "../../../../src/types";
-import "../../components/hassio-upload-backup";
-import type { HassioBackupUploadDialogParams } from "./show-dialog-backup-upload";
+import { mdiClose } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../src/common/dom/fire_event'
+import '../../../../src/components/ha-header-bar'
+import '../../../../src/components/ha-icon-button'
+import '../../../../src/components/ha-dialog'
+import type { HassDialog } from '../../../../src/dialogs/make-dialog-manager'
+import { haStyleDialog } from '../../../../src/resources/styles'
+import type { HomeAssistant } from '../../../../src/types'
+import '../../components/hassio-upload-backup'
+import type { HassioBackupUploadDialogParams } from './show-dialog-backup-upload'
 
-@customElement("dialog-hassio-backup-upload")
+@customElement('dialog-hassio-backup-upload')
 export class DialogHassioBackupUpload
   extends LitElement
   implements HassDialog<HassioBackupUploadDialogParams>
 {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _dialogParams?: HassioBackupUploadDialogParams;
+  @state() private _dialogParams?: HassioBackupUploadDialogParams
 
   public async showDialog(
     dialogParams: HassioBackupUploadDialogParams
   ): Promise<void> {
-    this._dialogParams = dialogParams;
-    await this.updateComplete;
+    this._dialogParams = dialogParams
+    await this.updateComplete
   }
 
   public closeDialog() {
     if (this._dialogParams && !this._dialogParams.onboarding) {
       if (this._dialogParams.reloadBackup) {
-        this._dialogParams.reloadBackup();
+        this._dialogParams.reloadBackup()
       }
     }
-    this._dialogParams = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
-    return true;
+    this._dialogParams = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
+    return true
   }
 
   protected render() {
     if (!this._dialogParams) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -51,19 +51,19 @@ export class DialogHassioBackupUpload
         escapeKeyAction
         hideActions
         .heading=${this.hass?.localize(
-          "ui.panel.page-onboarding.restore.upload_backup"
-        ) || "Upload backup"}
+          'ui.panel.page-onboarding.restore.upload_backup'
+        ) || 'Upload backup'}
         @closed=${this.closeDialog}
       >
         <div slot="heading">
           <ha-header-bar>
             <span slot="title"
               >${this.hass?.localize(
-                "ui.panel.page-onboarding.restore.upload_backup"
-              ) || "Upload backup"}</span
+                'ui.panel.page-onboarding.restore.upload_backup'
+              ) || 'Upload backup'}</span
             >
             <ha-icon-button
-              .label=${this.hass?.localize("ui.common.close") || "Close"}
+              .label=${this.hass?.localize('ui.common.close') || 'Close'}
               .path=${mdiClose}
               slot="actionItems"
               dialogAction="cancel"
@@ -76,13 +76,13 @@ export class DialogHassioBackupUpload
           .hass=${this.hass}
         ></hassio-upload-backup>
       </ha-dialog>
-    `;
+    `
   }
 
   private _backupUploaded(ev) {
-    const backup = ev.detail.backup;
-    this._dialogParams?.showBackup(backup.slug);
-    this.closeDialog();
+    const backup = ev.detail.backup
+    this._dialogParams?.showBackup(backup.slug)
+    this.closeDialog()
   }
 
   static get styles(): CSSResultGroup {
@@ -102,12 +102,12 @@ export class DialogHassioBackupUpload
           }
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-hassio-backup-upload": DialogHassioBackupUpload;
+    'dialog-hassio-backup-upload': DialogHassioBackupUpload
   }
 }

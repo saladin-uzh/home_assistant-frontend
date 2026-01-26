@@ -1,32 +1,32 @@
-import ProgressRing from "@home-assistant/webawesome/dist/components/progress-ring/progress-ring";
-import { css } from "lit";
-import type { CSSResultGroup } from "lit";
-import { customElement, property } from "lit/decorators";
+import ProgressRing from '@home-assistant/webawesome/dist/components/progress-ring/progress-ring'
+import { css } from 'lit'
+import type { CSSResultGroup } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
-@customElement("ha-progress-ring")
+@customElement('ha-progress-ring')
 export class HaProgressRing extends ProgressRing {
-  @property() public size?: "tiny" | "small" | "medium" | "large";
+  @property() public size?: 'tiny' | 'small' | 'medium' | 'large'
 
   public updated(changedProps) {
-    super.updated(changedProps);
+    super.updated(changedProps)
 
-    if (changedProps.has("size")) {
+    if (changedProps.has('size')) {
       switch (this.size) {
-        case "tiny":
-          this.style.setProperty("--ha-progress-ring-size", "16px");
-          break;
-        case "small":
-          this.style.setProperty("--ha-progress-ring-size", "28px");
-          break;
-        case "medium":
-          this.style.setProperty("--ha-progress-ring-size", "48px");
-          break;
-        case "large":
-          this.style.setProperty("--ha-progress-ring-size", "68px");
-          break;
+        case 'tiny':
+          this.style.setProperty('--ha-progress-ring-size', '16px')
+          break
+        case 'small':
+          this.style.setProperty('--ha-progress-ring-size', '28px')
+          break
+        case 'medium':
+          this.style.setProperty('--ha-progress-ring-size', '48px')
+          break
+        case 'large':
+          this.style.setProperty('--ha-progress-ring-size', '68px')
+          break
         case undefined:
-          this.style.removeProperty("--ha-progress-ring-size");
-          break;
+          this.style.removeProperty('--ha-progress-ring-size')
+          break
       }
     }
   }
@@ -49,12 +49,12 @@ export class HaProgressRing extends ProgressRing {
           --size: var(--ha-progress-ring-size, 48px);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-progress-ring": HaProgressRing;
+    'ha-progress-ring': HaProgressRing
   }
 }

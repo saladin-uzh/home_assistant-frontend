@@ -1,57 +1,57 @@
-import { mdiPlus, mdiTag } from "@mdi/js";
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { TemplateResult } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../common/dom/fire_event";
-import "../../../components/ha-generic-picker";
-import type { HaGenericPicker } from "../../../components/ha-generic-picker";
-import type { PickerComboBoxItem } from "../../../components/ha-picker-combo-box";
-import type { PickerValueRenderer } from "../../../components/ha-picker-field";
-import "../../../components/ha-svg-icon";
-import type { CategoryRegistryEntry } from "../../../data/category_registry";
+import { mdiPlus, mdiTag } from '@mdi/js'
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { TemplateResult } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../common/dom/fire_event'
+import '../../../components/ha-generic-picker'
+import type { HaGenericPicker } from '../../../components/ha-generic-picker'
+import type { PickerComboBoxItem } from '../../../components/ha-picker-combo-box'
+import type { PickerValueRenderer } from '../../../components/ha-picker-field'
+import '../../../components/ha-svg-icon'
+import type { CategoryRegistryEntry } from '../../../data/category_registry'
 import {
   createCategoryRegistryEntry,
   subscribeCategoryRegistry,
-} from "../../../data/category_registry";
-import { SubscribeMixin } from "../../../mixins/subscribe-mixin";
-import type { HomeAssistant, ValueChangedEvent } from "../../../types";
-import { showCategoryRegistryDetailDialog } from "./show-dialog-category-registry-detail";
+} from '../../../data/category_registry'
+import { SubscribeMixin } from '../../../mixins/subscribe-mixin'
+import type { HomeAssistant, ValueChangedEvent } from '../../../types'
+import { showCategoryRegistryDetailDialog } from './show-dialog-category-registry-detail'
 
-const ADD_NEW_ID = "___ADD_NEW___";
-const NO_CATEGORIES_ID = "___NO_CATEGORIES___";
+const ADD_NEW_ID = '___ADD_NEW___'
+const NO_CATEGORIES_ID = '___NO_CATEGORIES___'
 
-@customElement("ha-category-picker")
+@customElement('ha-category-picker')
 export class HaCategoryPicker extends SubscribeMixin(LitElement) {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property() public scope?: string;
+  @property() public scope?: string
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public value?: string;
+  @property() public value?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property() public placeholder?: string;
+  @property() public placeholder?: string
 
-  @property({ type: Boolean, attribute: "no-add" })
-  public noAdd = false;
+  @property({ type: Boolean, attribute: 'no-add' })
+  public noAdd = false
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = false;
+  @property({ type: Boolean }) public required = false
 
-  @state() private _categories?: CategoryRegistryEntry[];
+  @state() private _categories?: CategoryRegistryEntry[]
 
-  @query("ha-generic-picker") private _picker?: HaGenericPicker;
+  @query('ha-generic-picker') private _picker?: HaGenericPicker
 
-  protected hassSubscribeRequiredHostProps = ["scope"];
+  protected hassSubscribeRequiredHostProps = ['scope']
 
   public async open() {
-    await this.updateComplete;
-    await this._picker?.open();
+    await this.updateComplete
+    await this._picker?.open()
   }
 
   protected hassSubscribe(): (UnsubscribeFunc | Promise<UnsubscribeFunc>)[] {
@@ -59,11 +59,11 @@ export class HaCategoryPicker extends SubscribeMixin(LitElement) {
       subscribeCategoryRegistry(
         this.hass.connection,
         this.scope!,
-        (categories) => {
-          this._categories = categories;
+        categories => {
+          this._categories = categories
         }
       ),
-    ];
+    ]
   }
 
   private _categoryMap = memoizeOne(
@@ -71,34 +71,43 @@ export class HaCategoryPicker extends SubscribeMixin(LitElement) {
       categories: CategoryRegistryEntry[] | undefined
     ): Map<string, CategoryRegistryEntry> => {
       if (!categories) {
-        return new Map();
+        return new Map()
       }
       return new Map(
-        categories.map((category) => [category.category_id, category])
-      );
+        categories.map(category => [category.category_id, category])
+      )
     }
-  );
+  )
 
   private _computeValueRenderer = memoizeOne(
     (categories: CategoryRegistryEntry[] | undefined): PickerValueRenderer =>
-      (value) => {
-        const category = this._categoryMap(categories).get(value);
+      value => {
+        const category = this._categoryMap(categories).get(value)
 
         if (!category) {
           return html`
-            <ha-svg-icon slot="start" .path=${mdiTag}></ha-svg-icon>
+            <ha-svg-icon
+              slot="start"
+              .path=${mdiTag}
+            ></ha-svg-icon>
             <span slot="headline">${value}</span>
-          `;
+          `
         }
 
         return html`
           ${category.icon
-            ? html`<ha-icon slot="start" .icon=${category.icon}></ha-icon>`
-            : html`<ha-svg-icon slot="start" .path=${mdiTag}></ha-svg-icon>`}
+            ? html`<ha-icon
+                slot="start"
+                .icon=${category.icon}
+              ></ha-icon>`
+            : html`<ha-svg-icon
+                slot="start"
+                .path=${mdiTag}
+              ></ha-svg-icon>`}
           <span slot="headline">${category.name}</span>
-        `;
+        `
       }
-  );
+  )
 
   private _getCategories = memoizeOne(
     (categories: CategoryRegistryEntry[] | undefined): PickerComboBoxItem[] => {
@@ -107,14 +116,14 @@ export class HaCategoryPicker extends SubscribeMixin(LitElement) {
           {
             id: NO_CATEGORIES_ID,
             primary: this.hass.localize(
-              "ui.components.category-picker.no_categories"
+              'ui.components.category-picker.no_categories'
             ),
             icon_path: mdiTag,
           },
-        ];
+        ]
       }
 
-      const items = categories.map<PickerComboBoxItem>((category) => ({
+      const items = categories.map<PickerComboBoxItem>(category => ({
         id: category.category_id,
         primary: category.name,
         icon: category.icon || undefined,
@@ -123,37 +132,37 @@ export class HaCategoryPicker extends SubscribeMixin(LitElement) {
         search_labels: [category.name, category.category_id].filter(
           (v): v is string => Boolean(v)
         ),
-      }));
+      }))
 
-      return items;
+      return items
     }
-  );
+  )
 
-  private _getItems = () => this._getCategories(this._categories);
+  private _getItems = () => this._getCategories(this._categories)
 
   private _allCategoryNames = memoizeOne(
     (categories?: CategoryRegistryEntry[]) => {
       if (!categories) {
-        return [];
+        return []
       }
       return [
         ...new Set(
           categories
-            .map((category) => category.name.toLowerCase())
+            .map(category => category.name.toLowerCase())
             .filter(Boolean) as string[]
         ),
-      ];
+      ]
     }
-  );
+  )
 
   private _getAdditionalItems = (
     searchString?: string
   ): PickerComboBoxItem[] => {
     if (this.noAdd) {
-      return [];
+      return []
     }
 
-    const allCategoryNames = this._allCategoryNames(this._categories);
+    const allCategoryNames = this._allCategoryNames(this._categories)
 
     if (
       searchString &&
@@ -163,31 +172,31 @@ export class HaCategoryPicker extends SubscribeMixin(LitElement) {
         {
           id: ADD_NEW_ID + searchString,
           primary: this.hass.localize(
-            "ui.components.category-picker.add_new_sugestion",
+            'ui.components.category-picker.add_new_sugestion',
             {
               name: searchString,
             }
           ),
           icon_path: mdiPlus,
         },
-      ];
+      ]
     }
 
     return [
       {
         id: ADD_NEW_ID,
-        primary: this.hass.localize("ui.components.category-picker.add_new"),
+        primary: this.hass.localize('ui.components.category-picker.add_new'),
         icon_path: mdiPlus,
       },
-    ];
-  };
+    ]
+  }
 
   protected render(): TemplateResult {
     const placeholder =
       this.placeholder ??
-      this.hass.localize("ui.components.category-picker.category");
+      this.hass.localize('ui.components.category-picker.category')
 
-    const valueRenderer = this._computeValueRenderer(this._categories);
+    const valueRenderer = this._computeValueRenderer(this._categories)
 
     return html`
       <ha-generic-picker
@@ -196,7 +205,7 @@ export class HaCategoryPicker extends SubscribeMixin(LitElement) {
         .label=${this.label}
         .notFoundLabel=${this._notFoundLabel}
         .emptyLabel=${this.hass.localize(
-          "ui.components.category-picker.no_categories"
+          'ui.components.category-picker.no_categories'
         )}
         .placeholder=${placeholder}
         .value=${this.value}
@@ -206,64 +215,64 @@ export class HaCategoryPicker extends SubscribeMixin(LitElement) {
         @value-changed=${this._valueChanged}
       >
       </ha-generic-picker>
-    `;
+    `
   }
 
   private _valueChanged(ev: ValueChangedEvent<string>) {
-    ev.stopPropagation();
+    ev.stopPropagation()
 
-    const value = ev.detail.value;
+    const value = ev.detail.value
 
     if (value === NO_CATEGORIES_ID) {
-      return;
+      return
     }
 
     if (!value) {
-      this._setValue(undefined);
-      return;
+      this._setValue(undefined)
+      return
     }
 
     if (value.startsWith(ADD_NEW_ID)) {
-      this.hass.loadFragmentTranslation("config");
+      this.hass.loadFragmentTranslation('config')
 
-      const suggestedName = value.substring(ADD_NEW_ID.length);
+      const suggestedName = value.substring(ADD_NEW_ID.length)
 
       showCategoryRegistryDetailDialog(this, {
         scope: this.scope!,
         suggestedName: suggestedName,
-        createEntry: async (values) => {
+        createEntry: async values => {
           const category = await createCategoryRegistryEntry(
             this.hass,
             this.scope!,
             values
-          );
-          this._setValue(category.category_id);
-          return category;
+          )
+          this._setValue(category.category_id)
+          return category
         },
-      });
+      })
 
-      return;
+      return
     }
 
-    this._setValue(value);
+    this._setValue(value)
   }
 
   private _setValue(value?: string) {
-    this.value = value;
+    this.value = value
     setTimeout(() => {
-      fireEvent(this, "value-changed", { value });
-      fireEvent(this, "change");
-    }, 0);
+      fireEvent(this, 'value-changed', { value })
+      fireEvent(this, 'change')
+    }, 0)
   }
 
   private _notFoundLabel = (search: string) =>
-    this.hass.localize("ui.components.category-picker.no_match", {
+    this.hass.localize('ui.components.category-picker.no_match', {
       term: html`<b>‘${search}’</b>`,
-    });
+    })
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-category-picker": HaCategoryPicker;
+    'ha-category-picker': HaCategoryPicker
   }
 }

@@ -1,26 +1,26 @@
-import { customElement, property } from "lit/decorators";
-import { css, html, LitElement, nothing } from "lit";
-import { fireEvent } from "../../../../../../common/dom/fire_event";
-import type { HomeAssistant } from "../../../../../../types";
+import { customElement, property } from 'lit/decorators'
+import { css, html, LitElement, nothing } from 'lit'
+import { fireEvent } from '../../../../../../common/dom/fire_event'
+import type { HomeAssistant } from '../../../../../../types'
 
-import "../../../../../../components/ha-md-list";
-import "../../../../../../components/ha-md-list-item";
-import "../../../../../../components/ha-alert";
-import "../../../../../../components/ha-icon-next";
+import '../../../../../../components/ha-md-list'
+import '../../../../../../components/ha-md-list-item'
+import '../../../../../../components/ha-alert'
+import '../../../../../../components/ha-icon-next'
 
-@customElement("zwave-js-add-node-select-method")
+@customElement('zwave-js-add-node-select-method')
 export class ZWaveJsAddNodeSelectMethod extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean, attribute: "hide-qr-webcam" })
-  public hideQrWebcam = false;
+  @property({ type: Boolean, attribute: 'hide-qr-webcam' })
+  public hideQrWebcam = false
 
   render() {
     return html`
       ${!this.hideQrWebcam && !window.isSecureContext
         ? html`<ha-alert alert-type="warning">
             ${this.hass.localize(
-              "ui.panel.config.zwave_js.add_node.select_method.webcam_unsupported"
+              'ui.panel.config.zwave_js.add_node.select_method.webcam_unsupported'
             )}</ha-alert
           >`
         : nothing}
@@ -30,7 +30,7 @@ export class ZWaveJsAddNodeSelectMethod extends LitElement {
               interactive
               type="button"
               @click=${this._selectMethod}
-              .value=${"qr_code_webcam"}
+              .value=${'qr_code_webcam'}
               .disabled=${!window.isSecureContext}
             >
               <div slot="headline">
@@ -50,7 +50,7 @@ export class ZWaveJsAddNodeSelectMethod extends LitElement {
           interactive
           type="button"
           @click=${this._selectMethod}
-          .value=${"qr_code_manual"}
+          .value=${'qr_code_manual'}
         >
           <div slot="headline">
             ${this.hass.localize(
@@ -68,7 +68,7 @@ export class ZWaveJsAddNodeSelectMethod extends LitElement {
           interactive
           type="button"
           @click=${this._selectMethod}
-          .value=${"search_device"}
+          .value=${'search_device'}
         >
           <div slot="headline">
             ${this.hass.localize(
@@ -83,13 +83,13 @@ export class ZWaveJsAddNodeSelectMethod extends LitElement {
           <ha-icon-next slot="end"></ha-icon-next>
         </ha-md-list-item>
       </ha-md-list>
-    `;
+    `
   }
 
   private _selectMethod(event: any) {
-    const method = event.currentTarget.value;
-    if (method !== "qr_code_webcam" || window.isSecureContext) {
-      fireEvent(this, "z-wave-method-selected", { method });
+    const method = event.currentTarget.value
+    if (method !== 'qr_code_webcam' || window.isSecureContext) {
+      fireEvent(this, 'z-wave-method-selected', { method })
     }
   }
 
@@ -97,16 +97,16 @@ export class ZWaveJsAddNodeSelectMethod extends LitElement {
     ha-md-list {
       padding: 0;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "zwave-js-add-node-select-method": ZWaveJsAddNodeSelectMethod;
+    'zwave-js-add-node-select-method': ZWaveJsAddNodeSelectMethod
   }
   interface HASSDomEvents {
-    "z-wave-method-selected": {
-      method: "qr_code_webcam" | "qr_code_manual" | "search_device";
-    };
+    'z-wave-method-selected': {
+      method: 'qr_code_webcam' | 'qr_code_manual' | 'search_device'
+    }
   }
 }

@@ -1,61 +1,61 @@
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../common/dom/fire_event";
-import "../../../components/ha-blueprint-picker";
-import "../../../components/ha-card";
-import "../../../components/ha-spinner";
-import "../../../components/ha-markdown";
-import "../../../components/ha-selector/ha-selector";
-import "../../../components/ha-settings-row";
-import type { BlueprintAutomationConfig } from "../../../data/automation";
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../common/dom/fire_event'
+import '../../../components/ha-blueprint-picker'
+import '../../../components/ha-card'
+import '../../../components/ha-spinner'
+import '../../../components/ha-markdown'
+import '../../../components/ha-selector/ha-selector'
+import '../../../components/ha-settings-row'
+import type { BlueprintAutomationConfig } from '../../../data/automation'
 import type {
   BlueprintInput,
   BlueprintInputSection,
   BlueprintOrError,
   Blueprints,
-} from "../../../data/blueprint";
-import type { BlueprintScriptConfig } from "../../../data/script";
-import { haStyle } from "../../../resources/styles";
-import type { HomeAssistant } from "../../../types";
+} from '../../../data/blueprint'
+import type { BlueprintScriptConfig } from '../../../data/script'
+import { haStyle } from '../../../resources/styles'
+import type { HomeAssistant } from '../../../types'
 
-@customElement("blueprint-generic-editor")
+@customElement('blueprint-generic-editor')
 export abstract class HaBlueprintGenericEditor extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: "is-wide", type: Boolean }) public isWide = false;
+  @property({ attribute: 'is-wide', type: Boolean }) public isWide = false
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean, reflect: true }) public narrow = false;
+  @property({ type: Boolean, reflect: true }) public narrow = false
 
-  @state() protected _blueprints?: Blueprints;
+  @state() protected _blueprints?: Blueprints
 
   protected firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
-    this._getBlueprints();
+    super.firstUpdated(changedProps)
+    this._getBlueprints()
   }
 
   protected get _blueprint(): BlueprintOrError | undefined {
     if (!this._blueprints) {
-      return undefined;
+      return undefined
     }
-    return this._blueprints[this._config.use_blueprint.path];
+    return this._blueprints[this._config.use_blueprint.path]
   }
 
   protected abstract get _config():
     | BlueprintAutomationConfig
-    | BlueprintScriptConfig;
+    | BlueprintScriptConfig
 
   protected renderCard() {
-    const blueprint = this._blueprint;
-    let border = true;
+    const blueprint = this._blueprint
+    let border = true
     return html`
       <ha-card
         outlined
         class="blueprint"
         .header=${this.hass.localize(
-          "ui.panel.config.automation.editor.blueprint.header"
+          'ui.panel.config.automation.editor.blueprint.header'
         )}
       >
         <div class="blueprint-picker-container">
@@ -65,7 +65,7 @@ export abstract class HaBlueprintGenericEditor extends LitElement {
                   <ha-blueprint-picker
                     .hass=${this.hass}
                     .label=${this.hass.localize(
-                      "ui.panel.config.automation.editor.blueprint.blueprint_to_use"
+                      'ui.panel.config.automation.editor.blueprint.blueprint_to_use'
                     )}
                     .blueprints=${this._blueprints}
                     .value=${this._config.use_blueprint.path}
@@ -74,13 +74,13 @@ export abstract class HaBlueprintGenericEditor extends LitElement {
                   ></ha-blueprint-picker>
                 `
               : this.hass.localize(
-                  "ui.panel.config.automation.editor.blueprint.no_blueprints"
+                  'ui.panel.config.automation.editor.blueprint.no_blueprints'
                 )
             : html`<ha-spinner></ha-spinner>`}
         </div>
 
         ${this._config.use_blueprint.path
-          ? blueprint && "error" in blueprint
+          ? blueprint && 'error' in blueprint
             ? html`<p class="warning padding">
                 There is an error in this Blueprint: ${blueprint.error}
               </p>`
@@ -90,39 +90,39 @@ export abstract class HaBlueprintGenericEditor extends LitElement {
                     breaks
                     .content=${blueprint.metadata.description}
                   ></ha-markdown>`
-                : ""}
+                : ''}
               ${blueprint?.metadata?.input &&
               Object.keys(blueprint.metadata.input).length
                 ? Object.entries(blueprint.metadata.input).map(
                     ([key, value]) => {
-                      if (value && "input" in value) {
-                        const section = this._renderSection(key, value);
-                        border = false;
-                        return section;
+                      if (value && 'input' in value) {
+                        const section = this._renderSection(key, value)
+                        border = false
+                        return section
                       }
-                      const row = this._renderSettingRow(key, value, border);
-                      border = true;
-                      return row;
+                      const row = this._renderSettingRow(key, value, border)
+                      border = true
+                      return row
                     }
                   )
                 : html`<p class="padding">
                     ${this.hass.localize(
-                      "ui.panel.config.automation.editor.blueprint.no_inputs"
+                      'ui.panel.config.automation.editor.blueprint.no_inputs'
                     )}
                   </p>`}`
-          : ""}
+          : ''}
       </ha-card>
-    `;
+    `
   }
 
   private _renderSection(sectionKey: string, section: BlueprintInputSection) {
-    const title = section?.name || sectionKey;
+    const title = section?.name || sectionKey
     const anyRequired =
       section.input &&
       Object.values(section.input).some(
-        (item) => item === null || item.default === undefined
-      );
-    const expanded = !section.collapsed || anyRequired;
+        item => item === null || item.default === undefined
+      )
+    const expanded = !section.collapsed || anyRequired
 
     return html`<ha-expansion-panel
       outlined
@@ -138,7 +138,12 @@ export abstract class HaBlueprintGenericEditor extends LitElement {
             ></ha-icon>
           `
         : nothing}
-      <div slot="header" role="heading" aria-level="3" class="section-header">
+      <div
+        slot="header"
+        role="heading"
+        aria-level="3"
+        class="section-header"
+      >
         <ha-markdown .content=${title}></ha-markdown>
       </div>
       <div class="content">
@@ -151,7 +156,7 @@ export abstract class HaBlueprintGenericEditor extends LitElement {
             )
           : nothing}
       </div>
-    </ha-expansion-panel>`;
+    </ha-expansion-panel>`
   }
 
   private _renderSettingRow(
@@ -159,10 +164,10 @@ export abstract class HaBlueprintGenericEditor extends LitElement {
     value: BlueprintInput | null,
     border: boolean
   ) {
-    const selector = value?.selector ?? { text: undefined };
+    const selector = value?.selector ?? { text: undefined }
     return html`<ha-settings-row
       .narrow=${this.narrow}
-      class=${border ? "border" : ""}
+      class=${border ? 'border' : ''}
     >
       <span slot="heading">${value?.name || key}</span>
       <ha-markdown
@@ -185,41 +190,41 @@ export abstract class HaBlueprintGenericEditor extends LitElement {
           : value?.default}
         @value-changed=${this._inputChanged}
       ></ha-selector>`}
-    </ha-settings-row>`;
+    </ha-settings-row>`
   }
 
-  protected abstract _getBlueprints();
+  protected abstract _getBlueprints()
 
   private _blueprintChanged(ev) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (this._config.use_blueprint.path === ev.detail.value) {
-      return;
+      return
     }
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: {
         ...this._config,
         use_blueprint: {
           path: ev.detail.value,
         },
       },
-    });
+    })
   }
 
   private _inputChanged(ev) {
-    ev.stopPropagation();
-    const target = ev.target as any;
-    const key = target.key;
-    const value = ev.detail ? ev.detail.value : target.value;
+    ev.stopPropagation()
+    const target = ev.target as any
+    const key = target.key
+    const value = ev.detail ? ev.detail.value : target.value
     if (
       (this._config.use_blueprint.input &&
         this._config.use_blueprint.input[key] === value) ||
-      (!this._config.use_blueprint.input && value === "")
+      (!this._config.use_blueprint.input && value === '')
     ) {
-      return;
+      return
     }
-    const input = { ...this._config.use_blueprint.input, [key]: value };
+    const input = { ...this._config.use_blueprint.input, [key]: value }
 
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: {
         ...this._config,
         use_blueprint: {
@@ -227,7 +232,7 @@ export abstract class HaBlueprintGenericEditor extends LitElement {
           input,
         },
       },
-    });
+    })
   }
 
   static get styles(): CSSResultGroup {
@@ -294,12 +299,12 @@ export abstract class HaBlueprintGenericEditor extends LitElement {
           margin-bottom: 16px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "blueprint-generic-editor": HaBlueprintGenericEditor;
+    'blueprint-generic-editor': HaBlueprintGenericEditor
   }
 }

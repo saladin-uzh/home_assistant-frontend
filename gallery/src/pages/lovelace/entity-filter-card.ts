@@ -1,79 +1,79 @@
-import type { PropertyValues, TemplateResult } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, query } from "lit/decorators";
-import { getEntity } from "../../../../src/fake_data/entity";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import "../../components/demo-cards";
-import { mockIcons } from "../../../../demo/src/stubs/icons";
+import type { PropertyValues, TemplateResult } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, query } from 'lit/decorators'
+import { getEntity } from '../../../../src/fake_data/entity'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import '../../components/demo-cards'
+import { mockIcons } from '../../../../demo/src/stubs/icons'
 
 const ENTITIES = [
-  getEntity("device_tracker", "demo_paulus", "work", {
-    source_type: "gps",
+  getEntity('device_tracker', 'demo_paulus', 'work', {
+    source_type: 'gps',
     latitude: 32.877105,
     longitude: 117.232185,
     gps_accuracy: 91,
     battery: 25,
-    friendly_name: "Paulus",
+    friendly_name: 'Paulus',
   }),
-  getEntity("device_tracker", "demo_anne_therese", "school", {
-    source_type: "gps",
+  getEntity('device_tracker', 'demo_anne_therese', 'school', {
+    source_type: 'gps',
     latitude: 32.877105,
     longitude: 117.232185,
     gps_accuracy: 91,
     battery: 50,
-    friendly_name: "Anne Therese",
+    friendly_name: 'Anne Therese',
   }),
-  getEntity("device_tracker", "demo_home_boy", "home", {
-    source_type: "gps",
+  getEntity('device_tracker', 'demo_home_boy', 'home', {
+    source_type: 'gps',
     latitude: 32.877105,
     longitude: 117.232185,
     gps_accuracy: 91,
     battery: 75,
-    friendly_name: "Home Boy",
+    friendly_name: 'Home Boy',
   }),
-  getEntity("light", "bed_light", "on", {
-    friendly_name: "Bed Light",
+  getEntity('light', 'bed_light', 'on', {
+    friendly_name: 'Bed Light',
   }),
-  getEntity("light", "kitchen_lights", "on", {
-    friendly_name: "Kitchen Lights",
+  getEntity('light', 'kitchen_lights', 'on', {
+    friendly_name: 'Kitchen Lights',
   }),
-  getEntity("light", "ceiling_lights", "off", {
-    friendly_name: "Ceiling Lights",
+  getEntity('light', 'ceiling_lights', 'off', {
+    friendly_name: 'Ceiling Lights',
   }),
-  getEntity("sensor", "battery_1", 20, {
-    device_class: "battery",
-    friendly_name: "Battery 1",
-    unit_of_measurement: "%",
+  getEntity('sensor', 'battery_1', 20, {
+    device_class: 'battery',
+    friendly_name: 'Battery 1',
+    unit_of_measurement: '%',
   }),
-  getEntity("sensor", "battery_2", 35, {
-    device_class: "battery",
-    friendly_name: "Battery 2",
-    unit_of_measurement: "%",
+  getEntity('sensor', 'battery_2', 35, {
+    device_class: 'battery',
+    friendly_name: 'Battery 2',
+    unit_of_measurement: '%',
   }),
-  getEntity("sensor", "battery_3", 40, {
-    device_class: "battery",
-    friendly_name: "Battery 3",
-    unit_of_measurement: "%",
+  getEntity('sensor', 'battery_3', 40, {
+    device_class: 'battery',
+    friendly_name: 'Battery 3',
+    unit_of_measurement: '%',
   }),
-  getEntity("sensor", "battery_4", 80, {
-    device_class: "battery",
-    friendly_name: "Battery 4",
-    unit_of_measurement: "%",
+  getEntity('sensor', 'battery_4', 80, {
+    device_class: 'battery',
+    friendly_name: 'Battery 4',
+    unit_of_measurement: '%',
   }),
-  getEntity("input_number", "min_battery_level", 30, {
-    mode: "slider",
+  getEntity('input_number', 'min_battery_level', 30, {
+    mode: 'slider',
     step: 10,
     min: 0,
     max: 100,
-    icon: "mdi:battery-alert-variant",
-    friendly_name: "Minimum Battery Level",
-    unit_of_measurement: "%",
+    icon: 'mdi:battery-alert-variant',
+    friendly_name: 'Minimum Battery Level',
+    unit_of_measurement: '%',
   }),
-];
+]
 
 const CONFIGS = [
   {
-    heading: "Unfiltered entities",
+    heading: 'Unfiltered entities',
     config: `
 - type: entities
   entities:
@@ -86,7 +86,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "On and home entities",
+    heading: 'On and home entities',
     config: `
 - type: entity-filter
   entities:
@@ -104,7 +104,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Same state as Bed Light",
+    heading: 'Same state as Bed Light',
     config: `
 - type: entity-filter
   entities:
@@ -180,7 +180,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Unfiltered number entities",
+    heading: 'Unfiltered number entities',
     config: `
 - type: entities
   entities:
@@ -192,7 +192,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Battery lower than 50%",
+    heading: 'Battery lower than 50%',
     config: `
 - type: entity-filter
   entities:
@@ -206,7 +206,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Battery lower than min battery level",
+    heading: 'Battery lower than min battery level',
     config: `
 - type: entity-filter
   entities:
@@ -220,7 +220,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Battery between min battery level and 70%",
+    heading: 'Battery between min battery level and 70%',
     config: `
 - type: entity-filter
   entities:
@@ -235,41 +235,44 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Error: Entities must be specified",
+    heading: 'Error: Entities must be specified',
     config: `
 - type: entity-filter
     `,
   },
   {
-    heading: "Error: Incorrect filter config",
+    heading: 'Error: Incorrect filter config',
     config: `
 - type: entity-filter
   entities:
     - sensor.gas_station_lowest_price
     `,
   },
-];
+]
 
-@customElement("demo-lovelace-entity-filter-card")
+@customElement('demo-lovelace-entity-filter-card')
 class DemoEntityFilter extends LitElement {
-  @query("#demos") private _demoRoot!: HTMLElement;
+  @query('#demos') private _demoRoot!: HTMLElement
 
   protected render(): TemplateResult {
-    return html`<demo-cards id="demos" .configs=${CONFIGS}></demo-cards>`;
+    return html`<demo-cards
+      id="demos"
+      .configs=${CONFIGS}
+    ></demo-cards>`
   }
 
   protected firstUpdated(changedProperties: PropertyValues) {
-    super.firstUpdated(changedProperties);
-    const hass = provideHass(this._demoRoot);
-    hass.updateTranslations(null, "en");
-    hass.updateTranslations("lovelace", "en");
-    hass.addEntities(ENTITIES);
-    mockIcons(hass);
+    super.firstUpdated(changedProperties)
+    const hass = provideHass(this._demoRoot)
+    hass.updateTranslations(null, 'en')
+    hass.updateTranslations('lovelace', 'en')
+    hass.addEntities(ENTITIES)
+    mockIcons(hass)
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-lovelace-entity-filter-card": DemoEntityFilter;
+    'demo-lovelace-entity-filter-card': DemoEntityFilter
   }
 }

@@ -1,72 +1,72 @@
-import type { CSSResultGroup } from "lit";
-import { html, LitElement, nothing } from "lit";
-import memoizeOne from "memoize-one";
-import { property, state } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { createCloseHeading } from "../../../../components/ha-dialog";
-import "../../../../components/ha-form/ha-form";
-import "../../../../components/ha-button";
-import { haStyleDialog } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
+import type { CSSResultGroup } from 'lit'
+import { html, LitElement, nothing } from 'lit'
+import memoizeOne from 'memoize-one'
+import { property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { createCloseHeading } from '../../../../components/ha-dialog'
+import '../../../../components/ha-form/ha-form'
+import '../../../../components/ha-button'
+import { haStyleDialog } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
 import type {
   ScheduleBlockInfo,
   ScheduleBlockInfoDialogParams,
-} from "./show-dialog-schedule-block-info";
-import type { SchemaUnion } from "../../../../components/ha-form/types";
+} from './show-dialog-schedule-block-info'
+import type { SchemaUnion } from '../../../../components/ha-form/types'
 
 class DialogScheduleBlockInfo extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _error?: Record<string, string>;
+  @state() private _error?: Record<string, string>
 
-  @state() private _data?: ScheduleBlockInfo;
+  @state() private _data?: ScheduleBlockInfo
 
-  @state() private _params?: ScheduleBlockInfoDialogParams;
+  @state() private _params?: ScheduleBlockInfoDialogParams
 
-  private _expand = false;
+  private _expand = false
 
   private _schema = memoizeOne((expand: boolean) => [
     {
-      name: "from",
+      name: 'from',
       required: true,
       selector: { time: { no_second: true } },
     },
     {
-      name: "to",
+      name: 'to',
       required: true,
       selector: { time: { no_second: true } },
     },
     {
-      name: "advanced_settings",
-      type: "expandable" as const,
+      name: 'advanced_settings',
+      type: 'expandable' as const,
       flatten: true,
       expanded: expand,
       schema: [
         {
-          name: "data",
+          name: 'data',
           required: false,
           selector: { object: {} },
         },
       ],
     },
-  ]);
+  ])
 
   public showDialog(params: ScheduleBlockInfoDialogParams): void {
-    this._params = params;
-    this._error = undefined;
-    this._data = params.block;
-    this._expand = !!params.block?.data;
+    this._params = params
+    this._error = undefined
+    this._data = params.block
+    this._expand = !!params.block?.data
   }
 
   public closeDialog(): void {
-    this._params = undefined;
-    this._data = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    this._data = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._params || !this._data) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -76,7 +76,7 @@ class DialogScheduleBlockInfo extends LitElement {
         .heading=${createCloseHeading(
           this.hass,
           this.hass!.localize(
-            "ui.dialogs.helper_settings.schedule.edit_schedule_block"
+            'ui.dialogs.helper_settings.schedule.edit_schedule_block'
           )
         )}
       >
@@ -96,35 +96,38 @@ class DialogScheduleBlockInfo extends LitElement {
           appearance="plain"
           variant="danger"
         >
-          ${this.hass!.localize("ui.common.delete")}
+          ${this.hass!.localize('ui.common.delete')}
         </ha-button>
-        <ha-button slot="primaryAction" @click=${this._updateBlock}>
-          ${this.hass!.localize("ui.common.save")}
+        <ha-button
+          slot="primaryAction"
+          @click=${this._updateBlock}
+        >
+          ${this.hass!.localize('ui.common.save')}
         </ha-button>
       </ha-dialog>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent) {
-    this._error = undefined;
-    this._data = ev.detail.value;
+    this._error = undefined
+    this._data = ev.detail.value
   }
 
   private _updateBlock() {
     try {
-      this._params!.updateBlock!(this._data!);
-      this.closeDialog();
+      this._params!.updateBlock!(this._data!)
+      this.closeDialog()
     } catch (err: any) {
-      this._error = { base: err ? err.message : "Unknown error" };
+      this._error = { base: err ? err.message : 'Unknown error' }
     }
   }
 
   private _deleteBlock() {
     try {
-      this._params!.deleteBlock!();
-      this.closeDialog();
+      this._params!.deleteBlock!()
+      this.closeDialog()
     } catch (err: any) {
-      this._error = { base: err ? err.message : "Unknown error" };
+      this._error = { base: err ? err.message : 'Unknown error' }
     }
   }
 
@@ -132,29 +135,29 @@ class DialogScheduleBlockInfo extends LitElement {
     schema: SchemaUnion<ReturnType<typeof this._schema>>
   ) => {
     switch (schema.name) {
-      case "from":
-        return this.hass!.localize("ui.dialogs.helper_settings.schedule.start");
-      case "to":
-        return this.hass!.localize("ui.dialogs.helper_settings.schedule.end");
-      case "data":
-        return this.hass!.localize("ui.dialogs.helper_settings.schedule.data");
-      case "advanced_settings":
+      case 'from':
+        return this.hass!.localize('ui.dialogs.helper_settings.schedule.start')
+      case 'to':
+        return this.hass!.localize('ui.dialogs.helper_settings.schedule.end')
+      case 'data':
+        return this.hass!.localize('ui.dialogs.helper_settings.schedule.data')
+      case 'advanced_settings':
         return this.hass!.localize(
-          "ui.dialogs.helper_settings.generic.advanced_settings"
-        );
+          'ui.dialogs.helper_settings.generic.advanced_settings'
+        )
     }
-    return "";
-  };
+    return ''
+  }
 
   static get styles(): CSSResultGroup {
-    return [haStyleDialog];
+    return [haStyleDialog]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-schedule-block-info": DialogScheduleBlockInfo;
+    'dialog-schedule-block-info': DialogScheduleBlockInfo
   }
 }
 
-customElements.define("dialog-schedule-block-info", DialogScheduleBlockInfo);
+customElements.define('dialog-schedule-block-info', DialogScheduleBlockInfo)

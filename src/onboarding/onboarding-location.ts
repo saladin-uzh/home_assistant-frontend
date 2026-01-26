@@ -3,71 +3,71 @@ import {
   mdiMagnify,
   mdiMapMarker,
   mdiMapSearchOutline,
-} from "@mdi/js";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../common/dom/fire_event";
-import type { LocalizeFunc } from "../common/translations/localize";
-import "../components/ha-alert";
-import "../components/ha-list";
-import "../components/ha-button";
-import "../components/ha-list-item";
-import "../components/ha-radio";
-import "../components/ha-spinner";
-import "../components/ha-textfield";
-import type { HaTextField } from "../components/ha-textfield";
-import "../components/map/ha-locations-editor";
+} from '@mdi/js'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../common/dom/fire_event'
+import type { LocalizeFunc } from '../common/translations/localize'
+import '../components/ha-alert'
+import '../components/ha-list'
+import '../components/ha-button'
+import '../components/ha-list-item'
+import '../components/ha-radio'
+import '../components/ha-spinner'
+import '../components/ha-textfield'
+import type { HaTextField } from '../components/ha-textfield'
+import '../components/map/ha-locations-editor'
 import type {
   HaLocationsEditor,
   MarkerLocation,
-} from "../components/map/ha-locations-editor";
-import type { ConfigUpdateValues } from "../data/core";
-import { detectCoreConfig } from "../data/core";
-import type { OpenStreetMapPlace } from "../data/openstreetmap";
-import { reverseGeocode, searchPlaces } from "../data/openstreetmap";
-import { showConfirmationDialog } from "../dialogs/generic/show-dialog-box";
-import type { HomeAssistant } from "../types";
-import { onBoardingStyles } from "./styles";
+} from '../components/map/ha-locations-editor'
+import type { ConfigUpdateValues } from '../data/core'
+import { detectCoreConfig } from '../data/core'
+import type { OpenStreetMapPlace } from '../data/openstreetmap'
+import { reverseGeocode, searchPlaces } from '../data/openstreetmap'
+import { showConfirmationDialog } from '../dialogs/generic/show-dialog-box'
+import type { HomeAssistant } from '../types'
+import { onBoardingStyles } from './styles'
 
-const AMSTERDAM: [number, number] = [52.3731339, 4.8903147];
-const darkMql = matchMedia("(prefers-color-scheme: dark)");
-const LOCATION_MARKER_ID = "location";
+const AMSTERDAM: [number, number] = [52.3731339, 4.8903147]
+const darkMql = matchMedia('(prefers-color-scheme: dark)')
+const LOCATION_MARKER_ID = 'location'
 
-@customElement("onboarding-location")
+@customElement('onboarding-location')
 class OnboardingLocation extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public onboardingLocalize!: LocalizeFunc;
+  @property({ attribute: false }) public onboardingLocalize!: LocalizeFunc
 
-  @state() private _working = false;
+  @state() private _working = false
 
-  @state() private _location: [number, number] = AMSTERDAM;
+  @state() private _location: [number, number] = AMSTERDAM
 
-  @state() private _places?: OpenStreetMapPlace[] | null;
+  @state() private _places?: OpenStreetMapPlace[] | null
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
-  @state() private _search = false;
+  @state() private _search = false
 
-  @state() private _highlightedMarker?: number;
+  @state() private _highlightedMarker?: number
 
-  private _elevation?: string;
+  private _elevation?: string
 
-  private _unitSystem?: ConfigUpdateValues["unit_system"];
+  private _unitSystem?: ConfigUpdateValues['unit_system']
 
-  private _currency?: ConfigUpdateValues["currency"];
+  private _currency?: ConfigUpdateValues['currency']
 
-  private _timeZone?: ConfigUpdateValues["time_zone"];
+  private _timeZone?: ConfigUpdateValues['time_zone']
 
-  private _country?: ConfigUpdateValues["country"];
+  private _country?: ConfigUpdateValues['country']
 
-  @query("ha-locations-editor", true) private map!: HaLocationsEditor;
+  @query('ha-locations-editor', true) private map!: HaLocationsEditor
 
   protected render(): TemplateResult {
     const addressAttribution = this.onboardingLocalize(
-      "ui.panel.page-onboarding.core-config.location_address",
+      'ui.panel.page-onboarding.core-config.location_address',
       {
         openstreetmap: html`<a
           href="https://www.openstreetmap.org/"
@@ -80,16 +80,16 @@ class OnboardingLocation extends LitElement {
           target="_blank"
           rel="noopener noreferrer"
           >${this.onboardingLocalize(
-            "ui.panel.page-onboarding.core-config.osm_privacy_policy"
+            'ui.panel.page-onboarding.core-config.osm_privacy_policy'
           )}</a
         >`,
       }
-    );
+    )
 
     return html`
       <h1>
         ${this.onboardingLocalize(
-          "ui.panel.page-onboarding.core-config.location_header"
+          'ui.panel.page-onboarding.core-config.location_header'
         )}
       </h1>
       ${this._error
@@ -98,23 +98,31 @@ class OnboardingLocation extends LitElement {
 
       <p>
         ${this.onboardingLocalize(
-          "ui.panel.page-onboarding.core-config.intro_location"
+          'ui.panel.page-onboarding.core-config.intro_location'
         )}
       </p>
 
       <div class="location-search">
         <ha-textfield
           label=${this.onboardingLocalize(
-            "ui.panel.page-onboarding.core-config.address_label"
+            'ui.panel.page-onboarding.core-config.address_label'
           )}
           .disabled=${this._working}
           icon
           iconTrailing
           @keyup=${this._addressSearch}
         >
-          <ha-svg-icon slot="leadingIcon" .path=${mdiMagnify}></ha-svg-icon>
+          <ha-svg-icon
+            slot="leadingIcon"
+            .path=${mdiMagnify}
+          ></ha-svg-icon>
           ${this._working
-            ? html` <ha-spinner slot="trailingIcon" size="small"></ha-spinner> `
+            ? html`
+                <ha-spinner
+                  slot="trailingIcon"
+                  size="small"
+                ></ha-spinner>
+              `
             : html`
                 <ha-icon-button
                   @click=${this._handleButtonClick}
@@ -122,8 +130,8 @@ class OnboardingLocation extends LitElement {
                   .disabled=${this._working}
                   .label=${this.onboardingLocalize(
                     this._search
-                      ? "ui.common.search"
-                      : "ui.panel.page-onboarding.core-config.button_detect"
+                      ? 'ui.common.search'
+                      : 'ui.panel.page-onboarding.core-config.button_detect'
                   )}
                   .path=${this._search ? mdiMapSearchOutline : mdiCrosshairsGps}
                 ></ha-icon-button>
@@ -133,7 +141,7 @@ class OnboardingLocation extends LitElement {
           ? html`
               <ha-list activatable>
                 ${this._places?.length
-                  ? this._places.map((place) => {
+                  ? this._places.map(place => {
                       const primary = [
                         place.name || place.address[place.category],
                         place.address.house_number,
@@ -143,7 +151,7 @@ class OnboardingLocation extends LitElement {
                         place.address.city || place.address.municipality,
                       ]
                         .filter(Boolean)
-                        .join(", ");
+                        .join(', ')
                       const secondary = [
                         place.address.county ||
                           place.address.state_district ||
@@ -152,7 +160,7 @@ class OnboardingLocation extends LitElement {
                         place.address.country,
                       ]
                         .filter(Boolean)
-                        .join(", ");
+                        .join(', ')
                       return html`<ha-list-item
                         @click=${this._itemClicked}
                         .placeId=${place.place_id}
@@ -162,14 +170,14 @@ class OnboardingLocation extends LitElement {
                       >
                         ${primary || secondary}
                         <span slot="secondary"
-                          >${primary ? secondary : ""}</span
+                          >${primary ? secondary : ''}</span
                         >
-                      </ha-list-item>`;
+                      </ha-list-item>`
                     })
                   : html`<ha-list-item noninteractive
                       >${this._places === null
-                        ? ""
-                        : "No results"}</ha-list-item
+                        ? ''
+                        : 'No results'}</ha-list-item
                     >`}
               </ha-list>
             `
@@ -184,7 +192,7 @@ class OnboardingLocation extends LitElement {
           this._highlightedMarker
         )}
         zoom="14"
-        .themeMode=${darkMql.matches ? "dark" : "light"}
+        .themeMode=${darkMql.matches ? 'dark' : 'light'}
         .disabled=${this._working}
         @location-updated=${this._locationChanged}
         @marker-clicked=${this._markerClicked}
@@ -193,33 +201,36 @@ class OnboardingLocation extends LitElement {
       <p class="attribution">${addressAttribution}</p>
 
       <div class="footer">
-        <ha-button @click=${this._save} .disabled=${this._working}>
+        <ha-button
+          @click=${this._save}
+          .disabled=${this._working}
+        >
           ${this.onboardingLocalize(
-            "ui.panel.page-onboarding.core-config.finish"
+            'ui.panel.page-onboarding.core-config.finish'
           )}
         </ha-button>
       </div>
-    `;
+    `
   }
 
   protected firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
+    super.firstUpdated(changedProps)
     setTimeout(
-      () => this.renderRoot.querySelector("ha-textfield")!.focus(),
+      () => this.renderRoot.querySelector('ha-textfield')!.focus(),
       100
-    );
-    this.addEventListener("keyup", (ev) => {
-      if (ev.key === "Enter") {
-        this._save(ev);
+    )
+    this.addEventListener('keyup', ev => {
+      if (ev.key === 'Enter') {
+        this._save(ev)
       }
-    });
+    })
   }
 
   protected updated(changedProps) {
-    if (changedProps.has("_highlightedMarker") && this._highlightedMarker) {
+    if (changedProps.has('_highlightedMarker') && this._highlightedMarker) {
       const place = this._places?.find(
-        (plc) => plc.place_id === this._highlightedMarker
-      );
+        plc => plc.place_id === this._highlightedMarker
+      )
       if (place?.boundingbox?.length === 4) {
         this.map.fitBounds(
           [
@@ -227,9 +238,9 @@ class OnboardingLocation extends LitElement {
             [place.boundingbox[1], place.boundingbox[3]],
           ],
           { zoom: 16, pad: 0 }
-        );
+        )
       } else {
-        this.map.fitMarker(String(this._highlightedMarker), { zoom: 16 });
+        this.map.fitMarker(String(this._highlightedMarker), { zoom: 16 })
       }
     }
   }
@@ -248,10 +259,10 @@ class OnboardingLocation extends LitElement {
             longitude: (location || AMSTERDAM)[1],
             location_editable: true,
           },
-        ];
+        ]
       }
       return places?.length
-        ? places.map((place) => ({
+        ? places.map(place => ({
             id: String(place.place_id),
             iconPath:
               place.place_id === highlightedMarker ? undefined : mdiMapMarker,
@@ -265,199 +276,199 @@ class OnboardingLocation extends LitElement {
                 : Number(place.lon),
             location_editable: place.place_id === highlightedMarker,
           }))
-        : [];
+        : []
     }
-  );
+  )
 
   private _locationChanged(ev) {
-    this._location = ev.detail.location;
+    this._location = ev.detail.location
     if (ev.detail.id !== LOCATION_MARKER_ID) {
-      this._reverseGeocode();
+      this._reverseGeocode()
     }
   }
 
   private _markerClicked(ev) {
     if (ev.detail.id === LOCATION_MARKER_ID) {
-      return;
+      return
     }
-    this._highlightedMarker = Number(ev.detail.id);
+    this._highlightedMarker = Number(ev.detail.id)
     const place = this._places!.find(
-      (plc) => plc.place_id === Number(ev.detail.id)
-    )!;
-    this._location = [Number(place.lat), Number(place.lon)];
-    this._country = place.address.country_code.toUpperCase();
+      plc => plc.place_id === Number(ev.detail.id)
+    )!
+    this._location = [Number(place.lat), Number(place.lon)]
+    this._country = place.address.country_code.toUpperCase()
   }
 
   private _itemClicked(ev) {
-    this._highlightedMarker = ev.currentTarget.placeId;
+    this._highlightedMarker = ev.currentTarget.placeId
     const place = this._places!.find(
-      (plc) => plc.place_id === ev.currentTarget.placeId
-    )!;
-    this._location = [Number(place.lat), Number(place.lon)];
-    this._country = place.address.country_code.toUpperCase();
+      plc => plc.place_id === ev.currentTarget.placeId
+    )!
+    this._location = [Number(place.lat), Number(place.lon)]
+    this._country = place.address.country_code.toUpperCase()
   }
 
   private async _addressSearch(ev: KeyboardEvent) {
-    ev.stopPropagation();
-    this._search = (ev.currentTarget as HaTextField).value.length > 0;
-    if (ev.key !== "Enter") {
-      return;
+    ev.stopPropagation()
+    this._search = (ev.currentTarget as HaTextField).value.length > 0
+    if (ev.key !== 'Enter') {
+      return
     }
-    this._searchAddress((ev.currentTarget as HaTextField).value);
+    this._searchAddress((ev.currentTarget as HaTextField).value)
   }
 
   private async _searchAddress(address: string) {
-    this._working = true;
-    this._highlightedMarker = undefined;
-    this._error = undefined;
-    this._places = null;
+    this._working = true
+    this._highlightedMarker = undefined
+    this._error = undefined
+    this._places = null
     this.map.addEventListener(
-      "markers-updated",
+      'markers-updated',
       () => {
         setTimeout(() => {
           if ((this._places?.length || 0) > 2) {
-            this.map.fitMap({ pad: 0.5 });
+            this.map.fitMap({ pad: 0.5 })
           }
-        }, 500);
+        }, 500)
       },
       {
         once: true,
       }
-    );
+    )
     try {
-      this._places = await searchPlaces(address, this.hass, true, 3);
+      this._places = await searchPlaces(address, this.hass, true, 3)
       if (this._places?.length) {
-        this._highlightedMarker = this._places[0].place_id;
+        this._highlightedMarker = this._places[0].place_id
         this._location = [
           Number(this._places[0].lat),
           Number(this._places[0].lon),
-        ];
-        this._country = this._places[0].address.country_code.toUpperCase();
+        ]
+        this._country = this._places[0].address.country_code.toUpperCase()
       }
     } catch (e: any) {
-      this._places = undefined;
-      this._error = e.message;
+      this._places = undefined
+      this._error = e.message
     } finally {
-      this._working = false;
+      this._working = false
     }
   }
 
   private async _reverseGeocode() {
     if (!this._location) {
-      return;
+      return
     }
-    this._places = null;
-    const reverse = await reverseGeocode(this._location, this.hass);
-    this._country = reverse.address.country_code.toUpperCase();
-    this._places = [reverse];
-    this._highlightedMarker = reverse.place_id;
+    this._places = null
+    const reverse = await reverseGeocode(this._location, this.hass)
+    this._country = reverse.address.country_code.toUpperCase()
+    this._places = [reverse]
+    this._highlightedMarker = reverse.place_id
   }
 
   private async _handleButtonClick(ev) {
     if (this._search) {
-      this._searchAddress(ev.target.parentElement.value);
-      return;
+      this._searchAddress(ev.target.parentElement.value)
+      return
     }
-    this._detectLocation();
+    this._detectLocation()
   }
 
   private _detectLocation() {
     if (window.isSecureContext && navigator.geolocation) {
-      this._working = true;
+      this._working = true
       const options = {
         enableHighAccuracy: true,
         timeout: 5000,
         maximumAge: 0,
-      };
+      }
       navigator.geolocation.getCurrentPosition(
-        async (result) => {
+        async result => {
           this.map.addEventListener(
-            "markers-updated",
+            'markers-updated',
             () => {
-              this.map.fitMarker(LOCATION_MARKER_ID);
+              this.map.fitMarker(LOCATION_MARKER_ID)
             },
             {
               once: true,
             }
-          );
-          this._location = [result.coords.latitude, result.coords.longitude];
+          )
+          this._location = [result.coords.latitude, result.coords.longitude]
           if (result.coords.altitude) {
-            this._elevation = String(Math.round(result.coords.altitude));
+            this._elevation = String(Math.round(result.coords.altitude))
           }
           try {
-            await this._reverseGeocode();
+            await this._reverseGeocode()
           } finally {
-            this._working = false;
+            this._working = false
           }
         },
         () => {
           // GPS is not available, get location based on IP
-          this._working = false;
-          this._whoAmI();
+          this._working = false
+          this._whoAmI()
         },
         options
-      );
+      )
     } else {
-      this._whoAmI();
+      this._whoAmI()
     }
   }
 
   private async _whoAmI() {
     const confirm = await showConfirmationDialog(this, {
       title: this.onboardingLocalize(
-        "ui.panel.page-onboarding.core-config.title_location_detect"
+        'ui.panel.page-onboarding.core-config.title_location_detect'
       ),
       text: this.onboardingLocalize(
-        "ui.panel.page-onboarding.core-config.intro_location_detect"
+        'ui.panel.page-onboarding.core-config.intro_location_detect'
       ),
-    });
+    })
     if (!confirm) {
-      return;
+      return
     }
-    this._working = true;
+    this._working = true
     try {
-      const values = await detectCoreConfig(this.hass);
+      const values = await detectCoreConfig(this.hass)
 
       if (values.latitude && values.longitude) {
         this.map.addEventListener(
-          "markers-updated",
+          'markers-updated',
           () => {
-            this.map.fitMarker(LOCATION_MARKER_ID);
+            this.map.fitMarker(LOCATION_MARKER_ID)
           },
           {
             once: true,
           }
-        );
-        this._location = [Number(values.latitude), Number(values.longitude)];
+        )
+        this._location = [Number(values.latitude), Number(values.longitude)]
       }
       if (values.elevation) {
-        this._elevation = String(values.elevation);
+        this._elevation = String(values.elevation)
       }
       if (values.unit_system) {
-        this._unitSystem = values.unit_system;
+        this._unitSystem = values.unit_system
       }
       if (values.time_zone) {
-        this._timeZone = values.time_zone;
+        this._timeZone = values.time_zone
       }
       if (values.currency) {
-        this._currency = values.currency;
+        this._currency = values.currency
       }
       if (values.country) {
-        this._country = values.country;
+        this._country = values.country
       }
     } catch (err: any) {
-      this._error = `Failed to detect location information: ${err.message}`;
+      this._error = `Failed to detect location information: ${err.message}`
     } finally {
-      this._working = false;
+      this._working = false
     }
   }
 
   private async _save(ev) {
     if (!this._location) {
-      return;
+      return
     }
-    ev.preventDefault();
-    fireEvent(this, "value-changed", {
+    ev.preventDefault()
+    fireEvent(this, 'value-changed', {
       value: {
         location: this._location!,
         country: this._country,
@@ -466,7 +477,7 @@ class OnboardingLocation extends LitElement {
         time_zone: this._timeZone,
         currency: this._currency,
       },
-    });
+    })
   }
 
   static get styles(): CSSResultGroup {
@@ -549,12 +560,12 @@ class OnboardingLocation extends LitElement {
           color: inherit;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "onboarding-location": OnboardingLocation;
+    'onboarding-location': OnboardingLocation
   }
 }

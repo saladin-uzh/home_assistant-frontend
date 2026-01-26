@@ -1,95 +1,95 @@
-import { mdiCheck, mdiClose } from "@mdi/js";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import { fireEvent } from "../../common/dom/fire_event";
-import "../../components/ha-button";
-import "../../components/ha-control-button";
-import { createCloseHeading } from "../../components/ha-dialog";
-import "../../components/ha-textfield";
-import type { HaTextField } from "../../components/ha-textfield";
-import type { HomeAssistant } from "../../types";
-import type { HassDialog } from "../make-dialog-manager";
-import type { EnterCodeDialogParams } from "./show-enter-code-dialog";
+import { mdiCheck, mdiClose } from '@mdi/js'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import { fireEvent } from '../../common/dom/fire_event'
+import '../../components/ha-button'
+import '../../components/ha-control-button'
+import { createCloseHeading } from '../../components/ha-dialog'
+import '../../components/ha-textfield'
+import type { HaTextField } from '../../components/ha-textfield'
+import type { HomeAssistant } from '../../types'
+import type { HassDialog } from '../make-dialog-manager'
+import type { EnterCodeDialogParams } from './show-enter-code-dialog'
 
 const BUTTONS = [
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "0",
-  "clear",
-  "submit",
-];
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '0',
+  'clear',
+  'submit',
+]
 
-@customElement("dialog-enter-code")
+@customElement('dialog-enter-code')
 export class DialogEnterCode
   extends LitElement
   implements HassDialog<EnterCodeDialogParams>
 {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _dialogParams?: EnterCodeDialogParams;
+  @state() private _dialogParams?: EnterCodeDialogParams
 
-  @query("#code") private _input?: HaTextField;
+  @query('#code') private _input?: HaTextField
 
-  @state() private _showClearButton = false;
+  @state() private _showClearButton = false
 
-  @state() private _narrow = false;
+  @state() private _narrow = false
 
   public async showDialog(dialogParams: EnterCodeDialogParams): Promise<void> {
-    this._dialogParams = dialogParams;
+    this._dialogParams = dialogParams
     this._narrow = matchMedia(
-      "all and (max-width: 450px), all and (max-height: 500px)"
-    ).matches;
-    await this.updateComplete;
+      'all and (max-width: 450px), all and (max-height: 500px)'
+    ).matches
+    await this.updateComplete
   }
 
   public closeDialog() {
-    this._dialogParams = undefined;
-    this._showClearButton = false;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
-    return true;
+    this._dialogParams = undefined
+    this._showClearButton = false
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
+    return true
   }
 
   private _submit(): void {
-    this._dialogParams?.submit?.(this._input?.value ?? "");
-    this.closeDialog();
+    this._dialogParams?.submit?.(this._input?.value ?? '')
+    this.closeDialog()
   }
 
   private _cancel(): void {
-    this._dialogParams?.cancel?.();
-    this.closeDialog();
+    this._dialogParams?.cancel?.()
+    this.closeDialog()
   }
 
   private _numberClick(e: MouseEvent): void {
-    const val = (e.currentTarget! as any).value;
-    this._input!.value = this._input!.value + val;
-    this._showClearButton = true;
+    const val = (e.currentTarget! as any).value
+    this._input!.value = this._input!.value + val
+    this._showClearButton = true
   }
 
   private _clear(): void {
-    this._input!.value = "";
-    this._showClearButton = false;
+    this._input!.value = ''
+    this._showClearButton = false
   }
 
   private _inputValueChange(e) {
-    const field = e.currentTarget as HaTextField;
-    const val = field.value;
-    this._showClearButton = !!val;
+    const field = e.currentTarget as HaTextField
+    const val = field.value
+    this._showClearButton = !!val
   }
 
   protected render() {
     if (!this._dialogParams || !this.hass) {
-      return nothing;
+      return nothing
     }
 
-    const isText = this._dialogParams.codeFormat === "text";
+    const isText = this._dialogParams.codeFormat === 'text'
 
     if (isText) {
       return html`
@@ -97,13 +97,13 @@ export class DialogEnterCode
           open
           @closed=${this._cancel}
           .heading=${this._dialogParams.title ??
-          this.hass.localize("ui.dialogs.enter_code.title")}
+          this.hass.localize('ui.dialogs.enter_code.title')}
         >
           <ha-textfield
             class="input"
             ?dialogInitialFocus=${!this._narrow}
             id="code"
-            .label=${this.hass.localize("ui.dialogs.enter_code.input_label")}
+            .label=${this.hass.localize('ui.dialogs.enter_code.input_label')}
             type="password"
             autoValidate
             validateOnInitialRender
@@ -116,14 +116,17 @@ export class DialogEnterCode
             dialogAction="cancel"
           >
             ${this._dialogParams.cancelText ??
-            this.hass.localize("ui.common.cancel")}
+            this.hass.localize('ui.common.cancel')}
           </ha-button>
-          <ha-button @click=${this._submit} slot="primaryAction">
+          <ha-button
+            @click=${this._submit}
+            slot="primaryAction"
+          >
             ${this._dialogParams.submitText ??
-            this.hass.localize("ui.common.submit")}
+            this.hass.localize('ui.common.submit')}
           </ha-button>
         </ha-dialog>
-      `;
+      `
     }
 
     return html`
@@ -131,7 +134,7 @@ export class DialogEnterCode
         open
         .heading=${createCloseHeading(
           this.hass,
-          this._dialogParams.title ?? "Enter code"
+          this._dialogParams.title ?? 'Enter code'
         )}
         @closed=${this._cancel}
         hideActions
@@ -140,33 +143,33 @@ export class DialogEnterCode
           <ha-textfield
             @input=${this._inputValueChange}
             id="code"
-            .label=${this.hass.localize("ui.dialogs.enter_code.input_label")}
+            .label=${this.hass.localize('ui.dialogs.enter_code.input_label')}
             type="password"
             inputmode="numeric"
             ?dialogInitialFocus=${!this._narrow}
           ></ha-textfield>
           <div class="keypad">
-            ${BUTTONS.map((value) =>
-              value === ""
+            ${BUTTONS.map(value =>
+              value === ''
                 ? html`<span></span>`
-                : value === "clear"
+                : value === 'clear'
                   ? html`
                       <ha-control-button
                         @click=${this._clear}
                         class="clear"
                         .disabled=${!this._showClearButton}
-                        .label=${this.hass!.localize("ui.common.clear")}
+                        .label=${this.hass!.localize('ui.common.clear')}
                       >
                         <ha-svg-icon path=${mdiClose}></ha-svg-icon>
                       </ha-control-button>
                     `
-                  : value === "submit"
+                  : value === 'submit'
                     ? html`
                         <ha-control-button
                           @click=${this._submit}
                           class="submit"
                           .label=${this._dialogParams!.submitText ??
-                          this.hass!.localize("ui.common.submit")}
+                          this.hass!.localize('ui.common.submit')}
                         >
                           <ha-svg-icon path=${mdiCheck}></ha-svg-icon>
                         </ha-control-button>
@@ -184,7 +187,7 @@ export class DialogEnterCode
           </div>
         </div>
       </ha-dialog>
-    `;
+    `
   }
 
   static styles = css`
@@ -242,11 +245,11 @@ export class DialogEnterCode
       --control-button-background-color: var(--red-color);
       --control-button-icon-color: var(--red-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-enter-code": DialogEnterCode;
+    'dialog-enter-code': DialogEnterCode
   }
 }

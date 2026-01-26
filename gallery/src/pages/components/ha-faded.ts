@@ -1,14 +1,14 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-faded";
-import "../../../../src/components/ha-markdown";
-import { LONG_TEXT } from "../../data/text";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-faded'
+import '../../../../src/components/ha-markdown'
+import { LONG_TEXT } from '../../data/text'
 
-const SMALL_TEXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+const SMALL_TEXT = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
 
-@customElement("demo-components-ha-faded")
+@customElement('demo-components-ha-faded')
 export class DemoHaFaded extends LitElement {
   protected render(): TemplateResult {
     return html`
@@ -58,7 +58,7 @@ export class DemoHaFaded extends LitElement {
           </ha-faded>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -66,11 +66,11 @@ export class DemoHaFaded extends LitElement {
       max-width: 600px;
       margin: 24px auto;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-components-ha-faded": DemoHaFaded;
+    'demo-components-ha-faded': DemoHaFaded
   }
 }

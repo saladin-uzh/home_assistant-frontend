@@ -1,34 +1,34 @@
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "../../layouts/hass-tabs-subpage";
-import { profileSections } from "./ha-panel-profile";
-import type { RefreshToken } from "../../data/refresh_token";
-import { haStyle } from "../../resources/styles";
-import type { HomeAssistant, Route } from "../../types";
-import "./ha-change-password-card";
-import "./ha-long-lived-access-tokens-card";
-import "./ha-mfa-modules-card";
-import "./ha-refresh-tokens-card";
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import '../../layouts/hass-tabs-subpage'
+import { profileSections } from './ha-panel-profile'
+import type { RefreshToken } from '../../data/refresh_token'
+import { haStyle } from '../../resources/styles'
+import type { HomeAssistant, Route } from '../../types'
+import './ha-change-password-card'
+import './ha-long-lived-access-tokens-card'
+import './ha-mfa-modules-card'
+import './ha-refresh-tokens-card'
 
-@customElement("ha-profile-section-security")
+@customElement('ha-profile-section-security')
 class HaProfileSectionSecurity extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @state() private _refreshTokens?: RefreshToken[];
+  @state() private _refreshTokens?: RefreshToken[]
 
-  @property({ attribute: false }) public route!: Route;
+  @property({ attribute: false }) public route!: Route
 
   public connectedCallback() {
-    super.connectedCallback();
-    this._refreshRefreshTokens();
+    super.connectedCallback()
+    this._refreshRefreshTokens()
   }
 
   public firstUpdated() {
     if (!this._refreshTokens) {
-      this._refreshRefreshTokens();
+      this._refreshRefreshTokens()
     }
   }
 
@@ -41,10 +41,10 @@ class HaProfileSectionSecurity extends LitElement {
         .tabs=${profileSections}
         .route=${this.route}
       >
-        <div slot="title">${this.hass.localize("panel.profile")}</div>
+        <div slot="title">${this.hass.localize('panel.profile')}</div>
         <div class="content">
           ${this.hass.user!.credentials.some(
-            (cred) => cred.auth_provider_type === "homeassistant"
+            cred => cred.auth_provider_type === 'homeassistant'
           )
             ? html`
                 <ha-change-password-card
@@ -53,7 +53,7 @@ class HaProfileSectionSecurity extends LitElement {
                   .hass=${this.hass}
                 ></ha-change-password-card>
               `
-            : ""}
+            : ''}
           <ha-mfa-modules-card
             .hass=${this.hass}
             .mfaModules=${this.hass.user!.mfa_modules}
@@ -72,16 +72,16 @@ class HaProfileSectionSecurity extends LitElement {
           ></ha-long-lived-access-tokens-card>
         </div>
       </hass-tabs-subpage>
-    `;
+    `
   }
 
   private async _refreshRefreshTokens() {
     if (!this.hass) {
-      return;
+      return
     }
     this._refreshTokens = await this.hass.callWS({
-      type: "auth/refresh_tokens",
-    });
+      type: 'auth/refresh_tokens',
+    })
   }
 
   static get styles(): CSSResultGroup {
@@ -111,11 +111,11 @@ class HaProfileSectionSecurity extends LitElement {
           color: var(--secondary-text-color);
         }
       `,
-    ];
+    ]
   }
 }
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-profile-section-security": HaProfileSectionSecurity;
+    'ha-profile-section-security': HaProfileSectionSecurity
   }
 }

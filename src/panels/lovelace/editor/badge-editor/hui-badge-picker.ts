@@ -1,102 +1,102 @@
-import type { IFuseOptions } from "fuse.js";
-import Fuse from "fuse.js";
-import type { CSSResultGroup, PropertyValues, TemplateResult } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { styleMap } from "lit/directives/style-map";
-import { until } from "lit/directives/until";
-import memoizeOne from "memoize-one";
-import { storage } from "../../../../common/decorators/storage";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { stringCompare } from "../../../../common/string/compare";
-import "../../../../components/ha-spinner";
-import "../../../../components/search-input";
-import { isUnavailableState } from "../../../../data/entity";
-import type { LovelaceBadgeConfig } from "../../../../data/lovelace/config/badge";
-import type { LovelaceConfig } from "../../../../data/lovelace/config/types";
-import type { CustomBadgeEntry } from "../../../../data/lovelace_custom_cards";
+import type { IFuseOptions } from 'fuse.js'
+import Fuse from 'fuse.js'
+import type { CSSResultGroup, PropertyValues, TemplateResult } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { styleMap } from 'lit/directives/style-map'
+import { until } from 'lit/directives/until'
+import memoizeOne from 'memoize-one'
+import { storage } from '../../../../common/decorators/storage'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { stringCompare } from '../../../../common/string/compare'
+import '../../../../components/ha-spinner'
+import '../../../../components/search-input'
+import { isUnavailableState } from '../../../../data/entity'
+import type { LovelaceBadgeConfig } from '../../../../data/lovelace/config/badge'
+import type { LovelaceConfig } from '../../../../data/lovelace/config/types'
+import type { CustomBadgeEntry } from '../../../../data/lovelace_custom_cards'
 import {
   CUSTOM_TYPE_PREFIX,
   customBadges,
   getCustomBadgeEntry,
-} from "../../../../data/lovelace_custom_cards";
-import type { HomeAssistant } from "../../../../types";
+} from '../../../../data/lovelace_custom_cards'
+import type { HomeAssistant } from '../../../../types'
 import {
   calcUnusedEntities,
   computeUsedEntities,
-} from "../../common/compute-unused-entities";
-import { tryCreateBadgeElement } from "../../create-element/create-badge-element";
-import type { LovelaceBadge } from "../../types";
-import { getBadgeStubConfig } from "../get-badge-stub-config";
-import { coreBadges } from "../lovelace-badges";
-import type { Badge, BadgePickTarget } from "../types";
+} from '../../common/compute-unused-entities'
+import { tryCreateBadgeElement } from '../../create-element/create-badge-element'
+import type { LovelaceBadge } from '../../types'
+import { getBadgeStubConfig } from '../get-badge-stub-config'
+import { coreBadges } from '../lovelace-badges'
+import type { Badge, BadgePickTarget } from '../types'
 
 interface BadgeElement {
-  badge: Badge;
-  element: TemplateResult;
+  badge: Badge
+  element: TemplateResult
 }
 
-@customElement("hui-badge-picker")
+@customElement('hui-badge-picker')
 export class HuiBadgePicker extends LitElement {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ attribute: false }) public suggestedBadges?: string[];
+  @property({ attribute: false }) public suggestedBadges?: string[]
 
   @state()
   @storage({
-    key: "dashboardBadgeClipboard",
+    key: 'dashboardBadgeClipboard',
     state: true,
     subscribe: true,
-    storage: "sessionStorage",
+    storage: 'sessionStorage',
   })
-  private _clipboard?: LovelaceBadgeConfig;
+  private _clipboard?: LovelaceBadgeConfig
 
-  @state() private _badges: BadgeElement[] = [];
+  @state() private _badges: BadgeElement[] = []
 
-  public lovelace?: LovelaceConfig;
+  public lovelace?: LovelaceConfig
 
-  public badgePicked?: (badgeConf: LovelaceBadgeConfig) => void;
+  public badgePicked?: (badgeConf: LovelaceBadgeConfig) => void
 
-  @state() private _filter = "";
+  @state() private _filter = ''
 
-  @state() private _width?: number;
+  @state() private _width?: number
 
-  @state() private _height?: number;
+  @state() private _height?: number
 
-  private _unusedEntities?: string[];
+  private _unusedEntities?: string[]
 
-  private _usedEntities?: string[];
+  private _usedEntities?: string[]
 
   private _filterBadges = memoizeOne(
     (badgeElements: BadgeElement[], filter?: string): BadgeElement[] => {
       if (!filter) {
-        return badgeElements;
+        return badgeElements
       }
       let badges = badgeElements.map(
         (badgeElement: BadgeElement) => badgeElement.badge
-      );
+      )
       const options: IFuseOptions<Badge> = {
-        keys: ["type", "name", "description"],
+        keys: ['type', 'name', 'description'],
         isCaseSensitive: false,
         minMatchCharLength: Math.min(filter.length, 2),
         threshold: 0.2,
         ignoreDiacritics: true,
-      };
-      const fuse = new Fuse(badges, options);
-      badges = fuse.search(filter).map((result) => result.item);
+      }
+      const fuse = new Fuse(badges, options)
+      badges = fuse.search(filter).map(result => result.item)
       return badgeElements.filter((badgeElement: BadgeElement) =>
         badges.includes(badgeElement.badge)
-      );
+      )
     }
-  );
+  )
 
   private _suggestedBadges = memoizeOne(
     (badgeElements: BadgeElement[]): BadgeElement[] =>
       badgeElements.filter(
         (badgeElement: BadgeElement) => badgeElement.badge.isSuggested
       )
-  );
+  )
 
   private _customBadges = memoizeOne(
     (badgeElements: BadgeElement[]): BadgeElement[] =>
@@ -104,7 +104,7 @@ export class HuiBadgePicker extends LitElement {
         (badgeElement: BadgeElement) =>
           badgeElement.badge.isCustom && !badgeElement.badge.isSuggested
       )
-  );
+  )
 
   private _otherBadges = memoizeOne(
     (badgeElements: BadgeElement[]): BadgeElement[] =>
@@ -112,7 +112,7 @@ export class HuiBadgePicker extends LitElement {
         (badgeElement: BadgeElement) =>
           !badgeElement.badge.isSuggested && !badgeElement.badge.isCustom
       )
-  );
+  )
 
   protected render() {
     if (
@@ -121,12 +121,12 @@ export class HuiBadgePicker extends LitElement {
       !this._unusedEntities ||
       !this._usedEntities
     ) {
-      return nothing;
+      return nothing
     }
 
-    const suggestedBadges = this._suggestedBadges(this._badges);
-    const otherBadges = this._otherBadges(this._badges);
-    const customBadgesItems = this._customBadges(this._badges);
+    const suggestedBadges = this._suggestedBadges(this._badges)
+    const otherBadges = this._otherBadges(this._badges)
+    const customBadgesItems = this._customBadges(this._badges)
 
     return html`
       <search-input
@@ -134,14 +134,14 @@ export class HuiBadgePicker extends LitElement {
         .filter=${this._filter}
         @value-changed=${this._handleSearchChange}
         .label=${this.hass.localize(
-          "ui.panel.lovelace.editor.edit_badge.search_badgess"
+          'ui.panel.lovelace.editor.edit_badge.search_badgess'
         )}
       ></search-input>
       <div
         id="content"
         style=${styleMap({
-          width: this._width ? `${this._width}px` : "auto",
-          height: this._height ? `${this._height}px` : "auto",
+          width: this._width ? `${this._width}px` : 'auto',
+          height: this._height ? `${this._height}px` : 'auto',
         })}
       >
         <div class="badges-container">
@@ -193,7 +193,7 @@ export class HuiBadgePicker extends LitElement {
           <div
             class="badge manual"
             @click=${this._badgePicked}
-            .config=${{ type: "" }}
+            .config=${{ type: '' }}
           >
             <div class="badge-header">
               ${this.hass!.localize(
@@ -208,46 +208,46 @@ export class HuiBadgePicker extends LitElement {
           </div>
         </div>
       </div>
-    `;
+    `
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined
     if (!oldHass) {
-      return true;
+      return true
     }
 
     if (oldHass.locale !== this.hass!.locale) {
-      return true;
+      return true
     }
 
-    return false;
+    return false
   }
 
   protected firstUpdated(): void {
     if (!this.hass || !this.lovelace) {
-      return;
+      return
     }
 
-    const usedEntities = computeUsedEntities(this.lovelace);
-    const unusedEntities = calcUnusedEntities(this.hass, usedEntities);
+    const usedEntities = computeUsedEntities(this.lovelace)
+    const unusedEntities = calcUnusedEntities(this.hass, usedEntities)
 
     this._usedEntities = [...usedEntities].filter(
-      (eid) =>
+      eid =>
         this.hass!.states[eid] &&
         !isUnavailableState(this.hass!.states[eid].state)
-    );
+    )
     this._unusedEntities = [...unusedEntities].filter(
-      (eid) =>
+      eid =>
         this.hass!.states[eid] &&
         !isUnavailableState(this.hass!.states[eid].state)
-    );
+    )
 
-    this._loadBages();
+    this._loadBages()
   }
 
   private _loadBages() {
-    let badges = coreBadges.map<Badge>((badge) => ({
+    let badges = coreBadges.map<Badge>(badge => ({
       name: this.hass!.localize(
         `ui.panel.lovelace.editor.badge.${badge.type}.name`
       ),
@@ -256,21 +256,21 @@ export class HuiBadgePicker extends LitElement {
       ),
       isSuggested: this.suggestedBadges?.includes(badge.type) || false,
       ...badge,
-    }));
+    }))
 
     badges = badges.sort((a, b) => {
       if (a.isSuggested && !b.isSuggested) {
-        return -1;
+        return -1
       }
       if (!a.isSuggested && b.isSuggested) {
-        return 1;
+        return 1
       }
       return stringCompare(
         a.name || a.type,
         b.name || b.type,
         this.hass?.language
-      );
-    });
+      )
+    })
 
     if (customBadges.length > 0) {
       badges = badges.concat(
@@ -289,9 +289,9 @@ export class HuiBadgePicker extends LitElement {
               this.hass?.language
             )
           )
-      );
+      )
     }
-    this._badges = badges.map((badge) => ({
+    this._badges = badges.map(badge => ({
       badge: badge,
       element: html`${until(
         this._renderBadgeElement(badge),
@@ -301,12 +301,12 @@ export class HuiBadgePicker extends LitElement {
           </div>
         `
       )}`,
-    }));
+    }))
   }
 
   private _renderClipboardBadge() {
     if (!this._clipboard) {
-      return nothing;
+      return nothing
     }
 
     return html` ${until(
@@ -316,10 +316,10 @@ export class HuiBadgePicker extends LitElement {
           showElement: true,
           isCustom: false,
           name: this.hass!.localize(
-            "ui.panel.lovelace.editor.badge.generic.paste"
+            'ui.panel.lovelace.editor.badge.generic.paste'
           ),
           description: `${this.hass!.localize(
-            "ui.panel.lovelace.editor.badge.generic.paste_description",
+            'ui.panel.lovelace.editor.badge.generic.paste_description',
             {
               type: this._clipboard.type,
             }
@@ -332,72 +332,69 @@ export class HuiBadgePicker extends LitElement {
           <ha-spinner></ha-spinner>
         </div>
       `
-    )}`;
+    )}`
   }
 
   private _handleSearchChange(ev: CustomEvent) {
-    const value = ev.detail.value;
+    const value = ev.detail.value
 
     if (!value) {
       // Reset when we no longer filter
-      this._width = undefined;
-      this._height = undefined;
+      this._width = undefined
+      this._height = undefined
     } else if (!this._width || !this._height) {
       // Save height and width so the dialog doesn't jump while searching
-      const div = this.shadowRoot!.getElementById("content");
+      const div = this.shadowRoot!.getElementById('content')
       if (div && !this._width) {
-        const width = div.clientWidth;
+        const width = div.clientWidth
         if (width) {
-          this._width = width;
+          this._width = width
         }
       }
       if (div && !this._height) {
-        const height = div.clientHeight;
+        const height = div.clientHeight
         if (height) {
-          this._height = height;
+          this._height = height
         }
       }
     }
 
-    this._filter = value;
+    this._filter = value
   }
 
   private _badgePicked(ev: Event): void {
     const config: LovelaceBadgeConfig = (ev.currentTarget! as BadgePickTarget)
-      .config;
+      .config
 
-    fireEvent(this, "config-changed", { config });
+    fireEvent(this, 'config-changed', { config })
   }
 
   private _tryCreateBadgeElement(badge: LovelaceBadgeConfig) {
-    const element = tryCreateBadgeElement(badge) as LovelaceBadge;
-    element.hass = this.hass;
+    const element = tryCreateBadgeElement(badge) as LovelaceBadge
+    element.hass = this.hass
     element.addEventListener(
-      "ll-rebuild",
-      (ev) => {
-        ev.stopPropagation();
-        this._rebuildBadge(element, badge);
+      'll-rebuild',
+      ev => {
+        ev.stopPropagation()
+        this._rebuildBadge(element, badge)
       },
       { once: true }
-    );
-    return element;
+    )
+    return element
   }
 
   private _rebuildBadge(
     badgeElToReplace: LovelaceBadge,
     config: LovelaceBadgeConfig
   ): void {
-    let newBadgeEl: LovelaceBadge;
+    let newBadgeEl: LovelaceBadge
     try {
-      newBadgeEl = this._tryCreateBadgeElement(config);
+      newBadgeEl = this._tryCreateBadgeElement(config)
     } catch (_err: any) {
-      return;
+      return
     }
     if (badgeElToReplace.parentElement) {
-      badgeElToReplace.parentElement!.replaceChild(
-        newBadgeEl,
-        badgeElToReplace
-      );
+      badgeElToReplace.parentElement!.replaceChild(newBadgeEl, badgeElToReplace)
     }
   }
 
@@ -405,15 +402,15 @@ export class HuiBadgePicker extends LitElement {
     badge: Badge,
     config?: LovelaceBadgeConfig
   ): Promise<TemplateResult> {
-    let { type } = badge;
-    const { showElement, isCustom, name, description } = badge;
-    const customBadge = isCustom ? getCustomBadgeEntry(type) : undefined;
+    let { type } = badge
+    const { showElement, isCustom, name, description } = badge
+    const customBadge = isCustom ? getCustomBadgeEntry(type) : undefined
     if (isCustom) {
-      type = `${CUSTOM_TYPE_PREFIX}${type}`;
+      type = `${CUSTOM_TYPE_PREFIX}${type}`
     }
 
-    let element: LovelaceBadge | undefined;
-    let badgeConfig: LovelaceBadgeConfig = config ?? { type };
+    let element: LovelaceBadge | undefined
+    let badgeConfig: LovelaceBadgeConfig = config ?? { type }
 
     if (this.hass && this.lovelace) {
       if (!config) {
@@ -422,14 +419,14 @@ export class HuiBadgePicker extends LitElement {
           type,
           this._unusedEntities!,
           this._usedEntities!
-        );
+        )
       }
 
       if (showElement) {
         try {
-          element = this._tryCreateBadgeElement(badgeConfig);
+          element = this._tryCreateBadgeElement(badgeConfig)
         } catch (_err: any) {
-          element = undefined;
+          element = undefined
         }
       }
     }
@@ -444,16 +441,16 @@ export class HuiBadgePicker extends LitElement {
         <div class="badge-header">
           ${customBadge
             ? `${this.hass!.localize(
-                "ui.panel.lovelace.editor.badge_picker.custom_badge"
+                'ui.panel.lovelace.editor.badge_picker.custom_badge'
               )}: ${customBadge.name || customBadge.type}`
             : name}
         </div>
         <div
           class="preview ${classMap({
-            description: !element || element.tagName === "HUI-ERROR-BADGE",
+            description: !element || element.tagName === 'HUI-ERROR-BADGE',
           })}"
         >
-          ${element && element.tagName !== "HUI-ERROR-BADGE"
+          ${element && element.tagName !== 'HUI-ERROR-BADGE'
             ? element
             : customBadge
               ? customBadge.description ||
@@ -463,7 +460,7 @@ export class HuiBadgePicker extends LitElement {
               : description}
         </div>
       </div>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -576,12 +573,12 @@ export class HuiBadgePicker extends LitElement {
           background: var(--warning-color);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-badge-picker": HuiBadgePicker;
+    'hui-badge-picker': HuiBadgePicker
   }
 }

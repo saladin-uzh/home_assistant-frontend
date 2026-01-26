@@ -1,18 +1,18 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
-@customElement("ha-control-button-group")
+@customElement('ha-control-button-group')
 export class HaControlButtonGroup extends LitElement {
   @property({ type: Boolean, reflect: true })
-  public vertical = false;
+  public vertical = false
 
   protected render(): TemplateResult {
     return html`
       <div class="container">
         <slot></slot>
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -52,11 +52,11 @@ export class HaControlButtonGroup extends LitElement {
       margin-inline-end: initial;
       margin-bottom: var(--control-button-group-spacing);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-control-button-group": HaControlButtonGroup;
+    'ha-control-button-group': HaControlButtonGroup
   }
 }

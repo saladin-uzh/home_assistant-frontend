@@ -1,93 +1,93 @@
 /* eslint-disable lit/prefer-static-styles */
-import { genClientId } from "home-assistant-js-websocket";
-import type { PropertyValues } from "lit";
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { keyed } from "lit/directives/keyed";
-import type { LocalizeFunc } from "../common/translations/localize";
-import "../components/ha-alert";
-import "../components/ha-button";
-import "../components/ha-checkbox";
-import { computeInitialHaFormData } from "../components/ha-form/compute-initial-ha-form-data";
-import "../components/ha-formfield";
-import type { AuthProvider } from "../data/auth";
+import { genClientId } from 'home-assistant-js-websocket'
+import type { PropertyValues } from 'lit'
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { keyed } from 'lit/directives/keyed'
+import type { LocalizeFunc } from '../common/translations/localize'
+import '../components/ha-alert'
+import '../components/ha-button'
+import '../components/ha-checkbox'
+import { computeInitialHaFormData } from '../components/ha-form/compute-initial-ha-form-data'
+import '../components/ha-formfield'
+import type { AuthProvider } from '../data/auth'
 import {
   autocompleteLoginFields,
   createLoginFlow,
   deleteLoginFlow,
   redirectWithAuthCode,
   submitLoginFlow,
-} from "../data/auth";
+} from '../data/auth'
 import type {
   DataEntryFlowStep,
   DataEntryFlowStepForm,
-} from "../data/data_entry_flow";
-import "./ha-auth-form";
+} from '../data/data_entry_flow'
+import './ha-auth-form'
 
-type State = "loading" | "error" | "step";
+type State = 'loading' | 'error' | 'step'
 
-@customElement("ha-auth-flow")
+@customElement('ha-auth-flow')
 export class HaAuthFlow extends LitElement {
-  @property({ attribute: false }) public authProvider?: AuthProvider;
+  @property({ attribute: false }) public authProvider?: AuthProvider
 
-  @property({ attribute: false }) public clientId?: string;
+  @property({ attribute: false }) public clientId?: string
 
-  @property({ attribute: false }) public redirectUri?: string;
+  @property({ attribute: false }) public redirectUri?: string
 
-  @property({ attribute: false }) public oauth2State?: string;
+  @property({ attribute: false }) public oauth2State?: string
 
-  @property({ attribute: false }) public localize!: LocalizeFunc;
+  @property({ attribute: false }) public localize!: LocalizeFunc
 
-  @property({ attribute: false }) public step?: DataEntryFlowStep;
+  @property({ attribute: false }) public step?: DataEntryFlowStep
 
-  @property({ attribute: false }) public initStoreToken = false;
+  @property({ attribute: false }) public initStoreToken = false
 
-  @state() private _storeToken = false;
+  @state() private _storeToken = false
 
-  @state() private _state: State = "loading";
+  @state() private _state: State = 'loading'
 
-  @state() private _stepData?: Record<string, any>;
+  @state() private _stepData?: Record<string, any>
 
-  @state() private _errorMessage?: string;
+  @state() private _errorMessage?: string
 
-  @state() private _submitting = false;
+  @state() private _submitting = false
 
   createRenderRoot() {
-    return this;
+    return this
   }
 
   willUpdate(changedProps: PropertyValues) {
-    super.willUpdate(changedProps);
+    super.willUpdate(changedProps)
 
     if (!this.hasUpdated && this.clientId === genClientId()) {
       // Preselect store token when logging in to own instance
-      this._storeToken = this.initStoreToken;
+      this._storeToken = this.initStoreToken
     }
 
-    if (!changedProps.has("step")) {
-      return;
+    if (!changedProps.has('step')) {
+      return
     }
 
     if (!this.step) {
-      this._stepData = undefined;
-      return;
+      this._stepData = undefined
+      return
     }
 
-    this._state = "step";
+    this._state = 'step'
 
-    const oldStep = changedProps.get("step") as HaAuthFlow["step"];
+    const oldStep = changedProps.get('step') as HaAuthFlow['step']
 
     if (
       !oldStep ||
       this.step.flow_id !== oldStep.flow_id ||
-      (this.step.type === "form" &&
-        oldStep.type === "form" &&
+      (this.step.type === 'form' &&
+        oldStep.type === 'form' &&
         this.step.step_id !== oldStep.step_id)
     ) {
       this._stepData =
-        this.step.type === "form"
+        this.step.type === 'form'
           ? computeInitialHaFormData(this.step.data_schema)
-          : undefined;
+          : undefined
     }
   }
 
@@ -123,55 +123,55 @@ export class HaAuthFlow extends LitElement {
         }
       </style>
       <form>${this._renderForm()}</form>
-    `;
+    `
   }
 
   protected firstUpdated(changedProps: PropertyValues) {
-    super.firstUpdated(changedProps);
+    super.firstUpdated(changedProps)
 
     if (this.clientId == null || this.redirectUri == null) {
       // eslint-disable-next-line no-console
       console.error(
-        "clientId and redirectUri must not be null",
+        'clientId and redirectUri must not be null',
         this.clientId,
         this.redirectUri
-      );
-      this._state = "error";
-      this._errorMessage = this._unknownError();
-      return;
+      )
+      this._state = 'error'
+      this._errorMessage = this._unknownError()
+      return
     }
 
-    this.addEventListener("keypress", (ev) => {
-      if (ev.key === "Enter") {
-        this._handleSubmit(ev);
+    this.addEventListener('keypress', ev => {
+      if (ev.key === 'Enter') {
+        this._handleSubmit(ev)
       }
-    });
+    })
   }
 
   protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
-    if (changedProps.has("authProvider")) {
-      this._providerChanged(this.authProvider);
+    super.updated(changedProps)
+    if (changedProps.has('authProvider')) {
+      this._providerChanged(this.authProvider)
     }
 
-    if (!changedProps.has("step") || this.step?.type !== "form") {
-      return;
+    if (!changedProps.has('step') || this.step?.type !== 'form') {
+      return
     }
 
     // 100ms to give all the form elements time to initialize.
     setTimeout(() => {
-      const form = this.renderRoot.querySelector("ha-form");
+      const form = this.renderRoot.querySelector('ha-form')
       if (form) {
-        (form as any).focus();
+        ;(form as any).focus()
       }
-    }, 100);
+    }, 100)
   }
 
   private _renderForm() {
     switch (this._state) {
-      case "step":
+      case 'step':
         if (this.step == null) {
-          return nothing;
+          return nothing
         }
 
         return html`
@@ -181,51 +181,51 @@ export class HaAuthFlow extends LitElement {
               @click=${this._handleSubmit}
               .disabled=${this._submitting}
             >
-              ${this.step.type === "form"
-                ? this.localize("ui.panel.page-authorize.form.next")
-                : this.localize("ui.panel.page-authorize.form.start_over")}
+              ${this.step.type === 'form'
+                ? this.localize('ui.panel.page-authorize.form.next')
+                : this.localize('ui.panel.page-authorize.form.start_over')}
             </ha-button>
           </div>
-        `;
-      case "error":
+        `
+      case 'error':
         return html`
           <ha-alert alert-type="error">
-            ${this.localize("ui.panel.page-authorize.form.error", {
+            ${this.localize('ui.panel.page-authorize.form.error', {
               error: this._errorMessage,
             })}
           </ha-alert>
           <div class="action">
             <ha-button @click=${this._startOver}>
-              ${this.localize("ui.panel.page-authorize.form.start_over")}
+              ${this.localize('ui.panel.page-authorize.form.start_over')}
             </ha-button>
           </div>
-        `;
-      case "loading":
+        `
+      case 'loading':
         return html`
           <ha-alert alert-type="info">
-            ${this.localize("ui.panel.page-authorize.form.working")}
+            ${this.localize('ui.panel.page-authorize.form.working')}
           </ha-alert>
-        `;
+        `
       default:
-        return nothing;
+        return nothing
     }
   }
 
   private _renderStep(step: DataEntryFlowStep) {
     switch (step.type) {
-      case "abort":
+      case 'abort':
         return html`
-          ${this.localize("ui.panel.page-authorize.abort_intro")}:
+          ${this.localize('ui.panel.page-authorize.abort_intro')}:
           ${this.localize(
             `ui.panel.page-authorize.form.providers.${step.handler[0]}.abort.${step.reason}`
           )}
-        `;
-      case "form":
+        `
+      case 'form':
         return html`
           <h1>
-            ${!["select_mfa_module", "mfa"].includes(step.step_id)
-              ? this.localize("ui.panel.page-authorize.welcome_home")
-              : this.localize("ui.panel.page-authorize.just_checking")}
+            ${!['select_mfa_module', 'mfa'].includes(step.step_id)
+              ? this.localize('ui.panel.page-authorize.welcome_home')
+              : this.localize('ui.panel.page-authorize.just_checking')}
           </h1>
           ${this._computeStepDescription(step)}
           ${keyed(
@@ -244,12 +244,12 @@ export class HaAuthFlow extends LitElement {
 
           <div class="space-between">
             ${this.clientId === genClientId() &&
-            !["select_mfa_module", "mfa"].includes(step.step_id)
+            !['select_mfa_module', 'mfa'].includes(step.step_id)
               ? html`
                   <ha-formfield
                     class="store-token"
                     .label=${this.localize(
-                      "ui.panel.page-authorize.store_token"
+                      'ui.panel.page-authorize.store_token'
                     )}
                   >
                     <ha-checkbox
@@ -258,157 +258,157 @@ export class HaAuthFlow extends LitElement {
                     ></ha-checkbox>
                   </ha-formfield>
                 `
-              : ""}
+              : ''}
             <a
               class="forgot-password"
               href="https://www.home-assistant.io/docs/locked_out/#forgot-password"
               target="_blank"
               rel="noreferrer noopener"
-              >${this.localize("ui.panel.page-authorize.forgot_password")}</a
+              >${this.localize('ui.panel.page-authorize.forgot_password')}</a
             >
           </div>
-        `;
+        `
       default:
-        return nothing;
+        return nothing
     }
   }
 
   private _storeTokenChanged(e: CustomEvent<HTMLInputElement>) {
-    this._storeToken = (e.currentTarget as HTMLInputElement).checked;
+    this._storeToken = (e.currentTarget as HTMLInputElement).checked
   }
 
   private async _providerChanged(newProvider?: AuthProvider) {
-    if (this.step && this.step.type === "form") {
-      deleteLoginFlow(this.step.flow_id).catch((err) => {
+    if (this.step && this.step.type === 'form') {
+      deleteLoginFlow(this.step.flow_id).catch(err => {
         // eslint-disable-next-line no-console
-        console.error("Error delete obsoleted auth flow", err);
-      });
+        console.error('Error delete obsoleted auth flow', err)
+      })
     }
 
     if (newProvider == null) {
       // eslint-disable-next-line no-console
-      console.error("No auth provider");
-      this._state = "error";
-      this._errorMessage = this._unknownError();
-      return;
+      console.error('No auth provider')
+      this._state = 'error'
+      this._errorMessage = this._unknownError()
+      return
     }
 
     try {
       const response = await createLoginFlow(this.clientId, this.redirectUri, [
         newProvider.type,
         newProvider.id,
-      ]);
+      ])
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (response.ok) {
         // allow auth provider bypass the login form
-        if (data.type === "create_entry") {
+        if (data.type === 'create_entry') {
           redirectWithAuthCode(
             this.redirectUri!,
             data.result,
             this.oauth2State,
             this._storeToken
-          );
-          return;
+          )
+          return
         }
 
-        this.step = data;
-        this._state = "step";
+        this.step = data
+        this._state = 'step'
       } else {
-        this._state = "error";
-        this._errorMessage = data.message;
+        this._state = 'error'
+        this._errorMessage = data.message
       }
     } catch (err: any) {
       // eslint-disable-next-line no-console
-      console.error("Error starting auth flow", err);
-      this._state = "error";
-      this._errorMessage = this._unknownError();
+      console.error('Error starting auth flow', err)
+      this._state = 'error'
+      this._errorMessage = this._unknownError()
     }
   }
 
   private _stepDataChanged(ev: CustomEvent) {
-    this._stepData = ev.detail.value;
+    this._stepData = ev.detail.value
   }
 
   private _computeStepDescription(step: DataEntryFlowStepForm) {
     const resourceKey =
-      `ui.panel.page-authorize.form.providers.${step.handler[0]}.step.${step.step_id}.description` as const;
-    return this.localize(resourceKey, step.description_placeholders);
+      `ui.panel.page-authorize.form.providers.${step.handler[0]}.step.${step.step_id}.description` as const
+    return this.localize(resourceKey, step.description_placeholders)
   }
 
   private _computeLabelCallback(step: DataEntryFlowStepForm) {
     // Returns a callback for ha-form to calculate labels per schema object
-    return (schema) =>
+    return schema =>
       this.localize(
         `ui.panel.page-authorize.form.providers.${step.handler[0]}.step.${step.step_id}.data.${schema.name}`
-      );
+      )
   }
 
   private _computeErrorCallback(step: DataEntryFlowStepForm) {
     // Returns a callback for ha-form to calculate error messages
-    return (error) =>
+    return error =>
       this.localize(
         `ui.panel.page-authorize.form.providers.${step.handler[0]}.error.${error}`
-      );
+      )
   }
 
   private _unknownError() {
-    return this.localize("ui.panel.page-authorize.form.unknown_error");
+    return this.localize('ui.panel.page-authorize.form.unknown_error')
   }
 
   private _startOver() {
-    this._providerChanged(this.authProvider);
+    this._providerChanged(this.authProvider)
   }
 
   private async _handleSubmit(ev: Event) {
-    ev.preventDefault();
+    ev.preventDefault()
     if (this.step == null) {
-      return;
+      return
     }
-    if (this.step.type !== "form") {
-      this._providerChanged(this.authProvider);
-      return;
+    if (this.step.type !== 'form') {
+      this._providerChanged(this.authProvider)
+      return
     }
-    this._submitting = true;
+    this._submitting = true
 
-    const postData = { ...this._stepData, client_id: this.clientId };
+    const postData = { ...this._stepData, client_id: this.clientId }
 
     try {
-      const response = await submitLoginFlow(this.step.flow_id, postData);
+      const response = await submitLoginFlow(this.step.flow_id, postData)
 
-      const newStep = await response.json();
+      const newStep = await response.json()
 
       if (response.status === 403) {
-        this._state = "error";
-        this._errorMessage = newStep.message;
-        return;
+        this._state = 'error'
+        this._errorMessage = newStep.message
+        return
       }
 
-      if (newStep.type === "create_entry") {
+      if (newStep.type === 'create_entry') {
         redirectWithAuthCode(
           this.redirectUri!,
           newStep.result,
           this.oauth2State,
           this._storeToken
-        );
-        return;
+        )
+        return
       }
-      this.step = newStep;
-      this._state = "step";
+      this.step = newStep
+      this._state = 'step'
     } catch (err: any) {
       // eslint-disable-next-line no-console
-      console.error("Error submitting step", err);
-      this._state = "error";
-      this._errorMessage = this._unknownError();
+      console.error('Error submitting step', err)
+      this._state = 'error'
+      this._errorMessage = this._unknownError()
     } finally {
-      this._submitting = false;
+      this._submitting = false
     }
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-auth-flow": HaAuthFlow;
+    'ha-auth-flow': HaAuthFlow
   }
 }

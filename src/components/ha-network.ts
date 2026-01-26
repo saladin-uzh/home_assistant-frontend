@@ -1,57 +1,57 @@
-import { mdiInformationOutline, mdiStar } from "@mdi/js";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../common/dom/fire_event";
+import { mdiInformationOutline, mdiStar } from '@mdi/js'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../common/dom/fire_event'
 import type {
   Adapter,
   IPv4ConfiguredAddress,
   IPv6ConfiguredAddress,
   NetworkConfig,
-} from "../data/network";
-import { haStyle } from "../resources/styles";
-import type { HomeAssistant } from "../types";
-import "./ha-checkbox";
-import type { HaCheckbox } from "./ha-checkbox";
-import "./ha-settings-row";
-import "./ha-svg-icon";
+} from '../data/network'
+import { haStyle } from '../resources/styles'
+import type { HomeAssistant } from '../types'
+import './ha-checkbox'
+import type { HaCheckbox } from './ha-checkbox'
+import './ha-settings-row'
+import './ha-svg-icon'
 
 const format_addresses = (
   addresses: IPv6ConfiguredAddress[] | IPv4ConfiguredAddress[]
 ): TemplateResult =>
   html`${addresses.map((address, i) => [
     html`<span>${address.address}/${address.network_prefix}</span>`,
-    i < addresses.length - 1 ? ", " : nothing,
-  ])}`;
+    i < addresses.length - 1 ? ', ' : nothing,
+  ])}`
 
 const format_auto_detected_interfaces = (
   adapters: Adapter[]
 ): (TemplateResult | string)[] =>
-  adapters.map((adapter) =>
+  adapters.map(adapter =>
     adapter.auto
       ? html`${adapter.name}
         (${format_addresses([...adapter.ipv4, ...adapter.ipv6])})`
-      : ""
-  );
+      : ''
+  )
 
 declare global {
   interface HASSDomEvents {
-    "network-config-changed": { configured_adapters: string[] };
+    'network-config-changed': { configured_adapters: string[] }
   }
 }
-@customElement("ha-network")
+@customElement('ha-network')
 export class HaNetwork extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public networkConfig?: NetworkConfig;
+  @property({ attribute: false }) public networkConfig?: NetworkConfig
 
-  @state() private _expanded?: boolean;
+  @state() private _expanded?: boolean
 
   protected render() {
     if (this.networkConfig === undefined) {
-      return nothing;
+      return nothing
     }
-    const configured_adapters = this.networkConfig.configured_adapters || [];
+    const configured_adapters = this.networkConfig.configured_adapters || []
     return html`
       <ha-settings-row>
         <span slot="prefix">
@@ -63,13 +63,19 @@ export class HaNetwork extends LitElement {
           >
           </ha-checkbox>
         </span>
-        <span slot="heading" data-for="auto_configure">
+        <span
+          slot="heading"
+          data-for="auto_configure"
+        >
           ${this.hass.localize(
-            "ui.panel.config.network.adapter.auto_configure"
+            'ui.panel.config.network.adapter.auto_configure'
           )}
         </span>
-        <span slot="description" data-for="auto_configure">
-          ${this.hass.localize("ui.panel.config.network.adapter.detected")}:
+        <span
+          slot="description"
+          data-for="auto_configure"
+        >
+          ${this.hass.localize('ui.panel.config.network.adapter.detected')}:
           ${format_auto_detected_interfaces(this.networkConfig.adapters)}
           ${!configured_adapters.length
             ? html`<div class="info-text">
@@ -78,7 +84,7 @@ export class HaNetwork extends LitElement {
                   class="info-icon"
                 ></ha-svg-icon>
                 ${this.hass.localize(
-                  "ui.panel.config.network.adapter.auto_configure_manual_hint"
+                  'ui.panel.config.network.adapter.auto_configure_manual_hint'
                 )}
               </div>`
             : nothing}
@@ -86,7 +92,7 @@ export class HaNetwork extends LitElement {
       </ha-settings-row>
       ${configured_adapters.length || this._expanded
         ? this.networkConfig.adapters.map(
-            (adapter) =>
+            adapter =>
               html`<ha-settings-row>
                 <span slot="prefix">
                   <ha-checkbox
@@ -100,12 +106,12 @@ export class HaNetwork extends LitElement {
                 </span>
                 <span slot="heading">
                   ${this.hass.localize(
-                    "ui.panel.config.network.adapter.adapter"
+                    'ui.panel.config.network.adapter.adapter'
                   )}:
                   ${adapter.name}
                   ${adapter.default
                     ? html`<ha-svg-icon .path=${mdiStar}></ha-svg-icon>
-                        (${this.hass.localize("ui.common.default")})`
+                        (${this.hass.localize('ui.common.default')})`
                     : nothing}
                 </span>
                 <span slot="description">
@@ -114,54 +120,54 @@ export class HaNetwork extends LitElement {
               </ha-settings-row>`
           )
         : nothing}
-    `;
+    `
   }
 
   private _handleAutoConfigureCheckboxClick(ev: Event) {
-    const checkbox = ev.currentTarget as HaCheckbox;
+    const checkbox = ev.currentTarget as HaCheckbox
     if (this.networkConfig === undefined) {
-      return;
+      return
     }
 
-    let configured_adapters = [...this.networkConfig.configured_adapters];
+    let configured_adapters = [...this.networkConfig.configured_adapters]
 
     if (checkbox.checked) {
-      this._expanded = false;
-      configured_adapters = [];
+      this._expanded = false
+      configured_adapters = []
     } else {
-      this._expanded = true;
+      this._expanded = true
       for (const adapter of this.networkConfig.adapters) {
         if (adapter.default) {
-          configured_adapters = [adapter.name];
-          break;
+          configured_adapters = [adapter.name]
+          break
         }
       }
     }
 
-    fireEvent(this, "network-config-changed", {
+    fireEvent(this, 'network-config-changed', {
       configured_adapters: configured_adapters,
-    });
+    })
   }
 
   private _handleAdapterCheckboxClick(ev: Event) {
-    const checkbox = ev.currentTarget as HaCheckbox;
-    const adapter_name = (checkbox as any).name;
+    const checkbox = ev.currentTarget as HaCheckbox
+    const adapter_name = (checkbox as any).name
     if (this.networkConfig === undefined) {
-      return;
+      return
     }
 
-    const configured_adapters = [...this.networkConfig.configured_adapters];
+    const configured_adapters = [...this.networkConfig.configured_adapters]
 
     if (checkbox.checked) {
-      configured_adapters.push(adapter_name);
+      configured_adapters.push(adapter_name)
     } else {
-      const index = configured_adapters.indexOf(adapter_name, 0);
-      configured_adapters.splice(index, 1);
+      const index = configured_adapters.indexOf(adapter_name, 0)
+      configured_adapters.splice(index, 1)
     }
 
-    fireEvent(this, "network-config-changed", {
+    fireEvent(this, 'network-config-changed', {
       configured_adapters: configured_adapters,
-    });
+    })
   }
 
   static get styles(): CSSResultGroup {
@@ -178,8 +184,8 @@ export class HaNetwork extends LitElement {
           --settings-row-prefix-display: contents;
         }
 
-        span[slot="heading"],
-        span[slot="description"] {
+        span[slot='heading'],
+        span[slot='description'] {
           cursor: pointer;
         }
 
@@ -198,12 +204,12 @@ export class HaNetwork extends LitElement {
           flex-shrink: 0;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-network": HaNetwork;
+    'ha-network': HaNetwork
   }
 }

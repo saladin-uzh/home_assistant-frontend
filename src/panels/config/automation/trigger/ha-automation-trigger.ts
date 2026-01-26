@@ -1,129 +1,129 @@
-import { mdiDragHorizontalVariant, mdiPlus } from "@mdi/js";
-import deepClone from "deep-clone-simple";
+import { mdiDragHorizontalVariant, mdiPlus } from '@mdi/js'
+import deepClone from 'deep-clone-simple'
 import type {
   HassServiceTarget,
   UnsubscribeFunc,
-} from "home-assistant-js-websocket";
-import type { PropertyValues } from "lit";
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { repeat } from "lit/directives/repeat";
-import { ensureArray } from "../../../../common/array/ensure-array";
-import { storage } from "../../../../common/decorators/storage";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { stopPropagation } from "../../../../common/dom/stop_propagation";
-import { nextRender } from "../../../../common/util/render-status";
-import "../../../../components/ha-button";
-import "../../../../components/ha-button-menu";
-import "../../../../components/ha-sortable";
-import "../../../../components/ha-svg-icon";
+} from 'home-assistant-js-websocket'
+import type { PropertyValues } from 'lit'
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { repeat } from 'lit/directives/repeat'
+import { ensureArray } from '../../../../common/array/ensure-array'
+import { storage } from '../../../../common/decorators/storage'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { stopPropagation } from '../../../../common/dom/stop_propagation'
+import { nextRender } from '../../../../common/util/render-status'
+import '../../../../components/ha-button'
+import '../../../../components/ha-button-menu'
+import '../../../../components/ha-sortable'
+import '../../../../components/ha-svg-icon'
 import {
   getValueFromDynamic,
   isDynamic,
   type AutomationClipboard,
   type Trigger,
   type TriggerList,
-} from "../../../../data/automation";
-import { subscribeLabFeatures } from "../../../../data/labs";
-import type { TriggerDescriptions } from "../../../../data/trigger";
-import { isTriggerList, subscribeTriggers } from "../../../../data/trigger";
-import { SubscribeMixin } from "../../../../mixins/subscribe-mixin";
-import type { HomeAssistant } from "../../../../types";
+} from '../../../../data/automation'
+import { subscribeLabFeatures } from '../../../../data/labs'
+import type { TriggerDescriptions } from '../../../../data/trigger'
+import { isTriggerList, subscribeTriggers } from '../../../../data/trigger'
+import { SubscribeMixin } from '../../../../mixins/subscribe-mixin'
+import type { HomeAssistant } from '../../../../types'
 import {
   PASTE_VALUE,
   showAddAutomationElementDialog,
-} from "../show-add-automation-element-dialog";
-import { automationRowsStyles } from "../styles";
-import "./ha-automation-trigger-row";
-import type HaAutomationTriggerRow from "./ha-automation-trigger-row";
+} from '../show-add-automation-element-dialog'
+import { automationRowsStyles } from '../styles'
+import './ha-automation-trigger-row'
+import type HaAutomationTriggerRow from './ha-automation-trigger-row'
 
-@customElement("ha-automation-trigger")
+@customElement('ha-automation-trigger')
 export default class HaAutomationTrigger extends SubscribeMixin(LitElement) {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public triggers!: Trigger[];
+  @property({ attribute: false }) public triggers!: Trigger[]
 
-  @property({ attribute: false }) public highlightedTriggers?: Trigger[];
+  @property({ attribute: false }) public highlightedTriggers?: Trigger[]
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ type: Boolean, attribute: "sidebar" }) public optionsInSidebar =
-    false;
+  @property({ type: Boolean, attribute: 'sidebar' }) public optionsInSidebar =
+    false
 
-  @property({ type: Boolean }) public root = false;
+  @property({ type: Boolean }) public root = false
 
-  @state() private _rowSortSelected?: number;
+  @state() private _rowSortSelected?: number
 
   @state()
   @storage({
-    key: "automationClipboard",
+    key: 'automationClipboard',
     state: true,
     subscribe: true,
-    storage: "sessionStorage",
+    storage: 'sessionStorage',
   })
-  public _clipboard?: AutomationClipboard;
+  public _clipboard?: AutomationClipboard
 
-  private _focusLastTriggerOnChange = false;
+  private _focusLastTriggerOnChange = false
 
-  private _focusTriggerIndexOnChange?: number;
+  private _focusTriggerIndexOnChange?: number
 
-  private _triggerKeys = new WeakMap<Trigger, string>();
+  private _triggerKeys = new WeakMap<Trigger, string>()
 
-  private _unsub?: Promise<UnsubscribeFunc>;
+  private _unsub?: Promise<UnsubscribeFunc>
 
-  @state() private _triggerDescriptions: TriggerDescriptions = {};
+  @state() private _triggerDescriptions: TriggerDescriptions = {}
 
   // @ts-ignore
-  @state() private _newTriggersAndConditions = false;
+  @state() private _newTriggersAndConditions = false
 
   public disconnectedCallback() {
-    super.disconnectedCallback();
-    this._unsubscribe();
+    super.disconnectedCallback()
+    this._unsubscribe()
   }
 
   protected hassSubscribe() {
     return [
-      subscribeLabFeatures(this.hass!.connection, (features) => {
+      subscribeLabFeatures(this.hass!.connection, features => {
         this._newTriggersAndConditions =
           features.find(
-            (feature) =>
-              feature.domain === "automation" &&
-              feature.preview_feature === "new_triggers_conditions"
-          )?.enabled ?? false;
+            feature =>
+              feature.domain === 'automation' &&
+              feature.preview_feature === 'new_triggers_conditions'
+          )?.enabled ?? false
       }),
-    ];
+    ]
   }
 
   private _subscribeDescriptions() {
-    this._unsubscribe();
-    this._triggerDescriptions = {};
-    this._unsub = subscribeTriggers(this.hass, (descriptions) => {
+    this._unsubscribe()
+    this._triggerDescriptions = {}
+    this._unsub = subscribeTriggers(this.hass, descriptions => {
       this._triggerDescriptions = {
         ...this._triggerDescriptions,
         ...descriptions,
-      };
-    });
+      }
+    })
   }
 
   private _unsubscribe() {
     if (this._unsub) {
-      this._unsub.then((unsub) => unsub());
-      this._unsub = undefined;
+      this._unsub.then(unsub => unsub())
+      this._unsub = undefined
     }
   }
 
   protected willUpdate(changedProperties: PropertyValues): void {
-    super.willUpdate(changedProperties);
-    if (changedProperties.has("_newTriggersAndConditions")) {
-      this._subscribeDescriptions();
+    super.willUpdate(changedProperties)
+    if (changedProperties.has('_newTriggersAndConditions')) {
+      this._subscribeDescriptions()
     }
   }
 
   protected firstUpdated(changedProps: PropertyValues) {
-    super.firstUpdated(changedProps);
-    this.hass.loadBackendTranslation("triggers");
+    super.firstUpdated(changedProps)
+    this.hass.loadBackendTranslation('triggers')
   }
 
   protected render() {
@@ -138,10 +138,10 @@ export default class HaAutomationTrigger extends SubscribeMixin(LitElement) {
         @item-added=${this._triggerAdded}
         @item-removed=${this._triggerRemoved}
       >
-        <div class="rows ${!this.optionsInSidebar ? "no-sidebar" : ""}">
+        <div class="rows ${!this.optionsInSidebar ? 'no-sidebar' : ''}">
           ${repeat(
             this.triggers,
-            (trigger) => this._getKey(trigger),
+            trigger => this._getKey(trigger),
             (trg, idx) => html`
               <ha-automation-trigger-row
                 .sortableData=${trg}
@@ -168,8 +168,8 @@ export default class HaAutomationTrigger extends SubscribeMixin(LitElement) {
                       <div
                         tabindex="0"
                         class="handle ${this._rowSortSelected === idx
-                          ? "active"
-                          : ""}"
+                          ? 'active'
+                          : ''}"
                         slot="icons"
                         @keydown=${this._handleDragKeydown}
                         @click=${stopPropagation}
@@ -188,254 +188,257 @@ export default class HaAutomationTrigger extends SubscribeMixin(LitElement) {
             <ha-button
               .disabled=${this.disabled}
               @click=${this._addTriggerDialog}
-              .appearance=${this.root ? "accent" : "filled"}
-              .size=${this.root ? "medium" : "small"}
+              .appearance=${this.root ? 'accent' : 'filled'}
+              .size=${this.root ? 'medium' : 'small'}
             >
               ${this.hass.localize(
-                "ui.panel.config.automation.editor.triggers.add"
+                'ui.panel.config.automation.editor.triggers.add'
               )}
-              <ha-svg-icon .path=${mdiPlus} slot="start"></ha-svg-icon>
+              <ha-svg-icon
+                .path=${mdiPlus}
+                slot="start"
+              ></ha-svg-icon>
             </ha-button>
           </div>
         </div>
       </ha-sortable>
-    `;
+    `
   }
 
   private _addTriggerDialog() {
     if (this.narrow) {
-      fireEvent(this, "request-close-sidebar");
+      fireEvent(this, 'request-close-sidebar')
     }
     showAddAutomationElementDialog(this, {
-      type: "trigger",
+      type: 'trigger',
       add: this._addTrigger,
       clipboardItem: !this._clipboard?.trigger
         ? undefined
         : isTriggerList(this._clipboard.trigger)
-          ? "list"
+          ? 'list'
           : this._clipboard?.trigger?.trigger,
-    });
+    })
   }
 
   private _addTrigger = (value: string, target?: HassServiceTarget) => {
-    let triggers: Trigger[];
+    let triggers: Trigger[]
     if (value === PASTE_VALUE) {
-      triggers = this.triggers.concat(deepClone(this._clipboard!.trigger));
+      triggers = this.triggers.concat(deepClone(this._clipboard!.trigger))
     } else if (isDynamic(value)) {
       triggers = this.triggers.concat({
         trigger: getValueFromDynamic(value),
         target,
-      });
+      })
     } else {
-      const trigger = value as Exclude<Trigger, TriggerList>["trigger"];
+      const trigger = value as Exclude<Trigger, TriggerList>['trigger']
       const elClass = customElements.get(
         `ha-automation-trigger-${trigger}`
       ) as CustomElementConstructor & {
-        defaultConfig: Trigger;
-      };
+        defaultConfig: Trigger
+      }
       triggers = this.triggers.concat({
         ...elClass.defaultConfig,
-      });
+      })
     }
-    this._focusLastTriggerOnChange = true;
-    fireEvent(this, "value-changed", { value: triggers });
-  };
+    this._focusLastTriggerOnChange = true
+    fireEvent(this, 'value-changed', { value: triggers })
+  }
 
   protected updated(changedProps: PropertyValues) {
-    super.updated(changedProps);
+    super.updated(changedProps)
 
     if (
-      changedProps.has("triggers") &&
+      changedProps.has('triggers') &&
       (this._focusLastTriggerOnChange ||
         this._focusTriggerIndexOnChange !== undefined)
     ) {
       const row = this.shadowRoot!.querySelector<HaAutomationTriggerRow>(
-        `ha-automation-trigger-row:${this._focusLastTriggerOnChange ? "last-of-type" : `nth-of-type(${this._focusTriggerIndexOnChange! + 1})`}`
-      )!;
+        `ha-automation-trigger-row:${this._focusLastTriggerOnChange ? 'last-of-type' : `nth-of-type(${this._focusTriggerIndexOnChange! + 1})`}`
+      )!
 
-      this._focusLastTriggerOnChange = false;
-      this._focusTriggerIndexOnChange = undefined;
+      this._focusLastTriggerOnChange = false
+      this._focusTriggerIndexOnChange = undefined
 
       row.updateComplete.then(() => {
         if (this.optionsInSidebar) {
-          row.openSidebar();
+          row.openSidebar()
           if (this.narrow) {
             row.scrollIntoView({
-              block: "start",
-              behavior: "smooth",
-            });
+              block: 'start',
+              behavior: 'smooth',
+            })
           }
         } else {
-          row.expand();
-          row.focus();
+          row.expand()
+          row.focus()
         }
-      });
+      })
     }
   }
 
   public expandAll() {
     const triggerRows =
       this.shadowRoot!.querySelectorAll<HaAutomationTriggerRow>(
-        "ha-automation-trigger-row"
-      )!;
-    triggerRows.forEach((row) => {
-      row.expand();
-    });
+        'ha-automation-trigger-row'
+      )!
+    triggerRows.forEach(row => {
+      row.expand()
+    })
   }
 
   private _getKey(action: Trigger) {
     if (!this._triggerKeys.has(action)) {
-      this._triggerKeys.set(action, Math.random().toString());
+      this._triggerKeys.set(action, Math.random().toString())
     }
 
-    return this._triggerKeys.get(action)!;
+    return this._triggerKeys.get(action)!
   }
 
   private _moveUp(ev) {
-    ev.stopPropagation();
-    const index = (ev.target as any).index;
+    ev.stopPropagation()
+    const index = (ev.target as any).index
     if (!(ev.target as HaAutomationTriggerRow).first) {
-      const newIndex = index - 1;
-      this._move(index, newIndex);
+      const newIndex = index - 1
+      this._move(index, newIndex)
       if (this._rowSortSelected === index) {
-        this._rowSortSelected = newIndex;
+        this._rowSortSelected = newIndex
       }
-      ev.target.focus();
+      ev.target.focus()
     }
   }
 
   private _moveDown(ev) {
-    ev.stopPropagation();
-    const index = (ev.target as any).index;
+    ev.stopPropagation()
+    const index = (ev.target as any).index
     if (!(ev.target as HaAutomationTriggerRow).last) {
-      const newIndex = index + 1;
-      this._move(index, newIndex);
+      const newIndex = index + 1
+      this._move(index, newIndex)
       if (this._rowSortSelected === index) {
-        this._rowSortSelected = newIndex;
+        this._rowSortSelected = newIndex
       }
-      ev.target.focus();
+      ev.target.focus()
     }
   }
 
   private _move(oldIndex: number, newIndex: number) {
-    const triggers = this.triggers.concat();
-    const item = triggers.splice(oldIndex, 1)[0];
-    triggers.splice(newIndex, 0, item);
-    this.triggers = triggers;
-    fireEvent(this, "value-changed", { value: triggers });
+    const triggers = this.triggers.concat()
+    const item = triggers.splice(oldIndex, 1)[0]
+    triggers.splice(newIndex, 0, item)
+    this.triggers = triggers
+    fireEvent(this, 'value-changed', { value: triggers })
   }
 
   private _triggerMoved(ev: CustomEvent): void {
-    ev.stopPropagation();
-    const { oldIndex, newIndex } = ev.detail;
-    this._move(oldIndex, newIndex);
+    ev.stopPropagation()
+    const { oldIndex, newIndex } = ev.detail
+    this._move(oldIndex, newIndex)
   }
 
   private async _triggerAdded(ev: CustomEvent): Promise<void> {
-    ev.stopPropagation();
-    const { index, data } = ev.detail;
-    const item = ev.detail.item as HaAutomationTriggerRow;
-    const selected = item.selected;
+    ev.stopPropagation()
+    const { index, data } = ev.detail
+    const item = ev.detail.item as HaAutomationTriggerRow
+    const selected = item.selected
 
     let triggers = [
       ...this.triggers.slice(0, index),
       data,
       ...this.triggers.slice(index),
-    ];
+    ]
     // Add trigger locally to avoid UI jump
-    this.triggers = triggers;
+    this.triggers = triggers
     if (selected) {
-      this._focusTriggerIndexOnChange = triggers.length === 1 ? 0 : index;
+      this._focusTriggerIndexOnChange = triggers.length === 1 ? 0 : index
     }
-    await nextRender();
+    await nextRender()
     if (this.triggers !== triggers) {
       // Ensure trigger is added even after update
       triggers = [
         ...this.triggers.slice(0, index),
         data,
         ...this.triggers.slice(index),
-      ];
+      ]
       if (selected) {
-        this._focusTriggerIndexOnChange = triggers.length === 1 ? 0 : index;
+        this._focusTriggerIndexOnChange = triggers.length === 1 ? 0 : index
       }
     }
-    fireEvent(this, "value-changed", { value: triggers });
+    fireEvent(this, 'value-changed', { value: triggers })
   }
 
   private async _triggerRemoved(ev: CustomEvent): Promise<void> {
-    ev.stopPropagation();
-    const { index } = ev.detail;
-    const trigger = this.triggers[index];
+    ev.stopPropagation()
+    const { index } = ev.detail
+    const trigger = this.triggers[index]
     // Remove trigger locally to avoid UI jump
-    this.triggers = this.triggers.filter((t) => t !== trigger);
-    await nextRender();
+    this.triggers = this.triggers.filter(t => t !== trigger)
+    await nextRender()
     // Ensure trigger is removed even after update
-    const triggers = this.triggers.filter((t) => t !== trigger);
-    fireEvent(this, "value-changed", { value: triggers });
+    const triggers = this.triggers.filter(t => t !== trigger)
+    fireEvent(this, 'value-changed', { value: triggers })
   }
 
   private _triggerChanged(ev: CustomEvent) {
-    ev.stopPropagation();
-    const triggers = [...this.triggers];
-    const newValue = ev.detail.value;
-    const index = (ev.target as any).index;
+    ev.stopPropagation()
+    const triggers = [...this.triggers]
+    const newValue = ev.detail.value
+    const index = (ev.target as any).index
 
     if (newValue === null) {
-      triggers.splice(index, 1);
+      triggers.splice(index, 1)
     } else {
       // Store key on new value.
-      const key = this._getKey(triggers[index]);
-      this._triggerKeys.set(newValue, key);
+      const key = this._getKey(triggers[index])
+      this._triggerKeys.set(newValue, key)
 
-      triggers[index] = newValue;
+      triggers[index] = newValue
     }
 
-    fireEvent(this, "value-changed", { value: triggers });
+    fireEvent(this, 'value-changed', { value: triggers })
   }
 
   private _duplicateTrigger(ev: CustomEvent) {
-    ev.stopPropagation();
-    const index = (ev.target as any).index;
-    fireEvent(this, "value-changed", {
+    ev.stopPropagation()
+    const index = (ev.target as any).index
+    fireEvent(this, 'value-changed', {
       // @ts-expect-error Requires library bump to ES2023
       value: this.triggers.toSpliced(
         index + 1,
         0,
         deepClone(this.triggers[index])
       ),
-    });
+    })
   }
 
   private _insertAfter(ev: CustomEvent) {
-    ev.stopPropagation();
-    const index = (ev.target as any).index;
-    const inserted = ensureArray(ev.detail.value);
-    this.highlightedTriggers = inserted;
-    fireEvent(this, "value-changed", {
+    ev.stopPropagation()
+    const index = (ev.target as any).index
+    const inserted = ensureArray(ev.detail.value)
+    this.highlightedTriggers = inserted
+    fireEvent(this, 'value-changed', {
       // @ts-expect-error Requires library bump to ES2023
       value: this.triggers.toSpliced(index + 1, 0, ...inserted),
-    });
+    })
   }
 
   private _handleDragKeydown(ev: KeyboardEvent) {
-    if (ev.key === "Enter" || ev.key === " ") {
-      ev.stopPropagation();
+    if (ev.key === 'Enter' || ev.key === ' ') {
+      ev.stopPropagation()
       this._rowSortSelected =
         this._rowSortSelected === undefined
           ? (ev.target as any).index
-          : undefined;
+          : undefined
     }
   }
 
   private _stopSortSelection() {
-    this._rowSortSelected = undefined;
+    this._rowSortSelected = undefined
   }
 
-  static styles = automationRowsStyles;
+  static styles = automationRowsStyles
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-trigger": HaAutomationTrigger;
+    'ha-automation-trigger': HaAutomationTrigger
   }
 }

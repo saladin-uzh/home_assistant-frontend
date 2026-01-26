@@ -1,24 +1,24 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../components/ha-date-input";
-import "../../../components/ha-time-input";
-import { isUnavailableState, UNKNOWN } from "../../../data/entity";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../components/ha-date-input'
+import '../../../components/ha-time-input'
+import { isUnavailableState, UNKNOWN } from '../../../data/entity'
 import {
   setInputDateTimeValue,
   stateToIsoDateString,
-} from "../../../data/input_datetime";
-import type { HomeAssistant } from "../../../types";
+} from '../../../data/input_datetime'
+import type { HomeAssistant } from '../../../types'
 
-@customElement("more-info-input_datetime")
+@customElement('more-info-input_datetime')
 class MoreInfoInputDatetime extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj?: HassEntity;
+  @property({ attribute: false }) public stateObj?: HassEntity
 
   protected render() {
     if (!this.stateObj) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -37,9 +37,9 @@ class MoreInfoInputDatetime extends LitElement {
         ? html`
             <ha-time-input
               .value=${this.stateObj.state === UNKNOWN
-                ? ""
+                ? ''
                 : this.stateObj.attributes.has_date
-                  ? this.stateObj.state.split(" ")[1]
+                  ? this.stateObj.state.split(' ')[1]
                   : this.stateObj.state}
               .locale=${this.hass.locale}
               .disabled=${isUnavailableState(this.stateObj.state)}
@@ -48,11 +48,11 @@ class MoreInfoInputDatetime extends LitElement {
             ></ha-time-input>
           `
         : ``}
-    `;
+    `
   }
 
   private _stopEventPropagation(ev: Event): void {
-    ev.stopPropagation();
+    ev.stopPropagation()
   }
 
   private _timeChanged(ev: CustomEvent<{ value: string }>): void {
@@ -61,9 +61,9 @@ class MoreInfoInputDatetime extends LitElement {
       this.stateObj!.entity_id,
       ev.detail.value,
       this.stateObj!.attributes.has_date
-        ? this.stateObj!.state.split(" ")[0]
+        ? this.stateObj!.state.split(' ')[0]
         : undefined
-    );
+    )
   }
 
   private _dateChanged(ev: CustomEvent<{ value: string }>): void {
@@ -71,10 +71,10 @@ class MoreInfoInputDatetime extends LitElement {
       this.hass!,
       this.stateObj!.entity_id,
       this.stateObj!.attributes.has_time
-        ? this.stateObj!.state.split(" ")[1]
+        ? this.stateObj!.state.split(' ')[1]
         : undefined,
       ev.detail.value
-    );
+    )
   }
 
   static styles = css`
@@ -88,11 +88,11 @@ class MoreInfoInputDatetime extends LitElement {
       margin-inline-start: 4px;
       margin-inline-end: initial;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "more-info-input_datetime": MoreInfoInputDatetime;
+    'more-info-input_datetime': MoreInfoInputDatetime
   }
 }

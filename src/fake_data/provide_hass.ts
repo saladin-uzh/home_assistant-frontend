@@ -1,46 +1,45 @@
-import type { HassEntities, HassEntity } from "home-assistant-js-websocket";
+import type { HassEntities, HassEntity } from 'home-assistant-js-websocket'
 import {
   applyThemesOnElement,
   invalidateThemeCache,
-} from "../common/dom/apply_themes_on_element";
-import { fireEvent } from "../common/dom/fire_event";
-import { computeFormatFunctions } from "../common/translations/entity-state";
-import { computeLocalize } from "../common/translations/localize";
-import { DEFAULT_PANEL } from "../data/panel";
+} from '../common/dom/apply_themes_on_element'
+import { fireEvent } from '../common/dom/fire_event'
+import { computeFormatFunctions } from '../common/translations/entity-state'
+import { computeLocalize } from '../common/translations/localize'
+import { DEFAULT_PANEL } from '../data/panel'
 import {
   DateFormat,
   FirstWeekday,
   NumberFormat,
   TimeFormat,
   TimeZone,
-} from "../data/translation";
-import { translationMetadata } from "../resources/translations-metadata";
-import type { HomeAssistant } from "../types";
-import { getLocalLanguage, getTranslation } from "../util/common-translation";
-import { demoConfig } from "./demo_config";
-import { demoPanels } from "./demo_panels";
-import { demoServices } from "./demo_services";
-import type { Entity } from "./entity";
-import { getEntity } from "./entity";
-import type { EntityRegistryDisplayEntry } from "../data/entity_registry";
+} from '../data/translation'
+import { translationMetadata } from '../resources/translations-metadata'
+import type { HomeAssistant } from '../types'
+import { getLocalLanguage, getTranslation } from '../util/common-translation'
+import { demoConfig } from './demo_config'
+import { demoPanels } from './demo_panels'
+import { demoServices } from './demo_services'
+import type { Entity } from './entity'
+import { getEntity } from './entity'
+import type { EntityRegistryDisplayEntry } from '../data/entity_registry'
 
-const ensureArray = <T>(val: T | T[]): T[] =>
-  Array.isArray(val) ? val : [val];
+const ensureArray = <T>(val: T | T[]): T[] => (Array.isArray(val) ? val : [val])
 
 type MockRestCallback = (
   hass: MockHomeAssistant,
   method: string,
   path: string,
   parameters: Record<string, any> | undefined
-) => any;
+) => any
 
 export interface MockHomeAssistant extends HomeAssistant {
-  mockEntities: any;
-  updateHass(obj: Partial<MockHomeAssistant>);
-  updateStates(newStates: HassEntities);
-  addEntities(entities: Entity | Entity[], replace?: boolean);
-  updateTranslations(fragment: null | string, language?: string);
-  addTranslations(translations: Record<string, string>, language?: string);
+  mockEntities: any
+  updateHass(obj: Partial<MockHomeAssistant>)
+  updateStates(newStates: HassEntities)
+  addEntities(entities: Entity | Entity[], replace?: boolean)
+  updateTranslations(fragment: null | string, language?: string)
+  addTranslations(translations: Record<string, string>, language?: string)
   mockWS<T extends (...args) => any = any>(
     type: string,
     callback: (
@@ -48,66 +47,66 @@ export interface MockHomeAssistant extends HomeAssistant {
       hass: MockHomeAssistant,
       onChange?: (response: any) => void
     ) => Awaited<ReturnType<T>>
-  );
-  mockAPI(path: string | RegExp, callback: MockRestCallback);
-  mockEvent(event);
-  mockTheme(theme: Record<string, string> | null);
-  formatEntityState(stateObj: HassEntity, state?: string): string;
+  )
+  mockAPI(path: string | RegExp, callback: MockRestCallback)
+  mockEvent(event)
+  mockTheme(theme: Record<string, string> | null)
+  formatEntityState(stateObj: HassEntity, state?: string): string
   formatEntityAttributeValue(
     stateObj: HassEntity,
     attribute: string,
     value?: any
-  ): string;
-  formatEntityAttributeName(stateObj: HassEntity, attribute: string): string;
+  ): string
+  formatEntityAttributeName(stateObj: HassEntity, attribute: string): string
 }
 
 export const provideHass = (
   elements,
   overrideData: Partial<HomeAssistant> = {}
 ): MockHomeAssistant => {
-  elements = ensureArray(elements);
+  elements = ensureArray(elements)
   // Can happen because we store sidebar, more info etc on hass.
-  const hass = (): MockHomeAssistant => elements[0].hass;
+  const hass = (): MockHomeAssistant => elements[0].hass
 
-  const wsCommands = {};
-  const restResponses: [string | RegExp, MockRestCallback][] = [];
-  const eventListeners: Record<string, ((event) => void)[]> = {};
-  const entities = {};
+  const wsCommands = {}
+  const restResponses: [string | RegExp, MockRestCallback][] = []
+  const eventListeners: Record<string, ((event) => void)[]> = {}
+  const entities = {}
 
   async function updateTranslations(
     fragment: null | string,
     language?: string
   ) {
-    const lang = language || getLocalLanguage();
-    const translation = await getTranslation(fragment, lang);
-    await addTranslations(translation.data, lang);
-    updateFormatFunctions();
+    const lang = language || getLocalLanguage()
+    const translation = await getTranslation(fragment, lang)
+    await addTranslations(translation.data, lang)
+    updateFormatFunctions()
   }
 
   async function addTranslations(
     translations: Record<string, string>,
     language?: string
   ) {
-    const lang = language || getLocalLanguage();
+    const lang = language || getLocalLanguage()
     const resources = {
       [lang]: {
         ...(hass().resources && hass().resources[lang]),
         ...translations,
       },
-    };
+    }
     hass().updateHass({
       resources,
-    });
+    })
     hass().updateHass({
       localize: await computeLocalize(elements[0], lang, hass().resources),
-    });
-    fireEvent(window, "translations-updated");
+    })
+    fireEvent(window, 'translations-updated')
   }
 
   function updateStates(newStates: HassEntities) {
     hass().updateHass({
       states: { ...hass().states, ...newStates },
-    });
+    })
   }
 
   async function updateFormatFunctions() {
@@ -125,28 +124,28 @@ export const provideHass = (
       hass().areas,
       hass().floors,
       [] // numericDeviceClasses
-    );
+    )
     hass().updateHass({
       formatEntityState,
       formatEntityAttributeName,
       formatEntityAttributeValue,
       formatEntityName,
-    });
+    })
   }
 
   function addEntities(newEntities, replace = false) {
-    const states = {};
-    ensureArray(newEntities).forEach((ent) => {
-      ent.hass = hass();
-      entities[ent.entityId] = ent;
-      states[ent.entityId] = ent.toState();
-    });
+    const states = {}
+    ensureArray(newEntities).forEach(ent => {
+      ent.hass = hass()
+      entities[ent.entityId] = ent
+      states[ent.entityId] = ent.toState()
+    })
     if (replace) {
       hass().updateHass({
         states,
-      });
+      })
     } else {
-      updateStates(states);
+      updateStates(states)
     }
 
     for (const ent of ensureArray(newEntities)) {
@@ -154,68 +153,68 @@ export const provideHass = (
         entity_id: ent.entityId,
         name: ent.name,
         icon: ent.icon,
-        platform: "demo",
+        platform: 'demo',
         labels: [],
-      } satisfies EntityRegistryDisplayEntry;
+      } satisfies EntityRegistryDisplayEntry
     }
 
-    updateFormatFunctions();
+    updateFormatFunctions()
   }
 
   function mockAPI(path, callback) {
-    restResponses.push([path, callback]);
+    restResponses.push([path, callback])
   }
 
   mockAPI(/states\/.+/, (_method, path, parameters) => {
-    const [domain, objectId] = path.slice(7).split(".", 2);
+    const [domain, objectId] = path.slice(7).split('.', 2)
     if (!domain || !objectId) {
-      return;
+      return
     }
     addEntities(
       getEntity(domain, objectId, parameters.state, parameters.attributes)
-    );
-  });
+    )
+  })
 
-  const localLanguage = getLocalLanguage();
-  const noop = () => undefined;
+  const localLanguage = getLocalLanguage()
+  const noop = () => undefined
 
   const hassObj: MockHomeAssistant = {
     // Home Assistant properties
     auth: {
       data: {
-        hassUrl: "",
+        hassUrl: '',
       },
     } as any,
     connection: {
       addEventListener: noop,
       removeEventListener: noop,
-      sendMessage: (msg) => {
-        const callback = wsCommands[msg.type];
+      sendMessage: msg => {
+        const callback = wsCommands[msg.type]
 
         if (callback) {
-          callback(msg, hass());
+          callback(msg, hass())
         } else {
           // eslint-disable-next-line
-          console.error(`Unknown WS command: ${msg.type}`);
+          console.error(`Unknown WS command: ${msg.type}`)
         }
       },
-      sendMessagePromise: async (msg) => {
-        const callback = wsCommands[msg.type];
+      sendMessagePromise: async msg => {
+        const callback = wsCommands[msg.type]
         return callback
           ? callback(msg, hass())
           : Promise.reject({
-              code: "command_not_mocked",
+              code: 'command_not_mocked',
               message: `WS Command ${msg.type} is not implemented in provide_hass.`,
-            });
+            })
       },
       subscribeMessage: async (onChange, msg) => {
-        const callback = wsCommands[msg.type];
+        const callback = wsCommands[msg.type]
         return callback
           ? callback(msg, hass(), onChange)
           : Promise.reject({
-              code: "command_not_mocked",
+              code: 'command_not_mocked',
               message: `WS Command ${msg.type} is not implemented in provide_hass.`,
-            });
+            })
       },
       subscribeEvents: async (
         // @ts-ignore
@@ -223,14 +222,14 @@ export const provideHass = (
         event
       ) => {
         if (!(event in eventListeners)) {
-          eventListeners[event] = [];
+          eventListeners[event] = []
         }
-        eventListeners[event].push(callback);
+        eventListeners[event].push(callback)
         return () => {
           eventListeners[event] = eventListeners[event].filter(
-            (cb) => cb !== callback
-          );
-        };
+            cb => cb !== callback
+          )
+        }
       },
       suspendReconnectUntil: noop,
       suspend: noop,
@@ -238,29 +237,29 @@ export const provideHass = (
       socket: {
         readyState: WebSocket.OPEN,
       },
-      haVersion: "DEMO",
+      haVersion: 'DEMO',
     } as any,
     connected: true,
     states: {},
     config: demoConfig,
     themes: {
-      default_theme: "default",
+      default_theme: 'default',
       default_dark_theme: null,
       themes: {},
       darkMode: false,
-      theme: "default",
+      theme: 'default',
     },
     panels: demoPanels,
     services: demoServices,
     user: {
       credentials: [],
-      id: "abcd",
+      id: 'abcd',
       is_admin: true,
       is_owner: true,
       mfa_modules: [],
-      name: "Demo User",
+      name: 'Demo User',
     },
-    panelUrl: "lovelace",
+    panelUrl: 'lovelace',
     defaultPanel: DEFAULT_PANEL,
     language: localLanguage,
     selectedLanguage: localLanguage,
@@ -273,104 +272,104 @@ export const provideHass = (
       first_weekday: FirstWeekday.language,
     },
     resources: null as any,
-    localize: () => "",
+    localize: () => '',
 
     translationMetadata: translationMetadata as any,
     async loadBackendTranslation() {
-      return hass().localize;
+      return hass().localize
     },
-    dockedSidebar: "auto",
+    dockedSidebar: 'auto',
     vibrate: true,
     debugConnection: false,
     suspendWhenHidden: false,
     moreInfoEntityId: null as any,
     // @ts-ignore
     async callService(domain, service, data) {
-      if (data && "entity_id" in data) {
+      if (data && 'entity_id' in data) {
         // eslint-disable-next-line
-        console.log("Entity service call", domain, service, data);
+        console.log('Entity service call', domain, service, data)
         await Promise.all(
-          ensureArray(data.entity_id).map((ent) =>
+          ensureArray(data.entity_id).map(ent =>
             entities[ent].handleService(domain, service, data)
           )
-        );
+        )
       } else {
         // eslint-disable-next-line
-        console.log("unmocked callService", domain, service, data);
+        console.log('unmocked callService', domain, service, data)
       }
     },
     async callApi(method, path, parameters) {
       const response = restResponses.find(([resPath]) =>
-        typeof resPath === "string" ? path === resPath : resPath.test(path)
-      );
+        typeof resPath === 'string' ? path === resPath : resPath.test(path)
+      )
 
       return response
         ? response[1](hass(), method, path, parameters)
-        : Promise.reject(`API Mock for ${path} is not implemented`);
+        : Promise.reject(`API Mock for ${path} is not implemented`)
     },
     hassUrl: (path?) => path,
-    fetchWithAuth: () => Promise.reject("Not implemented"),
-    sendWS: (msg) => hassObj.connection.sendMessage(msg),
-    callWS: (msg) => hassObj.connection.sendMessagePromise(msg),
+    fetchWithAuth: () => Promise.reject('Not implemented'),
+    sendWS: msg => hassObj.connection.sendMessage(msg),
+    callWS: msg => hassObj.connection.sendMessagePromise(msg),
 
     // Mock stuff
     mockEntities: entities,
     updateHass(obj: Partial<MockHomeAssistant>) {
-      const newHass = { ...hass(), ...obj };
-      elements.forEach((el) => {
-        el.hass = newHass;
-      });
+      const newHass = { ...hass(), ...obj }
+      elements.forEach(el => {
+        el.hass = newHass
+      })
     },
     updateStates,
     updateTranslations,
     addTranslations,
     loadFragmentTranslation: async (fragment: string) => {
-      await updateTranslations(fragment);
-      return hass().localize;
+      await updateTranslations(fragment)
+      return hass().localize
     },
     addEntities,
     mockWS(type, callback) {
-      wsCommands[type] = callback;
+      wsCommands[type] = callback
     },
     mockAPI,
     mockEvent(event) {
-      (eventListeners[event] || []).forEach((fn) => fn(event));
+      ;(eventListeners[event] || []).forEach(fn => fn(event))
     },
     mockTheme(theme) {
-      invalidateThemeCache();
+      invalidateThemeCache()
       hass().updateHass({
-        selectedTheme: { theme: theme ? "mock" : "default" },
+        selectedTheme: { theme: theme ? 'mock' : 'default' },
         themes: {
           ...hass().themes,
           themes: {
             mock: theme as any,
           },
         },
-      });
-      const { themes, selectedTheme } = hass();
+      })
+      const { themes, selectedTheme } = hass()
       applyThemesOnElement(
         document.documentElement,
         themes,
         selectedTheme!.theme,
         undefined,
         true
-      );
+      )
     },
     areas: {},
     devices: {},
     entities: {},
     formatEntityState: (stateObj, state) =>
-      (state !== null ? state : stateObj.state) ?? "",
+      (state !== null ? state : stateObj.state) ?? '',
     formatEntityAttributeName: (_stateObj, attribute) => attribute,
     formatEntityAttributeValue: (stateObj, attribute, value) =>
-      value !== null ? value : (stateObj.attributes[attribute] ?? ""),
+      value !== null ? value : (stateObj.attributes[attribute] ?? ''),
     ...overrideData,
-  };
+  }
 
   // Update the elements. Note, we call it on hassObj so that if it was
   // overridden (like in the demo), it will still work.
-  hassObj.updateHass(hassObj);
+  hassObj.updateHass(hassObj)
 
   // @ts-ignore
-  return hassObj;
-};
+  return hassObj
+}

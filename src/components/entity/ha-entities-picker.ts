@@ -1,92 +1,92 @@
-import { mdiDragHorizontalVariant } from "@mdi/js";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../common/dom/fire_event";
-import { isValidEntityId } from "../../common/entity/valid_entity_id";
-import type { HaEntityPickerEntityFilterFunc } from "../../data/entity";
-import type { HomeAssistant, ValueChangedEvent } from "../../types";
-import "../ha-sortable";
-import "./ha-entity-picker";
+import { mdiDragHorizontalVariant } from '@mdi/js'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../common/dom/fire_event'
+import { isValidEntityId } from '../../common/entity/valid_entity_id'
+import type { HaEntityPickerEntityFilterFunc } from '../../data/entity'
+import type { HomeAssistant, ValueChangedEvent } from '../../types'
+import '../ha-sortable'
+import './ha-entity-picker'
 
-@customElement("ha-entities-picker")
+@customElement('ha-entities-picker')
 class HaEntitiesPicker extends LitElement {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ type: Array }) public value?: string[];
+  @property({ type: Array }) public value?: string[]
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = false;
+  @property({ type: Boolean }) public required = false
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public placeholder?: string;
+  @property() public placeholder?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
   /**
    * Show entities from specific domains.
    * @type {string}
    * @attr include-domains
    */
-  @property({ type: Array, attribute: "include-domains" })
-  public includeDomains?: string[];
+  @property({ type: Array, attribute: 'include-domains' })
+  public includeDomains?: string[]
 
   /**
    * Show no entities of these domains.
    * @type {Array}
    * @attr exclude-domains
    */
-  @property({ type: Array, attribute: "exclude-domains" })
-  public excludeDomains?: string[];
+  @property({ type: Array, attribute: 'exclude-domains' })
+  public excludeDomains?: string[]
 
   /**
    * Show only entities of these device classes.
    * @type {Array}
    * @attr include-device-classes
    */
-  @property({ type: Array, attribute: "include-device-classes" })
-  public includeDeviceClasses?: string[];
+  @property({ type: Array, attribute: 'include-device-classes' })
+  public includeDeviceClasses?: string[]
 
   /**
    * Show only entities with these unit of measuments.
    * @type {Array}
    * @attr include-unit-of-measurement
    */
-  @property({ type: Array, attribute: "include-unit-of-measurement" })
-  public includeUnitOfMeasurement?: string[];
+  @property({ type: Array, attribute: 'include-unit-of-measurement' })
+  public includeUnitOfMeasurement?: string[]
 
   /**
    * List of allowed entities to show. Will ignore all other filters.
    * @type {Array}
    * @attr include-entities
    */
-  @property({ type: Array, attribute: "include-entities" })
-  public includeEntities?: string[];
+  @property({ type: Array, attribute: 'include-entities' })
+  public includeEntities?: string[]
 
   /**
    * List of entities to be excluded.
    * @type {Array}
    * @attr exclude-entities
    */
-  @property({ type: Array, attribute: "exclude-entities" })
-  public excludeEntities?: string[];
+  @property({ type: Array, attribute: 'exclude-entities' })
+  public excludeEntities?: string[]
 
   @property({ attribute: false })
-  public entityFilter?: HaEntityPickerEntityFilterFunc;
+  public entityFilter?: HaEntityPickerEntityFilterFunc
 
-  @property({ attribute: false, type: Array }) public createDomains?: string[];
+  @property({ attribute: false, type: Array }) public createDomains?: string[]
 
   @property({ type: Boolean })
-  public reorder = false;
+  public reorder = false
 
   protected render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
 
-    const currentEntities = this._currentEntities;
+    const currentEntities = this._currentEntities
     return html`
       ${this.label ? html`<label>${this.label}</label>` : nothing}
       <ha-sortable
@@ -96,7 +96,7 @@ class HaEntitiesPicker extends LitElement {
       >
         <div class="list">
           ${currentEntities.map(
-            (entityId) => html`
+            entityId => html`
               <div class="entity">
                 <ha-entity-picker
                   allow-custom-entity
@@ -150,18 +150,18 @@ class HaEntitiesPicker extends LitElement {
           .addButton=${currentEntities.length > 0}
         ></ha-entity-picker>
       </div>
-    `;
+    `
   }
 
   private _entityMoved(e: CustomEvent) {
-    e.stopPropagation();
-    const { oldIndex, newIndex } = e.detail;
-    const currentEntities = this._currentEntities;
-    const movedEntity = currentEntities[oldIndex];
-    const newEntities = [...currentEntities];
-    newEntities.splice(oldIndex, 1);
-    newEntities.splice(newIndex, 0, movedEntity);
-    this._updateEntities(newEntities);
+    e.stopPropagation()
+    const { oldIndex, newIndex } = e.detail
+    const currentEntities = this._currentEntities
+    const movedEntity = currentEntities[oldIndex]
+    const newEntities = [...currentEntities]
+    newEntities.splice(oldIndex, 1)
+    newEntities.splice(newIndex, 0, movedEntity)
+    this._updateEntities(newEntities)
   }
 
   private _excludeEntities = memoizeOne(
@@ -170,60 +170,60 @@ class HaEntitiesPicker extends LitElement {
       excludeEntities: string[] | undefined
     ): string[] | undefined => {
       if (value === undefined) {
-        return excludeEntities;
+        return excludeEntities
       }
-      return [...(excludeEntities || []), ...value];
+      return [...(excludeEntities || []), ...value]
     }
-  );
+  )
 
   private get _currentEntities() {
-    return this.value || [];
+    return this.value || []
   }
 
   private async _updateEntities(entities) {
-    this.value = entities;
+    this.value = entities
 
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: entities,
-    });
+    })
   }
 
   private _entityChanged(event: ValueChangedEvent<string>) {
-    event.stopPropagation();
-    const curValue = (event.currentTarget as any).curValue;
-    const newValue = event.detail.value;
+    event.stopPropagation()
+    const curValue = (event.currentTarget as any).curValue
+    const newValue = event.detail.value
     if (
       newValue === curValue ||
       (newValue !== undefined && !isValidEntityId(newValue))
     ) {
-      return;
+      return
     }
-    const currentEntities = this._currentEntities;
+    const currentEntities = this._currentEntities
     if (!newValue || currentEntities.includes(newValue)) {
-      this._updateEntities(currentEntities.filter((ent) => ent !== curValue));
-      return;
+      this._updateEntities(currentEntities.filter(ent => ent !== curValue))
+      return
     }
     this._updateEntities(
-      currentEntities.map((ent) => (ent === curValue ? newValue : ent))
-    );
+      currentEntities.map(ent => (ent === curValue ? newValue : ent))
+    )
   }
 
   private async _addEntity(event: ValueChangedEvent<string>) {
-    event.stopPropagation();
-    const toAdd = event.detail.value;
+    event.stopPropagation()
+    const toAdd = event.detail.value
     if (!toAdd) {
-      return;
+      return
     }
-    (event.currentTarget as any).value = "";
+    ;(event.currentTarget as any).value = ''
     if (!toAdd) {
-      return;
+      return
     }
-    const currentEntities = this._currentEntities;
+    const currentEntities = this._currentEntities
     if (currentEntities.includes(toAdd)) {
-      return;
+      return
     }
 
-    this._updateEntities([...currentEntities, toAdd]);
+    this._updateEntities([...currentEntities, toAdd])
   }
 
   static override styles = css`
@@ -247,11 +247,11 @@ class HaEntitiesPicker extends LitElement {
       cursor: move; /* fallback if grab cursor is unsupported */
       cursor: grab;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-entities-picker": HaEntitiesPicker;
+    'ha-entities-picker': HaEntitiesPicker
   }
 }

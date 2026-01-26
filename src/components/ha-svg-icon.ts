@@ -1,19 +1,19 @@
-import type { SVGTemplateResult } from "lit";
-import { css, LitElement, nothing, svg } from "lit";
-import { customElement, property } from "lit/decorators";
+import type { SVGTemplateResult } from 'lit'
+import { css, LitElement, nothing, svg } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
-@customElement("ha-svg-icon")
+@customElement('ha-svg-icon')
 export class HaSvgIcon extends LitElement {
-  @property() public path?: string;
+  @property() public path?: string
 
-  @property({ attribute: false }) public secondaryPath?: string;
+  @property({ attribute: false }) public secondaryPath?: string
 
-  @property({ attribute: false }) public viewBox?: string;
+  @property({ attribute: false }) public viewBox?: string
 
   protected render(): SVGTemplateResult {
     return svg`
     <svg
-      viewBox=${this.viewBox || "0 0 24 24"}
+      viewBox=${this.viewBox || '0 0 24 24'}
       preserveAspectRatio="xMidYMid meet"
       focusable="false"
       role="img"
@@ -31,7 +31,7 @@ export class HaSvgIcon extends LitElement {
             : nothing
         }
       </g>
-    </svg>`;
+    </svg>`
   }
 
   static styles = css`
@@ -58,10 +58,10 @@ export class HaSvgIcon extends LitElement {
       fill: var(--icon-secondary-color, currentcolor);
       opacity: var(--icon-secondary-opactity, 0.5);
     }
-  `;
+  `
 }
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-svg-icon": HaSvgIcon;
+    'ha-svg-icon': HaSvgIcon
   }
 }

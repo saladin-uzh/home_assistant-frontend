@@ -1,31 +1,31 @@
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, eventOptions, property } from "lit/decorators";
-import { restoreScroll } from "../common/decorators/restore-scroll";
-import { goBack } from "../common/navigate";
-import "../components/ha-icon-button-arrow-prev";
-import "../components/ha-menu-button";
-import { haStyleScrollbar } from "../resources/styles";
-import type { HomeAssistant } from "../types";
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, eventOptions, property } from 'lit/decorators'
+import { restoreScroll } from '../common/decorators/restore-scroll'
+import { goBack } from '../common/navigate'
+import '../components/ha-icon-button-arrow-prev'
+import '../components/ha-menu-button'
+import { haStyleScrollbar } from '../resources/styles'
+import type { HomeAssistant } from '../types'
 
-@customElement("hass-subpage")
+@customElement('hass-subpage')
 class HassSubpage extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property() public header?: string;
+  @property() public header?: string
 
-  @property({ type: Boolean, attribute: "main-page" }) public mainPage = false;
+  @property({ type: Boolean, attribute: 'main-page' }) public mainPage = false
 
-  @property({ type: String, attribute: "back-path" }) public backPath?: string;
+  @property({ type: String, attribute: 'back-path' }) public backPath?: string
 
-  @property({ attribute: false }) public backCallback?: () => void;
+  @property({ attribute: false }) public backCallback?: () => void
 
-  @property({ type: Boolean, reflect: true }) public narrow = false;
+  @property({ type: Boolean, reflect: true }) public narrow = false
 
-  @property({ type: Boolean }) public supervisor = false;
+  @property({ type: Boolean }) public supervisor = false
 
   // @ts-ignore
-  @restoreScroll(".content") private _savedScrollPos?: number;
+  @restoreScroll('.content') private _savedScrollPos?: number
 
   protected render(): TemplateResult {
     return html`
@@ -60,26 +60,29 @@ class HassSubpage extends LitElement {
           <slot name="toolbar-icon"></slot>
         </div>
       </div>
-      <div class="content ha-scrollbar" @scroll=${this._saveScrollPos}>
+      <div
+        class="content ha-scrollbar"
+        @scroll=${this._saveScrollPos}
+      >
         <slot></slot>
       </div>
       <div id="fab">
         <slot name="fab"></slot>
       </div>
-    `;
+    `
   }
 
   @eventOptions({ passive: true })
   private _saveScrollPos(e: Event) {
-    this._savedScrollPos = (e.target as HTMLDivElement).scrollTop;
+    this._savedScrollPos = (e.target as HTMLDivElement).scrollTop
   }
 
   private _backTapped(): void {
     if (this.backCallback) {
-      this.backCallback();
-      return;
+      this.backCallback()
+      return
     }
-    goBack();
+    goBack()
   }
 
   static get styles(): CSSResultGroup {
@@ -127,7 +130,7 @@ class HassSubpage extends LitElement {
 
         ha-menu-button,
         ha-icon-button-arrow-prev,
-        ::slotted([slot="toolbar-icon"]) {
+        ::slotted([slot='toolbar-icon']) {
           pointer-events: auto;
           color: var(--sidebar-icon-color);
         }
@@ -200,12 +203,12 @@ class HassSubpage extends LitElement {
           inset-inline-start: initial;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hass-subpage": HassSubpage;
+    'hass-subpage': HassSubpage
   }
 }

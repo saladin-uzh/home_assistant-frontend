@@ -1,29 +1,29 @@
-import { expect, describe, it } from "vitest";
+import { expect, describe, it } from 'vitest'
 
 import {
   formatTime,
   formatTimeWithSeconds,
   formatTimeWeekday,
   formatTime24h,
-} from "../../../src/common/datetime/format_time";
+} from '../../../src/common/datetime/format_time'
 import {
   NumberFormat,
   TimeFormat,
   FirstWeekday,
   DateFormat,
   TimeZone,
-} from "../../../src/data/translation";
-import { demoConfig } from "../../../src/fake_data/demo_config";
+} from '../../../src/data/translation'
+import { demoConfig } from '../../../src/fake_data/demo_config'
 
-describe("formatTime", () => {
-  const dateObj = new Date(2017, 10, 18, 23, 12, 13, 1400);
+describe('formatTime', () => {
+  const dateObj = new Date(2017, 10, 18, 23, 12, 13, 1400)
 
-  it("Formats English times", () => {
+  it('Formats English times', () => {
     expect(
       formatTime(
         dateObj,
         {
-          language: "en",
+          language: 'en',
           number_format: NumberFormat.language,
           time_format: TimeFormat.am_pm,
           date_format: DateFormat.language,
@@ -32,12 +32,12 @@ describe("formatTime", () => {
         },
         demoConfig
       )
-    ).toBe("11:12 PM");
+    ).toBe('11:12 PM')
     expect(
       formatTime(
         dateObj,
         {
-          language: "en",
+          language: 'en',
           number_format: NumberFormat.language,
           time_format: TimeFormat.twenty_four,
           date_format: DateFormat.language,
@@ -46,19 +46,19 @@ describe("formatTime", () => {
         },
         demoConfig
       )
-    ).toBe("23:12");
-  });
-});
+    ).toBe('23:12')
+  })
+})
 
-describe("formatTimeWithSeconds", () => {
-  const dateObj = new Date(2017, 10, 18, 23, 12, 13, 400);
+describe('formatTimeWithSeconds', () => {
+  const dateObj = new Date(2017, 10, 18, 23, 12, 13, 400)
 
-  it("Formats English times with seconds", () => {
+  it('Formats English times with seconds', () => {
     expect(
       formatTimeWithSeconds(
         dateObj,
         {
-          language: "en",
+          language: 'en',
           number_format: NumberFormat.language,
           time_format: TimeFormat.am_pm,
           date_format: DateFormat.language,
@@ -67,12 +67,12 @@ describe("formatTimeWithSeconds", () => {
         },
         demoConfig
       )
-    ).toBe("11:12:13 PM");
+    ).toBe('11:12:13 PM')
     expect(
       formatTimeWithSeconds(
         dateObj,
         {
-          language: "en",
+          language: 'en',
           number_format: NumberFormat.language,
           time_format: TimeFormat.twenty_four,
           date_format: DateFormat.language,
@@ -81,19 +81,19 @@ describe("formatTimeWithSeconds", () => {
         },
         demoConfig
       )
-    ).toBe("23:12:13");
-  });
-});
+    ).toBe('23:12:13')
+  })
+})
 
-describe("formatTimeWeekday", () => {
-  const dateObj = new Date(2017, 10, 18, 23, 12, 13, 1400);
+describe('formatTimeWeekday', () => {
+  const dateObj = new Date(2017, 10, 18, 23, 12, 13, 1400)
 
-  it("Formats English times", () => {
+  it('Formats English times', () => {
     expect(
       formatTimeWeekday(
         dateObj,
         {
-          language: "en",
+          language: 'en',
           number_format: NumberFormat.language,
           time_format: TimeFormat.am_pm,
           date_format: DateFormat.language,
@@ -102,12 +102,12 @@ describe("formatTimeWeekday", () => {
         },
         demoConfig
       )
-    ).toBe("Saturday 11:12 PM");
+    ).toBe('Saturday 11:12 PM')
     expect(
       formatTimeWeekday(
         dateObj,
         {
-          language: "en",
+          language: 'en',
           number_format: NumberFormat.language,
           time_format: TimeFormat.twenty_four,
           date_format: DateFormat.language,
@@ -116,19 +116,19 @@ describe("formatTimeWeekday", () => {
         },
         demoConfig
       )
-    ).toBe("Saturday 23:12");
-  });
-});
+    ).toBe('Saturday 23:12')
+  })
+})
 
-describe("formatTime24h", () => {
-  const dateObj = new Date(2017, 10, 18, 23, 12, 13, 1400);
+describe('formatTime24h', () => {
+  const dateObj = new Date(2017, 10, 18, 23, 12, 13, 1400)
 
-  it("Formats English times in 24h format", () => {
+  it('Formats English times in 24h format', () => {
     expect(
       formatTime24h(
         dateObj,
         {
-          language: "en",
+          language: 'en',
           number_format: NumberFormat.language,
           time_format: TimeFormat.twenty_four,
           date_format: DateFormat.language,
@@ -137,6 +137,6 @@ describe("formatTime24h", () => {
         },
         demoConfig
       )
-    ).toBe("23:12");
-  });
-});
+    ).toBe('23:12')
+  })
+})

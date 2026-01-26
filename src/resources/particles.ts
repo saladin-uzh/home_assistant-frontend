@@ -1,12 +1,12 @@
-import { tsParticles } from "@tsparticles/engine";
-import { loadLinksPreset } from "@tsparticles/preset-links";
-import { DefaultPrimaryColor } from "./theme/color/color.globals";
+import { tsParticles } from '@tsparticles/engine'
+import { loadLinksPreset } from '@tsparticles/preset-links'
+import { DefaultPrimaryColor } from './theme/color/color.globals'
 
 loadLinksPreset(tsParticles).then(() => {
   tsParticles.load({
-    id: "particles",
+    id: 'particles',
     options: {
-      preset: "links",
+      preset: 'links',
       background: {
         opacity: 0,
       },
@@ -51,10 +51,10 @@ loadLinksPreset(tsParticles).then(() => {
             max: 0.5,
           },
           animation: {
-            destroy: "none",
+            destroy: 'none',
             enable: true,
             speed: 0.5,
-            startValue: "random",
+            startValue: 'random',
             sync: false,
           },
         },
@@ -64,15 +64,15 @@ loadLinksPreset(tsParticles).then(() => {
             max: 3,
           },
           animation: {
-            destroy: "none",
+            destroy: 'none',
             enable: true,
             speed: 3,
-            startValue: "random",
+            startValue: 'random',
             sync: false,
           },
         },
       },
       pauseOnBlur: true,
     },
-  });
-});
+  })
+})

@@ -1,29 +1,29 @@
-import { customIconsets } from "./custom_iconsets";
+import { customIconsets } from './custom_iconsets'
 
 export interface CustomIcon {
-  path: string;
-  secondaryPath?: string;
-  viewBox?: string;
+  path: string
+  secondaryPath?: string
+  viewBox?: string
 }
 
 export interface CustomIconListItem {
-  name: string;
-  keywords?: string[];
+  name: string
+  keywords?: string[]
 }
 
 export interface CustomIconHelpers {
-  getIcon: (name: string) => Promise<CustomIcon>;
-  getIconList?: () => Promise<CustomIconListItem[]>;
+  getIcon: (name: string) => Promise<CustomIcon>
+  getIconList?: () => Promise<CustomIconListItem[]>
 }
 
 export interface CustomIconsWindow {
-  customIcons?: Record<string, CustomIconHelpers>;
+  customIcons?: Record<string, CustomIconHelpers>
 }
 
-const customIconsWindow = window as CustomIconsWindow;
+const customIconsWindow = window as CustomIconsWindow
 
-if (!("customIcons" in customIconsWindow)) {
-  customIconsWindow.customIcons = {};
+if (!('customIcons' in customIconsWindow)) {
+  customIconsWindow.customIcons = {}
 }
 
 // Proxy for backward compatibility with icon sets
@@ -35,4 +35,4 @@ export const customIcons = new Proxy(customIconsWindow.customIcons!, {
           getIcon: customIconsets[prop],
         }
       : undefined),
-});
+})

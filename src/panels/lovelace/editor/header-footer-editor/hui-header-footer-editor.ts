@@ -1,23 +1,23 @@
-import { mdiClose, mdiPencil, mdiPlus } from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-icon-button";
-import type { LovelaceConfig } from "../../../../data/lovelace/config/types";
-import type { HomeAssistant } from "../../../../types";
-import type { LovelaceHeaderFooterConfig } from "../../header-footer/types";
-import { showCreateHeaderFooterDialog } from "./show-create-headerfooter-dialog";
+import { mdiClose, mdiPencil, mdiPlus } from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { LitElement, css, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-icon-button'
+import type { LovelaceConfig } from '../../../../data/lovelace/config/types'
+import type { HomeAssistant } from '../../../../types'
+import type { LovelaceHeaderFooterConfig } from '../../header-footer/types'
+import { showCreateHeaderFooterDialog } from './show-create-headerfooter-dialog'
 
-@customElement("hui-header-footer-editor")
+@customElement('hui-header-footer-editor')
 export class HuiHeaderFooterEditor extends LitElement {
-  public hass!: HomeAssistant;
+  public hass!: HomeAssistant
 
-  public lovelaceConfig!: LovelaceConfig;
+  public lovelaceConfig!: LovelaceConfig
 
-  @property({ attribute: false }) public config?: LovelaceHeaderFooterConfig;
+  @property({ attribute: false }) public config?: LovelaceHeaderFooterConfig
 
-  @property({ attribute: false }) public configValue!: "header" | "footer";
+  @property({ attribute: false }) public configValue!: 'header' | 'footer'
 
   protected render(): TemplateResult {
     return html`
@@ -27,7 +27,7 @@ export class HuiHeaderFooterEditor extends LitElement {
             `ui.panel.lovelace.editor.header-footer.${this.configValue}`
           )}:
           ${!this.config?.type
-            ? this.hass!.localize("ui.panel.lovelace.editor.common.none")
+            ? this.hass!.localize('ui.panel.lovelace.editor.common.none')
             : this.hass!.localize(
                 `ui.panel.lovelace.editor.header-footer.types.${this.config?.type}.name`
               )}
@@ -38,7 +38,7 @@ export class HuiHeaderFooterEditor extends LitElement {
           ? html`
               <ha-icon-button
                 .label=${this.hass!.localize(
-                  "ui.panel.lovelace.editor.common.add"
+                  'ui.panel.lovelace.editor.common.add'
                 )}
                 .path=${mdiPlus}
                 class="add-icon"
@@ -48,7 +48,7 @@ export class HuiHeaderFooterEditor extends LitElement {
           : html`
               <ha-icon-button
                 .label=${this.hass!.localize(
-                  "ui.panel.lovelace.editor.common.clear"
+                  'ui.panel.lovelace.editor.common.clear'
                 )}
                 .path=${mdiClose}
                 class="remove-icon"
@@ -56,7 +56,7 @@ export class HuiHeaderFooterEditor extends LitElement {
               ></ha-icon-button>
               <ha-icon-button
                 .label=${this.hass!.localize(
-                  "ui.panel.lovelace.editor.common.edit"
+                  'ui.panel.lovelace.editor.common.edit'
                 )}
                 .path=${mdiPencil}
                 class="edit-icon"
@@ -64,37 +64,37 @@ export class HuiHeaderFooterEditor extends LitElement {
               ></ha-icon-button>
             `}
       </div>
-    `;
+    `
   }
 
   private _edit(): void {
-    fireEvent(this, "edit-detail-element", {
+    fireEvent(this, 'edit-detail-element', {
       subElementConfig: {
         elementConfig: this.config,
         type: this.configValue,
       },
-    });
+    })
   }
 
   private _add(): void {
     showCreateHeaderFooterDialog(this, {
-      pickHeaderFooter: (config) => this._elementPicked(config),
+      pickHeaderFooter: config => this._elementPicked(config),
       type: this.configValue,
-    });
+    })
   }
 
   private _elementPicked(config: LovelaceHeaderFooterConfig): void {
-    fireEvent(this, "value-changed", { value: config });
-    fireEvent(this, "edit-detail-element", {
+    fireEvent(this, 'value-changed', { value: config })
+    fireEvent(this, 'edit-detail-element', {
       subElementConfig: {
         elementConfig: config,
         type: this.configValue,
       },
-    });
+    })
   }
 
   private _delete(): void {
-    fireEvent(this, "value-changed", { value: "" });
+    fireEvent(this, 'value-changed', { value: '' })
   }
 
   static styles = css`
@@ -123,11 +123,11 @@ export class HuiHeaderFooterEditor extends LitElement {
       padding-inline-end: 8px;
       padding-inline-start: initial;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-header-footer-editor": HuiHeaderFooterEditor;
+    'hui-header-footer-editor': HuiHeaderFooterEditor
   }
 }

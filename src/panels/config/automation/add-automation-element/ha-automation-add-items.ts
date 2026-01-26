@@ -3,67 +3,67 @@ import {
   mdiLabel,
   mdiPlus,
   mdiTextureBox,
-} from "@mdi/js";
-import { LitElement, css, html, nothing, type TemplateResult } from "lit";
+} from '@mdi/js'
+import { LitElement, css, html, nothing, type TemplateResult } from 'lit'
 import {
   customElement,
   eventOptions,
   property,
   query,
   state,
-} from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { repeat } from "lit/directives/repeat";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { stopPropagation } from "../../../../common/dom/stop_propagation";
-import "../../../../components/entity/state-badge";
-import "../../../../components/ha-domain-icon";
-import "../../../../components/ha-floor-icon";
-import "../../../../components/ha-icon-next";
-import "../../../../components/ha-md-list";
-import "../../../../components/ha-md-list-item";
-import "../../../../components/ha-svg-icon";
-import "../../../../components/ha-tooltip";
-import type { ConfigEntry } from "../../../../data/config_entries";
-import type { HomeAssistant } from "../../../../types";
-import type { AddAutomationElementListItem } from "../add-automation-element-dialog";
+} from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { repeat } from 'lit/directives/repeat'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { stopPropagation } from '../../../../common/dom/stop_propagation'
+import '../../../../components/entity/state-badge'
+import '../../../../components/ha-domain-icon'
+import '../../../../components/ha-floor-icon'
+import '../../../../components/ha-icon-next'
+import '../../../../components/ha-md-list'
+import '../../../../components/ha-md-list-item'
+import '../../../../components/ha-svg-icon'
+import '../../../../components/ha-tooltip'
+import type { ConfigEntry } from '../../../../data/config_entries'
+import type { HomeAssistant } from '../../../../types'
+import type { AddAutomationElementListItem } from '../add-automation-element-dialog'
 
-type Target = [string, string | undefined, string | undefined];
+type Target = [string, string | undefined, string | undefined]
 
-@customElement("ha-automation-add-items")
+@customElement('ha-automation-add-items')
 export class HaAutomationAddItems extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   @property({ attribute: false }) public items?: {
-    title: string;
-    items: AddAutomationElementListItem[];
-  }[];
+    title: string
+    items: AddAutomationElementListItem[]
+  }[]
 
-  @property() public error?: string;
+  @property() public error?: string
 
-  @property({ attribute: "select-label" }) public selectLabel!: string;
+  @property({ attribute: 'select-label' }) public selectLabel!: string
 
-  @property({ attribute: "empty-label" }) public emptyLabel!: string;
+  @property({ attribute: 'empty-label' }) public emptyLabel!: string
 
-  @property({ attribute: false }) public target?: Target;
+  @property({ attribute: false }) public target?: Target
 
   @property({ attribute: false }) public getLabel!: (
     id: string
-  ) => { name: string; icon?: string } | undefined;
+  ) => { name: string; icon?: string } | undefined
 
   @property({ attribute: false }) public configEntryLookup: Record<
     string,
     ConfigEntry
-  > = {};
+  > = {}
 
-  @property({ type: Boolean, attribute: "tooltip-description" })
-  public tooltipDescription = false;
+  @property({ type: Boolean, attribute: 'tooltip-description' })
+  public tooltipDescription = false
 
-  @state() private _itemsScrolled = false;
+  @state() private _itemsScrolled = false
 
-  @query(".items")
-  private _itemsDiv!: HTMLDivElement;
+  @query('.items')
+  private _itemsDiv!: HTMLDivElement
 
   protected render() {
     return html`<div
@@ -88,15 +88,15 @@ export class HaAutomationAddItems extends LitElement {
             : repeat(
                 this.items,
                 (_, index) => `item-group-${index}`,
-                (itemGroup) =>
+                itemGroup =>
                   this._renderItemList(itemGroup.title, itemGroup.items)
               )}
-    </div>`;
+    </div>`
   }
 
   private _renderItemList(title, items?: AddAutomationElementListItem[]) {
     if (!items || !items.length) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -104,15 +104,18 @@ export class HaAutomationAddItems extends LitElement {
       <ha-md-list>
         ${repeat(
           items,
-          (item) => item.key,
-          (item) => html`
+          item => item.key,
+          item => html`
             <ha-md-list-item
               interactive
               type="button"
               .value=${item.key}
               @click=${this._selected}
             >
-              <div slot="headline" class=${this.target ? "item-headline" : ""}>
+              <div
+                slot="headline"
+                class=${this.target ? 'item-headline' : ''}
+              >
                 ${item.name}${this._renderTarget(this.target)}
               </div>
 
@@ -153,48 +156,48 @@ export class HaAutomationAddItems extends LitElement {
           `
         )}
       </ha-md-list>
-    `;
+    `
   }
 
   private _renderTarget = memoizeOne((target?: Target) => {
     if (!target) {
-      return nothing;
+      return nothing
     }
 
     return html`<div class="selected-target">
       ${this._getSelectedTargetIcon(target[0], target[1])}
       <div class="label">${target[2]}</div>
-    </div>`;
-  });
+    </div>`
+  })
 
   private _getSelectedTargetIcon(
     targetType: string,
     targetId: string | undefined
   ): TemplateResult | typeof nothing {
     if (!targetId) {
-      return nothing;
+      return nothing
     }
 
-    if (targetType === "floor") {
+    if (targetType === 'floor') {
       return html`<ha-floor-icon
         .floor=${this.hass.floors[targetId]}
-      ></ha-floor-icon>`;
+      ></ha-floor-icon>`
     }
 
-    if (targetType === "area" && this.hass.areas[targetId]) {
-      const area = this.hass.areas[targetId];
+    if (targetType === 'area' && this.hass.areas[targetId]) {
+      const area = this.hass.areas[targetId]
       if (area.icon) {
-        return html`<ha-icon .icon=${area.icon}></ha-icon>`;
+        return html`<ha-icon .icon=${area.icon}></ha-icon>`
       }
-      return html`<ha-svg-icon .path=${mdiTextureBox}></ha-svg-icon>`;
+      return html`<ha-svg-icon .path=${mdiTextureBox}></ha-svg-icon>`
     }
 
-    if (targetType === "device" && this.hass.devices[targetId]) {
-      const device = this.hass.devices[targetId];
+    if (targetType === 'device' && this.hass.devices[targetId]) {
+      const device = this.hass.devices[targetId]
       const configEntry = device.primary_config_entry
         ? this.configEntryLookup[device.primary_config_entry]
-        : undefined;
-      const domain = configEntry?.domain;
+        : undefined
+      const domain = configEntry?.domain
 
       if (domain) {
         return html`<ha-domain-icon
@@ -202,57 +205,57 @@ export class HaAutomationAddItems extends LitElement {
           .hass=${this.hass}
           .domain=${domain}
           brand-fallback
-        ></ha-domain-icon>`;
+        ></ha-domain-icon>`
       }
     }
 
-    if (targetType === "entity" && this.hass.states[targetId]) {
-      const stateObj = this.hass.states[targetId];
+    if (targetType === 'entity' && this.hass.states[targetId]) {
+      const stateObj = this.hass.states[targetId]
       if (stateObj) {
         return html`<state-badge
           .stateObj=${stateObj}
           .hass=${this.hass}
           .stateColor=${false}
-        ></state-badge>`;
+        ></state-badge>`
       }
     }
 
-    if (targetType === "label") {
-      const label = this.getLabel(targetId);
+    if (targetType === 'label') {
+      const label = this.getLabel(targetId)
       if (label?.icon) {
-        return html`<ha-icon .icon=${label.icon}></ha-icon>`;
+        return html`<ha-icon .icon=${label.icon}></ha-icon>`
       }
-      return html`<ha-svg-icon .path=${mdiLabel}></ha-svg-icon>`;
+      return html`<ha-svg-icon .path=${mdiLabel}></ha-svg-icon>`
     }
 
-    return nothing;
+    return nothing
   }
 
   private _selected(ev) {
-    const item = ev.currentTarget;
-    fireEvent(this, "value-changed", {
+    const item = ev.currentTarget
+    fireEvent(this, 'value-changed', {
       value: item.value,
-    });
+    })
   }
 
   @eventOptions({ passive: true })
   private _onItemsScroll(ev) {
-    const top = ev.target.scrollTop ?? 0;
-    this._itemsScrolled = top > 0;
+    const top = ev.target.scrollTop ?? 0
+    this._itemsScrolled = top > 0
   }
 
-  public override scrollTo(options?: ScrollToOptions): void;
+  public override scrollTo(options?: ScrollToOptions): void
 
-  public override scrollTo(x: number, y: number): void;
+  public override scrollTo(x: number, y: number): void
 
   public override scrollTo(
     xOrOptions?: number | ScrollToOptions,
     y?: number
   ): void {
-    if (typeof xOrOptions === "number") {
-      this._itemsDiv?.scrollTo(xOrOptions, y!);
+    if (typeof xOrOptions === 'number') {
+      this._itemsDiv?.scrollTo(xOrOptions, y!)
     } else {
-      this._itemsDiv?.scrollTo(xOrOptions);
+      this._itemsDiv?.scrollTo(xOrOptions)
     }
   }
 
@@ -378,11 +381,11 @@ export class HaAutomationAddItems extends LitElement {
     .selected-target ha-domain-icon {
       filter: grayscale(100%);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-add-items": HaAutomationAddItems;
+    'ha-automation-add-items': HaAutomationAddItems
   }
 }

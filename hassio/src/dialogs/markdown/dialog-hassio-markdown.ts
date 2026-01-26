@@ -1,37 +1,37 @@
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { createCloseHeading } from "../../../../src/components/ha-dialog";
-import "../../../../src/components/ha-markdown";
-import { haStyleDialog } from "../../../../src/resources/styles";
-import type { HomeAssistant } from "../../../../src/types";
-import { hassioStyle } from "../../resources/hassio-style";
-import type { HassioMarkdownDialogParams } from "./show-dialog-hassio-markdown";
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { createCloseHeading } from '../../../../src/components/ha-dialog'
+import '../../../../src/components/ha-markdown'
+import { haStyleDialog } from '../../../../src/resources/styles'
+import type { HomeAssistant } from '../../../../src/types'
+import { hassioStyle } from '../../resources/hassio-style'
+import type { HassioMarkdownDialogParams } from './show-dialog-hassio-markdown'
 
-@customElement("dialog-hassio-markdown")
+@customElement('dialog-hassio-markdown')
 class HassioMarkdownDialog extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   // eslint-disable-next-line lit/no-native-attributes
-  @property() public title!: string;
+  @property() public title!: string
 
-  @property() public content!: string;
+  @property() public content!: string
 
-  @state() private _opened = false;
+  @state() private _opened = false
 
   public showDialog(params: HassioMarkdownDialogParams) {
-    this.title = params.title;
-    this.content = params.content;
-    this._opened = true;
+    this.title = params.title
+    this.content = params.content
+    this._opened = true
   }
 
   public closeDialog() {
-    this._opened = false;
+    this._opened = false
   }
 
   protected render() {
     if (!this._opened) {
-      return nothing;
+      return nothing
     }
     return html`
       <ha-dialog
@@ -41,11 +41,11 @@ class HassioMarkdownDialog extends LitElement {
         hideactions
       >
         <ha-markdown
-          .content=${this.content || ""}
+          .content=${this.content || ''}
           dialogInitialFocus
         ></ha-markdown>
       </ha-dialog>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -59,12 +59,12 @@ class HassioMarkdownDialog extends LitElement {
           }
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-hassio-markdown": HassioMarkdownDialog;
+    'dialog-hassio-markdown': HassioMarkdownDialog
   }
 }

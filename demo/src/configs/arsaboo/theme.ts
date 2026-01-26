@@ -1,1 +1,1 @@
-export const demoThemeArsaboo = () => ({});
+export const demoThemeArsaboo = () => ({})

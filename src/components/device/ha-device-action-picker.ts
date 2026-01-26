@@ -1,23 +1,23 @@
-import { customElement } from "lit/decorators";
-import type { DeviceAction } from "../../data/device_automation";
+import { customElement } from 'lit/decorators'
+import type { DeviceAction } from '../../data/device_automation'
 import {
   fetchDeviceActions,
   localizeDeviceAutomationAction,
-} from "../../data/device_automation";
-import { HaDeviceAutomationPicker } from "./ha-device-automation-picker";
+} from '../../data/device_automation'
+import { HaDeviceAutomationPicker } from './ha-device-automation-picker'
 
-@customElement("ha-device-action-picker")
+@customElement('ha-device-action-picker')
 class HaDeviceActionPicker extends HaDeviceAutomationPicker<DeviceAction> {
   protected get NO_AUTOMATION_TEXT() {
     return this.hass.localize(
-      "ui.panel.config.devices.automation.actions.no_actions"
-    );
+      'ui.panel.config.devices.automation.actions.no_actions'
+    )
   }
 
   protected get UNKNOWN_AUTOMATION_TEXT() {
     return this.hass.localize(
-      "ui.panel.config.devices.automation.actions.unknown_action"
-    );
+      'ui.panel.config.devices.automation.actions.unknown_action'
+    )
   }
 
   constructor() {
@@ -25,16 +25,16 @@ class HaDeviceActionPicker extends HaDeviceAutomationPicker<DeviceAction> {
       localizeDeviceAutomationAction,
       fetchDeviceActions,
       (deviceId?: string) => ({
-        device_id: deviceId || "",
-        domain: "",
-        entity_id: "",
+        device_id: deviceId || '',
+        domain: '',
+        entity_id: '',
       })
-    );
+    )
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-device-action-picker": HaDeviceActionPicker;
+    'ha-device-action-picker': HaDeviceActionPicker
   }
 }

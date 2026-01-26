@@ -1,4 +1,4 @@
-import { css } from "lit";
+import { css } from 'lit'
 
 export const traceTabStyles = css`
   .tabs {
@@ -37,4 +37,4 @@ export const traceTabStyles = css`
   .tabs > *:hover {
     background: var(--secondary-background-color);
   }
-`;
+`

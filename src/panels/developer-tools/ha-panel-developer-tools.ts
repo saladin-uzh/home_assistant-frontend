@@ -1,34 +1,34 @@
-import type { ActionDetail } from "@material/mwc-list";
-import { mdiDotsVertical } from "@mdi/js";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { navigate } from "../../common/navigate";
-import "../../components/ha-button-menu";
-import "../../components/ha-icon-button";
-import "../../components/ha-list-item";
-import "../../components/ha-menu-button";
-import "../../components/ha-tab-group";
-import "../../components/ha-tab-group-tab";
-import { haStyle } from "../../resources/styles";
-import type { HomeAssistant, Route } from "../../types";
-import "./developer-tools-router";
+import type { ActionDetail } from '@material/mwc-list'
+import { mdiDotsVertical } from '@mdi/js'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { navigate } from '../../common/navigate'
+import '../../components/ha-button-menu'
+import '../../components/ha-icon-button'
+import '../../components/ha-list-item'
+import '../../components/ha-menu-button'
+import '../../components/ha-tab-group'
+import '../../components/ha-tab-group-tab'
+import { haStyle } from '../../resources/styles'
+import type { HomeAssistant, Route } from '../../types'
+import './developer-tools-router'
 
-@customElement("ha-panel-developer-tools")
+@customElement('ha-panel-developer-tools')
 class PanelDeveloperTools extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public route!: Route;
+  @property({ attribute: false }) public route!: Route
 
-  @property({ type: Boolean, reflect: true }) public narrow = false;
+  @property({ type: Boolean, reflect: true }) public narrow = false
 
   protected firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
-    this.hass.loadBackendTranslation("title");
+    super.firstUpdated(changedProps)
+    this.hass.loadBackendTranslation('title')
   }
 
   protected render(): TemplateResult {
-    const page = this._page;
+    const page = this._page
     return html`
       <div class="header">
         <div class="toolbar">
@@ -38,66 +38,73 @@ class PanelDeveloperTools extends LitElement {
             .narrow=${this.narrow}
           ></ha-menu-button>
           <div class="main-title">
-            ${this.hass.localize("panel.developer_tools")}
+            ${this.hass.localize('panel.developer_tools')}
           </div>
-          <ha-button-menu slot="actionItems" @action=${this._handleMenuAction}>
+          <ha-button-menu
+            slot="actionItems"
+            @action=${this._handleMenuAction}
+          >
             <ha-icon-button
               slot="trigger"
-              .label=${this.hass.localize("ui.common.menu")}
+              .label=${this.hass.localize('ui.common.menu')}
               .path=${mdiDotsVertical}
             ></ha-icon-button>
             <ha-list-item>
-              ${this.hass.localize("ui.panel.developer-tools.tabs.debug.title")}
+              ${this.hass.localize('ui.panel.developer-tools.tabs.debug.title')}
             </ha-list-item>
           </ha-button-menu>
         </div>
         <ha-tab-group @wa-tab-show=${this._handlePageSelected}>
-          <ha-tab-group-tab slot="nav" panel="yaml" .active=${page === "yaml"}>
-            ${this.hass.localize("ui.panel.developer-tools.tabs.yaml.title")}
+          <ha-tab-group-tab
+            slot="nav"
+            panel="yaml"
+            .active=${page === 'yaml'}
+          >
+            ${this.hass.localize('ui.panel.developer-tools.tabs.yaml.title')}
           </ha-tab-group-tab>
           <ha-tab-group-tab
             slot="nav"
             panel="state"
-            .active=${page === "state"}
+            .active=${page === 'state'}
           >
-            ${this.hass.localize("ui.panel.developer-tools.tabs.states.title")}
+            ${this.hass.localize('ui.panel.developer-tools.tabs.states.title')}
           </ha-tab-group-tab>
           <ha-tab-group-tab
             slot="nav"
             panel="action"
-            .active=${page === "action"}
+            .active=${page === 'action'}
           >
-            ${this.hass.localize("ui.panel.developer-tools.tabs.actions.title")}
+            ${this.hass.localize('ui.panel.developer-tools.tabs.actions.title')}
           </ha-tab-group-tab>
           <ha-tab-group-tab
             slot="nav"
             panel="template"
-            .active=${page === "template"}
+            .active=${page === 'template'}
           >
             ${this.hass.localize(
-              "ui.panel.developer-tools.tabs.templates.title"
+              'ui.panel.developer-tools.tabs.templates.title'
             )}
           </ha-tab-group-tab>
           <ha-tab-group-tab
             slot="nav"
             panel="event"
-            .active=${page === "event"}
+            .active=${page === 'event'}
           >
-            ${this.hass.localize("ui.panel.developer-tools.tabs.events.title")}
+            ${this.hass.localize('ui.panel.developer-tools.tabs.events.title')}
           </ha-tab-group-tab>
           <ha-tab-group-tab
             slot="nav"
             panel="statistics"
-            .active=${page === "statistics"}
+            .active=${page === 'statistics'}
           >
             ${this.hass.localize(
-              "ui.panel.developer-tools.tabs.statistics.title"
+              'ui.panel.developer-tools.tabs.statistics.title'
             )}
           </ha-tab-group-tab>
           <ha-tab-group-tab
             slot="nav"
             panel="assist"
-            .active=${page === "assist"}
+            .active=${page === 'assist'}
             >Assist</ha-tab-group-tab
           >
         </ha-tab-group>
@@ -107,31 +114,31 @@ class PanelDeveloperTools extends LitElement {
         .narrow=${this.narrow}
         .hass=${this.hass}
       ></developer-tools-router>
-    `;
+    `
   }
 
   private _handlePageSelected(ev: CustomEvent<{ name: string }>) {
-    const newPage = ev.detail.name;
+    const newPage = ev.detail.name
     if (!newPage) {
-      return;
+      return
     }
     if (newPage !== this._page) {
-      navigate(`/developer-tools/${newPage}`);
+      navigate(`/developer-tools/${newPage}`)
     } else {
-      scrollTo({ behavior: "smooth", top: 0 });
+      scrollTo({ behavior: 'smooth', top: 0 })
     }
   }
 
   private async _handleMenuAction(ev: CustomEvent<ActionDetail>) {
     switch (ev.detail.index) {
       case 0:
-        navigate(`/developer-tools/debug`);
-        break;
+        navigate(`/developer-tools/debug`)
+        break
     }
   }
 
   private get _page() {
-    return this.route.path.substr(1);
+    return this.route.path.substr(1)
   }
 
   static get styles(): CSSResultGroup {
@@ -213,12 +220,12 @@ class PanelDeveloperTools extends LitElement {
           --ha-tab-track-color: transparent;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-panel-developer-tools": PanelDeveloperTools;
+    'ha-panel-developer-tools': PanelDeveloperTools
   }
 }

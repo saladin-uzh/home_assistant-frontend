@@ -1,32 +1,32 @@
-import { mdiAlertCircleOutline, mdiAlertOutline } from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../components/ha-icon-next";
-import "../../../components/ha-svg-icon";
-import type { IntegrationManifest } from "../../../data/integration";
-import { domainToName } from "../../../data/integration";
-import type { HomeAssistant } from "../../../types";
-import { brandsUrl } from "../../../util/brands-url";
+import { mdiAlertCircleOutline, mdiAlertOutline } from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../components/ha-icon-next'
+import '../../../components/ha-svg-icon'
+import type { IntegrationManifest } from '../../../data/integration'
+import { domainToName } from '../../../data/integration'
+import type { HomeAssistant } from '../../../types'
+import { brandsUrl } from '../../../util/brands-url'
 
-@customElement("ha-integration-header")
+@customElement('ha-integration-header')
 export class HaIntegrationHeader extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property() public error?: string;
+  @property() public error?: string
 
-  @property() public warning?: string;
+  @property() public warning?: string
 
-  @property({ attribute: false }) public localizedDomainName?: string;
+  @property({ attribute: false }) public localizedDomainName?: string
 
-  @property() public domain!: string;
+  @property() public domain!: string
 
-  @property({ attribute: false }) public manifest?: IntegrationManifest;
+  @property({ attribute: false }) public manifest?: IntegrationManifest
 
   protected render(): TemplateResult {
     const domainName =
       this.localizedDomainName ||
-      domainToName(this.hass.localize, this.domain, this.manifest);
+      domainToName(this.hass.localize, this.domain, this.manifest)
 
     return html`
       <div class="header">
@@ -34,7 +34,7 @@ export class HaIntegrationHeader extends LitElement {
           alt=""
           src=${brandsUrl({
             domain: this.domain,
-            type: "icon",
+            type: 'icon',
             darkOptimized: this.hass.themes?.darkMode,
           })}
           crossorigin="anonymous"
@@ -44,7 +44,7 @@ export class HaIntegrationHeader extends LitElement {
         />
         <div class="info">
           <div
-            class="primary ${this.warning || this.error ? "has-secondary" : ""}"
+            class="primary ${this.warning || this.error ? 'has-secondary' : ''}"
             role="heading"
             aria-level="1"
           >
@@ -69,19 +69,19 @@ export class HaIntegrationHeader extends LitElement {
         <ha-icon-next
           class="header-button"
           .label=${this.hass.localize(
-            "ui.panel.config.integrations.config_entry.configure"
+            'ui.panel.config.integrations.config_entry.configure'
           )}
         ></ha-icon-next>
       </div>
-    `;
+    `
   }
 
   private _onImageLoad(ev) {
-    ev.target.style.visibility = "initial";
+    ev.target.style.visibility = 'initial'
   }
 
   private _onImageError(ev) {
-    ev.target.style.visibility = "hidden";
+    ev.target.style.visibility = 'hidden'
   }
 
   static styles = css`
@@ -156,11 +156,11 @@ export class HaIntegrationHeader extends LitElement {
     .warning ha-svg-icon {
       color: var(--warning-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-integration-header": HaIntegrationHeader;
+    'ha-integration-header': HaIntegrationHeader
   }
 }

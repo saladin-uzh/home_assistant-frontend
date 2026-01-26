@@ -1,16 +1,16 @@
-import memoizeOne from "memoize-one";
-import type { DeviceRegistryEntry } from "../../data/device_registry";
+import memoizeOne from 'memoize-one'
+import type { DeviceRegistryEntry } from '../../data/device_registry'
 import type {
   EntityRegistryDisplayEntry,
   EntityRegistryEntry,
-} from "../../data/entity_registry";
-import type { HomeAssistant } from "../../types";
-import { computeStateName } from "./compute_state_name";
-import { getDuplicates } from "../string/get_duplicates";
+} from '../../data/entity_registry'
+import type { HomeAssistant } from '../../types'
+import { computeStateName } from './compute_state_name'
+import { getDuplicates } from '../string/get_duplicates'
 
 export const computeDeviceName = (
   device: DeviceRegistryEntry
-): string | undefined => (device.name_by_user || device.name)?.trim();
+): string | undefined => (device.name_by_user || device.name)?.trim()
 
 export const computeDeviceNameDisplay = (
   device: DeviceRegistryEntry,
@@ -19,32 +19,32 @@ export const computeDeviceNameDisplay = (
 ) =>
   computeDeviceName(device) ||
   (entities && fallbackDeviceName(hass, entities)) ||
-  hass.localize("ui.panel.config.devices.unnamed_device", {
+  hass.localize('ui.panel.config.devices.unnamed_device', {
     type: hass.localize(
-      `ui.panel.config.devices.type.${device.entry_type || "device"}`
+      `ui.panel.config.devices.type.${device.entry_type || 'device'}`
     ),
-  });
+  })
 
 export const fallbackDeviceName = (
   hass: HomeAssistant,
   entities: EntityRegistryEntry[] | EntityRegistryDisplayEntry[] | string[]
 ) => {
   for (const entity of entities || []) {
-    const entityId = typeof entity === "string" ? entity : entity.entity_id;
-    const stateObj = hass.states[entityId];
+    const entityId = typeof entity === 'string' ? entity : entity.entity_id
+    const stateObj = hass.states[entityId]
     if (stateObj) {
-      return computeStateName(stateObj);
+      return computeStateName(stateObj)
     }
   }
-  return undefined;
-};
+  return undefined
+}
 
 export const getDuplicatedDeviceNames = memoizeOne(
-  (devices: HomeAssistant["devices"]): Set<string> => {
+  (devices: HomeAssistant['devices']): Set<string> => {
     const names = Object.values(devices)
-      .map((device) => computeDeviceName(device))
-      .filter((name): name is string => name !== undefined);
+      .map(device => computeDeviceName(device))
+      .filter((name): name is string => name !== undefined)
 
-    return getDuplicates(names);
+    return getDuplicates(names)
   }
-);
+)

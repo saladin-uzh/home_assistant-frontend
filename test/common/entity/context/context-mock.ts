@@ -1,41 +1,41 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { AreaRegistryEntry } from "../../../../src/data/area_registry";
-import type { DeviceRegistryEntry } from "../../../../src/data/device_registry";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { AreaRegistryEntry } from '../../../../src/data/area_registry'
+import type { DeviceRegistryEntry } from '../../../../src/data/device_registry'
 import type {
   EntityRegistryDisplayEntry,
   EntityRegistryEntry,
-} from "../../../../src/data/entity_registry";
-import type { FloorRegistryEntry } from "../../../../src/data/floor_registry";
+} from '../../../../src/data/entity_registry'
+import type { FloorRegistryEntry } from '../../../../src/data/floor_registry'
 
 export const mockStateObj = (partial: Partial<HassEntity>): HassEntity => ({
-  entity_id: "",
+  entity_id: '',
   attributes: {},
-  state: "on",
-  last_changed: "",
-  last_updated: "",
+  state: 'on',
+  last_changed: '',
+  last_updated: '',
   context: {
-    id: "",
+    id: '',
     user_id: null,
     parent_id: null,
   },
   ...partial,
-});
+})
 
 export const mockEntity = (
   partial: Partial<EntityRegistryDisplayEntry>
 ): EntityRegistryDisplayEntry => ({
-  entity_id: "",
+  entity_id: '',
   labels: [],
   ...partial,
-});
+})
 
 export const mockEntityEntry = (
   partial: Partial<EntityRegistryEntry>
 ): EntityRegistryEntry => ({
-  entity_id: "",
+  entity_id: '',
   name: null,
   icon: null,
-  platform: "",
+  platform: '',
   config_entry_id: null,
   config_subentry_id: null,
   device_id: null,
@@ -45,19 +45,19 @@ export const mockEntityEntry = (
   hidden_by: null,
   entity_category: null,
   has_entity_name: false,
-  unique_id: "",
-  id: "",
+  unique_id: '',
+  id: '',
   options: null,
   categories: {},
   created_at: 0,
   modified_at: 0,
   ...partial,
-});
+})
 
 export const mockDevice = (
   partial: Partial<DeviceRegistryEntry>
 ): DeviceRegistryEntry => ({
-  id: "",
+  id: '',
   config_entries: [],
   config_entries_subentries: {},
   connections: [],
@@ -80,14 +80,14 @@ export const mockDevice = (
   created_at: 0,
   modified_at: 0,
   ...partial,
-});
+})
 
 export const mockArea = (
   partial: Partial<AreaRegistryEntry>
 ): AreaRegistryEntry => ({
   aliases: [],
-  area_id: "",
-  name: "",
+  area_id: '',
+  name: '',
   floor_id: null,
   created_at: 0,
   modified_at: 0,
@@ -97,17 +97,17 @@ export const mockArea = (
   labels: [],
   picture: null,
   ...partial,
-});
+})
 
 export const mockFloor = (
   partial: Partial<FloorRegistryEntry>
 ): FloorRegistryEntry => ({
   aliases: [],
-  floor_id: "",
-  name: "",
+  floor_id: '',
+  name: '',
   created_at: 0,
   modified_at: 0,
   icon: null,
   level: 0,
   ...partial,
-});
+})

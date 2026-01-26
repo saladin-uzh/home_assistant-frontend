@@ -1,59 +1,62 @@
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { atLeastVersion } from "../../../src/common/config/version";
-import "../../../src/components/buttons/ha-progress-button";
-import "../../../src/components/ha-button";
-import "../../../src/components/ha-button-menu";
-import "../../../src/components/ha-card";
-import "../../../src/components/ha-settings-row";
-import type { HassioStats } from "../../../src/data/hassio/common";
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { atLeastVersion } from '../../../src/common/config/version'
+import '../../../src/components/buttons/ha-progress-button'
+import '../../../src/components/ha-button'
+import '../../../src/components/ha-button-menu'
+import '../../../src/components/ha-card'
+import '../../../src/components/ha-settings-row'
+import type { HassioStats } from '../../../src/data/hassio/common'
 import {
   extractApiErrorMessage,
   fetchHassioStats,
-} from "../../../src/data/hassio/common";
-import { restartCore } from "../../../src/data/supervisor/core";
-import type { Supervisor } from "../../../src/data/supervisor/supervisor";
+} from '../../../src/data/hassio/common'
+import { restartCore } from '../../../src/data/supervisor/core'
+import type { Supervisor } from '../../../src/data/supervisor/supervisor'
 import {
   showAlertDialog,
   showConfirmationDialog,
-} from "../../../src/dialogs/generic/show-dialog-box";
-import { haStyle } from "../../../src/resources/styles";
-import type { HomeAssistant } from "../../../src/types";
-import { bytesToString } from "../../../src/util/bytes-to-string";
-import "../components/supervisor-metric";
-import { hassioStyle } from "../resources/hassio-style";
+} from '../../../src/dialogs/generic/show-dialog-box'
+import { haStyle } from '../../../src/resources/styles'
+import type { HomeAssistant } from '../../../src/types'
+import { bytesToString } from '../../../src/util/bytes-to-string'
+import '../components/supervisor-metric'
+import { hassioStyle } from '../resources/hassio-style'
 
-@customElement("hassio-core-info")
+@customElement('hassio-core-info')
 class HassioCoreInfo extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public supervisor!: Supervisor;
+  @property({ attribute: false }) public supervisor!: Supervisor
 
-  @state() private _metrics?: HassioStats;
+  @state() private _metrics?: HassioStats
 
   protected render(): TemplateResult | undefined {
     const metrics = [
       {
-        description: this.supervisor.localize("system.core.cpu_usage"),
+        description: this.supervisor.localize('system.core.cpu_usage'),
         value: this._metrics?.cpu_percent,
       },
       {
-        description: this.supervisor.localize("system.core.ram_usage"),
+        description: this.supervisor.localize('system.core.ram_usage'),
         value: this._metrics?.memory_percent,
         tooltip: `${bytesToString(this._metrics?.memory_usage)}/${bytesToString(
           this._metrics?.memory_limit
         )}`,
       },
-    ];
+    ]
 
     return html`
-      <ha-card header="Core" outlined>
+      <ha-card
+        header="Core"
+        outlined
+      >
         <div class="card-content">
           <div>
             <ha-settings-row>
               <span slot="heading">
-                ${this.supervisor.localize("common.version")}
+                ${this.supervisor.localize('common.version')}
               </span>
               <span slot="description">
                 core-${this.supervisor.core.version}
@@ -61,7 +64,7 @@ class HassioCoreInfo extends LitElement {
             </ha-settings-row>
             <ha-settings-row>
               <span slot="heading">
-                ${this.supervisor.localize("common.newest_version")}
+                ${this.supervisor.localize('common.newest_version')}
               </span>
               <span slot="description">
                 core-${this.supervisor.core.version_latest}
@@ -73,15 +76,15 @@ class HassioCoreInfo extends LitElement {
                       appearance="plain"
                       href="/hassio/update-available/core"
                     >
-                      ${this.supervisor.localize("common.show")}
+                      ${this.supervisor.localize('common.show')}
                     </ha-button>
                   `
-                : ""}
+                : ''}
             </ha-settings-row>
           </div>
           <div>
             ${metrics.map(
-              (metric) => html`
+              metric => html`
                 <supervisor-metric
                   .description=${metric.description}
                   .value=${metric.value ?? 0}
@@ -96,58 +99,58 @@ class HassioCoreInfo extends LitElement {
             slot="primaryAction"
             variant="danger"
             @click=${this._coreRestart}
-            .title=${this.supervisor.localize("common.restart_name", {
-              name: "Core",
+            .title=${this.supervisor.localize('common.restart_name', {
+              name: 'Core',
             })}
           >
-            ${this.supervisor.localize("common.restart_name", { name: "Core" })}
+            ${this.supervisor.localize('common.restart_name', { name: 'Core' })}
           </ha-progress-button>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   protected firstUpdated(): void {
-    this._loadData();
+    this._loadData()
   }
 
   private async _loadData(): Promise<void> {
-    this._metrics = await fetchHassioStats(this.hass, "core");
+    this._metrics = await fetchHassioStats(this.hass, 'core')
   }
 
   private async _coreRestart(ev: CustomEvent): Promise<void> {
-    const button = ev.currentTarget as any;
-    button.progress = true;
+    const button = ev.currentTarget as any
+    button.progress = true
 
     const confirmed = await showConfirmationDialog(this, {
-      title: this.supervisor.localize("confirm.restart.title", {
-        name: "Home Assistant Core",
+      title: this.supervisor.localize('confirm.restart.title', {
+        name: 'Home Assistant Core',
       }),
-      text: this.supervisor.localize("confirm.restart.text", {
-        name: "Home Assistant Core",
+      text: this.supervisor.localize('confirm.restart.text', {
+        name: 'Home Assistant Core',
       }),
-      confirmText: this.supervisor.localize("common.restart"),
-      dismissText: this.supervisor.localize("common.cancel"),
-    });
+      confirmText: this.supervisor.localize('common.restart'),
+      dismissText: this.supervisor.localize('common.cancel'),
+    })
 
     if (!confirmed) {
-      button.progress = false;
-      return;
+      button.progress = false
+      return
     }
 
     try {
-      await restartCore(this.hass);
+      await restartCore(this.hass)
     } catch (err: any) {
       if (this.hass.connection.connected) {
         showAlertDialog(this, {
-          title: this.supervisor.localize("common.failed_to_restart_name", {
-            name: "Home Assistant Core",
+          title: this.supervisor.localize('common.failed_to_restart_name', {
+            name: 'Home Assistant Core',
           }),
           text: extractApiErrorMessage(err),
-        });
+        })
       }
     } finally {
-      button.progress = false;
+      button.progress = false
     }
   }
 
@@ -183,7 +186,7 @@ class HassioCoreInfo extends LitElement {
         ha-settings-row[three-line] {
           height: 74px;
         }
-        ha-settings-row > span[slot="description"] {
+        ha-settings-row > span[slot='description'] {
           white-space: normal;
           color: var(--secondary-text-color);
         }
@@ -195,12 +198,12 @@ class HassioCoreInfo extends LitElement {
           text-decoration: none;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hassio-core-info": HassioCoreInfo;
+    'hassio-core-info': HassioCoreInfo
   }
 }

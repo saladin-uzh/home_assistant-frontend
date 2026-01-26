@@ -1,39 +1,39 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import type { FormatEntityAttributeValueFunc } from "../../../../common/translations/entity-state";
-import type { LocalizeFunc } from "../../../../common/translations/localize";
-import "../../../../components/ha-form/ha-form";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import type { FormatEntityAttributeValueFunc } from '../../../../common/translations/entity-state'
+import type { LocalizeFunc } from '../../../../common/translations/localize'
+import '../../../../components/ha-form/ha-form'
 import type {
   HaFormSchema,
   SchemaUnion,
-} from "../../../../components/ha-form/types";
-import type { HomeAssistant } from "../../../../types";
+} from '../../../../components/ha-form/types'
+import type { HomeAssistant } from '../../../../types'
 import type {
   ClimatePresetModesCardFeatureConfig,
   LovelaceCardFeatureContext,
-} from "../../card-features/types";
-import type { LovelaceCardFeatureEditor } from "../../types";
+} from '../../card-features/types'
+import type { LovelaceCardFeatureEditor } from '../../types'
 
 type ClimatePresetModesCardFeatureData = ClimatePresetModesCardFeatureConfig & {
-  customize_modes: boolean;
-};
+  customize_modes: boolean
+}
 
-@customElement("hui-climate-preset-modes-card-feature-editor")
+@customElement('hui-climate-preset-modes-card-feature-editor')
 export class HuiClimatePresetModesCardFeatureEditor
   extends LitElement
   implements LovelaceCardFeatureEditor
 {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ attribute: false }) public context?: LovelaceCardFeatureContext;
+  @property({ attribute: false }) public context?: LovelaceCardFeatureContext
 
-  @state() private _config?: ClimatePresetModesCardFeatureConfig;
+  @state() private _config?: ClimatePresetModesCardFeatureConfig
 
   public setConfig(config: ClimatePresetModesCardFeatureConfig): void {
-    this._config = config;
+    this._config = config
   }
 
   private _schema = memoizeOne(
@@ -45,12 +45,12 @@ export class HuiClimatePresetModesCardFeatureEditor
     ) =>
       [
         {
-          name: "style",
+          name: 'style',
           selector: {
             select: {
               multiple: false,
-              mode: "list",
-              options: ["dropdown", "icons"].map((mode) => ({
+              mode: 'list',
+              options: ['dropdown', 'icons'].map(mode => ({
                 value: mode,
                 label: localize(
                   `ui.panel.lovelace.editor.features.types.climate-preset-modes.style_list.${mode}`
@@ -60,7 +60,7 @@ export class HuiClimatePresetModesCardFeatureEditor
           },
         },
         {
-          name: "customize_modes",
+          name: 'customize_modes',
           selector: {
             boolean: {},
           },
@@ -68,17 +68,17 @@ export class HuiClimatePresetModesCardFeatureEditor
         ...(customizeModes
           ? ([
               {
-                name: "preset_modes",
+                name: 'preset_modes',
                 selector: {
                   select: {
                     reorder: true,
                     multiple: true,
                     options:
-                      stateObj?.attributes.preset_modes?.map((mode) => ({
+                      stateObj?.attributes.preset_modes?.map(mode => ({
                         value: mode,
                         label: formatEntityAttributeValue(
                           stateObj,
-                          "preset_mode",
+                          'preset_mode',
                           mode
                         ),
                       })) || [],
@@ -88,29 +88,29 @@ export class HuiClimatePresetModesCardFeatureEditor
             ] as const satisfies readonly HaFormSchema[])
           : []),
       ] as const satisfies readonly HaFormSchema[]
-  );
+  )
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
     const stateObj = this.context?.entity_id
       ? this.hass.states[this.context?.entity_id]
-      : undefined;
+      : undefined
 
     const data: ClimatePresetModesCardFeatureData = {
-      style: "dropdown",
+      style: 'dropdown',
       ...this._config,
       customize_modes: this._config.preset_modes !== undefined,
-    };
+    }
 
     const schema = this._schema(
       this.hass.localize,
       this.hass.formatEntityAttributeValue,
       stateObj,
       data.customize_modes
-    );
+    )
 
     return html`
       <ha-form
@@ -120,45 +120,45 @@ export class HuiClimatePresetModesCardFeatureEditor
         .computeLabel=${this._computeLabelCallback}
         @value-changed=${this._valueChanged}
       ></ha-form>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent): void {
     const { customize_modes, ...config } = ev.detail
-      .value as ClimatePresetModesCardFeatureData;
+      .value as ClimatePresetModesCardFeatureData
 
     const stateObj = this.context?.entity_id
       ? this.hass!.states[this.context?.entity_id]
-      : undefined;
+      : undefined
 
     if (customize_modes && !config.preset_modes) {
-      config.preset_modes = stateObj?.attributes.preset_modes || [];
+      config.preset_modes = stateObj?.attributes.preset_modes || []
     }
     if (!customize_modes && config.preset_modes) {
-      delete config.preset_modes;
+      delete config.preset_modes
     }
 
-    fireEvent(this, "config-changed", { config: config });
+    fireEvent(this, 'config-changed', { config: config })
   }
 
   private _computeLabelCallback = (
     schema: SchemaUnion<ReturnType<typeof this._schema>>
   ) => {
     switch (schema.name) {
-      case "style":
-      case "preset_modes":
-      case "customize_modes":
+      case 'style':
+      case 'preset_modes':
+      case 'customize_modes':
         return this.hass!.localize(
           `ui.panel.lovelace.editor.features.types.climate-preset-modes.${schema.name}`
-        );
+        )
       default:
-        return "";
+        return ''
     }
-  };
+  }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-climate-preset-modes-card-feature-editor": HuiClimatePresetModesCardFeatureEditor;
+    'hui-climate-preset-modes-card-feature-editor': HuiClimatePresetModesCardFeatureEditor
   }
 }

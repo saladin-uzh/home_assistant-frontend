@@ -1,111 +1,111 @@
-import { mdiFanOff, mdiFanSpeed1, mdiFanSpeed2, mdiFanSpeed3 } from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, state } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import { repeat } from "lit/directives/repeat";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-control-select";
-import type { ControlSelectOption } from "../../../../src/components/ha-control-select";
+import { mdiFanOff, mdiFanSpeed1, mdiFanSpeed2, mdiFanSpeed3 } from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, state } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import { repeat } from 'lit/directives/repeat'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-control-select'
+import type { ControlSelectOption } from '../../../../src/components/ha-control-select'
 
 const fullOptions: ControlSelectOption[] = [
   {
-    value: "off",
-    label: "Off",
+    value: 'off',
+    label: 'Off',
     path: mdiFanOff,
   },
   {
-    value: "low",
-    label: "Low",
+    value: 'low',
+    label: 'Low',
     path: mdiFanSpeed1,
   },
   {
-    value: "medium",
-    label: "Medium",
+    value: 'medium',
+    label: 'Medium',
     path: mdiFanSpeed2,
   },
   {
-    value: "high",
-    label: "High",
+    value: 'high',
+    label: 'High',
     path: mdiFanSpeed3,
   },
-];
+]
 
 const iconOptions: ControlSelectOption[] = [
   {
-    value: "off",
+    value: 'off',
     path: mdiFanOff,
   },
   {
-    value: "low",
+    value: 'low',
     path: mdiFanSpeed1,
   },
   {
-    value: "medium",
+    value: 'medium',
     path: mdiFanSpeed2,
   },
   {
-    value: "high",
+    value: 'high',
     path: mdiFanSpeed3,
   },
-];
+]
 
 const labelOptions: ControlSelectOption[] = [
   {
-    value: "off",
-    label: "Off",
+    value: 'off',
+    label: 'Off',
   },
   {
-    value: "low",
-    label: "Low",
+    value: 'low',
+    label: 'Low',
   },
   {
-    value: "medium",
-    label: "Medium",
+    value: 'medium',
+    label: 'Medium',
   },
   {
-    value: "high",
-    label: "High",
+    value: 'high',
+    label: 'High',
   },
-];
+]
 
 const selects: {
-  id: string;
-  label: string;
-  class?: string;
-  options: ControlSelectOption[];
-  disabled?: boolean;
+  id: string
+  label: string
+  class?: string
+  options: ControlSelectOption[]
+  disabled?: boolean
 }[] = [
   {
-    id: "label",
-    label: "Select with labels",
+    id: 'label',
+    label: 'Select with labels',
     options: labelOptions,
   },
   {
-    id: "icon",
-    label: "Select with icons",
+    id: 'icon',
+    label: 'Select with icons',
     options: iconOptions,
   },
   {
-    id: "icon",
-    label: "Disabled select",
+    id: 'icon',
+    label: 'Disabled select',
     options: iconOptions,
     disabled: true,
   },
   {
-    id: "custom",
-    label: "Select and custom style",
-    class: "custom",
+    id: 'custom',
+    label: 'Select and custom style',
+    class: 'custom',
     options: fullOptions,
   },
-];
+]
 
-@customElement("demo-components-ha-control-select")
+@customElement('demo-components-ha-control-select')
 export class DemoHaControlSelect extends LitElement {
-  @state() private value?: string = "off";
+  @state() private value?: string = 'off'
 
   handleValueChanged(e: CustomEvent) {
-    this.value = e.detail.value as string;
+    this.value = e.detail.value as string
   }
 
   protected render(): TemplateResult {
@@ -117,14 +117,14 @@ export class DemoHaControlSelect extends LitElement {
             <tbody>
               <tr>
                 <td>value</td>
-                <td>${this.value ?? "-"}</td>
+                <td>${this.value ?? '-'}</td>
               </tr>
             </tbody>
           </table>
         </div>
       </ha-card>
-      ${repeat(selects, (select) => {
-        const { id, label, options, ...config } = select;
+      ${repeat(selects, select => {
+        const { id, label, options, ...config } = select
         return html`
           <ha-card>
             <div class="card-content">
@@ -141,14 +141,14 @@ export class DemoHaControlSelect extends LitElement {
               </ha-control-select>
             </div>
           </ha-card>
-        `;
+        `
       })}
       <ha-card>
         <div class="card-content">
           <p class="title"><b>Vertical</b></p>
           <div class="vertical-selects">
-            ${repeat(selects, (select) => {
-              const { id, label, options, ...config } = select;
+            ${repeat(selects, select => {
+              const { id, label, options, ...config } = select
               return html`
                 <ha-control-select
                   .value=${this.value}
@@ -160,12 +160,12 @@ export class DemoHaControlSelect extends LitElement {
                   ?disabled=${config.disabled}
                 >
                 </ha-control-select>
-              `;
+              `
             })}
           </div>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -201,11 +201,11 @@ export class DemoHaControlSelect extends LitElement {
     .vertical-selects > *:not(:last-child) {
       margin-right: 4px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-components-ha-control-select": DemoHaControlSelect;
+    'demo-components-ha-control-select': DemoHaControlSelect
   }
 }

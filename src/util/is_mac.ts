@@ -1,1 +1,1 @@
-export const isMac = /Mac/i.test(navigator.userAgent);
+export const isMac = /Mac/i.test(navigator.userAgent)

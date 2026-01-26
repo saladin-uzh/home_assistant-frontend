@@ -1,68 +1,68 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-let askWrite;
+let askWrite
 
-const HASS_URL = `${location.protocol}//${location.host}`;
+const HASS_URL = `${location.protocol}//${location.host}`
 
-describe("token_storage.askWrite", () => {
+describe('token_storage.askWrite', () => {
   beforeEach(() => {
-    vi.stubGlobal("__HASS_URL__", HASS_URL);
-  });
+    vi.stubGlobal('__HASS_URL__', HASS_URL)
+  })
 
   afterEach(() => {
-    vi.resetModules();
-  });
+    vi.resetModules()
+  })
 
-  test("askWrite", async () => {
+  test('askWrite', async () => {
     vi.stubGlobal(
-      "window.__tokenCache",
+      'window.__tokenCache',
       (window.__tokenCache = {
         tokens: undefined,
         writeEnabled: true,
       })
-    );
+    )
 
-    ({ askWrite } = await import("../../../../src/common/auth/token_storage"));
-    expect(askWrite()).toBe(false);
-  });
+    ;({ askWrite } = await import('../../../../src/common/auth/token_storage'))
+    expect(askWrite()).toBe(false)
+  })
 
-  test("askWrite prefilled token", async () => {
+  test('askWrite prefilled token', async () => {
     vi.stubGlobal(
-      "window.__tokenCache",
+      'window.__tokenCache',
       (window.__tokenCache = {
         tokens: {
-          access_token: "test",
+          access_token: 'test',
           expires: 1800,
           expires_in: 1800,
-          hassUrl: "http://localhost",
-          refresh_token: "refresh",
-          clientId: "client",
+          hassUrl: 'http://localhost',
+          refresh_token: 'refresh',
+          clientId: 'client',
         },
         writeEnabled: undefined,
       })
-    );
+    )
 
-    ({ askWrite } = await import("../../../../src/common/auth/token_storage"));
-    expect(askWrite()).toBe(true);
-  });
+    ;({ askWrite } = await import('../../../../src/common/auth/token_storage'))
+    expect(askWrite()).toBe(true)
+  })
 
-  test("askWrite prefilled token, write enabled", async () => {
+  test('askWrite prefilled token, write enabled', async () => {
     vi.stubGlobal(
-      "window.__tokenCache",
+      'window.__tokenCache',
       (window.__tokenCache = {
         tokens: {
-          access_token: "test",
+          access_token: 'test',
           expires: 1800,
           expires_in: 1800,
-          hassUrl: "http://localhost",
-          refresh_token: "refresh",
-          clientId: "client",
+          hassUrl: 'http://localhost',
+          refresh_token: 'refresh',
+          clientId: 'client',
         },
         writeEnabled: true,
       })
-    );
+    )
 
-    ({ askWrite } = await import("../../../../src/common/auth/token_storage"));
-    expect(askWrite()).toBe(false);
-  });
-});
+    ;({ askWrite } = await import('../../../../src/common/auth/token_storage'))
+    expect(askWrite()).toBe(false)
+  })
+})

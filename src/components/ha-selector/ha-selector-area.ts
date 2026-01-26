@@ -1,91 +1,89 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { PropertyValues } from "lit";
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { ensureArray } from "../../common/array/ensure-array";
-import type { DeviceRegistryEntry } from "../../data/device_registry";
-import { getDeviceIntegrationLookup } from "../../data/device_registry";
-import { fireEvent } from "../../common/dom/fire_event";
-import type { EntitySources } from "../../data/entity_sources";
-import { fetchEntitySourcesWithCache } from "../../data/entity_sources";
-import type { AreaSelector } from "../../data/selector";
-import type { ConfigEntry } from "../../data/config_entries";
-import { getConfigEntries } from "../../data/config_entries";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { PropertyValues } from 'lit'
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { ensureArray } from '../../common/array/ensure-array'
+import type { DeviceRegistryEntry } from '../../data/device_registry'
+import { getDeviceIntegrationLookup } from '../../data/device_registry'
+import { fireEvent } from '../../common/dom/fire_event'
+import type { EntitySources } from '../../data/entity_sources'
+import { fetchEntitySourcesWithCache } from '../../data/entity_sources'
+import type { AreaSelector } from '../../data/selector'
+import type { ConfigEntry } from '../../data/config_entries'
+import { getConfigEntries } from '../../data/config_entries'
 import {
   filterSelectorDevices,
   filterSelectorEntities,
-} from "../../data/selector";
-import type { HomeAssistant } from "../../types";
-import "../ha-area-picker";
-import "../ha-areas-picker";
+} from '../../data/selector'
+import type { HomeAssistant } from '../../types'
+import '../ha-area-picker'
+import '../ha-areas-picker'
 
-@customElement("ha-selector-area")
+@customElement('ha-selector-area')
 export class HaAreaSelector extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: AreaSelector;
+  @property({ attribute: false }) public selector!: AreaSelector
 
-  @property() public value?: any;
+  @property() public value?: any
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = true;
+  @property({ type: Boolean }) public required = true
 
-  @state() private _entitySources?: EntitySources;
+  @state() private _entitySources?: EntitySources
 
-  @state() private _configEntries?: ConfigEntry[];
+  @state() private _configEntries?: ConfigEntry[]
 
-  private _deviceIntegrationLookup = memoizeOne(getDeviceIntegrationLookup);
+  private _deviceIntegrationLookup = memoizeOne(getDeviceIntegrationLookup)
 
   private _hasIntegration(selector: AreaSelector) {
     return (
       (selector.area?.entity &&
-        ensureArray(selector.area.entity).some(
-          (filter) => filter.integration
-        )) ||
+        ensureArray(selector.area.entity).some(filter => filter.integration)) ||
       (selector.area?.device &&
-        ensureArray(selector.area.device).some((device) => device.integration))
-    );
+        ensureArray(selector.area.device).some(device => device.integration))
+    )
   }
 
   protected willUpdate(changedProperties: PropertyValues): void {
-    if (changedProperties.get("selector") && this.value !== undefined) {
+    if (changedProperties.get('selector') && this.value !== undefined) {
       if (this.selector.area?.multiple && !Array.isArray(this.value)) {
-        this.value = [this.value];
-        fireEvent(this, "value-changed", { value: this.value });
+        this.value = [this.value]
+        fireEvent(this, 'value-changed', { value: this.value })
       } else if (!this.selector.area?.multiple && Array.isArray(this.value)) {
-        this.value = this.value[0];
-        fireEvent(this, "value-changed", { value: this.value });
+        this.value = this.value[0]
+        fireEvent(this, 'value-changed', { value: this.value })
       }
     }
   }
 
   protected updated(changedProperties: PropertyValues): void {
     if (
-      changedProperties.has("selector") &&
+      changedProperties.has('selector') &&
       this._hasIntegration(this.selector) &&
       !this._entitySources
     ) {
-      fetchEntitySourcesWithCache(this.hass).then((sources) => {
-        this._entitySources = sources;
-      });
+      fetchEntitySourcesWithCache(this.hass).then(sources => {
+        this._entitySources = sources
+      })
     }
     if (!this._configEntries && this._hasIntegration(this.selector)) {
-      this._configEntries = [];
-      getConfigEntries(this.hass).then((entries) => {
-        this._configEntries = entries;
-      });
+      this._configEntries = []
+      getConfigEntries(this.hass).then(entries => {
+        this._configEntries = entries
+      })
     }
   }
 
   protected render() {
     if (this._hasIntegration(this.selector) && !this._entitySources) {
-      return nothing;
+      return nothing
     }
 
     if (!this.selector.area?.multiple) {
@@ -105,7 +103,7 @@ export class HaAreaSelector extends LitElement {
           .disabled=${this.disabled}
           .required=${this.required}
         ></ha-area-picker>
-      `;
+      `
     }
 
     return html`
@@ -124,22 +122,22 @@ export class HaAreaSelector extends LitElement {
         .disabled=${this.disabled}
         .required=${this.required}
       ></ha-areas-picker>
-    `;
+    `
   }
 
   private _filterEntities = (entity: HassEntity): boolean => {
     if (!this.selector.area?.entity) {
-      return true;
+      return true
     }
 
-    return ensureArray(this.selector.area.entity).some((filter) =>
+    return ensureArray(this.selector.area.entity).some(filter =>
       filterSelectorEntities(filter, entity, this._entitySources)
-    );
-  };
+    )
+  }
 
   private _filterDevices = (device: DeviceRegistryEntry): boolean => {
     if (!this.selector.area?.device) {
-      return true;
+      return true
     }
 
     const deviceIntegrations = this._entitySources
@@ -149,16 +147,16 @@ export class HaAreaSelector extends LitElement {
           Object.values(this.hass.devices),
           this._configEntries
         )
-      : undefined;
+      : undefined
 
-    return ensureArray(this.selector.area.device).some((filter) =>
+    return ensureArray(this.selector.area.device).some(filter =>
       filterSelectorDevices(filter, device, deviceIntegrations)
-    );
-  };
+    )
+  }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-area": HaAreaSelector;
+    'ha-selector-area': HaAreaSelector
   }
 }

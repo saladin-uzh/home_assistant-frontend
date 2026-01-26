@@ -1,13 +1,13 @@
-import { ReactiveElement } from "lit";
-import { customElement } from "lit/decorators";
-import type { LovelaceConfig } from "../../../../data/lovelace/config/types";
-import type { LovelaceStrategyEditor } from "../types";
-import type { OriginalStatesViewStrategyConfig } from "./original-states-view-strategy";
+import { ReactiveElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import type { LovelaceConfig } from '../../../../data/lovelace/config/types'
+import type { LovelaceStrategyEditor } from '../types'
+import type { OriginalStatesViewStrategyConfig } from './original-states-view-strategy'
 
 export type OriginalStatesDashboardStrategyConfig =
-  OriginalStatesViewStrategyConfig;
+  OriginalStatesViewStrategyConfig
 
-@customElement("original-states-dashboard-strategy")
+@customElement('original-states-dashboard-strategy')
 export class OriginalStatesDashboardStrategy extends ReactiveElement {
   static async generate(
     config: OriginalStatesDashboardStrategyConfig
@@ -18,21 +18,21 @@ export class OriginalStatesDashboardStrategy extends ReactiveElement {
           strategy: config,
         },
       ],
-    };
+    }
   }
 
   public static async getConfigElement(): Promise<LovelaceStrategyEditor> {
     await import(
-      "../../editor/dashboard-strategy-editor/hui-original-states-dashboard-strategy-editor"
-    );
+      '../../editor/dashboard-strategy-editor/hui-original-states-dashboard-strategy-editor'
+    )
     return document.createElement(
-      "hui-original-states-dashboard-strategy-editor"
-    );
+      'hui-original-states-dashboard-strategy-editor'
+    )
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "original-states-dashboard-strategy": OriginalStatesDashboardStrategy;
+    'original-states-dashboard-strategy': OriginalStatesDashboardStrategy
   }
 }

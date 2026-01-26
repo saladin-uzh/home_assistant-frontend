@@ -1,19 +1,19 @@
-import { fireEvent } from "../../../../../common/dom/fire_event";
+import { fireEvent } from '../../../../../common/dom/fire_event'
 
 export interface MatterManageFabricsDialogParams {
-  device_id: string;
+  device_id: string
 }
 
 export const loadManageFabricsDialog = () =>
-  import("./dialog-matter-manage-fabrics");
+  import('./dialog-matter-manage-fabrics')
 
 export const showMatterManageFabricsDialog = (
   element: HTMLElement,
   dialogParams: MatterManageFabricsDialogParams
 ): void => {
-  fireEvent(element, "show-dialog", {
-    dialogTag: "dialog-matter-manage-fabrics",
+  fireEvent(element, 'show-dialog', {
+    dialogTag: 'dialog-matter-manage-fabrics',
     dialogImport: loadManageFabricsDialog,
     dialogParams,
-  });
-};
+  })
+}

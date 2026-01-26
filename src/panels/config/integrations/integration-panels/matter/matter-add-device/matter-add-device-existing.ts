@@ -1,17 +1,17 @@
-import { mdiHomeAutomation } from "@mdi/js";
-import { LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../../../../../common/dom/fire_event";
-import "../../../../../../components/ha-icon-next";
-import "../../../../../../components/ha-md-list";
-import "../../../../../../components/ha-md-list-item";
-import type { HomeAssistant } from "../../../../../../types";
-import type { MatterAddDeviceStep } from "../dialog-matter-add-device";
-import { sharedStyles } from "./matter-add-device-shared-styles";
+import { mdiHomeAutomation } from '@mdi/js'
+import { LitElement, css, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../../../../../common/dom/fire_event'
+import '../../../../../../components/ha-icon-next'
+import '../../../../../../components/ha-md-list'
+import '../../../../../../components/ha-md-list-item'
+import type { HomeAssistant } from '../../../../../../types'
+import type { MatterAddDeviceStep } from '../dialog-matter-add-device'
+import { sharedStyles } from './matter-add-device-shared-styles'
 
-@customElement("matter-add-device-existing")
+@customElement('matter-add-device-existing')
 class MatterAddDeviceExisting extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   render() {
     return html`
@@ -27,7 +27,7 @@ class MatterAddDeviceExisting extends LitElement {
         <ha-md-list-item
           interactive
           type="button"
-          .step=${"google_home"}
+          .step=${'google_home'}
           @click=${this._onItemClick}
           @keydown=${this._onItemClick}
         >
@@ -47,7 +47,7 @@ class MatterAddDeviceExisting extends LitElement {
         <ha-md-list-item
           interactive
           type="button"
-          .step=${"apple_home"}
+          .step=${'apple_home'}
           @click=${this._onItemClick}
           @keydown=${this._onItemClick}
         >
@@ -67,11 +67,14 @@ class MatterAddDeviceExisting extends LitElement {
         <ha-md-list-item
           interactive
           type="button"
-          .step=${"generic"}
+          .step=${'generic'}
           @click=${this._onItemClick}
           @keydown=${this._onItemClick}
         >
-          <div class="logo" slot="start">
+          <div
+            class="logo"
+            slot="start"
+          >
             <ha-svg-icon path=${mdiHomeAutomation}></ha-svg-icon>
           </div>
           <span slot="headline">
@@ -82,16 +85,16 @@ class MatterAddDeviceExisting extends LitElement {
           <ha-icon-next slot="end"></ha-icon-next>
         </ha-md-list-item>
       </ha-md-list>
-    `;
+    `
   }
 
   private _onItemClick(ev) {
-    if (ev.type === "keydown" && ev.key !== "Enter" && ev.key !== " ") {
-      return;
+    if (ev.type === 'keydown' && ev.key !== 'Enter' && ev.key !== ' ') {
+      return
     }
-    const item = ev.currentTarget as any;
-    const step = item.step as MatterAddDeviceStep;
-    fireEvent(this, "step-selected", { step });
+    const item = ev.currentTarget as any
+    const step = item.step as MatterAddDeviceStep
+    fireEvent(this, 'step-selected', { step })
   }
 
   static styles = [
@@ -113,11 +116,11 @@ class MatterAddDeviceExisting extends LitElement {
         --mdc-icon-size: 36px;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "matter-add-device-existing": MatterAddDeviceExisting;
+    'matter-add-device-existing': MatterAddDeviceExisting
   }
 }

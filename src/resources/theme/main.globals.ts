@@ -1,5 +1,5 @@
-import { css } from "lit";
-import { extractDerivedVars } from "../../common/style/derived-css-vars";
+import { css } from 'lit'
+import { extractDerivedVars } from '../../common/style/derived-css-vars'
 
 export const mainStyles = css`
   html {
@@ -49,6 +49,6 @@ export const mainStyles = css`
     --safe-width: calc(100vw - var(--safe-area-inset-left) - var(--safe-area-inset-right));
     --safe-height: calc(100vh - var(--safe-area-inset-top) - var(--safe-area-inset-bottom));
   }
-`;
+`
 
-export const mainDerivedVariables = extractDerivedVars(mainStyles);
+export const mainDerivedVariables = extractDerivedVars(mainStyles)

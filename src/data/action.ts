@@ -15,9 +15,9 @@ import {
   mdiShuffleDisabled,
   mdiTimerOutline,
   mdiTrafficLight,
-} from "@mdi/js";
-import type { AutomationElementGroupCollection } from "./automation";
-import type { Action } from "./script";
+} from '@mdi/js'
+import type { AutomationElementGroupCollection } from './automation'
+import type { Action } from './script'
 
 export const ACTION_ICONS = {
   condition: mdiAbTesting,
@@ -40,11 +40,11 @@ export const ACTION_ICONS = {
   parallel: mdiShuffleDisabled,
   variables: mdiApplicationVariableOutline,
   set_conversation_response: mdiBullhorn,
-} as const;
+} as const
 
 export const YAML_ONLY_ACTION_TYPES = new Set<keyof typeof ACTION_ICONS>([
-  "variables",
-]);
+  'variables',
+])
 
 export const ACTION_COLLECTIONS: AutomationElementGroupCollection[] = [
   {
@@ -54,13 +54,13 @@ export const ACTION_COLLECTIONS: AutomationElementGroupCollection[] = [
     },
   },
   {
-    titleKey: "ui.panel.config.automation.editor.actions.groups.helpers.label",
+    titleKey: 'ui.panel.config.automation.editor.actions.groups.helpers.label',
     groups: {
       helpers: {},
     },
   },
   {
-    titleKey: "ui.panel.config.automation.editor.actions.groups.other.label",
+    titleKey: 'ui.panel.config.automation.editor.actions.groups.other.label',
     groups: {
       event: {},
       service: {},
@@ -68,7 +68,7 @@ export const ACTION_COLLECTIONS: AutomationElementGroupCollection[] = [
       other: {},
     },
   },
-] as const;
+] as const
 
 export const ACTION_BUILDING_BLOCKS_GROUP = {
   condition: {},
@@ -85,7 +85,7 @@ export const ACTION_BUILDING_BLOCKS_GROUP = {
   sequence: {},
   parallel: {},
   variables: {},
-};
+}
 
 // These will be replaced with the correct action
 export const VIRTUAL_ACTIONS: Partial<
@@ -115,29 +115,29 @@ export const VIRTUAL_ACTIONS: Partial<
       sequence: [],
     },
   },
-} as const;
+} as const
 
 export const COLLAPSIBLE_ACTION_ELEMENTS = [
-  "ha-automation-action-choose",
-  "ha-automation-action-condition",
-  "ha-automation-action-if",
-  "ha-automation-action-parallel",
-  "ha-automation-action-repeat",
-  "ha-automation-action-sequence",
-];
+  'ha-automation-action-choose',
+  'ha-automation-action-condition',
+  'ha-automation-action-if',
+  'ha-automation-action-parallel',
+  'ha-automation-action-repeat',
+  'ha-automation-action-sequence',
+]
 
 export const ACTION_BUILDING_BLOCKS = [
-  "choose",
-  "if",
-  "parallel",
-  "sequence",
-  "repeat_while",
-  "repeat_until",
-];
+  'choose',
+  'if',
+  'parallel',
+  'sequence',
+  'repeat_while',
+  'repeat_until',
+]
 
 // Building blocks that have options in the sidebar
 export const ACTION_COMBINED_BLOCKS = [
-  "repeat_count", // virtual repeat variant
-  "repeat_for_each", // virtual repeat variant
-  "wait_for_trigger",
-];
+  'repeat_count', // virtual repeat variant
+  'repeat_for_each', // virtual repeat variant
+  'wait_for_trigger',
+]

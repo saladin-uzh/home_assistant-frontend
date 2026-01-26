@@ -1,41 +1,41 @@
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-button";
-import { createCloseHeading } from "../../../../components/ha-dialog";
-import type { HassDialog } from "../../../../dialogs/make-dialog-manager";
-import { haStyleDialog } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import type { LovelaceHeaderFooterConfig } from "../../header-footer/types";
-import { headerFooterElements } from "../lovelace-headerfooters";
-import { getHeaderFooterStubConfig } from "./get-headerfooter-stub-config";
-import type { CreateHeaderFooterDialogParams } from "./show-create-headerfooter-dialog";
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-button'
+import { createCloseHeading } from '../../../../components/ha-dialog'
+import type { HassDialog } from '../../../../dialogs/make-dialog-manager'
+import { haStyleDialog } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import type { LovelaceHeaderFooterConfig } from '../../header-footer/types'
+import { headerFooterElements } from '../lovelace-headerfooters'
+import { getHeaderFooterStubConfig } from './get-headerfooter-stub-config'
+import type { CreateHeaderFooterDialogParams } from './show-create-headerfooter-dialog'
 
-@customElement("hui-dialog-create-headerfooter")
+@customElement('hui-dialog-create-headerfooter')
 export class HuiCreateDialogHeaderFooter
   extends LitElement
   implements HassDialog<CreateHeaderFooterDialogParams>
 {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _params?: CreateHeaderFooterDialogParams;
+  @state() private _params?: CreateHeaderFooterDialogParams
 
   public async showDialog(
     params: CreateHeaderFooterDialogParams
   ): Promise<void> {
-    this._params = params;
+    this._params = params
   }
 
   public closeDialog(): boolean {
-    this._params = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
-    return true;
+    this._params = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
+    return true
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -62,7 +62,7 @@ export class HuiCreateDialogHeaderFooter
               <ha-card
                 role="button"
                 tabindex="0"
-                aria-labelledby=${"card-name-" + index}
+                aria-labelledby=${'card-name-' + index}
                 outlined
                 .type=${headerFooter.type}
                 @click=${this._handleHeaderFooterPicked}
@@ -70,7 +70,10 @@ export class HuiCreateDialogHeaderFooter
                 dialogInitialFocus
               >
                 <ha-svg-icon .path=${headerFooter.icon}></ha-svg-icon>
-                <div .id=${"card-name-" + index} role="none presentation">
+                <div
+                  .id=${'card-name-' + index}
+                  role="none presentation"
+                >
                   ${this.hass!.localize(
                     `ui.panel.lovelace.editor.header-footer.types.${headerFooter.type}.name`
                   )}
@@ -81,25 +84,25 @@ export class HuiCreateDialogHeaderFooter
         </div>
         <div slot="primaryAction">
           <ha-button @click=${this._cancel}>
-            ${this.hass!.localize("ui.common.cancel")}
+            ${this.hass!.localize('ui.common.cancel')}
           </ha-button>
         </div>
       </ha-dialog>
-    `;
+    `
   }
 
   private async _handleHeaderFooterPicked(ev: CustomEvent): Promise<void> {
     if (
       ev instanceof KeyboardEvent &&
-      ev.key !== "Enter" &&
-      ev.key !== " " &&
-      ev.key !== "Spacebar"
+      ev.key !== 'Enter' &&
+      ev.key !== ' ' &&
+      ev.key !== 'Spacebar'
     ) {
-      return;
+      return
     }
 
-    const type = (ev.currentTarget as any).type;
-    let config: LovelaceHeaderFooterConfig = { type };
+    const type = (ev.currentTarget as any).type
+    let config: LovelaceHeaderFooterConfig = { type }
 
     if (this.hass) {
       config = await getHeaderFooterStubConfig(
@@ -107,22 +110,22 @@ export class HuiCreateDialogHeaderFooter
         type,
         this._params?.entities || [],
         []
-      );
+      )
     }
 
-    this._params!.pickHeaderFooter(config);
-    this.closeDialog();
+    this._params!.pickHeaderFooter(config)
+    this.closeDialog()
   }
 
   private _ignoreKeydown(ev: KeyboardEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
   }
 
   private _cancel(ev?: Event) {
     if (ev) {
-      ev.stopPropagation();
+      ev.stopPropagation()
     }
-    this.closeDialog();
+    this.closeDialog()
   }
 
   static get styles(): CSSResultGroup {
@@ -174,12 +177,12 @@ export class HuiCreateDialogHeaderFooter
           --mdc-icon-size: 38px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-dialog-create-headerfooter": HuiCreateDialogHeaderFooter;
+    'hui-dialog-create-headerfooter': HuiCreateDialogHeaderFooter
   }
 }

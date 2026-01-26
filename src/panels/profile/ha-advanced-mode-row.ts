@@ -1,24 +1,24 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "../../components/ha-alert";
-import "../../components/ha-card";
-import "../../components/ha-settings-row";
-import "../../components/ha-switch";
-import type { CoreFrontendUserData } from "../../data/frontend";
-import { saveFrontendUserData } from "../../data/frontend";
-import { documentationUrl } from "../../util/documentation-url";
-import type { HomeAssistant } from "../../types";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import '../../components/ha-alert'
+import '../../components/ha-card'
+import '../../components/ha-settings-row'
+import '../../components/ha-switch'
+import type { CoreFrontendUserData } from '../../data/frontend'
+import { saveFrontendUserData } from '../../data/frontend'
+import { documentationUrl } from '../../util/documentation-url'
+import type { HomeAssistant } from '../../types'
 
-@customElement("ha-advanced-mode-row")
+@customElement('ha-advanced-mode-row')
 class AdvancedModeRow extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ attribute: false }) public coreUserData?: CoreFrontendUserData;
+  @property({ attribute: false }) public coreUserData?: CoreFrontendUserData
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
   protected render(): TemplateResult {
     return html`
@@ -27,18 +27,18 @@ class AdvancedModeRow extends LitElement {
         : nothing}
       <ha-settings-row .narrow=${this.narrow}>
         <span slot="heading">
-          ${this.hass.localize("ui.panel.profile.advanced_mode.title")}
+          ${this.hass.localize('ui.panel.profile.advanced_mode.title')}
         </span>
         <span slot="description">
-          ${this.hass.localize("ui.panel.profile.advanced_mode.description")}
+          ${this.hass.localize('ui.panel.profile.advanced_mode.description')}
           <a
             href=${documentationUrl(
               this.hass,
-              "/blog/2019/07/17/release-96/#advanced-mode"
+              '/blog/2019/07/17/release-96/#advanced-mode'
             )}
             target="_blank"
             rel="noreferrer"
-            >${this.hass.localize("ui.panel.profile.advanced_mode.link_promo")}
+            >${this.hass.localize('ui.panel.profile.advanced_mode.link_promo')}
           </a>
         </span>
         <ha-switch
@@ -47,17 +47,17 @@ class AdvancedModeRow extends LitElement {
           @change=${this._advancedToggled}
         ></ha-switch>
       </ha-settings-row>
-    `;
+    `
   }
 
   private async _advancedToggled(ev) {
     try {
-      saveFrontendUserData(this.hass.connection, "core", {
+      saveFrontendUserData(this.hass.connection, 'core', {
         ...this.coreUserData,
         showAdvanced: ev.currentTarget.checked,
-      });
+      })
     } catch (err: any) {
-      this._error = err.message || err;
+      this._error = err.message || err
     }
   }
 
@@ -69,11 +69,11 @@ class AdvancedModeRow extends LitElement {
       margin: 0 16px;
       display: block;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-advanced-mode-row": AdvancedModeRow;
+    'ha-advanced-mode-row': AdvancedModeRow
   }
 }

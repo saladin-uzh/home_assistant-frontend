@@ -1,71 +1,71 @@
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { applyThemesOnElement } from "../../../common/dom/apply_themes_on_element";
-import { computeDomain } from "../../../common/entity/compute_domain";
-import "../../../components/ha-card";
-import type { ImageEntity } from "../../../data/image";
-import { computeImageUrl } from "../../../data/image";
-import type { HomeAssistant } from "../../../types";
-import { findEntities } from "../common/find-entities";
-import type { LovelaceElement, LovelaceElementConfig } from "../elements/types";
-import type { LovelaceCard, LovelaceCardEditor } from "../types";
-import { createStyledHuiElement } from "./picture-elements/create-styled-hui-element";
-import type { PictureElementsCardConfig } from "./types";
-import type { PersonEntity } from "../../../data/person";
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { applyThemesOnElement } from '../../../common/dom/apply_themes_on_element'
+import { computeDomain } from '../../../common/entity/compute_domain'
+import '../../../components/ha-card'
+import type { ImageEntity } from '../../../data/image'
+import { computeImageUrl } from '../../../data/image'
+import type { HomeAssistant } from '../../../types'
+import { findEntities } from '../common/find-entities'
+import type { LovelaceElement, LovelaceElementConfig } from '../elements/types'
+import type { LovelaceCard, LovelaceCardEditor } from '../types'
+import { createStyledHuiElement } from './picture-elements/create-styled-hui-element'
+import type { PictureElementsCardConfig } from './types'
+import type { PersonEntity } from '../../../data/person'
 
-@customElement("hui-picture-elements-card")
+@customElement('hui-picture-elements-card')
 class HuiPictureElementsCard extends LitElement implements LovelaceCard {
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import("../editor/config-elements/hui-picture-elements-card-editor");
-    return document.createElement("hui-picture-elements-card-editor");
+    await import('../editor/config-elements/hui-picture-elements-card-editor')
+    return document.createElement('hui-picture-elements-card-editor')
   }
 
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ type: Boolean }) public preview = false;
+  @property({ type: Boolean }) public preview = false
 
-  @state() private _elements?: LovelaceElement[];
+  @state() private _elements?: LovelaceElement[]
 
   public static getStubConfig(
     hass: HomeAssistant,
     entities: string[],
     entitiesFallback: string[]
   ): PictureElementsCardConfig {
-    const maxEntities = 1;
+    const maxEntities = 1
     const foundEntities = findEntities(
       hass,
       maxEntities,
       entities,
       entitiesFallback,
-      ["sensor", "binary_sensor"]
-    );
+      ['sensor', 'binary_sensor']
+    )
 
     return {
-      type: "picture-elements",
+      type: 'picture-elements',
       elements: [
         {
-          type: "state-badge",
-          entity: foundEntities[0] || "",
+          type: 'state-badge',
+          entity: foundEntities[0] || '',
           style: {
-            top: "32%",
-            left: "40%",
+            top: '32%',
+            left: '40%',
           },
         },
       ],
-      image: "https://demo.home-assistant.io/stub_config/floorplan.png",
-    };
+      image: 'https://demo.home-assistant.io/stub_config/floorplan.png',
+    }
   }
 
-  @state() private _config?: PictureElementsCardConfig;
+  @state() private _config?: PictureElementsCardConfig
 
   public getCardSize(): number {
-    return 4;
+    return 4
   }
 
   public setConfig(config: PictureElementsCardConfig): void {
     if (!config) {
-      throw new Error("Invalid configuration");
+      throw new Error('Invalid configuration')
     } else if (
       !(
         config.image ||
@@ -75,41 +75,41 @@ class HuiPictureElementsCard extends LitElement implements LovelaceCard {
       ) ||
       (config.state_image && !config.entity)
     ) {
-      throw new Error("Image required");
+      throw new Error('Image required')
     } else if (!Array.isArray(config.elements)) {
-      throw new Error("Elements required");
+      throw new Error('Elements required')
     }
 
-    this._config = config;
+    this._config = config
 
-    this._elements = config.elements.map((element) => {
-      const cardElement = this._createElement(element);
-      return cardElement;
-    });
+    this._elements = config.elements.map(element => {
+      const cardElement = this._createElement(element)
+      return cardElement
+    })
   }
 
   protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
+    super.updated(changedProps)
     if (!this._config || !this.hass) {
-      return;
+      return
     }
 
-    if (this._elements && changedProps.has("hass")) {
+    if (this._elements && changedProps.has('hass')) {
       for (const element of this._elements) {
-        element.hass = this.hass;
+        element.hass = this.hass
       }
     }
 
-    if (this._elements && changedProps.has("preview")) {
+    if (this._elements && changedProps.has('preview')) {
       for (const element of this._elements) {
-        element.preview = this.preview;
+        element.preview = this.preview
       }
     }
 
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
-    const oldConfig = changedProps.get("_config") as
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined
+    const oldConfig = changedProps.get('_config') as
       | PictureElementsCardConfig
-      | undefined;
+      | undefined
 
     if (
       !oldHass ||
@@ -117,38 +117,38 @@ class HuiPictureElementsCard extends LitElement implements LovelaceCard {
       oldHass.themes !== this.hass.themes ||
       oldConfig.theme !== this._config.theme
     ) {
-      applyThemesOnElement(this, this.hass.themes, this._config.theme);
+      applyThemesOnElement(this, this.hass.themes, this._config.theme)
     }
   }
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
     let image: string | undefined =
-      (typeof this._config?.image === "object" &&
+      (typeof this._config?.image === 'object' &&
         this._config.image.media_content_id) ||
-      (this._config.image as string | undefined);
+      (this._config.image as string | undefined)
 
     const darkModeImage: string | undefined =
-      (typeof this._config?.dark_mode_image === "object" &&
+      (typeof this._config?.dark_mode_image === 'object' &&
         this._config.dark_mode_image.media_content_id) ||
-      (this._config.dark_mode_image as string | undefined);
+      (this._config.dark_mode_image as string | undefined)
 
     if (this._config.image_entity) {
       const stateObj: ImageEntity | PersonEntity | undefined =
-        this.hass.states[this._config.image_entity];
-      const domain: string = computeDomain(this._config.image_entity);
+        this.hass.states[this._config.image_entity]
+      const domain: string = computeDomain(this._config.image_entity)
       switch (domain) {
-        case "image":
-          image = computeImageUrl(stateObj as ImageEntity);
-          break;
-        case "person":
+        case 'image':
+          image = computeImageUrl(stateObj as ImageEntity)
+          break
+        case 'person':
           if ((stateObj as PersonEntity).attributes.entity_picture) {
-            image = (stateObj as PersonEntity).attributes.entity_picture;
+            image = (stateObj as PersonEntity).attributes.entity_picture
           }
-          break;
+          break
       }
     }
 
@@ -170,7 +170,7 @@ class HuiPictureElementsCard extends LitElement implements LovelaceCard {
           ${this._elements}
         </div>
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -188,43 +188,43 @@ class HuiPictureElementsCard extends LitElement implements LovelaceCard {
       height: 100%;
       box-sizing: border-box;
     }
-  `;
+  `
 
   private _createElement(
     elementConfig: LovelaceElementConfig
   ): LovelaceElement {
-    const element = createStyledHuiElement(elementConfig) as LovelaceCard;
+    const element = createStyledHuiElement(elementConfig) as LovelaceCard
     if (this.hass) {
-      element.hass = this.hass;
+      element.hass = this.hass
     }
-    element.preview = this.preview;
+    element.preview = this.preview
     element.addEventListener(
-      "ll-rebuild",
-      (ev) => {
-        ev.stopPropagation();
-        this._rebuildElement(element, elementConfig);
+      'll-rebuild',
+      ev => {
+        ev.stopPropagation()
+        this._rebuildElement(element, elementConfig)
       },
       { once: true }
-    );
-    return element;
+    )
+    return element
   }
 
   private _rebuildElement(
     elToReplace: LovelaceElement,
     config: LovelaceElementConfig
   ): void {
-    const newCardEl = this._createElement(config);
+    const newCardEl = this._createElement(config)
     if (elToReplace.parentElement) {
-      elToReplace.parentElement.replaceChild(newCardEl, elToReplace);
+      elToReplace.parentElement.replaceChild(newCardEl, elToReplace)
     }
-    this._elements = this._elements!.map((curCardEl) =>
+    this._elements = this._elements!.map(curCardEl =>
       curCardEl === elToReplace ? newCardEl : curCardEl
-    );
+    )
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-picture-elements-card": HuiPictureElementsCard;
+    'hui-picture-elements-card': HuiPictureElementsCard
   }
 }

@@ -1,4 +1,4 @@
-import type { ActionDetail } from "@material/mwc-list";
+import type { ActionDetail } from '@material/mwc-list'
 
 import {
   mdiArrowCollapseDown,
@@ -11,7 +11,7 @@ import {
   mdiRefresh,
   mdiWrap,
   mdiWrapDisabled,
-} from "@mdi/js";
+} from '@mdi/js'
 import {
   css,
   type CSSResultGroup,
@@ -20,38 +20,38 @@ import {
   nothing,
   type PropertyValues,
   type TemplateResult,
-} from "lit";
-import { classMap } from "lit/directives/class-map";
+} from 'lit'
+import { classMap } from 'lit/directives/class-map'
 
 // eslint-disable-next-line import/extensions
-import { IntersectionController } from "@lit-labs/observers/intersection-controller.js";
-import { customElement, property, query, state } from "lit/decorators";
-import "../../../components/chips/ha-assist-chip";
-import "../../../components/ha-alert";
-import "../../../components/ha-ansi-to-html";
-import type { HaAnsiToHtml } from "../../../components/ha-ansi-to-html";
-import "../../../components/ha-button";
-import "../../../components/ha-button-menu";
-import "../../../components/ha-card";
-import "../../../components/ha-icon-button";
-import "../../../components/ha-list-item";
-import "../../../components/ha-md-divider";
-import "../../../components/ha-md-menu";
-import "../../../components/ha-md-menu-item";
-import "../../../components/ha-spinner";
-import "../../../components/ha-svg-icon";
+import { IntersectionController } from '@lit-labs/observers/intersection-controller.js'
+import { customElement, property, query, state } from 'lit/decorators'
+import '../../../components/chips/ha-assist-chip'
+import '../../../components/ha-alert'
+import '../../../components/ha-ansi-to-html'
+import type { HaAnsiToHtml } from '../../../components/ha-ansi-to-html'
+import '../../../components/ha-button'
+import '../../../components/ha-button-menu'
+import '../../../components/ha-card'
+import '../../../components/ha-icon-button'
+import '../../../components/ha-list-item'
+import '../../../components/ha-md-divider'
+import '../../../components/ha-md-menu'
+import '../../../components/ha-md-menu-item'
+import '../../../components/ha-spinner'
+import '../../../components/ha-svg-icon'
 
-import { getSignedPath } from "../../../data/auth";
+import { getSignedPath } from '../../../data/auth'
 
-import { isComponentLoaded } from "../../../common/config/is_component_loaded";
-import { atLeastVersion } from "../../../common/config/version";
-import { fireEvent, type HASSDomEvent } from "../../../common/dom/fire_event";
-import type { LocalizeFunc } from "../../../common/translations/localize";
-import { debounce } from "../../../common/util/debounce";
-import type { HaMdMenu } from "../../../components/ha-md-menu";
-import type { ConnectionStatus } from "../../../data/connection-status";
-import { fetchErrorLog, getErrorLogDownloadUrl } from "../../../data/error_log";
-import { extractApiErrorMessage } from "../../../data/hassio/common";
+import { isComponentLoaded } from '../../../common/config/is_component_loaded'
+import { atLeastVersion } from '../../../common/config/version'
+import { fireEvent, type HASSDomEvent } from '../../../common/dom/fire_event'
+import type { LocalizeFunc } from '../../../common/translations/localize'
+import { debounce } from '../../../common/util/debounce'
+import type { HaMdMenu } from '../../../components/ha-md-menu'
+import type { ConnectionStatus } from '../../../data/connection-status'
+import { fetchErrorLog, getErrorLogDownloadUrl } from '../../../data/error_log'
+import { extractApiErrorMessage } from '../../../data/hassio/common'
 import {
   fetchHassioBoots,
   fetchHassioLogs,
@@ -60,92 +60,92 @@ import {
   fetchHassioLogsLegacy,
   getHassioLogDownloadLinesUrl,
   getHassioLogDownloadUrl,
-} from "../../../data/hassio/supervisor";
-import type { HomeAssistant } from "../../../types";
+} from '../../../data/hassio/supervisor'
+import type { HomeAssistant } from '../../../types'
 import {
   downloadFileSupported,
   fileDownload,
-} from "../../../util/file_download";
-import { showDownloadLogsDialog } from "./show-dialog-download-logs";
+} from '../../../util/file_download'
+import { showDownloadLogsDialog } from './show-dialog-download-logs'
 
-const NUMBER_OF_LINES = 100;
+const NUMBER_OF_LINES = 100
 
-@customElement("error-log-card")
+@customElement('error-log-card')
 class ErrorLogCard extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public localizeFunc?: LocalizeFunc<any>;
+  @property({ attribute: false }) public localizeFunc?: LocalizeFunc<any>
 
-  @property() public filter = "";
+  @property() public filter = ''
 
-  @property() public header?: string;
+  @property() public header?: string
 
-  @property() public provider?: string;
+  @property() public provider?: string
 
-  @property({ attribute: "allow-switch", type: Boolean }) public allowSwitch =
-    false;
+  @property({ attribute: 'allow-switch', type: Boolean }) public allowSwitch =
+    false
 
-  @query(".error-log") private _logElement?: HTMLElement;
+  @query('.error-log') private _logElement?: HTMLElement
 
-  @query("#scroll-top-marker") private _scrollTopMarkerElement?: HTMLElement;
+  @query('#scroll-top-marker') private _scrollTopMarkerElement?: HTMLElement
 
-  @query("#scroll-bottom-marker")
-  private _scrollBottomMarkerElement?: HTMLElement;
+  @query('#scroll-bottom-marker')
+  private _scrollBottomMarkerElement?: HTMLElement
 
-  @query("ha-ansi-to-html") private _ansiToHtmlElement?: HaAnsiToHtml;
+  @query('ha-ansi-to-html') private _ansiToHtmlElement?: HaAnsiToHtml
 
-  @query("#boots-menu") private _bootsMenu?: HaMdMenu;
+  @query('#boots-menu') private _bootsMenu?: HaMdMenu
 
-  @state() private _firstCursor?: string;
+  @state() private _firstCursor?: string
 
   @state() private _scrolledToBottomController =
     new IntersectionController<boolean>(this, {
       callback(this: IntersectionController<boolean>, entries) {
-        return entries[0].isIntersecting;
+        return entries[0].isIntersecting
       },
-    });
+    })
 
   @state() private _scrolledToTopController =
-    new IntersectionController<boolean>(this, {});
+    new IntersectionController<boolean>(this, {})
 
-  @state() private _newLogsIndicator?: boolean;
+  @state() private _newLogsIndicator?: boolean
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
-  @state() private _logStreamAborter?: AbortController;
+  @state() private _logStreamAborter?: AbortController
 
-  @state() private _streamSupported?: boolean;
+  @state() private _streamSupported?: boolean
 
-  @state() private _loadingState: "loading" | "empty" | "loaded" = "loading";
+  @state() private _loadingState: 'loading' | 'empty' | 'loaded' = 'loading'
 
-  @state() private _loadingPrevState?: "loading" | "end" | "loaded";
+  @state() private _loadingPrevState?: 'loading' | 'end' | 'loaded'
 
-  @state() private _noSearchResults = false;
+  @state() private _noSearchResults = false
 
-  @state() private _numberOfLines?: number;
+  @state() private _numberOfLines?: number
 
-  @state() private _boot = 0;
+  @state() private _boot = 0
 
-  @state() private _boots?: number[];
+  @state() private _boots?: number[]
 
-  @state() private _showBootsSelect = false;
+  @state() private _showBootsSelect = false
 
-  @state() private _wrapLines = true;
+  @state() private _wrapLines = true
 
-  @state() private _downloadSupported?: boolean;
+  @state() private _downloadSupported?: boolean
 
-  @state() private _logsFileLink?: string;
+  @state() private _logsFileLink?: string
 
   protected render(): TemplateResult {
     const streaming =
       this._streamSupported &&
       this.provider &&
-      isComponentLoaded(this.hass, "hassio") &&
-      this._loadingState !== "loading";
+      isComponentLoaded(this.hass, 'hassio') &&
+      this._loadingState !== 'loading'
 
-    const hasBoots = this._streamSupported && Array.isArray(this._boots);
+    const hasBoots = this._streamSupported && Array.isArray(this._boots)
 
-    const localize = this.localizeFunc || this.hass.localize;
+    const localize = this.localizeFunc || this.hass.localize
     return html`
       <div class="error-log-intro">
         ${this._error
@@ -154,20 +154,20 @@ class ErrorLogCard extends LitElement {
         <ha-card outlined>
           <div class="header">
             <h1 class="card-header">
-              ${this.header || localize("ui.panel.config.logs.show_full_logs")}
+              ${this.header || localize('ui.panel.config.logs.show_full_logs')}
             </h1>
             <div class="action-buttons">
               ${hasBoots && this._showBootsSelect
                 ? html`
                     <ha-assist-chip
                       .title=${localize(
-                        "ui.panel.config.logs.haos_boots_title"
+                        'ui.panel.config.logs.haos_boots_title'
                       )}
                       .label=${this._boot === 0
-                        ? localize("ui.panel.config.logs.current")
+                        ? localize('ui.panel.config.logs.current')
                         : this._boot === -1
-                          ? localize("ui.panel.config.logs.previous")
-                          : localize("ui.panel.config.logs.startups_ago", {
+                          ? localize('ui.panel.config.logs.previous')
+                          : localize('ui.panel.config.logs.startups_ago', {
                               boot: this._boot * -1,
                             })}
                       id="boots-anchor"
@@ -184,18 +184,18 @@ class ErrorLogCard extends LitElement {
                       positioning="fixed"
                     >
                       ${this._boots!.map(
-                        (boot) => html`
+                        boot => html`
                           <ha-md-menu-item
                             .value=${boot}
                             @click=${this._setBoot}
                             .selected=${boot === this._boot}
                           >
                             ${boot === 0
-                              ? localize("ui.panel.config.logs.current")
+                              ? localize('ui.panel.config.logs.current')
                               : boot === -1
-                                ? localize("ui.panel.config.logs.previous")
+                                ? localize('ui.panel.config.logs.previous')
                                 : localize(
-                                    "ui.panel.config.logs.startups_ago",
+                                    'ui.panel.config.logs.startups_ago',
                                     { boot: boot * -1 }
                                   )}
                           </ha-md-menu-item>
@@ -214,7 +214,7 @@ class ErrorLogCard extends LitElement {
                     <ha-icon-button
                       .path=${mdiDownload}
                       @click=${this._downloadLogs}
-                      .label=${localize("ui.panel.config.logs.download_logs")}
+                      .label=${localize('ui.panel.config.logs.download_logs')}
                     ></ha-icon-button>
                   `
                 : this._logsFileLink
@@ -227,7 +227,7 @@ class ErrorLogCard extends LitElement {
                         <ha-icon-button
                           .path=${mdiDownload}
                           .label=${localize(
-                            "ui.panel.config.logs.download_logs"
+                            'ui.panel.config.logs.download_logs'
                           )}
                         ></ha-icon-button>
                       </a>
@@ -237,29 +237,32 @@ class ErrorLogCard extends LitElement {
                 .path=${this._wrapLines ? mdiWrapDisabled : mdiWrap}
                 @click=${this._toggleLineWrap}
                 .label=${localize(
-                  `ui.panel.config.logs.${this._wrapLines ? "full_width" : "wrap_lines"}`
+                  `ui.panel.config.logs.${this._wrapLines ? 'full_width' : 'wrap_lines'}`
                 )}
               ></ha-icon-button>
               ${!streaming || this._error
                 ? html`<ha-icon-button
                     .path=${mdiRefresh}
                     @click=${this._handleRefresh}
-                    .label=${localize("ui.common.refresh")}
+                    .label=${localize('ui.common.refresh')}
                   ></ha-icon-button>`
                 : nothing}
-              ${(this.allowSwitch && this.provider === "core") || hasBoots
+              ${(this.allowSwitch && this.provider === 'core') || hasBoots
                 ? html`
                     <ha-button-menu @action=${this._handleOverflowAction}>
-                      <ha-icon-button slot="trigger" .path=${mdiDotsVertical}>
+                      <ha-icon-button
+                        slot="trigger"
+                        .path=${mdiDotsVertical}
+                      >
                       </ha-icon-button>
-                      ${this.allowSwitch && this.provider === "core"
+                      ${this.allowSwitch && this.provider === 'core'
                         ? html`<ha-list-item graphic="icon">
                             <ha-svg-icon
                               slot="graphic"
                               .path=${mdiFolderTextOutline}
                             ></ha-svg-icon>
                             ${this.hass.localize(
-                              "ui.panel.config.logs.show_condensed_logs"
+                              'ui.panel.config.logs.show_condensed_logs'
                             )}
                           </ha-list-item>`
                         : nothing}
@@ -270,7 +273,7 @@ class ErrorLogCard extends LitElement {
                               .path=${mdiFormatListNumbered}
                             ></ha-svg-icon>
                             ${localize(
-                              `ui.panel.config.logs.${this._showBootsSelect ? "hide" : "show"}_haos_boots`
+                              `ui.panel.config.logs.${this._showBootsSelect ? 'hide' : 'show'}_haos_boots`
                             )}
                           </ha-list-item>`
                         : nothing}
@@ -281,21 +284,21 @@ class ErrorLogCard extends LitElement {
           </div>
           <div class="card-content error-log">
             <div id="scroll-top-marker"></div>
-            ${this._loadingPrevState === "loading"
+            ${this._loadingPrevState === 'loading'
               ? html`<div class="loading-old">
                   <ha-spinner></ha-spinner>
                 </div>`
               : nothing}
-            ${this._loadingState === "loading"
-              ? html`<div>${localize("ui.panel.config.logs.loading_log")}</div>`
-              : this._loadingState === "empty"
-                ? html`<div>${localize("ui.panel.config.logs.no_errors")}</div>`
+            ${this._loadingState === 'loading'
+              ? html`<div>${localize('ui.panel.config.logs.loading_log')}</div>`
+              : this._loadingState === 'empty'
+                ? html`<div>${localize('ui.panel.config.logs.no_errors')}</div>`
                 : nothing}
-            ${this._loadingState === "loaded" &&
+            ${this._loadingState === 'loaded' &&
             this.filter &&
             this._noSearchResults
               ? html`<div>
-                  ${localize("ui.panel.config.logs.no_issues_search", {
+                  ${localize('ui.panel.config.logs.no_issues_search', {
                     term: this.filter,
                   })}
                 </div>`
@@ -320,8 +323,11 @@ class ErrorLogCard extends LitElement {
               .path=${mdiArrowCollapseDown}
               slot="start"
             ></ha-svg-icon>
-            ${localize("ui.panel.config.logs.scroll_down_button")}
-            <ha-svg-icon .path=${mdiArrowCollapseDown} slot="end"></ha-svg-icon>
+            ${localize('ui.panel.config.logs.scroll_down_button')}
+            <ha-svg-icon
+              .path=${mdiArrowCollapseDown}
+              slot="end"
+            ></ha-svg-icon>
           </ha-button>
           ${streaming && this._boot === 0 && !this._error
             ? html`<div class="live-indicator">
@@ -331,75 +337,72 @@ class ErrorLogCard extends LitElement {
             : nothing}
         </ha-card>
       </div>
-    `;
+    `
   }
 
   protected willUpdate(changedProps: PropertyValues) {
-    super.willUpdate(changedProps);
+    super.willUpdate(changedProps)
     if (!this.hasUpdated) {
-      this._downloadSupported = downloadFileSupported(this.hass);
+      this._downloadSupported = downloadFileSupported(this.hass)
       this._streamSupported =
-        !__SUPERVISOR__ || atLeastVersion(this.hass.config.version, 2024, 11);
+        !__SUPERVISOR__ || atLeastVersion(this.hass.config.version, 2024, 11)
 
       // just needs to be loaded once, because only the host endpoints provide boots information
-      this._loadBoots();
+      this._loadBoots()
 
-      window.addEventListener(
-        "connection-status",
-        this._handleConnectionStatus
-      );
+      window.addEventListener('connection-status', this._handleConnectionStatus)
 
-      this.hass.loadFragmentTranslation("config");
+      this.hass.loadFragmentTranslation('config')
     }
 
-    if (changedProps.has("provider")) {
-      this._boot = 0;
-      this._loadLogs();
+    if (changedProps.has('provider')) {
+      this._boot = 0
+      this._loadLogs()
     }
   }
 
   protected firstUpdated(changedProps: PropertyValues) {
-    super.firstUpdated(changedProps);
+    super.firstUpdated(changedProps)
 
-    this._scrolledToBottomController.observe(this._scrollBottomMarkerElement!);
+    this._scrolledToBottomController.observe(this._scrollBottomMarkerElement!)
 
-    this._scrolledToTopController.callback = this._handleTopScroll;
-    this._scrolledToTopController.observe(this._scrollTopMarkerElement!);
+    this._scrolledToTopController.callback = this._handleTopScroll
+    this._scrolledToTopController.observe(this._scrollTopMarkerElement!)
   }
 
   protected updated(changedProps) {
-    super.updated(changedProps);
+    super.updated(changedProps)
 
     if (this._newLogsIndicator && this._scrolledToBottomController.value) {
-      this._newLogsIndicator = false;
+      this._newLogsIndicator = false
     }
 
-    if (changedProps.has("filter")) {
-      this._debounceSearch();
+    if (changedProps.has('filter')) {
+      this._debounceSearch()
     }
 
     if (
-      changedProps.has("_loadingState") &&
-      this._loadingState === "loaded" &&
+      changedProps.has('_loadingState') &&
+      this._loadingState === 'loaded' &&
       this._scrolledToTopController.value &&
       this._firstCursor &&
       !this._loadingPrevState
     ) {
-      this._loadMoreLogs();
+      this._loadMoreLogs()
     }
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
 
     if (this._logStreamAborter) {
-      this._logStreamAborter.abort();
+      this._logStreamAborter.abort()
     }
 
     window.removeEventListener(
-      "connection-status",
+      'connection-status',
       this._handleConnectionStatus
-    );
+    )
   }
 
   private async _downloadLogs(): Promise<void> {
@@ -409,46 +412,46 @@ class ErrorLogCard extends LitElement {
         provider: this.provider,
         defaultLineCount: this._numberOfLines,
         boot: this._boot,
-      });
+      })
     } else {
-      const timeString = new Date().toISOString().replace(/:/g, "-");
+      const timeString = new Date().toISOString().replace(/:/g, '-')
       const downloadUrl =
-        this.provider && this.provider !== "core"
+        this.provider && this.provider !== 'core'
           ? getHassioLogDownloadUrl(this.provider)
-          : getErrorLogDownloadUrl(this.hass);
+          : getErrorLogDownloadUrl(this.hass)
       const logFileName =
-        this.provider && this.provider !== "core"
+        this.provider && this.provider !== 'core'
           ? `${this.provider}_${timeString}.log`
-          : `home-assistant_${timeString}.log`;
-      const signedUrl = await getSignedPath(this.hass, downloadUrl);
-      fileDownload(signedUrl.path, logFileName);
+          : `home-assistant_${timeString}.log`
+      const signedUrl = await getSignedPath(this.hass, downloadUrl)
+      fileDownload(signedUrl.path, logFileName)
     }
   }
 
   private async _loadLogs(retry = false): Promise<void> {
-    this._error = undefined;
-    this._loadingState = "loading";
-    this._numberOfLines = retry ? (this._numberOfLines ?? 0) : 0;
+    this._error = undefined
+    this._loadingState = 'loading'
+    this._numberOfLines = retry ? (this._numberOfLines ?? 0) : 0
 
     if (!retry) {
-      this._loadingPrevState = undefined;
-      this._firstCursor = undefined;
-      this._ansiToHtmlElement?.clear();
+      this._loadingPrevState = undefined
+      this._firstCursor = undefined
+      this._ansiToHtmlElement?.clear()
     }
 
     const streamLogs =
       this._streamSupported &&
-      isComponentLoaded(this.hass, "hassio") &&
-      this.provider;
+      isComponentLoaded(this.hass, 'hassio') &&
+      this.provider
 
     try {
       if (this._logStreamAborter) {
-        this._logStreamAborter.abort();
-        this._logStreamAborter = undefined;
+        this._logStreamAborter.abort()
+        this._logStreamAborter = undefined
       }
 
       if (streamLogs) {
-        this._logStreamAborter = new AbortController();
+        this._logStreamAborter = new AbortController()
 
         if (!retry) {
           // check if there are any logs at all
@@ -457,14 +460,14 @@ class ErrorLogCard extends LitElement {
             this.provider!,
             `entries=:-1:`,
             this._boot
-          );
-          const testLogs = await testResponse.text();
+          )
+          const testLogs = await testResponse.text()
           if (!testLogs.trim()) {
-            this._loadingState = "empty";
+            this._loadingState = 'empty'
           }
         }
 
-        let response: Response;
+        let response: Response
 
         if (retry && this._firstCursor) {
           response = await fetchHassioLogsFollowSkip(
@@ -475,7 +478,7 @@ class ErrorLogCard extends LitElement {
             this._numberOfLines,
             NUMBER_OF_LINES,
             this._boot
-          );
+          )
         } else {
           response = await fetchHassioLogsFollow(
             this.hass,
@@ -483,60 +486,60 @@ class ErrorLogCard extends LitElement {
             this._logStreamAborter.signal,
             NUMBER_OF_LINES,
             this._boot
-          );
+          )
         }
 
-        if (response.headers.has("X-First-Cursor")) {
-          this._firstCursor = response.headers.get("X-First-Cursor")!;
+        if (response.headers.has('X-First-Cursor')) {
+          this._firstCursor = response.headers.get('X-First-Cursor')!
         }
 
         if (!response.body) {
-          throw new Error("No stream body found");
+          throw new Error('No stream body found')
         }
 
-        this._loadingState = "empty";
+        this._loadingState = 'empty'
 
-        let tempLogLine = "";
+        let tempLogLine = ''
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let done = false;
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let done = false
 
         while (!done) {
           // eslint-disable-next-line no-await-in-loop
-          const { value, done: readerDone } = await reader.read();
-          done = readerDone;
+          const { value, done: readerDone } = await reader.read()
+          done = readerDone
 
           if (value) {
-            const chunk = decoder.decode(value, { stream: !done });
-            const scrolledToBottom = this._scrolledToBottomController.value;
+            const chunk = decoder.decode(value, { stream: !done })
+            const scrolledToBottom = this._scrolledToBottomController.value
             const lines = `${tempLogLine}${chunk}`
-              .split("\n")
-              .filter((line) => line.trim() !== "");
+              .split('\n')
+              .filter(line => line.trim() !== '')
 
             // handle edge case where the last line is not complete
-            if (chunk.endsWith("\n")) {
-              tempLogLine = "";
+            if (chunk.endsWith('\n')) {
+              tempLogLine = ''
             } else {
-              tempLogLine = lines.splice(-1, 1)[0];
+              tempLogLine = lines.splice(-1, 1)[0]
             }
 
             if (lines.length) {
-              this._ansiToHtmlElement?.parseLinesToColoredPre(lines);
-              this._numberOfLines += lines.length;
+              this._ansiToHtmlElement?.parseLinesToColoredPre(lines)
+              this._numberOfLines += lines.length
 
-              if (this._loadingState === "empty") {
+              if (this._loadingState === 'empty') {
                 // delay to avoid loading older logs immediately
                 setTimeout(() => {
-                  this._loadingState = "loaded";
-                }, 100);
+                  this._loadingState = 'loaded'
+                }, 100)
               }
             }
 
             if (scrolledToBottom && this._logElement) {
-              this._scrollToBottom();
+              this._scrollToBottom()
             } else {
-              this._newLogsIndicator = true;
+              this._newLogsIndicator = true
             }
 
             if (!this._downloadSupported) {
@@ -544,206 +547,206 @@ class ErrorLogCard extends LitElement {
                 this.provider!,
                 this._numberOfLines,
                 this._boot
-              );
-              getSignedPath(this.hass, downloadUrl).then((signedUrl) => {
-                this._logsFileLink = signedUrl.path;
-              });
+              )
+              getSignedPath(this.hass, downloadUrl).then(signedUrl => {
+                this._logsFileLink = signedUrl.path
+              })
             }
 
             // first chunk loads successfully, reset retry param
-            retry = false;
+            retry = false
           }
         }
       } else {
         // fallback to old method
-        this._streamSupported = false;
-        let logs = "";
-        if (isComponentLoaded(this.hass, "hassio") && this.provider) {
-          logs = await fetchHassioLogsLegacy(this.hass, this.provider);
+        this._streamSupported = false
+        let logs = ''
+        if (isComponentLoaded(this.hass, 'hassio') && this.provider) {
+          logs = await fetchHassioLogsLegacy(this.hass, this.provider)
         } else {
-          logs = await fetchErrorLog(this.hass);
+          logs = await fetchErrorLog(this.hass)
         }
 
         if (logs) {
-          this._ansiToHtmlElement?.parseTextToColoredPre(logs);
-          this._loadingState = "loaded";
-          this._scrollToBottom();
+          this._ansiToHtmlElement?.parseTextToColoredPre(logs)
+          this._loadingState = 'loaded'
+          this._scrollToBottom()
         }
       }
     } catch (err: any) {
-      if (err.name === "AbortError") {
-        return;
+      if (err.name === 'AbortError') {
+        return
       }
 
       // The stream can fail if the connection is lost or firefox service worker intercept the connection
       if (!retry && streamLogs) {
-        this._loadLogs(true);
-        return;
+        this._loadLogs(true)
+        return
       }
 
       this._error = (this.localizeFunc || this.hass.localize)(
-        "ui.panel.config.logs.failed_get_logs",
+        'ui.panel.config.logs.failed_get_logs',
         {
           provider: this.provider,
           error: extractApiErrorMessage(err),
         }
-      );
+      )
     }
   }
 
   private _debounceSearch = debounce(() => {
-    this._noSearchResults = !this._ansiToHtmlElement?.filterLines(this.filter);
+    this._noSearchResults = !this._ansiToHtmlElement?.filterLines(this.filter)
 
     if (!this.filter) {
-      this._scrollToBottom();
+      this._scrollToBottom()
     }
-  }, 150);
+  }, 150)
 
   private _debounceScrollToBottom = debounce(() => {
-    this._logElement!.scrollTop = this._logElement!.scrollHeight;
-  }, 300);
+    this._logElement!.scrollTop = this._logElement!.scrollHeight
+  }, 300)
 
   private _scrollToBottom(): void {
     if (this._logElement) {
-      this._newLogsIndicator = false;
-      if (this.provider !== "core") {
-        this._logElement!.scrollTo(0, this._logElement!.scrollHeight);
+      this._newLogsIndicator = false
+      if (this.provider !== 'core') {
+        this._logElement!.scrollTo(0, this._logElement!.scrollHeight)
       } else {
-        this._debounceScrollToBottom();
+        this._debounceScrollToBottom()
       }
     }
   }
 
   private _handleConnectionStatus = (ev: HASSDomEvent<ConnectionStatus>) => {
-    if (ev.detail === "disconnected" && this._logStreamAborter) {
-      this._logStreamAborter.abort();
-      this._loadingState = "loading";
+    if (ev.detail === 'disconnected' && this._logStreamAborter) {
+      this._logStreamAborter.abort()
+      this._loadingState = 'loading'
     }
-    if (ev.detail === "connected") {
-      this._loadLogs(true);
+    if (ev.detail === 'connected') {
+      this._loadLogs(true)
     }
-  };
+  }
 
   private async _loadMoreLogs() {
     if (
       !this._firstCursor ||
-      this._loadingPrevState === "loading" ||
-      this._loadingState !== "loaded" ||
+      this._loadingPrevState === 'loading' ||
+      this._loadingState !== 'loaded' ||
       !this._logElement ||
       !this.provider
     ) {
-      return;
+      return
     }
-    const scrolledToBottom = this._scrolledToBottomController.value;
+    const scrolledToBottom = this._scrolledToBottomController.value
     const scrollPositionFromBottom =
-      this._logElement.scrollHeight - this._logElement.scrollTop;
-    this._loadingPrevState = "loading";
+      this._logElement.scrollHeight - this._logElement.scrollTop
+    this._loadingPrevState = 'loading'
     const response = await fetchHassioLogs(
       this.hass,
       this.provider,
       `entries=${this._firstCursor}:-100:100`,
       this._boot
-    );
+    )
 
-    if (response.headers.has("X-First-Cursor")) {
-      if (this._firstCursor === response.headers.get("X-First-Cursor")!) {
-        this._loadingPrevState = "end";
-        return;
+    if (response.headers.has('X-First-Cursor')) {
+      if (this._firstCursor === response.headers.get('X-First-Cursor')!) {
+        this._loadingPrevState = 'end'
+        return
       }
-      this._firstCursor = response.headers.get("X-First-Cursor")!;
+      this._firstCursor = response.headers.get('X-First-Cursor')!
     }
 
-    const body = await response.text();
+    const body = await response.text()
 
     if (body) {
       const lines = body
-        .split("\n")
-        .filter((line) => line.trim() !== "")
-        .reverse();
+        .split('\n')
+        .filter(line => line.trim() !== '')
+        .reverse()
 
-      this._ansiToHtmlElement?.parseLinesToColoredPre(lines, true);
-      this._numberOfLines! += lines.length;
-      this._loadingPrevState = "loaded";
+      this._ansiToHtmlElement?.parseLinesToColoredPre(lines, true)
+      this._numberOfLines! += lines.length
+      this._loadingPrevState = 'loaded'
     } else {
-      this._loadingPrevState = "end";
+      this._loadingPrevState = 'end'
     }
 
     if (scrolledToBottom) {
-      this._scrollToBottom();
-    } else if (this._loadingPrevState !== "end" && this._logElement) {
+      this._scrollToBottom()
+    } else if (this._loadingPrevState !== 'end' && this._logElement) {
       window.requestAnimationFrame(() => {
         this._logElement!.scrollTop =
-          this._logElement!.scrollHeight - scrollPositionFromBottom;
-      });
+          this._logElement!.scrollHeight - scrollPositionFromBottom
+      })
     }
   }
 
-  private _handleTopScroll = (entries) => {
-    const isVisible = entries[0].isIntersecting;
+  private _handleTopScroll = entries => {
+    const isVisible = entries[0].isIntersecting
     if (
       this._firstCursor &&
       isVisible &&
-      this._loadingState === "loaded" &&
-      (!this._loadingPrevState || this._loadingPrevState === "loaded") &&
+      this._loadingState === 'loaded' &&
+      (!this._loadingPrevState || this._loadingPrevState === 'loaded') &&
       !this.filter
     ) {
-      this._loadMoreLogs();
+      this._loadMoreLogs()
     }
-    return isVisible;
-  };
+    return isVisible
+  }
 
   private async _loadBoots() {
-    if (this._streamSupported && isComponentLoaded(this.hass, "hassio")) {
+    if (this._streamSupported && isComponentLoaded(this.hass, 'hassio')) {
       try {
-        const { data } = await fetchHassioBoots(this.hass);
+        const { data } = await fetchHassioBoots(this.hass)
         const boots = Object.keys(data.boots)
           .map(Number)
-          .sort((a, b) => b - a);
+          .sort((a, b) => b - a)
 
         // only show boots select when there are more than one boot
         if (boots.length > 1) {
-          this._boots = boots;
+          this._boots = boots
         }
       } catch (err: any) {
         // eslint-disable-next-line no-console
-        console.error(err);
+        console.error(err)
       }
     }
   }
 
   private _toggleLineWrap() {
-    this._wrapLines = !this._wrapLines;
+    this._wrapLines = !this._wrapLines
   }
 
   private _handleRefresh() {
-    this._loadLogs();
+    this._loadLogs()
   }
 
   private _handleOverflowAction(ev: CustomEvent<ActionDetail>) {
-    let index = ev.detail.index;
-    if (this.provider === "core") {
-      index--;
+    let index = ev.detail.index
+    if (this.provider === 'core') {
+      index--
     }
     switch (index) {
       case -1:
         // @ts-ignore
-        fireEvent(this, "switch-log-view");
-        break;
+        fireEvent(this, 'switch-log-view')
+        break
       case 0:
-        this._showBootsSelect = !this._showBootsSelect;
-        break;
+        this._showBootsSelect = !this._showBootsSelect
+        break
     }
   }
 
   private _toggleBootsMenu() {
     if (this._bootsMenu) {
-      this._bootsMenu.open = !this._bootsMenu.open;
+      this._bootsMenu.open = !this._bootsMenu.open
     }
   }
 
   private _setBoot(ev: any) {
-    this._boot = ev.target.value;
-    this._loadLogs();
+    this._boot = ev.target.value
+    this._loadLogs()
   }
 
   static styles: CSSResultGroup = css`
@@ -887,11 +890,11 @@ class ErrorLogCard extends LitElement {
     .download-link {
       color: var(--text-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "error-log-card": ErrorLogCard;
+    'error-log-card': ErrorLogCard
   }
 }

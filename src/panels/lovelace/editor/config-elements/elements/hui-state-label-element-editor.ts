@@ -1,17 +1,17 @@
-import { mdiGestureTap } from "@mdi/js";
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { any, assert, literal, object, optional, string } from "superstruct";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import "../../../../../components/ha-form/ha-form";
-import type { SchemaUnion } from "../../../../../components/ha-form/types";
-import type { HomeAssistant } from "../../../../../types";
-import type { StateLabelElementConfig } from "../../../elements/types";
-import type { LovelacePictureElementEditor } from "../../../types";
-import { actionConfigStruct } from "../../structs/action-struct";
+import { mdiGestureTap } from '@mdi/js'
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { any, assert, literal, object, optional, string } from 'superstruct'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import '../../../../../components/ha-form/ha-form'
+import type { SchemaUnion } from '../../../../../components/ha-form/types'
+import type { HomeAssistant } from '../../../../../types'
+import type { StateLabelElementConfig } from '../../../elements/types'
+import type { LovelacePictureElementEditor } from '../../../types'
+import { actionConfigStruct } from '../../structs/action-struct'
 
 const stateLabelElementConfigStruct = object({
-  type: literal("state-label"),
+  type: literal('state-label'),
   entity: optional(string()),
   attribute: optional(string()),
   prefix: optional(string()),
@@ -21,52 +21,52 @@ const stateLabelElementConfigStruct = object({
   tap_action: optional(actionConfigStruct),
   hold_action: optional(actionConfigStruct),
   double_tap_action: optional(actionConfigStruct),
-});
+})
 
 const SCHEMA = [
-  { name: "entity", required: true, selector: { entity: {} } },
+  { name: 'entity', required: true, selector: { entity: {} } },
   {
-    name: "attribute",
+    name: 'attribute',
     selector: { attribute: {} },
     context: {
-      filter_entity: "entity",
+      filter_entity: 'entity',
     },
   },
-  { name: "prefix", selector: { text: {} } },
-  { name: "suffix", selector: { text: {} } },
-  { name: "title", selector: { text: {} } },
+  { name: 'prefix', selector: { text: {} } },
+  { name: 'suffix', selector: { text: {} } },
+  { name: 'title', selector: { text: {} } },
   {
-    name: "interactions",
-    type: "expandable",
+    name: 'interactions',
+    type: 'expandable',
     flatten: true,
     iconPath: mdiGestureTap,
     schema: [
       {
-        name: "tap_action",
+        name: 'tap_action',
         selector: {
           ui_action: {
-            default_action: "more-info",
+            default_action: 'more-info',
           },
         },
       },
       {
-        name: "hold_action",
+        name: 'hold_action',
         selector: {
           ui_action: {
-            default_action: "more-info",
+            default_action: 'more-info',
           },
         },
       },
       {
-        name: "",
-        type: "optional_actions",
+        name: '',
+        type: 'optional_actions',
         flatten: true,
         schema: [
           {
-            name: "double_tap_action",
+            name: 'double_tap_action',
             selector: {
               ui_action: {
-                default_action: "none",
+                default_action: 'none',
               },
             },
           },
@@ -74,26 +74,26 @@ const SCHEMA = [
       },
     ],
   },
-  { name: "style", selector: { object: {} } },
-] as const;
+  { name: 'style', selector: { object: {} } },
+] as const
 
-@customElement("hui-state-label-element-editor")
+@customElement('hui-state-label-element-editor')
 export class HuiStateLabelElementEditor
   extends LitElement
   implements LovelacePictureElementEditor
 {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: StateLabelElementConfig;
+  @state() private _config?: StateLabelElementConfig
 
   public setConfig(config: StateLabelElementConfig): void {
-    assert(config, stateLabelElementConfigStruct);
-    this._config = config;
+    assert(config, stateLabelElementConfigStruct)
+    this._config = config
   }
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -104,11 +104,11 @@ export class HuiStateLabelElementEditor
         .computeLabel=${this._computeLabelCallback}
         @value-changed=${this._valueChanged}
       ></ha-form>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent): void {
-    fireEvent(this, "config-changed", { config: ev.detail.value });
+    fireEvent(this, 'config-changed', { config: ev.detail.value })
   }
 
   private _computeLabelCallback = (schema: SchemaUnion<typeof SCHEMA>) =>
@@ -116,11 +116,11 @@ export class HuiStateLabelElementEditor
       `ui.panel.lovelace.editor.card.generic.${schema.name}`
     ) ||
     this.hass!.localize(`ui.panel.lovelace.editor.elements.${schema.name}`) ||
-    schema.name;
+    schema.name
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-state-label-element-editor": HuiStateLabelElementEditor;
+    'hui-state-label-element-editor': HuiStateLabelElementEditor
   }
 }

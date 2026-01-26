@@ -1,14 +1,14 @@
-import { DialogBase } from "@material/mwc-dialog/mwc-dialog-base";
-import { styles } from "@material/mwc-dialog/mwc-dialog.css";
-import { mdiClose } from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { css, html } from "lit";
-import { customElement } from "lit/decorators";
-import { FOCUS_TARGET } from "../dialogs/make-dialog-manager";
-import type { HomeAssistant } from "../types";
-import "./ha-icon-button";
+import { DialogBase } from '@material/mwc-dialog/mwc-dialog-base'
+import { styles } from '@material/mwc-dialog/mwc-dialog.css'
+import { mdiClose } from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { css, html } from 'lit'
+import { customElement } from 'lit/decorators'
+import { FOCUS_TARGET } from '../dialogs/make-dialog-manager'
+import type { HomeAssistant } from '../types'
+import './ha-icon-button'
 
-const SUPPRESS_DEFAULT_PRESS_SELECTOR = ["button", "ha-list-item"];
+const SUPPRESS_DEFAULT_PRESS_SELECTOR = ['button', 'ha-list-item']
 
 export const createCloseHeading = (
   hass: HomeAssistant | undefined,
@@ -16,51 +16,51 @@ export const createCloseHeading = (
 ) => html`
   <div class="header_title">
     <ha-icon-button
-      .label=${hass?.localize("ui.common.close") ?? "Close"}
+      .label=${hass?.localize('ui.common.close') ?? 'Close'}
       .path=${mdiClose}
       dialogAction="close"
       class="header_button"
     ></ha-icon-button>
     <span>${title}</span>
   </div>
-`;
+`
 
-@customElement("ha-dialog")
+@customElement('ha-dialog')
 export class HaDialog extends DialogBase {
-  protected readonly [FOCUS_TARGET];
+  protected readonly [FOCUS_TARGET]
 
   public scrollToPos(x: number, y: number) {
-    this.contentElement?.scrollTo(x, y);
+    this.contentElement?.scrollTo(x, y)
   }
 
   protected renderHeading() {
-    return html`<slot name="heading"> ${super.renderHeading()} </slot>`;
+    return html`<slot name="heading"> ${super.renderHeading()} </slot>`
   }
 
   protected firstUpdated(): void {
-    super.firstUpdated();
+    super.firstUpdated()
     this.suppressDefaultPressSelector = [
       this.suppressDefaultPressSelector,
       SUPPRESS_DEFAULT_PRESS_SELECTOR,
-    ].join(", ");
-    this._updateScrolledAttribute();
-    this.contentElement?.addEventListener("scroll", this._onScroll, {
+    ].join(', ')
+    this._updateScrolledAttribute()
+    this.contentElement?.addEventListener('scroll', this._onScroll, {
       passive: true,
-    });
+    })
   }
 
   disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.contentElement.removeEventListener("scroll", this._onScroll);
+    super.disconnectedCallback()
+    this.contentElement.removeEventListener('scroll', this._onScroll)
   }
 
   private _onScroll = () => {
-    this._updateScrolledAttribute();
-  };
+    this._updateScrolledAttribute()
+  }
 
   private _updateScrolledAttribute() {
-    if (!this.contentElement) return;
-    this.toggleAttribute("scrolled", this.contentElement.scrollTop !== 0);
+    if (!this.contentElement) return
+    this.toggleAttribute('scrolled', this.contentElement.scrollTop !== 0)
   }
 
   static override styles = [
@@ -172,11 +172,11 @@ export class HaDialog extends DialogBase {
         direction: var(--direction);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-dialog": HaDialog;
+    'ha-dialog': HaDialog
   }
 }

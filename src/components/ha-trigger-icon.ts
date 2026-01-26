@@ -17,15 +17,15 @@ import {
   mdiSwapHorizontal,
   mdiWeatherSunny,
   mdiWebhook,
-} from "@mdi/js";
-import { html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { until } from "lit/directives/until";
-import { computeDomain } from "../common/entity/compute_domain";
-import { FALLBACK_DOMAIN_ICONS, triggerIcon } from "../data/icons";
-import type { HomeAssistant } from "../types";
-import "./ha-icon";
-import "./ha-svg-icon";
+} from '@mdi/js'
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { until } from 'lit/directives/until'
+import { computeDomain } from '../common/entity/compute_domain'
+import { FALLBACK_DOMAIN_ICONS, triggerIcon } from '../data/icons'
+import type { HomeAssistant } from '../types'
+import './ha-icon'
+import './ha-svg-icon'
 
 export const TRIGGER_ICONS = {
   calendar: mdiCalendar,
@@ -46,52 +46,52 @@ export const TRIGGER_ICONS = {
   persistent_notification: mdiMessageAlert,
   zone: mdiMapMarkerRadius,
   list: mdiFormatListBulleted,
-};
+}
 
-@customElement("ha-trigger-icon")
+@customElement('ha-trigger-icon')
 export class HaTriggerIcon extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property() public trigger?: string;
+  @property() public trigger?: string
 
-  @property() public icon?: string;
+  @property() public icon?: string
 
   protected render() {
     if (this.icon) {
-      return html`<ha-icon .icon=${this.icon}></ha-icon>`;
+      return html`<ha-icon .icon=${this.icon}></ha-icon>`
     }
 
     if (!this.trigger) {
-      return nothing;
+      return nothing
     }
 
     if (!this.hass) {
-      return this._renderFallback();
+      return this._renderFallback()
     }
 
-    const icon = triggerIcon(this.hass, this.trigger).then((icn) => {
+    const icon = triggerIcon(this.hass, this.trigger).then(icn => {
       if (icn) {
-        return html`<ha-icon .icon=${icn}></ha-icon>`;
+        return html`<ha-icon .icon=${icn}></ha-icon>`
       }
-      return this._renderFallback();
-    });
+      return this._renderFallback()
+    })
 
-    return html`${until(icon)}`;
+    return html`${until(icon)}`
   }
 
   private _renderFallback() {
-    const domain = computeDomain(this.trigger!);
+    const domain = computeDomain(this.trigger!)
 
     return html`
       <ha-svg-icon
         .path=${TRIGGER_ICONS[this.trigger!] || FALLBACK_DOMAIN_ICONS[domain]}
       ></ha-svg-icon>
-    `;
+    `
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-trigger-icon": HaTriggerIcon;
+    'ha-trigger-icon': HaTriggerIcon
   }
 }

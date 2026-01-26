@@ -1,52 +1,52 @@
-import type { TemplateResult } from "lit";
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import { copyToClipboard } from "../../../../../common/util/copy-clipboard";
-import "../../../../../components/ha-button";
-import { createCloseHeading } from "../../../../../components/ha-dialog";
-import type { HassDialog } from "../../../../../dialogs/make-dialog-manager";
-import type { HomeAssistant } from "../../../../../types";
-import { showToast } from "../../../../../util/toast";
-import type { BluetoothDeviceInfoDialogParams } from "./show-dialog-bluetooth-device-info";
+import type { TemplateResult } from 'lit'
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import { copyToClipboard } from '../../../../../common/util/copy-clipboard'
+import '../../../../../components/ha-button'
+import { createCloseHeading } from '../../../../../components/ha-dialog'
+import type { HassDialog } from '../../../../../dialogs/make-dialog-manager'
+import type { HomeAssistant } from '../../../../../types'
+import { showToast } from '../../../../../util/toast'
+import type { BluetoothDeviceInfoDialogParams } from './show-dialog-bluetooth-device-info'
 
-@customElement("dialog-bluetooth-device-info")
+@customElement('dialog-bluetooth-device-info')
 class DialogBluetoothDeviceInfo extends LitElement implements HassDialog {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _params?: BluetoothDeviceInfoDialogParams;
+  @state() private _params?: BluetoothDeviceInfoDialogParams
 
   public async showDialog(
     params: BluetoothDeviceInfoDialogParams
   ): Promise<void> {
-    this._params = params;
+    this._params = params
   }
 
   public closeDialog(): boolean {
-    this._params = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
-    return true;
+    this._params = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
+    return true
   }
 
   public showDataAsHex(bytestring: string): string {
-    const bytes = bytestring.match(/.{2}/g) ?? [];
-    return bytes.map((byte) => `0x${byte.toUpperCase()}`).join(" ");
+    const bytes = bytestring.match(/.{2}/g) ?? []
+    return bytes.map(byte => `0x${byte.toUpperCase()}`).join(' ')
   }
 
   private async _copyToClipboard(): Promise<void> {
     if (!this._params) {
-      return;
+      return
     }
 
-    await copyToClipboard(JSON.stringify(this._params!.entry));
+    await copyToClipboard(JSON.stringify(this._params!.entry))
     showToast(this, {
-      message: this.hass.localize("ui.common.copied_clipboard"),
-    });
+      message: this.hass.localize('ui.common.copied_clipboard'),
+    })
   }
 
   protected render(): TemplateResult | typeof nothing {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -55,25 +55,25 @@ class DialogBluetoothDeviceInfo extends LitElement implements HassDialog {
         @closed=${this.closeDialog}
         .heading=${createCloseHeading(
           this.hass,
-          this.hass.localize("ui.panel.config.bluetooth.device_information")
+          this.hass.localize('ui.panel.config.bluetooth.device_information')
         )}
       >
         <p>
-          <b>${this.hass.localize("ui.panel.config.bluetooth.address")}</b>:
+          <b>${this.hass.localize('ui.panel.config.bluetooth.address')}</b>:
           ${this._params.entry.address}
           <br />
-          <b>${this.hass.localize("ui.panel.config.bluetooth.name")}</b>:
+          <b>${this.hass.localize('ui.panel.config.bluetooth.name')}</b>:
           ${this._params.entry.name}
           <br />
-          <b>${this.hass.localize("ui.panel.config.bluetooth.source")}</b>:
+          <b>${this.hass.localize('ui.panel.config.bluetooth.source')}</b>:
           ${this._params.entry.source}
         </p>
 
         <h3>
-          ${this.hass.localize("ui.panel.config.bluetooth.advertisement_data")}
+          ${this.hass.localize('ui.panel.config.bluetooth.advertisement_data')}
         </h3>
         <h4>
-          ${this.hass.localize("ui.panel.config.bluetooth.manufacturer_data")}
+          ${this.hass.localize('ui.panel.config.bluetooth.manufacturer_data')}
         </h4>
         <table width="100%">
           <tbody>
@@ -88,7 +88,7 @@ class DialogBluetoothDeviceInfo extends LitElement implements HassDialog {
           </tbody>
         </table>
 
-        <h4>${this.hass.localize("ui.panel.config.bluetooth.service_data")}</h4>
+        <h4>${this.hass.localize('ui.panel.config.bluetooth.service_data')}</h4>
         <table width="100%">
           <tbody>
             ${Object.entries(this._params.entry.service_data).map(
@@ -103,12 +103,12 @@ class DialogBluetoothDeviceInfo extends LitElement implements HassDialog {
         </table>
 
         <h4>
-          ${this.hass.localize("ui.panel.config.bluetooth.service_uuids")}
+          ${this.hass.localize('ui.panel.config.bluetooth.service_uuids')}
         </h4>
         <table width="100%">
           <tbody>
             ${this._params.entry.service_uuids.map(
-              (uuid) => html`
+              uuid => html`
                 <tr>
                   <td>${uuid}</td>
                 </tr>
@@ -122,16 +122,16 @@ class DialogBluetoothDeviceInfo extends LitElement implements HassDialog {
           slot="secondaryAction"
           @click=${this._copyToClipboard}
           >${this.hass.localize(
-            "ui.panel.config.bluetooth.copy_to_clipboard"
+            'ui.panel.config.bluetooth.copy_to_clipboard'
           )}</ha-button
         >
       </ha-dialog>
-    `;
+    `
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-bluetooth-device-info": DialogBluetoothDeviceInfo;
+    'dialog-bluetooth-device-info': DialogBluetoothDeviceInfo
   }
 }

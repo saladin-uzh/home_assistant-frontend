@@ -1,19 +1,19 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../components/entity/state-info";
-import "../components/ha-water_heater-state";
-import { haStyle } from "../resources/styles";
-import type { HomeAssistant } from "../types";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../components/entity/state-info'
+import '../components/ha-water_heater-state'
+import { haStyle } from '../resources/styles'
+import type { HomeAssistant } from '../types'
 
-@customElement("state-card-water_heater")
+@customElement('state-card-water_heater')
 class StateCardWaterHeater extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj!: HassEntity;
+  @property({ attribute: false }) public stateObj!: HassEntity
 
-  @property({ attribute: "in-dialog", type: Boolean }) public inDialog = false;
+  @property({ attribute: 'in-dialog', type: Boolean }) public inDialog = false
 
   protected render(): TemplateResult {
     return html`
@@ -29,7 +29,7 @@ class StateCardWaterHeater extends LitElement {
           .stateObj=${this.stateObj}
         ></ha-water_heater-state>
       </div>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -47,12 +47,12 @@ class StateCardWaterHeater extends LitElement {
           text-align: var(--float-end);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "state-card-water_heater": StateCardWaterHeater;
+    'state-card-water_heater': StateCardWaterHeater
   }
 }

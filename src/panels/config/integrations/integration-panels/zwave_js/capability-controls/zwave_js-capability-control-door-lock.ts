@@ -1,32 +1,32 @@
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import type { DeviceRegistryEntry } from "../../../../../../data/device_registry";
-import type { HomeAssistant } from "../../../../../../types";
-import { invokeZWaveCCApi } from "../../../../../../data/zwave_js";
-import "../../../../../../components/ha-button";
-import "../../../../../../components/buttons/ha-progress-button";
-import "../../../../../../components/ha-textfield";
-import "../../../../../../components/ha-select";
-import "../../../../../../components/ha-list-item";
-import "../../../../../../components/ha-alert";
-import "../../../../../../components/ha-switch";
-import "../../../../../../components/ha-formfield";
-import "../../../../../../components/ha-spinner";
-import type { HaSwitch } from "../../../../../../components/ha-switch";
-import type { HaProgressButton } from "../../../../../../components/buttons/ha-progress-button";
-import { extractApiErrorMessage } from "../../../../../../data/hassio/common";
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import type { DeviceRegistryEntry } from '../../../../../../data/device_registry'
+import type { HomeAssistant } from '../../../../../../types'
+import { invokeZWaveCCApi } from '../../../../../../data/zwave_js'
+import '../../../../../../components/ha-button'
+import '../../../../../../components/buttons/ha-progress-button'
+import '../../../../../../components/ha-textfield'
+import '../../../../../../components/ha-select'
+import '../../../../../../components/ha-list-item'
+import '../../../../../../components/ha-alert'
+import '../../../../../../components/ha-switch'
+import '../../../../../../components/ha-formfield'
+import '../../../../../../components/ha-spinner'
+import type { HaSwitch } from '../../../../../../components/ha-switch'
+import type { HaProgressButton } from '../../../../../../components/buttons/ha-progress-button'
+import { extractApiErrorMessage } from '../../../../../../data/hassio/common'
 
-type DoorHandleStatus = [boolean, boolean, boolean, boolean];
+type DoorHandleStatus = [boolean, boolean, boolean, boolean]
 
 interface DoorLockConfiguration {
-  operationType: number;
-  outsideHandlesCanOpenDoorConfiguration: DoorHandleStatus;
-  insideHandlesCanOpenDoorConfiguration: DoorHandleStatus;
-  lockTimeoutConfiguration?: number;
-  autoRelockTime?: number;
-  holdAndReleaseTime?: number;
-  twistAssist?: boolean;
-  blockToBlock?: boolean;
+  operationType: number
+  outsideHandlesCanOpenDoorConfiguration: DoorHandleStatus
+  insideHandlesCanOpenDoorConfiguration: DoorHandleStatus
+  lockTimeoutConfiguration?: number
+  autoRelockTime?: number
+  holdAndReleaseTime?: number
+  twistAssist?: boolean
+  blockToBlock?: boolean
 }
 
 enum DoorLockMode {
@@ -41,19 +41,19 @@ enum DoorLockMode {
 }
 
 interface DoorLockCapabilities {
-  supportedOperationTypes: number[];
-  supportedDoorLockModes: DoorLockMode[];
-  blockToBlockSupported?: boolean;
-  twistAssistSupported?: boolean;
-  holdAndReleaseSupported?: boolean;
-  autoRelockSupported?: boolean;
+  supportedOperationTypes: number[]
+  supportedDoorLockModes: DoorLockMode[]
+  blockToBlockSupported?: boolean
+  twistAssistSupported?: boolean
+  holdAndReleaseSupported?: boolean
+  autoRelockSupported?: boolean
 }
 
 const TIMED_MODES = [
   DoorLockMode.UnsecuredWithTimeout,
   DoorLockMode.InsideUnsecuredWithTimeout,
   DoorLockMode.OutsideUnsecuredWithTimeout,
-];
+]
 
 const DEFAULT_CAPABILITIES: DoorLockCapabilities = {
   supportedOperationTypes: [1, 2],
@@ -66,33 +66,33 @@ const DEFAULT_CAPABILITIES: DoorLockCapabilities = {
     DoorLockMode.OutsideUnsecuredWithTimeout,
     DoorLockMode.Secured,
   ],
-};
+}
 
-const DEFAULT_MODE = DoorLockMode.Unsecured;
+const DEFAULT_MODE = DoorLockMode.Unsecured
 
-@customElement("zwave_js-capability-control-door_lock")
+@customElement('zwave_js-capability-control-door_lock')
 class ZWaveJSCapabilityDoorLock extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public device!: DeviceRegistryEntry;
+  @property({ attribute: false }) public device!: DeviceRegistryEntry
 
-  @property({ type: Number }) public endpoint!: number;
+  @property({ type: Number }) public endpoint!: number
 
-  @property({ type: Number }) public command_class!: number;
+  @property({ type: Number }) public command_class!: number
 
-  @property({ type: Number }) public version!: number;
+  @property({ type: Number }) public version!: number
 
-  @state() private _configuration?: DoorLockConfiguration;
+  @state() private _configuration?: DoorLockConfiguration
 
-  @state() private _capabilities?: DoorLockCapabilities;
+  @state() private _capabilities?: DoorLockCapabilities
 
-  @state() private _currentDoorLockMode?: DoorLockMode;
+  @state() private _currentDoorLockMode?: DoorLockMode
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
   protected render() {
     if (this._error) {
-      return html`<ha-alert alert-type="error">${this._error}</ha-alert>`;
+      return html`<ha-alert alert-type="error">${this._error}</ha-alert>`
     }
 
     if (
@@ -100,35 +100,35 @@ class ZWaveJSCapabilityDoorLock extends LitElement {
       !this._capabilities ||
       this._currentDoorLockMode === undefined
     ) {
-      return html`<ha-spinner></ha-spinner>`;
+      return html`<ha-spinner></ha-spinner>`
     }
 
-    const isValid = this._isValid();
+    const isValid = this._isValid()
 
     const supportedDoorLockModes =
       this._configuration.operationType === 2
         ? this._capabilities.supportedDoorLockModes
         : this._capabilities.supportedDoorLockModes.filter(
-            (mode) => !TIMED_MODES.includes(mode)
-          );
+            mode => !TIMED_MODES.includes(mode)
+          )
 
     return html`
       <h3>
         ${this.hass.localize(
-          "ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.title"
+          'ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.title'
         )}
       </h3>
 
       <div class="row">
         <ha-select
           .label=${this.hass.localize(
-            "ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.mode"
+            'ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.mode'
           )}
-          .value=${this._currentDoorLockMode?.toString() ?? ""}
+          .value=${this._currentDoorLockMode?.toString() ?? ''}
           @selected=${this._doorLockModeChanged}
         >
           ${supportedDoorLockModes.map(
-            (mode) => html`
+            mode => html`
               <ha-list-item .value=${mode.toString()}>
                 ${this.hass.localize(
                   `ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.modes.${mode}`
@@ -141,13 +141,13 @@ class ZWaveJSCapabilityDoorLock extends LitElement {
       <div class="row">
         <ha-select
           .label=${this.hass.localize(
-            "ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.operation_type"
+            'ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.operation_type'
           )}
           .value=${this._configuration.operationType.toString()}
           @selected=${this._operationTypeChanged}
         >
           ${this._capabilities.supportedOperationTypes.map(
-            (type) => html`
+            type => html`
               <ha-list-item .value=${type.toString()}>
                 ${this.hass.localize(
                   `ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.operation_types.${type}`
@@ -164,16 +164,16 @@ class ZWaveJSCapabilityDoorLock extends LitElement {
               <ha-textfield
                 type="number"
                 .label=${this.hass.localize(
-                  "ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.lock_timeout"
+                  'ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.lock_timeout'
                 )}
                 .value=${this._configuration.lockTimeoutConfiguration?.toString() ??
-                ""}
+                ''}
                 @change=${this._numberChanged}
                 key="lockTimeoutConfiguration"
                 required
                 min="1"
                 .helper=${this.hass.localize(
-                  "ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.lock_timeout_helper"
+                  'ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.lock_timeout_helper'
                 )}
               >
               </ha-textfield>
@@ -185,7 +185,7 @@ class ZWaveJSCapabilityDoorLock extends LitElement {
             <div class="row">
               <ha-formfield
                 .label=${this.hass.localize(
-                  "ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.twist_assist"
+                  'ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.twist_assist'
                 )}
               >
                 <ha-switch
@@ -203,7 +203,7 @@ class ZWaveJSCapabilityDoorLock extends LitElement {
             <div class="row">
               <ha-formfield
                 .label=${this.hass.localize(
-                  "ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.block_to_block"
+                  'ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.block_to_block'
                 )}
               >
                 <ha-switch
@@ -222,9 +222,9 @@ class ZWaveJSCapabilityDoorLock extends LitElement {
               <ha-textfield
                 type="number"
                 .label=${this.hass.localize(
-                  "ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.auto_relock_time"
+                  'ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.auto_relock_time'
                 )}
-                .value=${this._configuration?.autoRelockTime?.toString() ?? ""}
+                .value=${this._configuration?.autoRelockTime?.toString() ?? ''}
                 @change=${this._numberChanged}
                 key="autoRelockTime"
               >
@@ -238,10 +238,10 @@ class ZWaveJSCapabilityDoorLock extends LitElement {
               <ha-textfield
                 type="number"
                 .label=${this.hass.localize(
-                  "ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.hold_release_time"
+                  'ui.panel.config.zwave_js.node_installer.capability_controls.door_lock.hold_release_time'
                 )}
                 .value=${this._configuration?.holdAndReleaseTime?.toString() ??
-                ""}
+                ''}
                 @change=${this._numberChanged}
                 key="holdAndReleaseTime"
               >
@@ -255,16 +255,16 @@ class ZWaveJSCapabilityDoorLock extends LitElement {
           @click=${isValid ? this._saveConfig : undefined}
           .disabled=${!isValid}
         >
-          ${this.hass.localize("ui.common.save")}
+          ${this.hass.localize('ui.common.save')}
         </ha-progress-button>
       </div>
-    `;
+    `
   }
 
   protected firstUpdated() {
-    this._loadConfiguration();
-    this._loadCapabilities();
-    this._loadCurrentDoorLockMode();
+    this._loadConfiguration()
+    this._loadCapabilities()
+    this._loadCurrentDoorLockMode()
   }
 
   private async _loadConfiguration() {
@@ -274,18 +274,18 @@ class ZWaveJSCapabilityDoorLock extends LitElement {
         this.device.id,
         this.command_class,
         this.endpoint,
-        "getConfiguration",
+        'getConfiguration',
         [],
         true
-      );
+      )
       this._configuration = config ?? {
         // The server can return null but I think a real device will always have a configuration
         operationType: 1,
         outsideHandlesCanOpenDoorConfiguration: [false, false, false, false],
         insideHandlesCanOpenDoorConfiguration: [false, false, false, false],
-      };
+      }
     } catch (err) {
-      this._error = extractApiErrorMessage(err);
+      this._error = extractApiErrorMessage(err)
     }
   }
 
@@ -296,20 +296,20 @@ class ZWaveJSCapabilityDoorLock extends LitElement {
         this.device.id,
         this.command_class,
         this.endpoint,
-        "getCapabilities",
+        'getCapabilities',
         [],
         true
-      );
-      this._capabilities = capabilities ?? DEFAULT_CAPABILITIES;
+      )
+      this._capabilities = capabilities ?? DEFAULT_CAPABILITIES
     } catch (err: any) {
       if (
-        err?.code === "FailedZWaveCommand" &&
-        err?.message.includes("ZW0302")
+        err?.code === 'FailedZWaveCommand' &&
+        err?.message.includes('ZW0302')
       ) {
         // getCapabilities is not supported by some devices
-        this._capabilities = DEFAULT_CAPABILITIES;
+        this._capabilities = DEFAULT_CAPABILITIES
       } else {
-        this._error = extractApiErrorMessage(err);
+        this._error = extractApiErrorMessage(err)
       }
     }
   }
@@ -317,19 +317,19 @@ class ZWaveJSCapabilityDoorLock extends LitElement {
   private async _loadCurrentDoorLockMode() {
     try {
       const data = await invokeZWaveCCApi<{
-        currentMode: DoorLockMode;
+        currentMode: DoorLockMode
       } | null>(
         this.hass,
         this.device.id,
         this.command_class,
         this.endpoint,
-        "get",
+        'get',
         [],
         true
-      );
-      this._currentDoorLockMode = data?.currentMode ?? DEFAULT_MODE;
+      )
+      this._currentDoorLockMode = data?.currentMode ?? DEFAULT_MODE
     } catch (err) {
-      this._error = extractApiErrorMessage(err);
+      this._error = extractApiErrorMessage(err)
     }
   }
 
@@ -343,12 +343,12 @@ class ZWaveJSCapabilityDoorLock extends LitElement {
         this._configuration.operationType !== 2 &&
         TIMED_MODES.includes(this._currentDoorLockMode)
       )
-    );
+    )
   }
 
   private _operationTypeChanged(ev: CustomEvent) {
-    const target = ev.target as HTMLSelectElement;
-    const newType = parseInt(target.value);
+    const target = ev.target as HTMLSelectElement
+    const newType = parseInt(target.value)
     if (this._configuration) {
       this._configuration = {
         ...this._configuration,
@@ -358,7 +358,7 @@ class ZWaveJSCapabilityDoorLock extends LitElement {
           newType === 2
             ? this._configuration.lockTimeoutConfiguration
             : undefined,
-      };
+      }
     }
     if (
       newType !== 2 &&
@@ -366,44 +366,44 @@ class ZWaveJSCapabilityDoorLock extends LitElement {
       TIMED_MODES.includes(this._currentDoorLockMode)
     ) {
       // timed modes are not allowed for non-timed operation
-      this._currentDoorLockMode = DEFAULT_MODE;
+      this._currentDoorLockMode = DEFAULT_MODE
     }
   }
 
   private _booleanChanged(ev: CustomEvent) {
-    const target = ev.target as HaSwitch;
-    const key = target.getAttribute("key")!;
+    const target = ev.target as HaSwitch
+    const key = target.getAttribute('key')!
     if (this._configuration) {
       this._configuration = {
         ...this._configuration,
         [key]: target.checked,
-      };
+      }
     }
   }
 
   private _numberChanged(ev: CustomEvent) {
-    const target = ev.target as HTMLInputElement;
-    const key = target.getAttribute("key")!;
-    const value = parseInt(target.value);
+    const target = ev.target as HTMLInputElement
+    const key = target.getAttribute('key')!
+    const value = parseInt(target.value)
     if (this._configuration) {
       this._configuration = {
         ...this._configuration,
         [key]: Number.isNaN(value) ? undefined : value,
-      };
+      }
     }
   }
 
   private _doorLockModeChanged(ev: CustomEvent) {
-    const target = ev.target as HTMLSelectElement;
-    this._currentDoorLockMode = parseInt(target.value) as DoorLockMode;
+    const target = ev.target as HTMLSelectElement
+    this._currentDoorLockMode = parseInt(target.value) as DoorLockMode
   }
 
   private async _saveConfig(ev: CustomEvent) {
-    const button = ev.target as HaProgressButton;
-    if (!this._configuration) return;
+    const button = ev.target as HaProgressButton
+    if (!this._configuration) return
 
-    button.progress = true;
-    this._error = undefined;
+    button.progress = true
+    this._error = undefined
 
     try {
       await invokeZWaveCCApi(
@@ -411,26 +411,26 @@ class ZWaveJSCapabilityDoorLock extends LitElement {
         this.device.id,
         this.command_class,
         this.endpoint,
-        "setConfiguration",
+        'setConfiguration',
         [this._configuration],
         true
-      );
+      )
       await invokeZWaveCCApi(
         this.hass,
         this.device.id,
         this.command_class,
         this.endpoint,
-        "set",
+        'set',
         [this._currentDoorLockMode],
         true
-      );
-      button.actionSuccess();
+      )
+      button.actionSuccess()
     } catch (err) {
-      this._error = extractApiErrorMessage(err);
-      button.actionError();
+      this._error = extractApiErrorMessage(err)
+      button.actionError()
     }
 
-    button.progress = false;
+    button.progress = false
   }
 
   static styles = css`
@@ -449,11 +449,11 @@ class ZWaveJSCapabilityDoorLock extends LitElement {
     .loading {
       padding: 16px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "zwave_js-capability-control-door_lock": ZWaveJSCapabilityDoorLock;
+    'zwave_js-capability-control-door_lock': ZWaveJSCapabilityDoorLock
   }
 }

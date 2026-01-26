@@ -1,24 +1,24 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import "../../../../../components/ha-md-list";
-import "../../../../../components/ha-md-list-item";
-import "../../../../../components/ha-md-select";
-import type { HaMdSelect } from "../../../../../components/ha-md-select";
-import "../../../../../components/ha-md-select-option";
-import "../../../../../components/ha-md-textfield";
-import type { HaMdTextfield } from "../../../../../components/ha-md-textfield";
-import type { SupervisorUpdateConfig } from "../../../../../data/supervisor/update";
-import type { HomeAssistant } from "../../../../../types";
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import '../../../../../components/ha-md-list'
+import '../../../../../components/ha-md-list-item'
+import '../../../../../components/ha-md-select'
+import type { HaMdSelect } from '../../../../../components/ha-md-select'
+import '../../../../../components/ha-md-select-option'
+import '../../../../../components/ha-md-textfield'
+import type { HaMdTextfield } from '../../../../../components/ha-md-textfield'
+import type { SupervisorUpdateConfig } from '../../../../../data/supervisor/update'
+import type { HomeAssistant } from '../../../../../types'
 
-const MIN_RETENTION_VALUE = 1;
+const MIN_RETENTION_VALUE = 1
 
-@customElement("ha-backup-config-addon")
+@customElement('ha-backup-config-addon')
 class HaBackupConfigAddon extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   @property({ attribute: false })
-  public supervisorUpdateConfig?: SupervisorUpdateConfig;
+  public supervisorUpdateConfig?: SupervisorUpdateConfig
 
   protected render() {
     return html`
@@ -38,19 +38,19 @@ class HaBackupConfigAddon extends LitElement {
             slot="end"
             @change=${this._updatePreferenceChanged}
             .value=${this.supervisorUpdateConfig?.add_on_backup_before_update?.toString() ||
-            "false"}
+            'false'}
           >
             <ha-md-select-option value="false">
               <div slot="headline">
                 ${this.hass.localize(
-                  "ui.panel.config.backup.schedule.update_preference.skip_backups"
+                  'ui.panel.config.backup.schedule.update_preference.skip_backups'
                 )}
               </div>
             </ha-md-select-option>
             <ha-md-select-option value="true">
               <div slot="headline">
                 ${this.hass.localize(
-                  "ui.panel.config.backup.schedule.update_preference.backup_before_update"
+                  'ui.panel.config.backup.schedule.update_preference.backup_before_update'
                 )}
               </div>
             </ha-md-select-option>
@@ -69,40 +69,40 @@ class HaBackupConfigAddon extends LitElement {
             slot="end"
             @change=${this._backupRetentionChanged}
             .value=${this.supervisorUpdateConfig?.add_on_backup_retain_copies?.toString() ||
-            "1"}
+            '1'}
             type="number"
             min=${MIN_RETENTION_VALUE.toString()}
             step="1"
             .suffixText=${this.hass.localize(
-              "ui.panel.config.backup.schedule.retention_units.copies"
+              'ui.panel.config.backup.schedule.retention_units.copies'
             )}
           >
           </ha-md-textfield>
         </ha-md-list-item>
       </ha-md-list>
-    `;
+    `
   }
 
   private _updatePreferenceChanged(ev) {
-    ev.stopPropagation();
-    const target = ev.currentTarget as HaMdSelect;
-    const add_on_backup_before_update = target.value === "true";
-    fireEvent(this, "update-config-changed", {
+    ev.stopPropagation()
+    const target = ev.currentTarget as HaMdSelect
+    const add_on_backup_before_update = target.value === 'true'
+    fireEvent(this, 'update-config-changed', {
       value: {
         add_on_backup_before_update,
       },
-    });
+    })
   }
 
   private _backupRetentionChanged(ev) {
-    const target = ev.currentTarget as HaMdTextfield;
-    const add_on_backup_retain_copies = Number(target.value);
+    const target = ev.currentTarget as HaMdTextfield
+    const add_on_backup_retain_copies = Number(target.value)
     if (add_on_backup_retain_copies >= MIN_RETENTION_VALUE) {
-      fireEvent(this, "update-config-changed", {
+      fireEvent(this, 'update-config-changed', {
         value: {
           add_on_backup_retain_copies,
         },
-      });
+      })
     }
   }
 
@@ -131,11 +131,11 @@ class HaBackupConfigAddon extends LitElement {
         width: 160px;
       }
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-backup-config-addon": HaBackupConfigAddon;
+    'ha-backup-config-addon': HaBackupConfigAddon
   }
 }

@@ -1,4 +1,4 @@
-import { object, string, any, optional, boolean } from "superstruct";
+import { object, string, any, optional, boolean } from 'superstruct'
 
 export const baseLovelaceCardConfig = object({
   type: string(),
@@ -7,4 +7,4 @@ export const baseLovelaceCardConfig = object({
   grid_options: any(),
   visibility: any(),
   disabled: optional(boolean()),
-});
+})

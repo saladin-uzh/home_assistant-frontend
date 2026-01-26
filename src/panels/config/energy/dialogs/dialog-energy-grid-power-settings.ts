@@ -1,68 +1,67 @@
-import { mdiTransmissionTower } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/entity/ha-statistic-picker";
-import "../../../../components/ha-dialog";
-import "../../../../components/ha-button";
-import type { GridPowerSourceEnergyPreference } from "../../../../data/energy";
-import { energyStatisticHelpUrl } from "../../../../data/energy";
-import { getSensorDeviceClassConvertibleUnits } from "../../../../data/sensor";
-import type { HassDialog } from "../../../../dialogs/make-dialog-manager";
-import { haStyleDialog } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import type { EnergySettingsGridPowerDialogParams } from "./show-dialogs-energy";
+import { mdiTransmissionTower } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/entity/ha-statistic-picker'
+import '../../../../components/ha-dialog'
+import '../../../../components/ha-button'
+import type { GridPowerSourceEnergyPreference } from '../../../../data/energy'
+import { energyStatisticHelpUrl } from '../../../../data/energy'
+import { getSensorDeviceClassConvertibleUnits } from '../../../../data/sensor'
+import type { HassDialog } from '../../../../dialogs/make-dialog-manager'
+import { haStyleDialog } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import type { EnergySettingsGridPowerDialogParams } from './show-dialogs-energy'
 
-const powerUnitClasses = ["power"];
+const powerUnitClasses = ['power']
 
-@customElement("dialog-energy-grid-power-settings")
+@customElement('dialog-energy-grid-power-settings')
 export class DialogEnergyGridPowerSettings
   extends LitElement
   implements HassDialog<EnergySettingsGridPowerDialogParams>
 {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _params?: EnergySettingsGridPowerDialogParams;
+  @state() private _params?: EnergySettingsGridPowerDialogParams
 
-  @state() private _source?: GridPowerSourceEnergyPreference;
+  @state() private _source?: GridPowerSourceEnergyPreference
 
-  @state() private _power_units?: string[];
+  @state() private _power_units?: string[]
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
-  private _excludeListPower?: string[];
+  private _excludeListPower?: string[]
 
   public async showDialog(
     params: EnergySettingsGridPowerDialogParams
   ): Promise<void> {
-    this._params = params;
-    this._source = params.source ? { ...params.source } : { stat_rate: "" };
+    this._params = params
+    this._source = params.source ? { ...params.source } : { stat_rate: '' }
 
-    const initialSourceIdPower = this._source.stat_rate;
+    const initialSourceIdPower = this._source.stat_rate
 
     this._power_units = (
-      await getSensorDeviceClassConvertibleUnits(this.hass, "power")
-    ).units;
+      await getSensorDeviceClassConvertibleUnits(this.hass, 'power')
+    ).units
 
     this._excludeListPower = [
-      ...(this._params.grid_source?.power?.map((entry) => entry.stat_rate) ||
-        []),
-    ].filter((id) => id && id !== initialSourceIdPower) as string[];
+      ...(this._params.grid_source?.power?.map(entry => entry.stat_rate) || []),
+    ].filter(id => id && id !== initialSourceIdPower) as string[]
   }
 
   public closeDialog() {
-    this._params = undefined;
-    this._source = undefined;
-    this._error = undefined;
-    this._excludeListPower = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
-    return true;
+    this._params = undefined
+    this._source = undefined
+    this._error = undefined
+    this._excludeListPower = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
+    return true
   }
 
   protected render() {
     if (!this._params || !this._source) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -73,11 +72,11 @@ export class DialogEnergyGridPowerSettings
             style="--mdc-icon-size: 32px;"
           ></ha-svg-icon
           >${this.hass.localize(
-            "ui.panel.config.energy.grid.power_dialog.header"
+            'ui.panel.config.energy.grid.power_dialog.header'
           )}`}
         @closed=${this.closeDialog}
       >
-        ${this._error ? html`<p class="error">${this._error}</p>` : ""}
+        ${this._error ? html`<p class="error">${this._error}</p>` : ''}
 
         <ha-statistic-picker
           .hass=${this.hass}
@@ -85,13 +84,13 @@ export class DialogEnergyGridPowerSettings
           .includeUnitClass=${powerUnitClasses}
           .value=${this._source.stat_rate}
           .label=${this.hass.localize(
-            "ui.panel.config.energy.grid.power_dialog.power_stat"
+            'ui.panel.config.energy.grid.power_dialog.power_stat'
           )}
           .excludeStatistics=${this._excludeListPower}
           @value-changed=${this._powerStatisticChanged}
           .helper=${this.hass.localize(
-            "ui.panel.config.energy.grid.power_dialog.power_helper",
-            { unit: this._power_units?.join(", ") || "" }
+            'ui.panel.config.energy.grid.power_dialog.power_helper',
+            { unit: this._power_units?.join(', ') || '' }
           )}
           dialogInitialFocus
         ></ha-statistic-picker>
@@ -101,32 +100,32 @@ export class DialogEnergyGridPowerSettings
           @click=${this.closeDialog}
           slot="primaryAction"
         >
-          ${this.hass.localize("ui.common.cancel")}
+          ${this.hass.localize('ui.common.cancel')}
         </ha-button>
         <ha-button
           @click=${this._save}
           .disabled=${!this._source.stat_rate}
           slot="primaryAction"
         >
-          ${this.hass.localize("ui.common.save")}
+          ${this.hass.localize('ui.common.save')}
         </ha-button>
       </ha-dialog>
-    `;
+    `
   }
 
   private _powerStatisticChanged(ev: CustomEvent<{ value: string }>) {
     this._source = {
       ...this._source!,
       stat_rate: ev.detail.value,
-    };
+    }
   }
 
   private async _save() {
     try {
-      await this._params!.saveCallback(this._source!);
-      this.closeDialog();
+      await this._params!.saveCallback(this._source!)
+      this.closeDialog()
     } catch (err: any) {
-      this._error = err.message;
+      this._error = err.message
     }
   }
 
@@ -142,12 +141,12 @@ export class DialogEnergyGridPowerSettings
           margin: var(--ha-space-4) 0;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-energy-grid-power-settings": DialogEnergyGridPowerSettings;
+    'dialog-energy-grid-power-settings': DialogEnergyGridPowerSettings
   }
 }

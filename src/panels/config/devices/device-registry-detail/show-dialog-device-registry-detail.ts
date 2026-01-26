@@ -1,26 +1,26 @@
-import { fireEvent } from "../../../../common/dom/fire_event";
+import { fireEvent } from '../../../../common/dom/fire_event'
 import type {
   DeviceRegistryEntry,
   DeviceRegistryEntryMutableParams,
-} from "../../../../data/device_registry";
+} from '../../../../data/device_registry'
 
 export interface DeviceRegistryDetailDialogParams {
-  device: DeviceRegistryEntry;
+  device: DeviceRegistryEntry
   updateEntry: (
     updates: Partial<DeviceRegistryEntryMutableParams>
-  ) => Promise<unknown>;
+  ) => Promise<unknown>
 }
 
 export const loadDeviceRegistryDetailDialog = () =>
-  import("./dialog-device-registry-detail");
+  import('./dialog-device-registry-detail')
 
 export const showDeviceRegistryDetailDialog = (
   element: HTMLElement,
   deviceRegistryDetailParams: DeviceRegistryDetailDialogParams
 ): void => {
-  fireEvent(element, "show-dialog", {
-    dialogTag: "dialog-device-registry-detail",
+  fireEvent(element, 'show-dialog', {
+    dialogTag: 'dialog-device-registry-detail',
     dialogImport: loadDeviceRegistryDetailDialog,
     dialogParams: deviceRegistryDetailParams,
-  });
-};
+  })
+}

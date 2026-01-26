@@ -1,279 +1,279 @@
-import { DIRECTION_ALL, Manager, Pan, Tap } from "@egjs/hammerjs";
-import type { PropertyValues, TemplateResult } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { styleMap } from "lit/directives/style-map";
-import { fireEvent } from "../../../../common/dom/fire_event";
+import { DIRECTION_ALL, Manager, Pan, Tap } from '@egjs/hammerjs'
+import type { PropertyValues, TemplateResult } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { styleMap } from 'lit/directives/style-map'
+import { fireEvent } from '../../../../common/dom/fire_event'
 
 declare global {
   interface HASSDomEvents {
-    "slider-moved": { value?: number };
+    'slider-moved': { value?: number }
   }
 }
 
 const A11Y_KEY_CODES = new Set([
-  "ArrowRight",
-  "ArrowUp",
-  "ArrowLeft",
-  "ArrowDown",
-  "PageUp",
-  "PageDown",
-  "Home",
-  "End",
-]);
+  'ArrowRight',
+  'ArrowUp',
+  'ArrowLeft',
+  'ArrowDown',
+  'PageUp',
+  'PageDown',
+  'Home',
+  'End',
+])
 
-type TooltipMode = "never" | "always" | "interaction";
+type TooltipMode = 'never' | 'always' | 'interaction'
 
-@customElement("ha-grid-layout-slider")
+@customElement('ha-grid-layout-slider')
 export class HaGridLayoutSlider extends LitElement {
   @property({ type: Boolean, reflect: true })
-  public disabled = false;
+  public disabled = false
 
   @property({ type: Boolean, reflect: true })
-  public vertical = false;
+  public vertical = false
 
-  @property({ attribute: "touch-action" })
-  public touchAction?: string;
+  @property({ attribute: 'touch-action' })
+  public touchAction?: string
 
-  @property({ attribute: "tooltip-mode" })
-  public tooltipMode: TooltipMode = "interaction";
-
-  @property({ type: Number })
-  public value?: number;
+  @property({ attribute: 'tooltip-mode' })
+  public tooltipMode: TooltipMode = 'interaction'
 
   @property({ type: Number })
-  public step = 1;
+  public value?: number
 
   @property({ type: Number })
-  public min = 1;
+  public step = 1
 
   @property({ type: Number })
-  public max = 4;
+  public min = 1
 
   @property({ type: Number })
-  public range?: number;
+  public max = 4
+
+  @property({ type: Number })
+  public range?: number
 
   @state()
-  public pressed = false;
+  public pressed = false
 
   @state()
-  public tooltipVisible = false;
+  public tooltipVisible = false
 
-  private _mc?: HammerManager;
+  private _mc?: HammerManager
 
   private get _range() {
-    return this.range ?? this.max;
+    return this.range ?? this.max
   }
 
   private _valueToPercentage(value: number) {
-    const percentage = this._boundedValue(value) / this._range;
-    return percentage;
+    const percentage = this._boundedValue(value) / this._range
+    return percentage
   }
 
   private _percentageToValue(percentage: number) {
-    return this._range * percentage;
+    return this._range * percentage
   }
 
   private _steppedValue(value: number) {
-    return Math.round(value / this.step) * this.step;
+    return Math.round(value / this.step) * this.step
   }
 
   private _boundedValue(value: number) {
-    return Math.min(Math.max(value, this.min), this.max);
+    return Math.min(Math.max(value, this.min), this.max)
   }
 
   protected firstUpdated(changedProperties: PropertyValues): void {
-    super.firstUpdated(changedProperties);
-    this.setupListeners();
-    this.setAttribute("role", "slider");
-    if (!this.hasAttribute("tabindex")) {
-      this.setAttribute("tabindex", "0");
+    super.firstUpdated(changedProperties)
+    this.setupListeners()
+    this.setAttribute('role', 'slider')
+    if (!this.hasAttribute('tabindex')) {
+      this.setAttribute('tabindex', '0')
     }
   }
 
   protected updated(changedProps: PropertyValues) {
-    super.updated(changedProps);
-    if (changedProps.has("value")) {
-      const valuenow = this._steppedValue(this.value ?? 0);
-      this.setAttribute("aria-valuenow", valuenow.toString());
-      this.setAttribute("aria-valuetext", valuenow.toString());
+    super.updated(changedProps)
+    if (changedProps.has('value')) {
+      const valuenow = this._steppedValue(this.value ?? 0)
+      this.setAttribute('aria-valuenow', valuenow.toString())
+      this.setAttribute('aria-valuetext', valuenow.toString())
     }
-    if (changedProps.has("min")) {
-      this.setAttribute("aria-valuemin", this.min.toString());
+    if (changedProps.has('min')) {
+      this.setAttribute('aria-valuemin', this.min.toString())
     }
-    if (changedProps.has("max")) {
-      this.setAttribute("aria-valuemax", this.max.toString());
+    if (changedProps.has('max')) {
+      this.setAttribute('aria-valuemax', this.max.toString())
     }
-    if (changedProps.has("vertical")) {
-      const orientation = this.vertical ? "vertical" : "horizontal";
-      this.setAttribute("aria-orientation", orientation);
+    if (changedProps.has('vertical')) {
+      const orientation = this.vertical ? 'vertical' : 'horizontal'
+      this.setAttribute('aria-orientation', orientation)
     }
   }
 
   connectedCallback(): void {
-    super.connectedCallback();
-    this.setupListeners();
+    super.connectedCallback()
+    this.setupListeners()
   }
 
   disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.destroyListeners();
+    super.disconnectedCallback()
+    this.destroyListeners()
   }
 
-  @query("#slider")
-  private slider;
+  @query('#slider')
+  private slider
 
   setupListeners() {
     if (this.slider && !this._mc) {
       this._mc = new Manager(this.slider, {
-        touchAction: this.touchAction ?? (this.vertical ? "pan-x" : "pan-y"),
-      });
+        touchAction: this.touchAction ?? (this.vertical ? 'pan-x' : 'pan-y'),
+      })
       this._mc.add(
         new Pan({
           threshold: 10,
           direction: DIRECTION_ALL,
           enable: true,
         })
-      );
+      )
 
-      this._mc.add(new Tap({ event: "singletap" }));
+      this._mc.add(new Tap({ event: 'singletap' }))
 
-      let savedValue;
-      this._mc.on("panstart", () => {
-        if (this.disabled) return;
-        this.pressed = true;
-        this._showTooltip();
-        savedValue = this.value;
-      });
-      this._mc.on("pancancel", () => {
-        if (this.disabled) return;
-        this.pressed = false;
-        this._hideTooltip();
-        this.value = savedValue;
-      });
-      this._mc.on("panmove", (e) => {
-        if (this.disabled) return;
-        const percentage = this._getPercentageFromEvent(e);
-        this.value = this._percentageToValue(percentage);
-        const value = this._steppedValue(this._boundedValue(this.value));
-        fireEvent(this, "slider-moved", { value });
-      });
-      this._mc.on("panend", (e) => {
-        if (this.disabled) return;
-        this.pressed = false;
-        this._hideTooltip();
-        const percentage = this._getPercentageFromEvent(e);
-        const value = this._percentageToValue(percentage);
-        this.value = this._steppedValue(this._boundedValue(value));
-        fireEvent(this, "slider-moved", { value: undefined });
-        fireEvent(this, "value-changed", { value: this.value });
-      });
+      let savedValue
+      this._mc.on('panstart', () => {
+        if (this.disabled) return
+        this.pressed = true
+        this._showTooltip()
+        savedValue = this.value
+      })
+      this._mc.on('pancancel', () => {
+        if (this.disabled) return
+        this.pressed = false
+        this._hideTooltip()
+        this.value = savedValue
+      })
+      this._mc.on('panmove', e => {
+        if (this.disabled) return
+        const percentage = this._getPercentageFromEvent(e)
+        this.value = this._percentageToValue(percentage)
+        const value = this._steppedValue(this._boundedValue(this.value))
+        fireEvent(this, 'slider-moved', { value })
+      })
+      this._mc.on('panend', e => {
+        if (this.disabled) return
+        this.pressed = false
+        this._hideTooltip()
+        const percentage = this._getPercentageFromEvent(e)
+        const value = this._percentageToValue(percentage)
+        this.value = this._steppedValue(this._boundedValue(value))
+        fireEvent(this, 'slider-moved', { value: undefined })
+        fireEvent(this, 'value-changed', { value: this.value })
+      })
 
-      this._mc.on("singletap", (e) => {
-        if (this.disabled) return;
-        const percentage = this._getPercentageFromEvent(e);
-        const value = this._percentageToValue(percentage);
-        this.value = this._steppedValue(this._boundedValue(value));
-        fireEvent(this, "value-changed", { value: this.value });
-      });
+      this._mc.on('singletap', e => {
+        if (this.disabled) return
+        const percentage = this._getPercentageFromEvent(e)
+        const value = this._percentageToValue(percentage)
+        this.value = this._steppedValue(this._boundedValue(value))
+        fireEvent(this, 'value-changed', { value: this.value })
+      })
 
-      this.addEventListener("keydown", this._handleKeyDown);
-      this.addEventListener("keyup", this._handleKeyUp);
+      this.addEventListener('keydown', this._handleKeyDown)
+      this.addEventListener('keyup', this._handleKeyUp)
     }
   }
 
   destroyListeners() {
     if (this._mc) {
-      this._mc.destroy();
-      this._mc = undefined;
+      this._mc.destroy()
+      this._mc = undefined
     }
-    this.removeEventListener("keydown", this._handleKeyDown);
-    this.removeEventListener("keyup", this._handleKeyUp);
+    this.removeEventListener('keydown', this._handleKeyDown)
+    this.removeEventListener('keyup', this._handleKeyUp)
   }
 
   private get _tenPercentStep() {
-    return Math.max(this.step, (this.max - this.min) / 10);
+    return Math.max(this.step, (this.max - this.min) / 10)
   }
 
   private _handleKeyDown(e: KeyboardEvent) {
-    if (!A11Y_KEY_CODES.has(e.code)) return;
-    e.preventDefault();
+    if (!A11Y_KEY_CODES.has(e.code)) return
+    e.preventDefault()
     switch (e.code) {
-      case "ArrowRight":
-      case "ArrowUp":
-        this.value = this._boundedValue((this.value ?? 0) + this.step);
-        break;
-      case "ArrowLeft":
-      case "ArrowDown":
-        this.value = this._boundedValue((this.value ?? 0) - this.step);
-        break;
-      case "PageUp":
+      case 'ArrowRight':
+      case 'ArrowUp':
+        this.value = this._boundedValue((this.value ?? 0) + this.step)
+        break
+      case 'ArrowLeft':
+      case 'ArrowDown':
+        this.value = this._boundedValue((this.value ?? 0) - this.step)
+        break
+      case 'PageUp':
         this.value = this._steppedValue(
           this._boundedValue((this.value ?? 0) + this._tenPercentStep)
-        );
-        break;
-      case "PageDown":
+        )
+        break
+      case 'PageDown':
         this.value = this._steppedValue(
           this._boundedValue((this.value ?? 0) - this._tenPercentStep)
-        );
-        break;
-      case "Home":
-        this.value = this.min;
-        break;
-      case "End":
-        this.value = this.max;
-        break;
+        )
+        break
+      case 'Home':
+        this.value = this.min
+        break
+      case 'End':
+        this.value = this.max
+        break
     }
-    fireEvent(this, "slider-moved", { value: this.value });
+    fireEvent(this, 'slider-moved', { value: this.value })
   }
 
   private _handleKeyUp(e: KeyboardEvent) {
-    if (!A11Y_KEY_CODES.has(e.code)) return;
-    e.preventDefault();
-    fireEvent(this, "value-changed", { value: this.value });
+    if (!A11Y_KEY_CODES.has(e.code)) return
+    e.preventDefault()
+    fireEvent(this, 'value-changed', { value: this.value })
   }
 
-  private _tooltipTimeout?: number;
+  private _tooltipTimeout?: number
 
   private _showTooltip() {
-    if (this._tooltipTimeout != null) window.clearTimeout(this._tooltipTimeout);
-    this.tooltipVisible = true;
+    if (this._tooltipTimeout != null) window.clearTimeout(this._tooltipTimeout)
+    this.tooltipVisible = true
   }
 
   private _hideTooltip(delay?: number) {
     if (!delay) {
-      this.tooltipVisible = false;
-      return;
+      this.tooltipVisible = false
+      return
     }
     this._tooltipTimeout = window.setTimeout(() => {
-      this.tooltipVisible = false;
-    }, delay);
+      this.tooltipVisible = false
+    }, delay)
   }
 
   private _getPercentageFromEvent = (e: HammerInput) => {
     if (this.vertical) {
-      const y = e.center.y;
-      const offset = e.target.getBoundingClientRect().top;
-      const total = e.target.clientHeight;
-      return Math.max(Math.min(1, (y - offset) / total), 0);
+      const y = e.center.y
+      const offset = e.target.getBoundingClientRect().top
+      const total = e.target.clientHeight
+      return Math.max(Math.min(1, (y - offset) / total), 0)
     }
-    const x = e.center.x;
-    const offset = e.target.getBoundingClientRect().left;
-    const total = e.target.clientWidth;
-    return Math.max(Math.min(1, (x - offset) / total), 0);
-  };
+    const x = e.center.x
+    const offset = e.target.getBoundingClientRect().left
+    const total = e.target.clientWidth
+    return Math.max(Math.min(1, (x - offset) / total), 0)
+  }
 
   private _renderTooltip() {
-    if (this.tooltipMode === "never") return nothing;
+    if (this.tooltipMode === 'never') return nothing
 
-    const position = this.vertical ? "left" : "top";
+    const position = this.vertical ? 'left' : 'top'
 
     const visible =
-      this.tooltipMode === "always" ||
-      (this.tooltipVisible && this.tooltipMode === "interaction");
+      this.tooltipMode === 'always' ||
+      (this.tooltipVisible && this.tooltipMode === 'interaction')
 
-    const value = this._boundedValue(this._steppedValue(this.value ?? 0));
+    const value = this._boundedValue(this._steppedValue(this.value ?? 0))
 
     return html`
       <span
@@ -285,7 +285,7 @@ export class HaGridLayoutSlider extends LitElement {
       >
         ${value}
       </span>
-    `;
+    `
   }
 
   protected render(): TemplateResult {
@@ -295,17 +295,20 @@ export class HaGridLayoutSlider extends LitElement {
           pressed: this.pressed,
         })}"
         style=${styleMap({
-          "--value": `${this._valueToPercentage(this.value ?? 0)}`,
+          '--value': `${this._valueToPercentage(this.value ?? 0)}`,
         })}
       >
-        <div id="slider" class="slider">
+        <div
+          id="slider"
+          class="slider"
+        >
           <div class="track">
             <div class="background"></div>
             <div
               class="active"
               style=${styleMap({
-                "--min": `${this.min / this._range}`,
-                "--max": `${1 - this.max / this._range}`,
+                '--min': `${this.min / this._range}`,
+                '--max': `${1 - this.max / this._range}`,
               })}
             ></div>
           </div>
@@ -313,20 +316,20 @@ export class HaGridLayoutSlider extends LitElement {
           ${Array(this._range / this.step)
             .fill(0)
             .map((_, i) => {
-              const percentage = i / (this._range / this.step);
+              const percentage = i / (this._range / this.step)
               const disabled =
-                this.min >= i * this.step || i * this.step > this.max;
+                this.min >= i * this.step || i * this.step > this.max
               if (disabled) {
-                return nothing;
+                return nothing
               }
               return html`
                 <div
                   class="dot"
                   style=${styleMap({
-                    "--value": `${percentage}`,
+                    '--value': `${percentage}`,
                   })}
                 ></div>
-              `;
+              `
             })}
           ${this.value !== undefined
             ? html`<div class="handle"></div>`
@@ -334,7 +337,7 @@ export class HaGridLayoutSlider extends LitElement {
           ${this._renderTooltip()}
         </div>
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -451,7 +454,7 @@ export class HaGridLayoutSlider extends LitElement {
       height: 100%;
       margin: auto;
       background: var(--primary-color);
-      content: "";
+      content: '';
     }
     :host([vertical]) .handle::after {
       height: 4px;
@@ -548,11 +551,11 @@ export class HaGridLayoutSlider extends LitElement {
     .pressed .tooltip {
       transition: opacity 180ms ease-in-out;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-grid-layout-slider": HaGridLayoutSlider;
+    'ha-grid-layout-slider': HaGridLayoutSlider
   }
 }

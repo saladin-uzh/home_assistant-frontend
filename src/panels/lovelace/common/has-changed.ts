@@ -1,24 +1,24 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { PropertyValues } from "lit";
-import type { EntityRegistryDisplayEntry } from "../../../data/entity_registry";
-import type { HomeAssistant } from "../../../types";
-import { processConfigEntities } from "./process-config-entities";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { PropertyValues } from 'lit'
+import type { EntityRegistryDisplayEntry } from '../../../data/entity_registry'
+import type { HomeAssistant } from '../../../types'
+import { processConfigEntities } from './process-config-entities'
 
 export function hasConfigChanged(
   element: any,
   changedProps: PropertyValues
 ): boolean {
-  if (changedProps.has("_config")) {
-    return true;
+  if (changedProps.has('_config')) {
+    return true
   }
 
-  if (!changedProps.has("hass")) {
-    return false;
+  if (!changedProps.has('hass')) {
+    return false
   }
 
-  const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
+  const oldHass = changedProps.get('hass') as HomeAssistant | undefined
   if (!oldHass) {
-    return true;
+    return true
   }
 
   if (
@@ -33,9 +33,9 @@ export function hasConfigChanged(
       element.hass.formatEntityAttributeValue ||
     oldHass.config.state !== element.hass.config.state
   ) {
-    return true;
+    return true
   }
-  return false;
+  return false
 }
 
 function compareEntityState(
@@ -43,10 +43,10 @@ function compareEntityState(
   newHass: HomeAssistant,
   entityId: string
 ) {
-  const oldState = oldHass.states[entityId] as HassEntity | undefined;
-  const newState = newHass.states[entityId] as HassEntity | undefined;
+  const oldState = oldHass.states[entityId] as HassEntity | undefined
+  const newState = newHass.states[entityId] as HassEntity | undefined
 
-  return oldState !== newState;
+  return oldState !== newState
 }
 
 function compareEntityDisplayEntry(
@@ -56,12 +56,12 @@ function compareEntityDisplayEntry(
 ) {
   const oldEntry = oldHass.entities[entityId] as
     | EntityRegistryDisplayEntry
-    | undefined;
+    | undefined
   const newEntry = newHass.entities[entityId] as
     | EntityRegistryDisplayEntry
-    | undefined;
+    | undefined
 
-  return oldEntry?.display_precision !== newEntry?.display_precision;
+  return oldEntry?.display_precision !== newEntry?.display_precision
 }
 
 // Check if config or Entity changed
@@ -70,20 +70,20 @@ export function hasConfigOrEntityChanged(
   changedProps: PropertyValues
 ): boolean {
   if (hasConfigChanged(element, changedProps)) {
-    return true;
+    return true
   }
 
-  if (!changedProps.has("hass")) {
-    return false;
+  if (!changedProps.has('hass')) {
+    return false
   }
 
-  const oldHass = changedProps.get("hass") as HomeAssistant;
-  const newHass = element.hass as HomeAssistant;
+  const oldHass = changedProps.get('hass') as HomeAssistant
+  const newHass = element.hass as HomeAssistant
 
   return (
     compareEntityState(oldHass, newHass, element._config!.entity) ||
     compareEntityDisplayEntry(oldHass, newHass, element._config!.entity)
-  );
+  )
 }
 
 // Check if config or Entities changed
@@ -92,26 +92,26 @@ export function hasConfigOrEntitiesChanged(
   changedProps: PropertyValues
 ): boolean {
   if (hasConfigChanged(element, changedProps)) {
-    return true;
+    return true
   }
 
-  if (!changedProps.has("hass")) {
-    return false;
+  if (!changedProps.has('hass')) {
+    return false
   }
 
-  const oldHass = changedProps.get("hass") as HomeAssistant;
-  const newHass = element.hass as HomeAssistant;
+  const oldHass = changedProps.get('hass') as HomeAssistant
+  const newHass = element.hass as HomeAssistant
 
-  const entities = processConfigEntities(element._config!.entities, false);
+  const entities = processConfigEntities(element._config!.entities, false)
 
-  return entities.some((entity) => {
-    if (!("entity" in entity)) {
-      return false;
+  return entities.some(entity => {
+    if (!('entity' in entity)) {
+      return false
     }
 
     return (
       compareEntityState(oldHass, newHass, entity.entity) ||
       compareEntityDisplayEntry(oldHass, newHass, entity.entity)
-    );
-  });
+    )
+  })
 }

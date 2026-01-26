@@ -1,67 +1,67 @@
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "../../../src/components/buttons/ha-progress-button";
-import "../../../src/components/ha-alert";
-import "../../../src/components/ha-ansi-to-html";
-import "../../../src/components/ha-card";
-import "../../../src/components/ha-select";
-import "../../../src/components/ha-list-item";
-import { extractApiErrorMessage } from "../../../src/data/hassio/common";
-import { fetchHassioLogs } from "../../../src/data/hassio/supervisor";
-import type { Supervisor } from "../../../src/data/supervisor/supervisor";
-import "../../../src/layouts/hass-loading-screen";
-import { haStyle } from "../../../src/resources/styles";
-import type { HomeAssistant } from "../../../src/types";
-import { hassioStyle } from "../resources/hassio-style";
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import '../../../src/components/buttons/ha-progress-button'
+import '../../../src/components/ha-alert'
+import '../../../src/components/ha-ansi-to-html'
+import '../../../src/components/ha-card'
+import '../../../src/components/ha-select'
+import '../../../src/components/ha-list-item'
+import { extractApiErrorMessage } from '../../../src/data/hassio/common'
+import { fetchHassioLogs } from '../../../src/data/hassio/supervisor'
+import type { Supervisor } from '../../../src/data/supervisor/supervisor'
+import '../../../src/layouts/hass-loading-screen'
+import { haStyle } from '../../../src/resources/styles'
+import type { HomeAssistant } from '../../../src/types'
+import { hassioStyle } from '../resources/hassio-style'
 
 interface LogProvider {
-  key: string;
-  name: string;
+  key: string
+  name: string
 }
 
 const logProviders: LogProvider[] = [
   {
-    key: "supervisor",
-    name: "Supervisor",
+    key: 'supervisor',
+    name: 'Supervisor',
   },
   {
-    key: "core",
-    name: "Core",
+    key: 'core',
+    name: 'Core',
   },
   {
-    key: "host",
-    name: "Host",
+    key: 'host',
+    name: 'Host',
   },
   {
-    key: "dns",
-    name: "DNS",
+    key: 'dns',
+    name: 'DNS',
   },
   {
-    key: "audio",
-    name: "Audio",
+    key: 'audio',
+    name: 'Audio',
   },
   {
-    key: "multicast",
-    name: "Multicast",
+    key: 'multicast',
+    name: 'Multicast',
   },
-];
+]
 
-@customElement("hassio-supervisor-log")
+@customElement('hassio-supervisor-log')
 class HassioSupervisorLog extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public supervisor!: Supervisor;
+  @property({ attribute: false }) public supervisor!: Supervisor
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
-  @state() private _selectedLogProvider = "supervisor";
+  @state() private _selectedLogProvider = 'supervisor'
 
-  @state() private _content?: string;
+  @state() private _content?: string
 
   public async connectedCallback(): Promise<void> {
-    super.connectedCallback();
-    await this._loadData();
+    super.connectedCallback()
+    await this._loadData()
   }
 
   protected render(): TemplateResult | undefined {
@@ -69,16 +69,16 @@ class HassioSupervisorLog extends LitElement {
       <ha-card outlined>
         ${this._error
           ? html`<ha-alert alert-type="error">${this._error}</ha-alert>`
-          : ""}
+          : ''}
         ${this.hass.userData?.showAdvanced
           ? html`
               <ha-select
-                .label=${this.supervisor.localize("system.log.log_provider")}
+                .label=${this.supervisor.localize('system.log.log_provider')}
                 @selected=${this._setLogProvider}
                 .value=${this._selectedLogProvider}
               >
                 ${logProviders.map(
-                  (provider) => html`
+                  provider => html`
                     <ha-list-item .value=${provider.key}>
                       ${provider.name}
                     </ha-list-item>
@@ -86,9 +86,12 @@ class HassioSupervisorLog extends LitElement {
                 )}
               </ha-select>
             `
-          : ""}
+          : ''}
 
-        <div class="card-content" id="content">
+        <div
+          class="card-content"
+          id="content"
+        >
           ${this._content
             ? html`<ha-ansi-to-html .content=${this._content}>
               </ha-ansi-to-html>`
@@ -96,41 +99,41 @@ class HassioSupervisorLog extends LitElement {
         </div>
         <div class="card-actions">
           <ha-progress-button @click=${this._refresh}>
-            ${this.supervisor.localize("common.refresh")}
+            ${this.supervisor.localize('common.refresh')}
           </ha-progress-button>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   private async _setLogProvider(ev): Promise<void> {
-    const provider = ev.target.value;
-    this._selectedLogProvider = provider;
-    this._loadData();
+    const provider = ev.target.value
+    this._selectedLogProvider = provider
+    this._loadData()
   }
 
   private async _refresh(ev: CustomEvent): Promise<void> {
-    const button = ev.currentTarget as any;
-    button.progress = true;
-    await this._loadData();
-    button.progress = false;
+    const button = ev.currentTarget as any
+    button.progress = true
+    await this._loadData()
+    button.progress = false
   }
 
   private async _loadData(): Promise<void> {
-    this._error = undefined;
+    this._error = undefined
 
     try {
       const response = await fetchHassioLogs(
         this.hass,
         this._selectedLogProvider
-      );
+      )
 
-      this._content = await response.text();
+      this._content = await response.text()
     } catch (err: any) {
-      this._error = this.supervisor.localize("system.log.get_logs", {
+      this._error = this.supervisor.localize('system.log.get_logs', {
         provider: this._selectedLogProvider,
         error: extractApiErrorMessage(err),
-      });
+      })
     }
   }
 
@@ -151,12 +154,12 @@ class HassioSupervisorLog extends LitElement {
           margin-bottom: 4px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hassio-supervisor-log": HassioSupervisorLog;
+    'hassio-supervisor-log': HassioSupervisorLog
   }
 }

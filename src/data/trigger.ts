@@ -1,14 +1,14 @@
-import { mdiMapClock, mdiShape } from "@mdi/js";
+import { mdiMapClock, mdiShape } from '@mdi/js'
 
-import { computeDomain } from "../common/entity/compute_domain";
-import { computeObjectId } from "../common/entity/compute_object_id";
-import type { HomeAssistant } from "../types";
+import { computeDomain } from '../common/entity/compute_domain'
+import { computeObjectId } from '../common/entity/compute_object_id'
+import type { HomeAssistant } from '../types'
 import type {
   AutomationElementGroupCollection,
   Trigger,
   TriggerList,
-} from "./automation";
-import type { Selector, TargetSelector } from "./selector";
+} from './automation'
+import type { Selector, TargetSelector } from './selector'
 
 export const TRIGGER_COLLECTIONS: AutomationElementGroupCollection[] = [
   {
@@ -29,13 +29,13 @@ export const TRIGGER_COLLECTIONS: AutomationElementGroupCollection[] = [
     },
   },
   {
-    titleKey: "ui.panel.config.automation.editor.triggers.groups.helpers.label",
+    titleKey: 'ui.panel.config.automation.editor.triggers.groups.helpers.label',
     groups: {
       helpers: {},
     },
   },
   {
-    titleKey: "ui.panel.config.automation.editor.triggers.groups.other.label",
+    titleKey: 'ui.panel.config.automation.editor.triggers.groups.other.label',
     groups: {
       event: {},
       geo_location: {},
@@ -48,37 +48,37 @@ export const TRIGGER_COLLECTIONS: AutomationElementGroupCollection[] = [
       other: {},
     },
   },
-] as const;
+] as const
 
 export const isTriggerList = (trigger: Trigger): trigger is TriggerList =>
-  "triggers" in trigger;
+  'triggers' in trigger
 
 export interface TriggerDescription {
-  target?: TargetSelector["target"];
+  target?: TargetSelector['target']
   fields: Record<
     string,
     {
-      example?: string | boolean | number;
-      default?: unknown;
-      required?: boolean;
-      selector?: Selector;
-      context?: Record<string, string>;
+      example?: string | boolean | number
+      default?: unknown
+      required?: boolean
+      selector?: Selector
+      context?: Record<string, string>
     }
-  >;
+  >
 }
 
-export type TriggerDescriptions = Record<string, TriggerDescription>;
+export type TriggerDescriptions = Record<string, TriggerDescription>
 
 export const subscribeTriggers = (
   hass: HomeAssistant,
   callback: (triggers: TriggerDescriptions) => void
 ) =>
   hass.connection.subscribeMessage<TriggerDescriptions>(callback, {
-    type: "trigger_platforms/subscribe",
-  });
+    type: 'trigger_platforms/subscribe',
+  })
 
 export const getTriggerDomain = (trigger: string) =>
-  trigger.includes(".") ? computeDomain(trigger) : trigger;
+  trigger.includes('.') ? computeDomain(trigger) : trigger
 
 export const getTriggerObjectId = (trigger: string) =>
-  trigger.includes(".") ? computeObjectId(trigger) : "_";
+  trigger.includes('.') ? computeObjectId(trigger) : '_'

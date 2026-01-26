@@ -1,19 +1,26 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../../../components/ha-tooltip";
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../../../components/ha-tooltip'
 
-@customElement("hui-energy-graph-chip")
+@customElement('hui-energy-graph-chip')
 export class HuiEnergyGraphChip extends LitElement {
-  @property({ type: String }) public tooltip?: string;
+  @property({ type: String }) public tooltip?: string
 
   protected render() {
-    const id = `energy-graph-chip-${Date.now()}`;
+    const id = `energy-graph-chip-${Date.now()}`
     return html`
-      <div class="chip" id=${id}>
+      <div
+        class="chip"
+        id=${id}
+      >
         <slot></slot>
       </div>
-      <ha-tooltip for=${id} placement="top">${this.tooltip}</ha-tooltip>
-    `;
+      <ha-tooltip
+        for=${id}
+        placement="top"
+        >${this.tooltip}</ha-tooltip
+      >
+    `
   }
 
   static styles = css`
@@ -24,11 +31,11 @@ export class HuiEnergyGraphChip extends LitElement {
       border-radius: var(--ha-border-radius-md);
       border: 1px solid var(--divider-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-energy-graph-chip": HuiEnergyGraphChip;
+    'hui-energy-graph-chip': HuiEnergyGraphChip
   }
 }

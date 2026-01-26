@@ -1,11 +1,11 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
-@customElement("ha-card")
+@customElement('ha-card')
 export class HaCard extends LitElement {
-  @property() public header?: string;
+  @property() public header?: string
 
-  @property({ type: Boolean, reflect: true }) public raised = false;
+  @property({ type: Boolean, reflect: true }) public raised = false
 
   static styles = css`
     :host {
@@ -65,7 +65,7 @@ export class HaCard extends LitElement {
       border-top: 1px solid var(--divider-color, #e8e8e8);
       padding: var(--ha-space-2);
     }
-  `;
+  `
 
   protected render() {
     return html`
@@ -73,12 +73,12 @@ export class HaCard extends LitElement {
         ? html`<h1 class="card-header">${this.header}</h1>`
         : nothing}
       <slot></slot>
-    `;
+    `
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-card": HaCard;
+    'ha-card': HaCard
   }
 }

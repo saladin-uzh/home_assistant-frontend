@@ -1,75 +1,75 @@
-import { framework } from "./cast_framework";
-import { CAST_NS } from "../../../src/cast/const";
-import type { HassMessage } from "../../../src/cast/receiver_messages";
-import "../../../src/resources/custom-card-support";
-import { castContext } from "./cast_context";
-import { HcMain } from "./layout/hc-main";
-import type { ReceivedMessage } from "./types";
+import { framework } from './cast_framework'
+import { CAST_NS } from '../../../src/cast/const'
+import type { HassMessage } from '../../../src/cast/receiver_messages'
+import '../../../src/resources/custom-card-support'
+import { castContext } from './cast_context'
+import { HcMain } from './layout/hc-main'
+import type { ReceivedMessage } from './types'
 
-const lovelaceController = new HcMain();
-document.body.append(lovelaceController);
-lovelaceController.addEventListener("cast-view-changed", (ev) => {
-  playDummyMedia(ev.detail.title);
-});
+const lovelaceController = new HcMain()
+document.body.append(lovelaceController)
+lovelaceController.addEventListener('cast-view-changed', ev => {
+  playDummyMedia(ev.detail.title)
+})
 
-const mediaPlayer = document.createElement("cast-media-player");
-mediaPlayer.style.display = "none";
-document.body.append(mediaPlayer);
-const playerStylesAdded = false;
+const mediaPlayer = document.createElement('cast-media-player')
+mediaPlayer.style.display = 'none'
+document.body.append(mediaPlayer)
+const playerStylesAdded = false
 
-let controls: HTMLElement | null;
+let controls: HTMLElement | null
 
 const setTouchControlsVisibility = (visible: boolean) => {
   if (!castContext.getDeviceCapabilities().touch_input_supported) {
-    return;
+    return
   }
   controls =
     controls ||
-    (document.body.querySelector("touch-controls") as HTMLElement | null);
+    (document.body.querySelector('touch-controls') as HTMLElement | null)
   if (controls) {
-    controls.style.display = visible ? "initial" : "none";
+    controls.style.display = visible ? 'initial' : 'none'
   }
-};
+}
 
-let timeOut: number | undefined;
+let timeOut: number | undefined
 
 const playDummyMedia = (viewTitle?: string) => {
-  const loadRequestData = new framework.messages.LoadRequestData();
-  loadRequestData.autoplay = true;
-  loadRequestData.media = new framework.messages.MediaInformation();
+  const loadRequestData = new framework.messages.LoadRequestData()
+  loadRequestData.autoplay = true
+  loadRequestData.media = new framework.messages.MediaInformation()
   loadRequestData.media.contentId =
-    "https://cast.home-assistant.io/images/google-nest-hub.png";
-  loadRequestData.media.contentType = "image/jpeg";
-  loadRequestData.media.streamType = framework.messages.StreamType.NONE;
-  const metadata = new framework.messages.GenericMediaMetadata();
-  metadata.title = viewTitle;
-  loadRequestData.media.metadata = metadata;
+    'https://cast.home-assistant.io/images/google-nest-hub.png'
+  loadRequestData.media.contentType = 'image/jpeg'
+  loadRequestData.media.streamType = framework.messages.StreamType.NONE
+  const metadata = new framework.messages.GenericMediaMetadata()
+  metadata.title = viewTitle
+  loadRequestData.media.metadata = metadata
 
-  loadRequestData.requestId = 0;
-  playerManager.load(loadRequestData);
+  loadRequestData.requestId = 0
+  playerManager.load(loadRequestData)
   if (timeOut) {
-    clearTimeout(timeOut);
-    timeOut = undefined;
+    clearTimeout(timeOut)
+    timeOut = undefined
   }
   if (castContext.getDeviceCapabilities().touch_input_supported) {
-    timeOut = window.setTimeout(() => playDummyMedia(viewTitle), 540000); // repeat every 9 minutes to keep it active (gets deactivated after 10 minutes)
+    timeOut = window.setTimeout(() => playDummyMedia(viewTitle), 540000) // repeat every 9 minutes to keep it active (gets deactivated after 10 minutes)
   }
-};
+}
 
 const showLovelaceController = () => {
-  mediaPlayer.style.display = "none";
-  lovelaceController.style.display = "initial";
-  document.body.setAttribute("style", "overflow-y: auto !important");
-  setTouchControlsVisibility(false);
-};
+  mediaPlayer.style.display = 'none'
+  lovelaceController.style.display = 'initial'
+  document.body.setAttribute('style', 'overflow-y: auto !important')
+  setTouchControlsVisibility(false)
+}
 
 const showMediaPlayer = () => {
-  lovelaceController.style.display = "none";
-  mediaPlayer.style.display = "initial";
-  document.body.removeAttribute("style");
-  setTouchControlsVisibility(true);
+  lovelaceController.style.display = 'none'
+  mediaPlayer.style.display = 'initial'
+  document.body.removeAttribute('style')
+  setTouchControlsVisibility(true)
   if (!playerStylesAdded) {
-    const style = document.createElement("style");
+    const style = document.createElement('style')
     style.innerHTML = `
     body {
       --logo-image: url('https://www.home-assistant.io/images/home-assistant-logo.svg');
@@ -81,16 +81,16 @@ const showMediaPlayer = () => {
       --splash-size: cover;
       --background-color: #41bdf5;
     }
-    `;
-    document.head.appendChild(style);
+    `
+    document.head.appendChild(style)
   }
-};
+}
 
-const options = new framework.CastReceiverOptions();
-options.disableIdleTimeout = true;
+const options = new framework.CastReceiverOptions()
+options.disableIdleTimeout = true
 options.customNamespaces = {
   [CAST_NS]: framework.system.MessageType.JSON,
-};
+}
 
 castContext.addCustomMessageListener(
   CAST_NS,
@@ -100,46 +100,46 @@ castContext.addCustomMessageListener(
     if (
       playerManager.getPlayerState() !== framework.messages.PlayerState.IDLE
     ) {
-      playerManager.stop();
+      playerManager.stop()
     } else {
-      showLovelaceController();
+      showLovelaceController()
     }
-    const msg = ev.data;
-    msg.senderId = ev.senderId;
-    lovelaceController.processIncomingMessage(msg);
+    const msg = ev.data
+    msg.senderId = ev.senderId
+    lovelaceController.processIncomingMessage(msg)
   }
-);
+)
 
-const playerManager = castContext.getPlayerManager();
+const playerManager = castContext.getPlayerManager()
 
 playerManager.setMessageInterceptor(
   framework.messages.MessageType.LOAD,
-  (loadRequestData) => {
+  loadRequestData => {
     if (
       loadRequestData.media.contentId ===
-      "https://cast.home-assistant.io/images/google-nest-hub.png"
+      'https://cast.home-assistant.io/images/google-nest-hub.png'
     ) {
-      return loadRequestData;
+      return loadRequestData
     }
     // We received a play media command, hide Lovelace and show media player
-    showMediaPlayer();
-    const media = loadRequestData.media;
+    showMediaPlayer()
+    const media = loadRequestData.media
     // Special handling if it came from Google Assistant
     if (media.entity) {
-      media.contentId = media.entity;
-      media.streamType = framework.messages.StreamType.LIVE;
-      media.contentType = "application/vnd.apple.mpegurl";
+      media.contentId = media.entity
+      media.streamType = framework.messages.StreamType.LIVE
+      media.contentType = 'application/vnd.apple.mpegurl'
       // @ts-ignore
       media.hlsVideoSegmentFormat =
-        framework.messages.HlsVideoSegmentFormat.FMP4;
+        framework.messages.HlsVideoSegmentFormat.FMP4
     }
-    return loadRequestData;
+    return loadRequestData
   }
-);
+)
 
 playerManager.addEventListener(
   framework.events.EventType.MEDIA_STATUS,
-  (event) => {
+  event => {
     if (
       event.mediaStatus?.playerState === framework.messages.PlayerState.IDLE &&
       event.mediaStatus?.idleReason &&
@@ -147,9 +147,9 @@ playerManager.addEventListener(
         framework.messages.IdleReason.INTERRUPTED
     ) {
       // media finished or stopped, return to default Lovelace
-      showLovelaceController();
+      showLovelaceController()
     }
   }
-);
+)
 
-castContext.start(options);
+castContext.start(options)

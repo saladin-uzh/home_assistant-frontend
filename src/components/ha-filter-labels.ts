@@ -1,51 +1,51 @@
-import type { SelectedDetail } from "@material/mwc-list";
-import { mdiCog, mdiFilterVariantRemove } from "@mdi/js";
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { CSSResultGroup } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { repeat } from "lit/directives/repeat";
-import memoizeOne from "memoize-one";
-import { computeCssColor } from "../common/color/compute-color";
-import { fireEvent } from "../common/dom/fire_event";
-import { navigate } from "../common/navigate";
-import { stringCompare } from "../common/string/compare";
-import type { LabelRegistryEntry } from "../data/label_registry";
-import { subscribeLabelRegistry } from "../data/label_registry";
-import { SubscribeMixin } from "../mixins/subscribe-mixin";
-import { haStyleScrollbar } from "../resources/styles";
-import type { HomeAssistant } from "../types";
-import "./ha-check-list-item";
-import "./ha-expansion-panel";
-import "./ha-icon";
-import "./ha-icon-button";
-import "./ha-label";
-import "./ha-list";
-import "./ha-list-item";
-import "./search-input-outlined";
+import type { SelectedDetail } from '@material/mwc-list'
+import { mdiCog, mdiFilterVariantRemove } from '@mdi/js'
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { CSSResultGroup } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { repeat } from 'lit/directives/repeat'
+import memoizeOne from 'memoize-one'
+import { computeCssColor } from '../common/color/compute-color'
+import { fireEvent } from '../common/dom/fire_event'
+import { navigate } from '../common/navigate'
+import { stringCompare } from '../common/string/compare'
+import type { LabelRegistryEntry } from '../data/label_registry'
+import { subscribeLabelRegistry } from '../data/label_registry'
+import { SubscribeMixin } from '../mixins/subscribe-mixin'
+import { haStyleScrollbar } from '../resources/styles'
+import type { HomeAssistant } from '../types'
+import './ha-check-list-item'
+import './ha-expansion-panel'
+import './ha-icon'
+import './ha-icon-button'
+import './ha-label'
+import './ha-list'
+import './ha-list-item'
+import './search-input-outlined'
 
-@customElement("ha-filter-labels")
+@customElement('ha-filter-labels')
 export class HaFilterLabels extends SubscribeMixin(LitElement) {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public value?: string[];
+  @property({ attribute: false }) public value?: string[]
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ type: Boolean, reflect: true }) public expanded = false;
+  @property({ type: Boolean, reflect: true }) public expanded = false
 
-  @state() private _labels: LabelRegistryEntry[] = [];
+  @state() private _labels: LabelRegistryEntry[] = []
 
-  @state() private _shouldRender = false;
+  @state() private _shouldRender = false
 
-  @state() private _filter?: string;
+  @state() private _filter?: string
 
   protected hassSubscribe(): (UnsubscribeFunc | Promise<UnsubscribeFunc>)[] {
     return [
-      subscribeLabelRegistry(this.hass.connection, (labels) => {
-        this._labels = labels;
+      subscribeLabelRegistry(this.hass.connection, labels => {
+        this._labels = labels
       }),
-    ];
+    ]
   }
 
   private _filteredLabels = memoizeOne(
@@ -53,7 +53,7 @@ export class HaFilterLabels extends SubscribeMixin(LitElement) {
     (labels: LabelRegistryEntry[], filter: string | undefined, _value) =>
       labels
         .filter(
-          (label) =>
+          label =>
             !filter ||
             label.name.toLowerCase().includes(filter) ||
             label.label_id.toLowerCase().includes(filter)
@@ -65,7 +65,7 @@ export class HaFilterLabels extends SubscribeMixin(LitElement) {
             this.hass.locale.language
           )
         )
-  );
+  )
 
   protected render() {
     return html`
@@ -75,8 +75,11 @@ export class HaFilterLabels extends SubscribeMixin(LitElement) {
         @expanded-will-change=${this._expandedWillChange}
         @expanded-changed=${this._expandedChanged}
       >
-        <div slot="header" class="header">
-          ${this.hass.localize("ui.panel.config.labels.caption")}
+        <div
+          slot="header"
+          class="header"
+        >
+          ${this.hass.localize('ui.panel.config.labels.caption')}
           ${this.value?.length
             ? html`<div class="badge">${this.value?.length}</div>
                 <ha-icon-button
@@ -99,18 +102,18 @@ export class HaFilterLabels extends SubscribeMixin(LitElement) {
               >
                 ${repeat(
                   this._filteredLabels(this._labels, this._filter, this.value),
-                  (label) => label.label_id,
-                  (label) => {
+                  label => label.label_id,
+                  label => {
                     const color = label.color
                       ? computeCssColor(label.color)
-                      : undefined;
+                      : undefined
                     return html`<ha-check-list-item
                       .value=${label.label_id}
                       .selected=${(this.value || []).includes(label.label_id)}
                       hasMeta
                     >
                       <ha-label
-                        style=${color ? `--color: ${color}` : ""}
+                        style=${color ? `--color: ${color}` : ''}
                         .description=${label.description}
                       >
                         ${label.icon
@@ -121,7 +124,7 @@ export class HaFilterLabels extends SubscribeMixin(LitElement) {
                           : nothing}
                         ${label.name}
                       </ha-label>
-                    </ha-check-list-item>`;
+                    </ha-check-list-item>`
                   }
                 )}
               </ha-list> `
@@ -133,75 +136,78 @@ export class HaFilterLabels extends SubscribeMixin(LitElement) {
             @click=${this._manageLabels}
             class="add"
           >
-            <ha-svg-icon slot="graphic" .path=${mdiCog}></ha-svg-icon>
-            ${this.hass.localize("ui.panel.config.labels.manage_labels")}
+            <ha-svg-icon
+              slot="graphic"
+              .path=${mdiCog}
+            ></ha-svg-icon>
+            ${this.hass.localize('ui.panel.config.labels.manage_labels')}
           </ha-list-item>`
         : nothing}
-    `;
+    `
   }
 
   protected updated(changed) {
-    if (changed.has("expanded") && this.expanded) {
+    if (changed.has('expanded') && this.expanded) {
       setTimeout(() => {
-        if (!this.expanded) return;
-        this.renderRoot.querySelector("ha-list")!.style.height =
-          `${this.clientHeight - (49 + 48 + 32)}px`;
-      }, 300);
+        if (!this.expanded) return
+        this.renderRoot.querySelector('ha-list')!.style.height =
+          `${this.clientHeight - (49 + 48 + 32)}px`
+      }, 300)
     }
   }
 
   private _manageLabels() {
-    navigate("/config/labels");
+    navigate('/config/labels')
   }
 
   private _expandedWillChange(ev) {
-    this._shouldRender = ev.detail.expanded;
+    this._shouldRender = ev.detail.expanded
   }
 
   private _expandedChanged(ev) {
-    this.expanded = ev.detail.expanded;
+    this.expanded = ev.detail.expanded
   }
 
   private _handleSearchChange(ev: CustomEvent) {
-    this._filter = ev.detail.value.toLowerCase();
+    this._filter = ev.detail.value.toLowerCase()
   }
 
   private async _labelSelected(ev: CustomEvent<SelectedDetail<Set<number>>>) {
     if (!ev.detail.index.size) {
-      fireEvent(this, "data-table-filter-changed", {
+      fireEvent(this, 'data-table-filter-changed', {
         value: [],
         items: undefined,
-      });
-      this.value = [];
-      return;
+      })
+      this.value = []
+      return
     }
 
-    const value: string[] = [];
+    const value: string[] = []
     const filteredLabels = this._filteredLabels(
       this._labels,
       this._filter,
       this.value
-    );
+    )
 
     for (const index of ev.detail.index) {
-      const labelId = filteredLabels[index].label_id;
-      value.push(labelId);
+      const labelId = filteredLabels[index].label_id
+      value.push(labelId)
     }
-    this.value = value;
+    this.value = value
 
-    fireEvent(this, "data-table-filter-changed", {
+    fireEvent(this, 'data-table-filter-changed', {
       value,
       items: undefined,
-    });
+    })
   }
 
   private _clearFilter(ev) {
-    ev.preventDefault();
-    this.value = undefined;
-    fireEvent(this, "data-table-filter-changed", {
+    ev.preventDefault()
+    this.value = undefined
+    fireEvent(this, 'data-table-filter-changed', {
       value: undefined,
       items: undefined,
-    });
+    })
   }
 
   static get styles(): CSSResultGroup {
@@ -262,12 +268,12 @@ export class HaFilterLabels extends SubscribeMixin(LitElement) {
           padding: var(--ha-space-1) var(--ha-space-2) 0;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-filter-labels": HaFilterLabels;
+    'ha-filter-labels': HaFilterLabels
   }
 }

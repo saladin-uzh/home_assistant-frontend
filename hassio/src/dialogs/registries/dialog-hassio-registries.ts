@@ -1,64 +1,64 @@
-import { mdiDelete, mdiPlus } from "@mdi/js";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "../../../../src/components/ha-button";
-import { createCloseHeading } from "../../../../src/components/ha-dialog";
-import "../../../../src/components/ha-form/ha-form";
-import type { SchemaUnion } from "../../../../src/components/ha-form/types";
-import "../../../../src/components/ha-icon-button";
-import "../../../../src/components/ha-settings-row";
-import "../../../../src/components/ha-svg-icon";
-import { extractApiErrorMessage } from "../../../../src/data/hassio/common";
+import { mdiDelete, mdiPlus } from '@mdi/js'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import '../../../../src/components/ha-button'
+import { createCloseHeading } from '../../../../src/components/ha-dialog'
+import '../../../../src/components/ha-form/ha-form'
+import type { SchemaUnion } from '../../../../src/components/ha-form/types'
+import '../../../../src/components/ha-icon-button'
+import '../../../../src/components/ha-settings-row'
+import '../../../../src/components/ha-svg-icon'
+import { extractApiErrorMessage } from '../../../../src/data/hassio/common'
 import {
   addHassioDockerRegistry,
   fetchHassioDockerRegistries,
   removeHassioDockerRegistry,
-} from "../../../../src/data/hassio/docker";
-import type { Supervisor } from "../../../../src/data/supervisor/supervisor";
-import { showAlertDialog } from "../../../../src/dialogs/generic/show-dialog-box";
-import { haStyle, haStyleDialog } from "../../../../src/resources/styles";
-import type { HomeAssistant } from "../../../../src/types";
-import type { RegistriesDialogParams } from "./show-dialog-registries";
+} from '../../../../src/data/hassio/docker'
+import type { Supervisor } from '../../../../src/data/supervisor/supervisor'
+import { showAlertDialog } from '../../../../src/dialogs/generic/show-dialog-box'
+import { haStyle, haStyleDialog } from '../../../../src/resources/styles'
+import type { HomeAssistant } from '../../../../src/types'
+import type { RegistriesDialogParams } from './show-dialog-registries'
 
 const SCHEMA = [
   {
-    name: "registry",
+    name: 'registry',
     required: true,
     selector: { text: {} },
   },
   {
-    name: "username",
+    name: 'username',
     required: true,
     selector: { text: {} },
   },
   {
-    name: "password",
+    name: 'password',
     required: true,
-    selector: { text: { type: "password" } },
+    selector: { text: { type: 'password' } },
   },
-] as const;
+] as const
 
-@customElement("dialog-hassio-registries")
+@customElement('dialog-hassio-registries')
 class HassioRegistriesDialog extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public supervisor!: Supervisor;
+  @property({ attribute: false }) public supervisor!: Supervisor
 
   @state() private _registries?: {
-    registry: string;
-    username: string;
-  }[];
+    registry: string
+    username: string
+  }[]
 
   @state() private _input: {
-    registry?: string;
-    username?: string;
-    password?: string;
-  } = {};
+    registry?: string
+    username?: string
+    password?: string
+  } = {}
 
-  @state() private _opened = false;
+  @state() private _opened = false
 
-  @state() private _addingRegistry = false;
+  @state() private _addingRegistry = false
 
   protected render(): TemplateResult {
     return html`
@@ -71,8 +71,8 @@ class HassioRegistriesDialog extends LitElement {
         .heading=${createCloseHeading(
           this.hass,
           this._addingRegistry
-            ? this.supervisor.localize("dialog.registries.title_add")
-            : this.supervisor.localize("dialog.registries.title_manage")
+            ? this.supervisor.localize('dialog.registries.title_add')
+            : this.supervisor.localize('dialog.registries.title_manage')
         )}
       >
         ${this._addingRegistry
@@ -95,26 +95,29 @@ class HassioRegistriesDialog extends LitElement {
                   appearance="filled"
                   size="small"
                 >
-                  <ha-svg-icon slot="start" .path=${mdiPlus}></ha-svg-icon>
-                  ${this.supervisor.localize("dialog.registries.add_registry")}
+                  <ha-svg-icon
+                    slot="start"
+                    .path=${mdiPlus}
+                  ></ha-svg-icon>
+                  ${this.supervisor.localize('dialog.registries.add_registry')}
                 </ha-button>
               </div>
             `
           : html`${this._registries?.length
                 ? this._registries.map(
-                    (entry) => html`
+                    entry => html`
                       <ha-settings-row class="registry">
                         <span slot="heading"> ${entry.registry} </span>
                         <span slot="description">
                           ${this.supervisor.localize(
-                            "dialog.registries.username"
+                            'dialog.registries.username'
                           )}:
                           ${entry.username}
                         </span>
                         <ha-icon-button
                           .entry=${entry}
                           .label=${this.supervisor.localize(
-                            "dialog.registries.remove"
+                            'dialog.registries.remove'
                           )}
                           .path=${mdiDelete}
                           @click=${this._removeRegistry}
@@ -125,7 +128,7 @@ class HassioRegistriesDialog extends LitElement {
                 : html`
                     <ha-alert>
                       ${this.supervisor.localize(
-                        "dialog.registries.no_registries"
+                        'dialog.registries.no_registries'
                       )}
                     </ha-alert>
                   `}
@@ -136,88 +139,91 @@ class HassioRegistriesDialog extends LitElement {
                   appearance="filled"
                   size="small"
                 >
-                  <ha-svg-icon slot="start" .path=${mdiPlus}></ha-svg-icon>
+                  <ha-svg-icon
+                    slot="start"
+                    .path=${mdiPlus}
+                  ></ha-svg-icon>
                   ${this.supervisor.localize(
-                    "dialog.registries.add_new_registry"
+                    'dialog.registries.add_new_registry'
                   )}
                 </ha-button>
               </div> `}
       </ha-dialog>
-    `;
+    `
   }
 
   private _computeLabel = (schema: SchemaUnion<typeof SCHEMA>) =>
-    this.supervisor.localize(`dialog.registries.${schema.name}`);
+    this.supervisor.localize(`dialog.registries.${schema.name}`)
 
   private _valueChanged(ev: CustomEvent) {
-    this._input = ev.detail.value;
+    this._input = ev.detail.value
   }
 
   public async showDialog(dialogParams: RegistriesDialogParams): Promise<void> {
-    this._opened = true;
-    this._input = {};
-    this.supervisor = dialogParams.supervisor;
-    await this._loadRegistries();
-    await this.updateComplete;
+    this._opened = true
+    this._input = {}
+    this.supervisor = dialogParams.supervisor
+    await this._loadRegistries()
+    await this.updateComplete
   }
 
   public closeDialog(): void {
-    this._addingRegistry = false;
-    this._opened = false;
-    this._input = {};
+    this._addingRegistry = false
+    this._opened = false
+    this._input = {}
   }
 
   public focus(): void {
     this.updateComplete.then(() =>
       (
-        this.shadowRoot?.querySelector("[dialogInitialFocus]") as HTMLElement
+        this.shadowRoot?.querySelector('[dialogInitialFocus]') as HTMLElement
       )?.focus()
-    );
+    )
   }
 
   private async _loadRegistries(): Promise<void> {
-    const registries = await fetchHassioDockerRegistries(this.hass);
-    this._registries = Object.keys(registries!.registries).map((key) => ({
+    const registries = await fetchHassioDockerRegistries(this.hass)
+    this._registries = Object.keys(registries!.registries).map(key => ({
       registry: key,
       username: registries.registries[key].username,
-    }));
+    }))
   }
 
   private _addRegistry(): void {
-    this._addingRegistry = true;
+    this._addingRegistry = true
   }
 
   private async _addNewRegistry(): Promise<void> {
-    const data = {};
+    const data = {}
     data[this._input.registry!] = {
       username: this._input.username,
       password: this._input.password,
-    };
+    }
 
     try {
-      await addHassioDockerRegistry(this.hass, data);
-      await this._loadRegistries();
-      this._addingRegistry = false;
-      this._input = {};
+      await addHassioDockerRegistry(this.hass, data)
+      await this._loadRegistries()
+      this._addingRegistry = false
+      this._input = {}
     } catch (err: any) {
       showAlertDialog(this, {
-        title: this.supervisor.localize("dialog.registries.failed_to_add"),
+        title: this.supervisor.localize('dialog.registries.failed_to_add'),
         text: extractApiErrorMessage(err),
-      });
+      })
     }
   }
 
   private async _removeRegistry(ev: Event): Promise<void> {
-    const entry = (ev.currentTarget as any).entry;
+    const entry = (ev.currentTarget as any).entry
 
     try {
-      await removeHassioDockerRegistry(this.hass, entry.registry);
-      await this._loadRegistries();
+      await removeHassioDockerRegistry(this.hass, entry.registry)
+      await this._loadRegistries()
     } catch (err: any) {
       showAlertDialog(this, {
-        title: this.supervisor.localize("dialog.registries.failed_to_remove"),
+        title: this.supervisor.localize('dialog.registries.failed_to_remove'),
         text: extractApiErrorMessage(err),
-      });
+      })
     }
   }
 
@@ -244,12 +250,12 @@ class HassioRegistriesDialog extends LitElement {
           margin-inline-start: initial;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-hassio-registries": HassioRegistriesDialog;
+    'dialog-hassio-registries': HassioRegistriesDialog
   }
 }

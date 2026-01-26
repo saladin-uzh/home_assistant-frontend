@@ -1,61 +1,61 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import memoizeOne from "memoize-one";
-import { dynamicElement } from "../../../../common/dom/dynamic-element-directive";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-yaml-editor";
-import type { HaYamlEditor } from "../../../../components/ha-yaml-editor";
-import type { Condition } from "../../../../data/automation";
-import { expandConditionWithShorthand } from "../../../../data/automation";
-import type { ConditionDescription } from "../../../../data/condition";
-import { COLLAPSIBLE_CONDITION_ELEMENTS } from "../../../../data/condition";
-import type { HomeAssistant } from "../../../../types";
-import "../ha-automation-editor-warning";
-import { editorStyles, indentStyle } from "../styles";
-import type { ConditionElement } from "./ha-automation-condition-row";
-import "./types/ha-automation-condition-platform";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import memoizeOne from 'memoize-one'
+import { dynamicElement } from '../../../../common/dom/dynamic-element-directive'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-yaml-editor'
+import type { HaYamlEditor } from '../../../../components/ha-yaml-editor'
+import type { Condition } from '../../../../data/automation'
+import { expandConditionWithShorthand } from '../../../../data/automation'
+import type { ConditionDescription } from '../../../../data/condition'
+import { COLLAPSIBLE_CONDITION_ELEMENTS } from '../../../../data/condition'
+import type { HomeAssistant } from '../../../../types'
+import '../ha-automation-editor-warning'
+import { editorStyles, indentStyle } from '../styles'
+import type { ConditionElement } from './ha-automation-condition-row'
+import './types/ha-automation-condition-platform'
 
-@customElement("ha-automation-condition-editor")
+@customElement('ha-automation-condition-editor')
 export default class HaAutomationConditionEditor extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) condition!: Condition;
+  @property({ attribute: false }) condition!: Condition
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ attribute: false }) public yamlMode = false;
+  @property({ attribute: false }) public yamlMode = false
 
-  @property({ type: Boolean }) public indent = false;
+  @property({ type: Boolean }) public indent = false
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ type: Boolean, attribute: "sidebar" }) public inSidebar = false;
+  @property({ type: Boolean, attribute: 'sidebar' }) public inSidebar = false
 
-  @property({ type: Boolean, reflect: true }) public selected = false;
+  @property({ type: Boolean, reflect: true }) public selected = false
 
-  @property({ type: Boolean, attribute: "supported" }) public uiSupported =
-    false;
+  @property({ type: Boolean, attribute: 'supported' }) public uiSupported =
+    false
 
-  @property({ attribute: false }) public description?: ConditionDescription;
+  @property({ attribute: false }) public description?: ConditionDescription
 
-  @query("ha-yaml-editor") public yamlEditor?: HaYamlEditor;
+  @query('ha-yaml-editor') public yamlEditor?: HaYamlEditor
 
-  @query(COLLAPSIBLE_CONDITION_ELEMENTS.join(", "))
-  private _collapsibleElement?: ConditionElement;
+  @query(COLLAPSIBLE_CONDITION_ELEMENTS.join(', '))
+  private _collapsibleElement?: ConditionElement
 
-  private _processedCondition = memoizeOne((condition) =>
+  private _processedCondition = memoizeOne(condition =>
     expandConditionWithShorthand(condition)
-  );
+  )
 
   protected render() {
-    const condition = this._processedCondition(this.condition);
-    const yamlMode = this.yamlMode || !this.uiSupported;
+    const condition = this._processedCondition(this.condition)
+    const yamlMode = this.yamlMode || !this.uiSupported
 
     return html`
       <div
         class=${classMap({
-          "card-content": true,
+          'card-content': true,
           disabled:
             !this.indent &&
             (this.disabled ||
@@ -71,7 +71,7 @@ export default class HaAutomationConditionEditor extends LitElement {
                 ? html`
                     <ha-automation-editor-warning
                       .alertTitle=${this.hass.localize(
-                        "ui.panel.config.automation.editor.conditions.unsupported_condition",
+                        'ui.panel.config.automation.editor.conditions.unsupported_condition',
                         { condition: condition.condition }
                       )}
                       .localize=${this.hass.localize}
@@ -107,34 +107,34 @@ export default class HaAutomationConditionEditor extends LitElement {
               </div>
             `}
       </div>
-    `;
+    `
   }
 
   private _onYamlChange(ev: CustomEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!ev.detail.isValid) {
-      return;
+      return
     }
-    fireEvent(this, this.inSidebar ? "yaml-changed" : "value-changed", {
+    fireEvent(this, this.inSidebar ? 'yaml-changed' : 'value-changed', {
       value: ev.detail.value,
-    });
+    })
   }
 
   private _onUiChanged(ev: CustomEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     const value = {
       ...(this.condition.alias ? { alias: this.condition.alias } : {}),
       ...ev.detail.value,
-    };
-    fireEvent(this, "value-changed", { value });
+    }
+    fireEvent(this, 'value-changed', { value })
   }
 
   public expandAll() {
-    this._collapsibleElement?.expandAll?.();
+    this._collapsibleElement?.expandAll?.()
   }
 
   public collapseAll() {
-    this._collapsibleElement?.collapseAll?.();
+    this._collapsibleElement?.collapseAll?.()
   }
 
   static styles = [
@@ -152,11 +152,11 @@ export default class HaAutomationConditionEditor extends LitElement {
         border-bottom: none;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-condition-editor": HaAutomationConditionEditor;
+    'ha-automation-condition-editor': HaAutomationConditionEditor
   }
 }

@@ -1,41 +1,41 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../common/dom/fire_event";
-import "../../../components/ha-md-dialog";
-import "../../../components/ha-spinner";
-import type { HassDialog } from "../../../dialogs/make-dialog-manager";
-import type { HomeAssistant } from "../../../types";
-import type { LabsProgressDialogParams } from "./show-dialog-labs-progress";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../common/dom/fire_event'
+import '../../../components/ha-md-dialog'
+import '../../../components/ha-spinner'
+import type { HassDialog } from '../../../dialogs/make-dialog-manager'
+import type { HomeAssistant } from '../../../types'
+import type { LabsProgressDialogParams } from './show-dialog-labs-progress'
 
-@customElement("dialog-labs-progress")
+@customElement('dialog-labs-progress')
 export class DialogLabsProgress
   extends LitElement
   implements HassDialog<LabsProgressDialogParams>
 {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _params?: LabsProgressDialogParams;
+  @state() private _params?: LabsProgressDialogParams
 
-  @state() private _open = false;
+  @state() private _open = false
 
   public async showDialog(params: LabsProgressDialogParams): Promise<void> {
-    this._params = params;
-    this._open = true;
+    this._params = params
+    this._open = true
   }
 
   public closeDialog(): boolean {
-    this._open = false;
-    return true;
+    this._open = false
+    return true
   }
 
   private _handleClosed(): void {
-    this._params = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -50,21 +50,21 @@ export class DialogLabsProgress
             <div class="content">
               <p class="heading">
                 ${this.hass.localize(
-                  "ui.panel.config.labs.progress.creating_backup"
+                  'ui.panel.config.labs.progress.creating_backup'
                 )}
               </p>
               <p class="description">
                 ${this.hass.localize(
                   this._params.enabled
-                    ? "ui.panel.config.labs.progress.backing_up_before_enabling"
-                    : "ui.panel.config.labs.progress.backing_up_before_disabling"
+                    ? 'ui.panel.config.labs.progress.backing_up_before_enabling'
+                    : 'ui.panel.config.labs.progress.backing_up_before_disabling'
                 )}
               </p>
             </div>
           </div>
         </div>
       </ha-md-dialog>
-    `;
+    `
   }
 
   static readonly styles = css`
@@ -101,11 +101,11 @@ export class DialogLabsProgress
       color: var(--secondary-text-color);
       margin: 0;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-labs-progress": DialogLabsProgress;
+    'dialog-labs-progress': DialogLabsProgress
   }
 }

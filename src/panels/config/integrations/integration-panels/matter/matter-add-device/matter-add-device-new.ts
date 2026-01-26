@@ -1,22 +1,22 @@
-import { LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../../../../components/ha-spinner";
+import { LitElement, css, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../../../../components/ha-spinner'
 import {
   canCommissionMatterExternal,
   startExternalCommissioning,
-} from "../../../../../../data/matter";
-import type { HomeAssistant } from "../../../../../../types";
-import { sharedStyles } from "./matter-add-device-shared-styles";
+} from '../../../../../../data/matter'
+import type { HomeAssistant } from '../../../../../../types'
+import { sharedStyles } from './matter-add-device-shared-styles'
 
-@customElement("matter-add-device-new")
+@customElement('matter-add-device-new')
 class MatterAddDeviceNew extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   protected firstUpdated(): void {
     if (!canCommissionMatterExternal(this.hass)) {
-      return;
+      return
     }
-    startExternalCommissioning(this.hass);
+    startExternalCommissioning(this.hass)
   }
 
   render() {
@@ -25,14 +25,14 @@ class MatterAddDeviceNew extends LitElement {
         <div class="content">
           <ha-spinner size="medium"></ha-spinner>
         </div>
-      `;
+      `
     }
 
     return html`
       <div class="content">
-        <p>${this.hass.localize("ui.dialogs.matter-add-device.new.note")}</p>
+        <p>${this.hass.localize('ui.dialogs.matter-add-device.new.note')}</p>
         <p>
-          ${this.hass.localize("ui.dialogs.matter-add-device.new.download_app")}
+          ${this.hass.localize('ui.dialogs.matter-add-device.new.download_app')}
         </p>
         <div class="app-qr">
           <a
@@ -44,7 +44,7 @@ class MatterAddDeviceNew extends LitElement {
               loading="lazy"
               src="/static/images/appstore.svg"
               alt=${this.hass.localize(
-                "ui.dialogs.matter-add-device.new.appstore"
+                'ui.dialogs.matter-add-device.new.appstore'
               )}
               class="icon"
             />
@@ -52,7 +52,7 @@ class MatterAddDeviceNew extends LitElement {
               loading="lazy"
               src="/static/images/qr-appstore.svg"
               alt=${this.hass.localize(
-                "ui.dialogs.matter-add-device.new.appstore"
+                'ui.dialogs.matter-add-device.new.appstore'
               )}
             />
           </a>
@@ -65,7 +65,7 @@ class MatterAddDeviceNew extends LitElement {
               loading="lazy"
               src="/static/images/playstore.svg"
               alt=${this.hass.localize(
-                "ui.dialogs.matter-add-device.new.playstore"
+                'ui.dialogs.matter-add-device.new.playstore'
               )}
               class="icon"
             />
@@ -73,13 +73,13 @@ class MatterAddDeviceNew extends LitElement {
               loading="lazy"
               src="/static/images/qr-playstore.svg"
               alt=${this.hass.localize(
-                "ui.dialogs.matter-add-device.new.playstore"
+                'ui.dialogs.matter-add-device.new.playstore'
               )}
             />
           </a>
         </div>
       </div>
-    `;
+    `
   }
 
   static styles = [
@@ -100,11 +100,11 @@ class MatterAddDeviceNew extends LitElement {
         flex: 1;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "matter-add-device-new": MatterAddDeviceNew;
+    'matter-add-device-new': MatterAddDeviceNew
   }
 }

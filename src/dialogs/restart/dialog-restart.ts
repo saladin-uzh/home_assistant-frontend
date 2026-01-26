@@ -1,112 +1,112 @@
-import "@material/mwc-linear-progress/mwc-linear-progress";
+import '@material/mwc-linear-progress/mwc-linear-progress'
 import {
   mdiAutoFix,
   mdiLifebuoy,
   mdiPower,
   mdiPowerCycle,
   mdiRefresh,
-} from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { isComponentLoaded } from "../../common/config/is_component_loaded";
-import { fireEvent } from "../../common/dom/fire_event";
-import "../../components/ha-alert";
-import "../../components/ha-expansion-panel";
-import "../../components/ha-fade-in";
-import "../../components/ha-icon-next";
-import "../../components/ha-wa-dialog";
-import "../../components/ha-md-list";
-import "../../components/ha-md-list-item";
-import "../../components/ha-spinner";
-import { fetchBackupInfo } from "../../data/backup";
-import type { BackupManagerState } from "../../data/backup_manager";
+} from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { isComponentLoaded } from '../../common/config/is_component_loaded'
+import { fireEvent } from '../../common/dom/fire_event'
+import '../../components/ha-alert'
+import '../../components/ha-expansion-panel'
+import '../../components/ha-fade-in'
+import '../../components/ha-icon-next'
+import '../../components/ha-wa-dialog'
+import '../../components/ha-md-list'
+import '../../components/ha-md-list-item'
+import '../../components/ha-spinner'
+import { fetchBackupInfo } from '../../data/backup'
+import type { BackupManagerState } from '../../data/backup_manager'
 import {
   extractApiErrorMessage,
   ignoreSupervisorError,
-} from "../../data/hassio/common";
-import type { HassioHostInfo } from "../../data/hassio/host";
+} from '../../data/hassio/common'
+import type { HassioHostInfo } from '../../data/hassio/host'
 import {
   fetchHassioHostInfo,
   rebootHost,
   shutdownHost,
-} from "../../data/hassio/host";
-import { haStyle, haStyleDialog } from "../../resources/styles";
-import type { HomeAssistant, ServiceCallRequest } from "../../types";
-import { showToast } from "../../util/toast";
+} from '../../data/hassio/host'
+import { haStyle, haStyleDialog } from '../../resources/styles'
+import type { HomeAssistant, ServiceCallRequest } from '../../types'
+import { showToast } from '../../util/toast'
 import {
   showAlertDialog,
   showConfirmationDialog,
-} from "../generic/show-dialog-box";
-import { showRestartWaitDialog } from "./show-dialog-restart";
+} from '../generic/show-dialog-box'
+import { showRestartWaitDialog } from './show-dialog-restart'
 
-@customElement("dialog-restart")
+@customElement('dialog-restart')
 class DialogRestart extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _open = false;
-
-  @state()
-  private _loadingHostInfo = false;
+  @state() private _open = false
 
   @state()
-  private _loadingBackupInfo = false;
+  private _loadingHostInfo = false
 
   @state()
-  private _hostInfo?: HassioHostInfo;
+  private _loadingBackupInfo = false
 
   @state()
-  private _dialogOpen = false;
+  private _hostInfo?: HassioHostInfo
+
+  @state()
+  private _dialogOpen = false
 
   public async showDialog(): Promise<void> {
-    const isHassioLoaded = isComponentLoaded(this.hass, "hassio");
+    const isHassioLoaded = isComponentLoaded(this.hass, 'hassio')
 
-    this._open = true;
-    this._dialogOpen = true;
+    this._open = true
+    this._dialogOpen = true
 
     if (isHassioLoaded && !this._hostInfo) {
-      this._loadHostInfo();
+      this._loadHostInfo()
     }
   }
 
   private async _loadBackupState() {
     try {
-      const { state: backupState } = await fetchBackupInfo(this.hass);
-      return backupState;
+      const { state: backupState } = await fetchBackupInfo(this.hass)
+      return backupState
     } catch (_err) {
       // Do nothing
-      return "idle";
+      return 'idle'
     }
   }
 
   private async _loadHostInfo() {
-    this._loadingHostInfo = true;
+    this._loadingHostInfo = true
     try {
-      this._hostInfo = await fetchHassioHostInfo(this.hass);
+      this._hostInfo = await fetchHassioHostInfo(this.hass)
     } catch (_err) {
       // Do nothing
     } finally {
-      this._loadingHostInfo = false;
+      this._loadingHostInfo = false
     }
   }
 
   private _dialogClosed(): void {
-    this._dialogOpen = false;
-    this._open = false;
-    this._loadingHostInfo = false;
-    this._loadingBackupInfo = false;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._dialogOpen = false
+    this._open = false
+    this._loadingHostInfo = false
+    this._loadingBackupInfo = false
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._open) {
-      return nothing;
+      return nothing
     }
 
-    const showReload = this.hass.userData?.showAdvanced;
-    const showRebootShutdown = !!this._hostInfo;
+    const showReload = this.hass.userData?.showAdvanced
+    const showRebootShutdown = !!this._hostInfo
 
-    const dialogTitle = this.hass.localize("ui.dialogs.restart.heading");
+    const dialogTitle = this.hass.localize('ui.dialogs.restart.heading')
 
     return html`
       <ha-wa-dialog
@@ -142,15 +142,18 @@ class DialogRestart extends LitElement {
                         >
                           <div slot="headline">
                             ${this.hass.localize(
-                              "ui.dialogs.restart.reload.title"
+                              'ui.dialogs.restart.reload.title'
                             )}
                           </div>
                           <div slot="supporting-text">
                             ${this.hass.localize(
-                              "ui.dialogs.restart.reload.description"
+                              'ui.dialogs.restart.reload.description'
                             )}
                           </div>
-                          <div slot="start" class="icon-background reload">
+                          <div
+                            slot="start"
+                            class="icon-background reload"
+                          >
                             <ha-svg-icon .path=${mdiAutoFix}></ha-svg-icon>
                           </div>
                           <ha-icon-next slot="end"></ha-icon-next>
@@ -159,19 +162,22 @@ class DialogRestart extends LitElement {
                     : nothing}
                   <ha-md-list-item
                     type="button"
-                    .action=${"restart"}
+                    .action=${'restart'}
                     @click=${this._handleAction}
                     .disabled=${this._loadingBackupInfo}
                   >
-                    <div slot="start" class="icon-background restart">
+                    <div
+                      slot="start"
+                      class="icon-background restart"
+                    >
                       <ha-svg-icon .path=${mdiRefresh}></ha-svg-icon>
                     </div>
                     <div slot="headline">
-                      ${this.hass.localize("ui.dialogs.restart.restart.title")}
+                      ${this.hass.localize('ui.dialogs.restart.restart.title')}
                     </div>
                     <div slot="supporting-text">
                       ${this.hass.localize(
-                        "ui.dialogs.restart.restart.description"
+                        'ui.dialogs.restart.restart.description'
                       )}
                     </div>
                     <ha-icon-next slot="end"></ha-icon-next>
@@ -179,7 +185,7 @@ class DialogRestart extends LitElement {
                 </ha-md-list>
                 <ha-expansion-panel
                   .header=${this.hass.localize(
-                    "ui.dialogs.restart.advanced_options"
+                    'ui.dialogs.restart.advanced_options'
                   )}
                 >
                   <ha-md-list>
@@ -187,42 +193,48 @@ class DialogRestart extends LitElement {
                       ? html`
                           <ha-md-list-item
                             type="button"
-                            .action=${"reboot"}
+                            .action=${'reboot'}
                             @click=${this._handleAction}
                             .disabled=${this._loadingBackupInfo}
                           >
-                            <div slot="start" class="icon-background reboot">
+                            <div
+                              slot="start"
+                              class="icon-background reboot"
+                            >
                               <ha-svg-icon .path=${mdiPowerCycle}></ha-svg-icon>
                             </div>
                             <div slot="headline">
                               ${this.hass.localize(
-                                "ui.dialogs.restart.reboot.title"
+                                'ui.dialogs.restart.reboot.title'
                               )}
                             </div>
                             <div slot="supporting-text">
                               ${this.hass.localize(
-                                "ui.dialogs.restart.reboot.description"
+                                'ui.dialogs.restart.reboot.description'
                               )}
                             </div>
                             <ha-icon-next slot="end"></ha-icon-next>
                           </ha-md-list-item>
                           <ha-md-list-item
                             type="button"
-                            .action=${"shutdown"}
+                            .action=${'shutdown'}
                             @click=${this._handleAction}
                             .disabled=${this._loadingBackupInfo}
                           >
-                            <div slot="start" class="icon-background shutdown">
+                            <div
+                              slot="start"
+                              class="icon-background shutdown"
+                            >
                               <ha-svg-icon .path=${mdiPower}></ha-svg-icon>
                             </div>
                             <div slot="headline">
                               ${this.hass.localize(
-                                "ui.dialogs.restart.shutdown.title"
+                                'ui.dialogs.restart.shutdown.title'
                               )}
                             </div>
                             <div slot="supporting-text">
                               ${this.hass.localize(
-                                "ui.dialogs.restart.shutdown.description"
+                                'ui.dialogs.restart.shutdown.description'
                               )}
                             </div>
                             <ha-icon-next slot="end"></ha-icon-next>
@@ -231,7 +243,7 @@ class DialogRestart extends LitElement {
                       : nothing}
                     <ha-md-list-item
                       type="button"
-                      .action=${"restart-safe-mode"}
+                      .action=${'restart-safe-mode'}
                       @click=${this._handleAction}
                       .disabled=${this._loadingBackupInfo}
                     >
@@ -243,12 +255,12 @@ class DialogRestart extends LitElement {
                       </div>
                       <div slot="headline">
                         ${this.hass.localize(
-                          "ui.dialogs.restart.restart-safe-mode.title"
+                          'ui.dialogs.restart.restart-safe-mode.title'
                         )}
                       </div>
                       <div slot="supporting-text">
                         ${this.hass.localize(
-                          "ui.dialogs.restart.restart-safe-mode.description"
+                          'ui.dialogs.restart.restart-safe-mode.description'
                         )}
                       </div>
                       <ha-icon-next slot="end"></ha-icon-next>
@@ -258,68 +270,68 @@ class DialogRestart extends LitElement {
               `}
         </div>
       </ha-wa-dialog>
-    `;
+    `
   }
 
   private async _reload() {
-    this._dialogOpen = false;
+    this._dialogOpen = false
 
     showToast(this, {
-      message: this.hass.localize("ui.dialogs.restart.reload.reloading"),
+      message: this.hass.localize('ui.dialogs.restart.reload.reloading'),
       duration: 1000,
-    });
+    })
 
     this._restartAction(
-      "homeassistant",
-      "reload_all",
-      this.hass.localize("ui.dialogs.restart.reload.failed")
-    )();
+      'homeassistant',
+      'reload_all',
+      this.hass.localize('ui.dialogs.restart.reload.failed')
+    )()
   }
 
   private _getBackupProgressMessage(backupState: BackupManagerState) {
     switch (backupState) {
-      case "create_backup":
-        return this.hass.localize("ui.dialogs.restart.backup_in_progress");
-      case "receive_backup":
-        return this.hass.localize("ui.dialogs.restart.upload_in_progress");
-      case "restore_backup":
-        return this.hass.localize("ui.dialogs.restart.restore_in_progress");
+      case 'create_backup':
+        return this.hass.localize('ui.dialogs.restart.backup_in_progress')
+      case 'receive_backup':
+        return this.hass.localize('ui.dialogs.restart.upload_in_progress')
+      case 'restore_backup':
+        return this.hass.localize('ui.dialogs.restart.restore_in_progress')
       default:
-        return "";
+        return ''
     }
   }
 
   private _restartAction =
     (
-      domain: ServiceCallRequest["domain"],
-      service: ServiceCallRequest["service"],
+      domain: ServiceCallRequest['domain'],
+      service: ServiceCallRequest['service'],
       errorTitle: string,
 
-      serviceData?: ServiceCallRequest["serviceData"]
+      serviceData?: ServiceCallRequest['serviceData']
     ) =>
     async () => {
       try {
-        await this.hass.callService(domain, service, serviceData);
+        await this.hass.callService(domain, service, serviceData)
       } catch (err: any) {
         showAlertDialog(this, {
           title: errorTitle,
           text: err.message,
-        });
+        })
       }
-    };
+    }
 
   private _hostAction =
-    (toastMessage: string, action: "reboot" | "shutdown") => async () => {
+    (toastMessage: string, action: 'reboot' | 'shutdown') => async () => {
       showToast(this, {
         message: toastMessage,
         duration: -1,
-      });
+      })
 
       try {
-        if (action === "reboot") {
-          await rebootHost(this.hass);
+        if (action === 'reboot') {
+          await rebootHost(this.hass)
         } else {
-          await shutdownHost(this.hass);
+          await shutdownHost(this.hass)
         }
       } catch (err: any) {
         // Ignore connection errors, these are all expected
@@ -327,27 +339,27 @@ class DialogRestart extends LitElement {
           showAlertDialog(this, {
             title: this.hass.localize(`ui.dialogs.restart.${action}.failed`),
             text: extractApiErrorMessage(err),
-          });
+          })
         }
       }
-    };
+    }
 
   private async _handleAction(ev) {
     if (this._loadingBackupInfo) {
-      return;
+      return
     }
-    this._loadingBackupInfo = true;
+    this._loadingBackupInfo = true
     const action = ev.currentTarget.action as
-      | "restart"
-      | "reboot"
-      | "shutdown"
-      | "restart-safe-mode";
+      | 'restart'
+      | 'reboot'
+      | 'shutdown'
+      | 'restart-safe-mode'
 
-    const backupState = await this._loadBackupState();
+    const backupState = await this._loadBackupState()
 
-    const backupProgressMessage = this._getBackupProgressMessage(backupState);
+    const backupProgressMessage = this._getBackupProgressMessage(backupState)
 
-    this._loadingBackupInfo = false;
+    this._loadingBackupInfo = false
 
     const confirmed = await showConfirmationDialog(this, {
       title: this.hass.localize(`ui.dialogs.restart.${action}.confirm_title`),
@@ -357,47 +369,47 @@ class DialogRestart extends LitElement {
         ? html`<br /><br /><ha-alert>${backupProgressMessage}</ha-alert>`
         : nothing}`,
       confirmText: this.hass.localize(
-        `ui.dialogs.restart.${action}.confirm_action${backupState === "idle" ? "" : "_backup"}`
+        `ui.dialogs.restart.${action}.confirm_action${backupState === 'idle' ? '' : '_backup'}`
       ),
       destructive: true,
-    });
+    })
 
     if (!confirmed) {
-      return;
+      return
     }
 
-    this._dialogOpen = false;
+    this._dialogOpen = false
 
-    let actionFunc;
+    let actionFunc
 
-    if (["restart", "restart-safe-mode"].includes(action)) {
+    if (['restart', 'restart-safe-mode'].includes(action)) {
       const serviceData =
-        action === "restart-safe-mode" ? { safe_mode: true } : undefined;
+        action === 'restart-safe-mode' ? { safe_mode: true } : undefined
       actionFunc = this._restartAction(
-        "homeassistant",
-        "restart",
+        'homeassistant',
+        'restart',
         this.hass.localize(`ui.dialogs.restart.${action}.failed`),
         serviceData
-      );
+      )
     } else {
       actionFunc = this._hostAction(
         this.hass.localize(
-          `ui.dialogs.restart.${action as "reboot" | "shutdown"}.action_toast`
+          `ui.dialogs.restart.${action as 'reboot' | 'shutdown'}.action_toast`
         ),
-        action as "reboot" | "shutdown"
-      );
+        action as 'reboot' | 'shutdown'
+      )
     }
 
-    if (backupState !== "idle") {
+    if (backupState !== 'idle') {
       showRestartWaitDialog(this, {
         title: this.hass.localize(`ui.dialogs.restart.${action}.title`),
         initialBackupState: backupState,
         action: actionFunc,
-      });
-      return;
+      })
+      return
     }
 
-    actionFunc();
+    actionFunc()
   }
 
   static get styles(): CSSResultGroup {
@@ -472,12 +484,12 @@ class DialogRestart extends LitElement {
           height: 4px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-restart": DialogRestart;
+    'dialog-restart': DialogRestart
   }
 }

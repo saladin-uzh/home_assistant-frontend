@@ -1,90 +1,90 @@
-import { mdiPlus } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { repeat } from "lit/directives/repeat";
-import { styleMap } from "lit/directives/style-map";
-import { fireEvent } from "../../../common/dom/fire_event";
-import "../../../components/ha-ripple";
-import "../../../components/ha-sortable";
-import type { HaSortableOptions } from "../../../components/ha-sortable";
-import type { LovelaceSectionElement } from "../../../data/lovelace";
-import type { LovelaceCardConfig } from "../../../data/lovelace/config/card";
-import type { LovelaceSectionConfig } from "../../../data/lovelace/config/section";
-import { haStyle } from "../../../resources/styles";
-import type { HomeAssistant } from "../../../types";
-import type { HuiCard } from "../cards/hui-card";
-import { computeCardGridSize } from "../common/compute-card-grid-size";
-import "../components/hui-card-edit-mode";
-import { moveCard } from "../editor/config-util";
-import type { LovelaceCardPath } from "../editor/lovelace-path";
-import type { Lovelace } from "../types";
+import { mdiPlus } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { repeat } from 'lit/directives/repeat'
+import { styleMap } from 'lit/directives/style-map'
+import { fireEvent } from '../../../common/dom/fire_event'
+import '../../../components/ha-ripple'
+import '../../../components/ha-sortable'
+import type { HaSortableOptions } from '../../../components/ha-sortable'
+import type { LovelaceSectionElement } from '../../../data/lovelace'
+import type { LovelaceCardConfig } from '../../../data/lovelace/config/card'
+import type { LovelaceSectionConfig } from '../../../data/lovelace/config/section'
+import { haStyle } from '../../../resources/styles'
+import type { HomeAssistant } from '../../../types'
+import type { HuiCard } from '../cards/hui-card'
+import { computeCardGridSize } from '../common/compute-card-grid-size'
+import '../components/hui-card-edit-mode'
+import { moveCard } from '../editor/config-util'
+import type { LovelaceCardPath } from '../editor/lovelace-path'
+import type { Lovelace } from '../types'
 
 const CARD_SORTABLE_OPTIONS: HaSortableOptions = {
   delay: 100,
   delayOnTouchOnly: true,
-  direction: "vertical",
+  direction: 'vertical',
   invertedSwapThreshold: 0.7,
-  group: "card",
-} as HaSortableOptions;
+  group: 'card',
+} as HaSortableOptions
 
 const IMPORT_MODE_CARD_SORTABLE_OPTIONS: HaSortableOptions = {
   ...CARD_SORTABLE_OPTIONS,
   sort: false,
   group: {
-    name: "card",
+    name: 'card',
     put: false,
   },
-};
+}
 
-@customElement("hui-grid-section")
+@customElement('hui-grid-section')
 export class GridSection extends LitElement implements LovelaceSectionElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public lovelace?: Lovelace;
+  @property({ attribute: false }) public lovelace?: Lovelace
 
-  @property({ type: Number }) public index?: number;
+  @property({ type: Number }) public index?: number
 
-  @property({ attribute: false, type: Number }) public viewIndex?: number;
+  @property({ attribute: false, type: Number }) public viewIndex?: number
 
-  @property({ attribute: false }) public isStrategy = false;
+  @property({ attribute: false }) public isStrategy = false
 
-  @property({ attribute: false }) public cards: HuiCard[] = [];
+  @property({ attribute: false }) public cards: HuiCard[] = []
 
-  @property({ attribute: "import-only", type: Boolean })
-  public importOnly = false;
+  @property({ attribute: 'import-only', type: Boolean })
+  public importOnly = false
 
-  @state() _config?: LovelaceSectionConfig;
+  @state() _config?: LovelaceSectionConfig
 
-  @state() _dragging = false;
+  @state() _dragging = false
 
   public setConfig(config: LovelaceSectionConfig): void {
-    this._config = config;
+    this._config = config
   }
 
-  private _cardConfigKeys = new WeakMap<LovelaceCardConfig, string>();
+  private _cardConfigKeys = new WeakMap<LovelaceCardConfig, string>()
 
   private _getKey(cardConfig: LovelaceCardConfig) {
     if (
       !this._cardConfigKeys.has(cardConfig) &&
-      typeof cardConfig === "object"
+      typeof cardConfig === 'object'
     ) {
-      this._cardConfigKeys.set(cardConfig, Math.random().toString());
+      this._cardConfigKeys.set(cardConfig, Math.random().toString())
     }
-    return this._cardConfigKeys.get(cardConfig)!;
+    return this._cardConfigKeys.get(cardConfig)!
   }
 
   render() {
-    if (!this.cards || !this._config) return nothing;
+    if (!this.cards || !this._config) return nothing
 
-    const cardsConfig = this._config?.cards ?? [];
+    const cardsConfig = this._config?.cards ?? []
 
-    const editMode = Boolean(this.lovelace?.editMode && !this.isStrategy);
+    const editMode = Boolean(this.lovelace?.editMode && !this.isStrategy)
 
     const sortableOptions = this.importOnly
       ? IMPORT_MODE_CARD_SORTABLE_OPTIONS
-      : CARD_SORTABLE_OPTIONS;
+      : CARD_SORTABLE_OPTIONS
 
     return html`
       <ha-sortable
@@ -102,29 +102,29 @@ export class GridSection extends LitElement implements LovelaceSectionElement {
         <div class="container">
           ${repeat(
             cardsConfig,
-            (cardConfig) => this._getKey(cardConfig),
+            cardConfig => this._getKey(cardConfig),
             (_cardConfig, idx) => {
-              const card = this.cards![idx];
-              card.layout = "grid";
-              const gridOptions = card.getGridOptions();
+              const card = this.cards![idx]
+              card.layout = 'grid'
+              const gridOptions = card.getGridOptions()
 
-              const { rows, columns } = computeCardGridSize(gridOptions);
+              const { rows, columns } = computeCardGridSize(gridOptions)
 
               const cardPath: LovelaceCardPath = [
                 this.viewIndex!,
                 this.index!,
                 idx,
-              ];
+              ]
               return html`
                 <div
                   style=${styleMap({
-                    "--column-size":
-                      typeof columns === "number" ? columns : undefined,
-                    "--row-size": typeof rows === "number" ? rows : undefined,
+                    '--column-size':
+                      typeof columns === 'number' ? columns : undefined,
+                    '--row-size': typeof rows === 'number' ? rows : undefined,
                   })}
                   class="card ${classMap({
-                    "fit-rows": typeof rows === "number",
-                    "full-width": columns === "full",
+                    'fit-rows': typeof rows === 'number',
+                    'full-width': columns === 'full',
                   })}"
                   .sortableData=${cardPath}
                 >
@@ -143,7 +143,7 @@ export class GridSection extends LitElement implements LovelaceSectionElement {
                       `
                     : card}
                 </div>
-              `;
+              `
             }
           )}
           ${editMode && !this.importOnly
@@ -152,10 +152,10 @@ export class GridSection extends LitElement implements LovelaceSectionElement {
                   class="add"
                   @click=${this._addCard}
                   aria-label=${this.hass.localize(
-                    "ui.panel.lovelace.editor.section.add_card"
+                    'ui.panel.lovelace.editor.section.add_card'
                   )}
                   .title=${this.hass.localize(
-                    "ui.panel.lovelace.editor.section.add_card"
+                    'ui.panel.lovelace.editor.section.add_card'
                   )}
                 >
                   <ha-ripple></ha-ripple>
@@ -165,43 +165,43 @@ export class GridSection extends LitElement implements LovelaceSectionElement {
             : nothing}
         </div>
       </ha-sortable>
-    `;
+    `
   }
 
   private _cardMoved(ev) {
-    ev.stopPropagation();
-    const { oldIndex, newIndex } = ev.detail;
+    ev.stopPropagation()
+    const { oldIndex, newIndex } = ev.detail
     const newConfig = moveCard(
       this.lovelace!.config,
       [this.viewIndex!, this.index!, oldIndex],
       [this.viewIndex!, this.index!, newIndex]
-    );
-    this.lovelace!.saveConfig(newConfig);
+    )
+    this.lovelace!.saveConfig(newConfig)
   }
 
   private _cardAdded(ev) {
-    const { index, data } = ev.detail;
-    const oldPath = data as LovelaceCardPath;
-    const newPath = [this.viewIndex!, this.index!, index] as LovelaceCardPath;
-    const newConfig = moveCard(this.lovelace!.config, oldPath, newPath);
-    this.lovelace!.saveConfig(newConfig);
+    const { index, data } = ev.detail
+    const oldPath = data as LovelaceCardPath
+    const newPath = [this.viewIndex!, this.index!, index] as LovelaceCardPath
+    const newConfig = moveCard(this.lovelace!.config, oldPath, newPath)
+    this.lovelace!.saveConfig(newConfig)
   }
 
   private _cardRemoved(ev) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     // Do nothing, it's handled by the "item-added" event from the new parent.
   }
 
   private _dragStart() {
-    this._dragging = true;
+    this._dragging = true
   }
 
   private _dragEnd() {
-    this._dragging = false;
+    this._dragging = false
   }
 
   private _addCard() {
-    fireEvent(this, "ll-create-card", { suggested: ["tile", "heading"] });
+    fireEvent(this, 'll-create-card', { suggested: ['tile', 'heading'] })
   }
 
   static get styles(): CSSResultGroup {
@@ -295,12 +295,12 @@ export class GridSection extends LitElement implements LovelaceSectionElement {
           );
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-grid-section": GridSection;
+    'hui-grid-section': GridSection
   }
 }

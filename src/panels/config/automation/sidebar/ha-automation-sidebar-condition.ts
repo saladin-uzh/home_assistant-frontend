@@ -9,107 +9,107 @@ import {
   mdiPlusCircleMultipleOutline,
   mdiRenameBox,
   mdiStopCircleOutline,
-} from "@mdi/js";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { keyed } from "lit/directives/keyed";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { handleStructError } from "../../../../common/structs/handle-errors";
+} from '@mdi/js'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { keyed } from 'lit/directives/keyed'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { handleStructError } from '../../../../common/structs/handle-errors'
 import type {
   LegacyCondition,
   ConditionSidebarConfig,
-} from "../../../../data/automation";
-import { testCondition } from "../../../../data/automation";
+} from '../../../../data/automation'
+import { testCondition } from '../../../../data/automation'
 import {
   CONDITION_BUILDING_BLOCKS,
   getConditionDomain,
   getConditionObjectId,
-} from "../../../../data/condition";
-import { validateConfig } from "../../../../data/config";
-import type { HomeAssistant } from "../../../../types";
-import { isMac } from "../../../../util/is_mac";
-import { showAlertDialog } from "../../../lovelace/custom-card-helpers";
-import "../condition/ha-automation-condition-editor";
-import type HaAutomationConditionEditor from "../condition/ha-automation-condition-editor";
-import { overflowStyles, sidebarEditorStyles } from "../styles";
-import "./ha-automation-sidebar-card";
+} from '../../../../data/condition'
+import { validateConfig } from '../../../../data/config'
+import type { HomeAssistant } from '../../../../types'
+import { isMac } from '../../../../util/is_mac'
+import { showAlertDialog } from '../../../lovelace/custom-card-helpers'
+import '../condition/ha-automation-condition-editor'
+import type HaAutomationConditionEditor from '../condition/ha-automation-condition-editor'
+import { overflowStyles, sidebarEditorStyles } from '../styles'
+import './ha-automation-sidebar-card'
 
-@customElement("ha-automation-sidebar-condition")
+@customElement('ha-automation-sidebar-condition')
 export default class HaAutomationSidebarCondition extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public config!: ConditionSidebarConfig;
+  @property({ attribute: false }) public config!: ConditionSidebarConfig
 
-  @property({ type: Boolean, attribute: "wide" }) public isWide = false;
+  @property({ type: Boolean, attribute: 'wide' }) public isWide = false
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean, attribute: "yaml-mode" }) public yamlMode = false;
+  @property({ type: Boolean, attribute: 'yaml-mode' }) public yamlMode = false
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ type: Number, attribute: "sidebar-key" })
-  public sidebarKey?: number;
+  @property({ type: Number, attribute: 'sidebar-key' })
+  public sidebarKey?: number
 
-  @state() private _warnings?: string[];
+  @state() private _warnings?: string[]
 
-  @state() private _testing = false;
+  @state() private _testing = false
 
-  @state() private _testingResult?: boolean;
+  @state() private _testingResult?: boolean
 
-  @query(".sidebar-editor")
-  public editor?: HaAutomationConditionEditor;
+  @query('.sidebar-editor')
+  public editor?: HaAutomationConditionEditor
 
   protected willUpdate(changedProperties) {
-    if (changedProperties.has("config")) {
-      this._warnings = undefined;
+    if (changedProperties.has('config')) {
+      this._warnings = undefined
       if (this.config) {
-        this.yamlMode = this.config.yamlMode;
+        this.yamlMode = this.config.yamlMode
         if (this.yamlMode) {
-          this.editor?.yamlEditor?.setValue(this.config.config);
+          this.editor?.yamlEditor?.setValue(this.config.config)
         }
       }
     }
     // Reset testing state when condition changes
-    if (changedProperties.has("sidebarKey")) {
-      this._testing = false;
+    if (changedProperties.has('sidebarKey')) {
+      this._testing = false
     }
   }
 
   protected render() {
     const rowDisabled =
-      "enabled" in this.config.config && this.config.config.enabled === false;
+      'enabled' in this.config.config && this.config.config.enabled === false
 
-    const type = this.config.config.condition;
+    const type = this.config.config.condition
 
-    const isBuildingBlock = CONDITION_BUILDING_BLOCKS.includes(type);
+    const isBuildingBlock = CONDITION_BUILDING_BLOCKS.includes(type)
 
     const subtitle = this.hass.localize(
-      "ui.panel.config.automation.editor.conditions.condition"
-    );
+      'ui.panel.config.automation.editor.conditions.condition'
+    )
 
     const domain =
-      "condition" in this.config.config &&
-      getConditionDomain(this.config.config.condition);
+      'condition' in this.config.config &&
+      getConditionDomain(this.config.config.condition)
     const conditionName =
-      "condition" in this.config.config &&
-      getConditionObjectId(this.config.config.condition);
+      'condition' in this.config.config &&
+      getConditionObjectId(this.config.config.condition)
 
     const title =
       this.hass.localize(
-        `ui.panel.config.automation.editor.conditions.type.${type as LegacyCondition["condition"]}.label`
+        `ui.panel.config.automation.editor.conditions.type.${type as LegacyCondition['condition']}.label`
       ) ||
       this.hass.localize(
         `component.${domain}.conditions.${conditionName}.name`
       ) ||
-      type;
+      type
 
     const description = isBuildingBlock
       ? this.hass.localize(
-          `ui.panel.config.automation.editor.conditions.type.${type as LegacyCondition["condition"]}.description.picker`
+          `ui.panel.config.automation.editor.conditions.type.${type as LegacyCondition['condition']}.description.picker`
         )
-      : "";
+      : ''
 
     return html`<ha-automation-sidebar-card
       .hass=${this.hass}
@@ -121,16 +121,22 @@ export default class HaAutomationSidebarCondition extends LitElement {
       <span slot="title">${title}</span>
       <span slot="subtitle"
         >${subtitle}${rowDisabled
-          ? ` (${this.hass.localize("ui.panel.config.automation.editor.actions.disabled")})`
-          : ""}</span
+          ? ` (${this.hass.localize('ui.panel.config.automation.editor.actions.disabled')})`
+          : ''}</span
       >
-      <ha-md-menu-item slot="menu-items" .clickAction=${this._testCondition}>
-        <ha-svg-icon slot="start" .path=${mdiFlask}></ha-svg-icon>
+      <ha-md-menu-item
+        slot="menu-items"
+        .clickAction=${this._testCondition}
+      >
+        <ha-svg-icon
+          slot="start"
+          .path=${mdiFlask}
+        ></ha-svg-icon>
         <div class="overflow-label">
           ${this.hass.localize(
-            "ui.panel.config.automation.editor.conditions.test"
+            'ui.panel.config.automation.editor.conditions.test'
           )}
-          <span class="shortcut-placeholder ${isMac ? "mac" : ""}"></span>
+          <span class="shortcut-placeholder ${isMac ? 'mac' : ''}"></span>
         </div>
       </ha-md-menu-item>
       <ha-md-menu-item
@@ -138,12 +144,15 @@ export default class HaAutomationSidebarCondition extends LitElement {
         .clickAction=${this.config.rename}
         .disabled=${this.disabled}
       >
-        <ha-svg-icon slot="start" .path=${mdiRenameBox}></ha-svg-icon>
+        <ha-svg-icon
+          slot="start"
+          .path=${mdiRenameBox}
+        ></ha-svg-icon>
         <div class="overflow-label">
           ${this.hass.localize(
-            "ui.panel.config.automation.editor.triggers.rename"
+            'ui.panel.config.automation.editor.triggers.rename'
           )}
-          <span class="shortcut-placeholder ${isMac ? "mac" : ""}"></span>
+          <span class="shortcut-placeholder ${isMac ? 'mac' : ''}"></span>
         </div>
       </ha-md-menu-item>
 
@@ -164,17 +173,23 @@ export default class HaAutomationSidebarCondition extends LitElement {
         ></ha-svg-icon>
         <div class="overflow-label">
           ${this.hass.localize(
-            "ui.panel.config.automation.editor.actions.duplicate"
+            'ui.panel.config.automation.editor.actions.duplicate'
           )}
-          <span class="shortcut-placeholder ${isMac ? "mac" : ""}"></span>
+          <span class="shortcut-placeholder ${isMac ? 'mac' : ''}"></span>
         </div>
       </ha-md-menu-item>
 
-      <ha-md-menu-item slot="menu-items" .clickAction=${this.config.copy}>
-        <ha-svg-icon slot="start" .path=${mdiContentCopy}></ha-svg-icon>
+      <ha-md-menu-item
+        slot="menu-items"
+        .clickAction=${this.config.copy}
+      >
+        <ha-svg-icon
+          slot="start"
+          .path=${mdiContentCopy}
+        ></ha-svg-icon>
         <div class="overflow-label">
           ${this.hass.localize(
-            "ui.panel.config.automation.editor.triggers.copy"
+            'ui.panel.config.automation.editor.triggers.copy'
           )}
           ${!this.narrow
             ? html`<span class="shortcut">
@@ -185,7 +200,7 @@ export default class HaAutomationSidebarCondition extends LitElement {
                         .path=${mdiAppleKeyboardCommand}
                       ></ha-svg-icon>`
                     : this.hass.localize(
-                        "ui.panel.config.automation.editor.ctrl"
+                        'ui.panel.config.automation.editor.ctrl'
                       )}</span
                 >
                 <span>+</span>
@@ -200,10 +215,13 @@ export default class HaAutomationSidebarCondition extends LitElement {
         .clickAction=${this.config.cut}
         .disabled=${this.disabled}
       >
-        <ha-svg-icon slot="start" .path=${mdiContentCut}></ha-svg-icon>
+        <ha-svg-icon
+          slot="start"
+          .path=${mdiContentCut}
+        ></ha-svg-icon>
         <div class="overflow-label">
           ${this.hass.localize(
-            "ui.panel.config.automation.editor.triggers.cut"
+            'ui.panel.config.automation.editor.triggers.cut'
           )}
           ${!this.narrow
             ? html`<span class="shortcut">
@@ -214,7 +232,7 @@ export default class HaAutomationSidebarCondition extends LitElement {
                         .path=${mdiAppleKeyboardCommand}
                       ></ha-svg-icon>`
                     : this.hass.localize(
-                        "ui.panel.config.automation.editor.ctrl"
+                        'ui.panel.config.automation.editor.ctrl'
                       )}</span
                 >
                 <span>+</span>
@@ -228,12 +246,15 @@ export default class HaAutomationSidebarCondition extends LitElement {
         .clickAction=${this._toggleYamlMode}
         .disabled=${!this.config.uiSupported || !!this._warnings}
       >
-        <ha-svg-icon slot="start" .path=${mdiPlaylistEdit}></ha-svg-icon>
+        <ha-svg-icon
+          slot="start"
+          .path=${mdiPlaylistEdit}
+        ></ha-svg-icon>
         <div class="overflow-label">
           ${this.hass.localize(
-            `ui.panel.config.automation.editor.edit_${!this.yamlMode ? "yaml" : "ui"}`
+            `ui.panel.config.automation.editor.edit_${!this.yamlMode ? 'yaml' : 'ui'}`
           )}
-          <span class="shortcut-placeholder ${isMac ? "mac" : ""}"></span>
+          <span class="shortcut-placeholder ${isMac ? 'mac' : ''}"></span>
         </div>
       </ha-md-menu-item>
       <ha-md-divider
@@ -252,9 +273,9 @@ export default class HaAutomationSidebarCondition extends LitElement {
         ></ha-svg-icon>
         <div class="overflow-label">
           ${this.hass.localize(
-            `ui.panel.config.automation.editor.actions.${rowDisabled ? "enable" : "disable"}`
+            `ui.panel.config.automation.editor.actions.${rowDisabled ? 'enable' : 'disable'}`
           )}
-          <span class="shortcut-placeholder ${isMac ? "mac" : ""}"></span>
+          <span class="shortcut-placeholder ${isMac ? 'mac' : ''}"></span>
         </div>
       </ha-md-menu-item>
       <ha-md-menu-item
@@ -263,10 +284,13 @@ export default class HaAutomationSidebarCondition extends LitElement {
         .disabled=${this.disabled}
         class="warning"
       >
-        <ha-svg-icon slot="start" .path=${mdiDelete}></ha-svg-icon>
+        <ha-svg-icon
+          slot="start"
+          .path=${mdiDelete}
+        ></ha-svg-icon>
         <div class="overflow-label">
           ${this.hass.localize(
-            "ui.panel.config.automation.editor.actions.delete"
+            'ui.panel.config.automation.editor.actions.delete'
           )}
           ${!this.narrow
             ? html`<span class="shortcut">
@@ -277,13 +301,13 @@ export default class HaAutomationSidebarCondition extends LitElement {
                         .path=${mdiAppleKeyboardCommand}
                       ></ha-svg-icon>`
                     : this.hass.localize(
-                        "ui.panel.config.automation.editor.ctrl"
+                        'ui.panel.config.automation.editor.ctrl'
                       )}</span
                 >
                 <span>+</span>
                 <span
                   >${this.hass.localize(
-                    "ui.panel.config.automation.editor.del"
+                    'ui.panel.config.automation.editor.del'
                   )}</span
                 >
               </span>`
@@ -321,103 +345,103 @@ export default class HaAutomationSidebarCondition extends LitElement {
             ? nothing
             : this.hass.localize(
                 `ui.panel.config.automation.editor.conditions.testing_${
-                  this._testingResult ? "pass" : "error"
+                  this._testingResult ? 'pass' : 'error'
                 }`
               )}
         </div>
       </div>
-    </ha-automation-sidebar-card>`;
+    </ha-automation-sidebar-card>`
   }
 
   private _testCondition = async () => {
     if (this._testing) {
-      return;
+      return
     }
-    this._testingResult = undefined;
-    this._testing = true;
-    const condition = this.config.config;
+    this._testingResult = undefined
+    this._testing = true
+    const condition = this.config.config
 
     try {
       const validateResult = await validateConfig(this.hass, {
         conditions: condition,
-      });
+      })
 
       // Abort if condition changed.
       if (this.config.config !== condition) {
-        this._testing = false;
-        return;
+        this._testing = false
+        return
       }
 
       if (!validateResult.conditions.valid) {
         showAlertDialog(this, {
           title: this.hass.localize(
-            "ui.panel.config.automation.editor.conditions.invalid_condition"
+            'ui.panel.config.automation.editor.conditions.invalid_condition'
           ),
           text: validateResult.conditions.error,
-        });
-        this._testing = false;
-        return;
+        })
+        this._testing = false
+        return
       }
 
-      let result: { result: boolean };
+      let result: { result: boolean }
       try {
-        result = await testCondition(this.hass, condition);
+        result = await testCondition(this.hass, condition)
       } catch (err: any) {
         if (this.config.config !== condition) {
-          this._testing = false;
-          return;
+          this._testing = false
+          return
         }
 
         showAlertDialog(this, {
           title: this.hass.localize(
-            "ui.panel.config.automation.editor.conditions.test_failed"
+            'ui.panel.config.automation.editor.conditions.test_failed'
           ),
           text: err.message,
-        });
-        this._testing = false;
-        return;
+        })
+        this._testing = false
+        return
       }
 
-      this._testingResult = result.result;
+      this._testingResult = result.result
     } finally {
       setTimeout(() => {
-        this._testing = false;
-        this._testingResult = undefined;
-      }, 2500);
+        this._testing = false
+        this._testingResult = undefined
+      }, 2500)
     }
-  };
+  }
 
   private _handleUiModeNotAvailable(ev: CustomEvent) {
-    this._warnings = handleStructError(this.hass, ev.detail).warnings;
+    this._warnings = handleStructError(this.hass, ev.detail).warnings
     if (!this.yamlMode) {
-      this.yamlMode = true;
+      this.yamlMode = true
     }
   }
 
   private _valueChangedSidebar(ev: CustomEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
 
-    this.config?.save?.(ev.detail.value);
+    this.config?.save?.(ev.detail.value)
 
     if (this.config) {
-      fireEvent(this, "value-changed", {
+      fireEvent(this, 'value-changed', {
         value: {
           ...this.config,
           config: ev.detail.value,
         },
-      });
+      })
     }
   }
 
   private _yamlChangedSidebar(ev: CustomEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
 
-    this.config?.save?.(ev.detail.value);
+    this.config?.save?.(ev.detail.value)
   }
 
   private _toggleYamlMode = () => {
-    fireEvent(this, "toggle-yaml-mode");
-  };
+    fireEvent(this, 'toggle-yaml-mode')
+  }
 
   static styles = [
     sidebarEditorStyles,
@@ -470,11 +494,11 @@ export default class HaAutomationSidebarCondition extends LitElement {
         --testing-color: var(--success-color);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-sidebar-condition": HaAutomationSidebarCondition;
+    'ha-automation-sidebar-condition': HaAutomationSidebarCondition
   }
 }

@@ -1,17 +1,17 @@
-import { fireEvent } from "../../../../src/common/dom/fire_event";
-import type { Supervisor } from "../../../../src/data/supervisor/supervisor";
+import { fireEvent } from '../../../../src/common/dom/fire_event'
+import type { Supervisor } from '../../../../src/data/supervisor/supervisor'
 
 export interface HassioDatatiskDialogParams {
-  supervisor: Supervisor;
+  supervisor: Supervisor
 }
 
 export const showHassioDatadiskDialog = (
   element: HTMLElement,
   dialogParams: HassioDatatiskDialogParams
 ): void => {
-  fireEvent(element, "show-dialog", {
-    dialogTag: "dialog-hassio-datadisk",
-    dialogImport: () => import("./dialog-hassio-datadisk"),
+  fireEvent(element, 'show-dialog', {
+    dialogTag: 'dialog-hassio-datadisk',
+    dialogImport: () => import('./dialog-hassio-datadisk'),
     dialogParams,
-  });
-};
+  })
+}

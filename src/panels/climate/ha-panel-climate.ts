@@ -1,54 +1,54 @@
-import type { CSSResultGroup, PropertyValues } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { goBack } from "../../common/navigate";
-import { debounce } from "../../common/util/debounce";
-import { deepEqual } from "../../common/util/deep-equal";
-import "../../components/ha-icon-button-arrow-prev";
-import "../../components/ha-menu-button";
-import type { LovelaceStrategyViewConfig } from "../../data/lovelace/config/view";
-import { haStyle } from "../../resources/styles";
-import type { HomeAssistant } from "../../types";
-import { generateLovelaceViewStrategy } from "../lovelace/strategies/get-strategy";
-import type { Lovelace } from "../lovelace/types";
-import "../lovelace/views/hui-view";
-import "../lovelace/views/hui-view-container";
+import type { CSSResultGroup, PropertyValues } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { goBack } from '../../common/navigate'
+import { debounce } from '../../common/util/debounce'
+import { deepEqual } from '../../common/util/deep-equal'
+import '../../components/ha-icon-button-arrow-prev'
+import '../../components/ha-menu-button'
+import type { LovelaceStrategyViewConfig } from '../../data/lovelace/config/view'
+import { haStyle } from '../../resources/styles'
+import type { HomeAssistant } from '../../types'
+import { generateLovelaceViewStrategy } from '../lovelace/strategies/get-strategy'
+import type { Lovelace } from '../lovelace/types'
+import '../lovelace/views/hui-view'
+import '../lovelace/views/hui-view-container'
 
 const CLIMATE_LOVELACE_VIEW_CONFIG: LovelaceStrategyViewConfig = {
   strategy: {
-    type: "climate",
+    type: 'climate',
   },
-};
+}
 
-@customElement("ha-panel-climate")
+@customElement('ha-panel-climate')
 class PanelClimate extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean, reflect: true }) public narrow = false;
+  @property({ type: Boolean, reflect: true }) public narrow = false
 
-  @state() private _viewIndex = 0;
+  @state() private _viewIndex = 0
 
-  @state() private _lovelace?: Lovelace;
+  @state() private _lovelace?: Lovelace
 
-  @state() private _searchParms = new URLSearchParams(window.location.search);
+  @state() private _searchParms = new URLSearchParams(window.location.search)
 
   public willUpdate(changedProps: PropertyValues) {
-    super.willUpdate(changedProps);
+    super.willUpdate(changedProps)
     // Initial setup
     if (!this.hasUpdated) {
-      this.hass.loadFragmentTranslation("lovelace");
-      this._setLovelace();
-      return;
+      this.hass.loadFragmentTranslation('lovelace')
+      this._setLovelace()
+      return
     }
 
-    if (!changedProps.has("hass")) {
-      return;
+    if (!changedProps.has('hass')) {
+      return
     }
 
-    const oldHass = changedProps.get("hass") as this["hass"];
+    const oldHass = changedProps.get('hass') as this['hass']
     if (oldHass && oldHass.localize !== this.hass.localize) {
-      this._setLovelace();
-      return;
+      this._setLovelace()
+      return
     }
 
     if (oldHass && this.hass) {
@@ -59,17 +59,17 @@ class PanelClimate extends LitElement {
         oldHass.areas !== this.hass.areas ||
         oldHass.floors !== this.hass.floors
       ) {
-        if (this.hass.config.state === "RUNNING") {
-          this._debounceRegistriesChanged();
-          return;
+        if (this.hass.config.state === 'RUNNING') {
+          this._debounceRegistriesChanged()
+          return
         }
       }
       // If ha started, refresh the config
       if (
-        this.hass.config.state === "RUNNING" &&
-        oldHass.config.state !== "RUNNING"
+        this.hass.config.state === 'RUNNING' &&
+        oldHass.config.state !== 'RUNNING'
       ) {
-        this._setLovelace();
+        this._setLovelace()
       }
     }
   }
@@ -77,15 +77,15 @@ class PanelClimate extends LitElement {
   private _debounceRegistriesChanged = debounce(
     () => this._registriesChanged(),
     200
-  );
+  )
 
   private _registriesChanged = async () => {
-    this._setLovelace();
-  };
+    this._setLovelace()
+  }
 
   private _back(ev) {
-    ev.stopPropagation();
-    goBack();
+    ev.stopPropagation()
+    goBack()
   }
 
   protected render() {
@@ -93,7 +93,7 @@ class PanelClimate extends LitElement {
       <div class="header">
         <div class="toolbar">
           ${
-            this._searchParms.has("historyBack")
+            this._searchParms.has('historyBack')
               ? html`
                   <ha-icon-button-arrow-prev
                     @click=${this._back}
@@ -108,7 +108,7 @@ class PanelClimate extends LitElement {
                   ></ha-menu-button>
                 `
           }
-          <div class="main-title">${this.hass.localize("panel.climate")}</div>
+          <div class="main-title">${this.hass.localize('panel.climate')}</div>
         </div>
       </div>
       ${
@@ -126,35 +126,35 @@ class PanelClimate extends LitElement {
           : nothing
       }
       </hui-view-container>
-    `;
+    `
   }
 
   private async _setLovelace() {
     const viewConfig = await generateLovelaceViewStrategy(
       CLIMATE_LOVELACE_VIEW_CONFIG,
       this.hass
-    );
+    )
 
-    const config = { views: [viewConfig] };
-    const rawConfig = { views: [CLIMATE_LOVELACE_VIEW_CONFIG] };
+    const config = { views: [viewConfig] }
+    const rawConfig = { views: [CLIMATE_LOVELACE_VIEW_CONFIG] }
 
     if (deepEqual(config, this._lovelace?.config)) {
-      return;
+      return
     }
 
     this._lovelace = {
       config: config,
       rawConfig: rawConfig,
       editMode: false,
-      urlPath: "climate",
-      mode: "generated",
+      urlPath: 'climate',
+      mode: 'generated',
       locale: this.hass.locale,
       enableFullEditMode: () => undefined,
       saveConfig: async () => undefined,
       deleteConfig: async () => undefined,
       setEditMode: () => undefined,
       showToast: () => undefined,
-    };
+    }
   }
 
   static get styles(): CSSResultGroup {
@@ -242,12 +242,12 @@ class PanelClimate extends LitElement {
           max-width: 100%;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-panel-climate": PanelClimate;
+    'ha-panel-climate': PanelClimate
   }
 }

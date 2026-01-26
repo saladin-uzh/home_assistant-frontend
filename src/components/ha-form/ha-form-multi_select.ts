@@ -1,65 +1,65 @@
-import { mdiMenuDown, mdiMenuUp } from "@mdi/js";
-import type { PropertyValues, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { fireEvent } from "../../common/dom/fire_event";
-import "../ha-button-menu";
-import "../ha-check-list-item";
-import "../ha-checkbox";
-import type { HaCheckbox } from "../ha-checkbox";
-import "../ha-formfield";
-import "../ha-icon-button";
-import "../ha-textfield";
-import "../ha-md-button-menu";
-import "../ha-md-menu-item";
+import { mdiMenuDown, mdiMenuUp } from '@mdi/js'
+import type { PropertyValues, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { fireEvent } from '../../common/dom/fire_event'
+import '../ha-button-menu'
+import '../ha-check-list-item'
+import '../ha-checkbox'
+import type { HaCheckbox } from '../ha-checkbox'
+import '../ha-formfield'
+import '../ha-icon-button'
+import '../ha-textfield'
+import '../ha-md-button-menu'
+import '../ha-md-menu-item'
 
 import type {
   HaFormElement,
   HaFormMultiSelectData,
   HaFormMultiSelectSchema,
-} from "./types";
+} from './types'
 
 function optionValue(item: string | string[]): string {
-  return Array.isArray(item) ? item[0] : item;
+  return Array.isArray(item) ? item[0] : item
 }
 
 function optionLabel(item: string | string[]): string {
-  return Array.isArray(item) ? item[1] || item[0] : item;
+  return Array.isArray(item) ? item[1] || item[0] : item
 }
 
-const SHOW_ALL_ENTRIES_LIMIT = 6;
+const SHOW_ALL_ENTRIES_LIMIT = 6
 
-@customElement("ha-form-multi_select")
+@customElement('ha-form-multi_select')
 export class HaFormMultiSelect extends LitElement implements HaFormElement {
-  @property({ attribute: false }) public schema!: HaFormMultiSelectSchema;
+  @property({ attribute: false }) public schema!: HaFormMultiSelectSchema
 
-  @property({ attribute: false }) public data!: HaFormMultiSelectData;
+  @property({ attribute: false }) public data!: HaFormMultiSelectData
 
-  @property() public label!: string;
+  @property() public label!: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @state() private _opened = false;
+  @state() private _opened = false
 
-  @query("ha-button-menu") private _input?: HTMLElement;
+  @query('ha-button-menu') private _input?: HTMLElement
 
   public focus(): void {
     if (this._input) {
-      this._input.focus();
+      this._input.focus()
     }
   }
 
   protected render(): TemplateResult {
     const options = Array.isArray(this.schema.options)
       ? this.schema.options
-      : Object.entries(this.schema.options);
-    const data = this.data || [];
+      : Object.entries(this.schema.options)
+    const data = this.data || []
 
     // We will just render all checkboxes.
     if (options.length < SHOW_ALL_ENTRIES_LIMIT) {
       return html`<div>
         ${this.label}${options.map((item: string | [string, string]) => {
-          const value = optionValue(item);
+          const value = optionValue(item)
           return html`
             <ha-formfield .label=${optionLabel(item)}>
               <ha-checkbox
@@ -69,9 +69,9 @@ export class HaFormMultiSelect extends LitElement implements HaFormElement {
                 @change=${this._valueChanged}
               ></ha-checkbox>
             </ha-formfield>
-          `;
+          `
         })}
-      </div> `;
+      </div> `
     }
 
     return html`
@@ -86,11 +86,11 @@ export class HaFormMultiSelect extends LitElement implements HaFormElement {
           .label=${this.label}
           .value=${data
             .map(
-              (value) =>
-                optionLabel(options.find((v) => optionValue(v) === value)) ||
+              value =>
+                optionLabel(options.find(v => optionValue(v) === value)) ||
                 value
             )
-            .join(", ")}
+            .join(', ')}
           .disabled=${this.disabled}
           tabindex="-1"
         ></ha-textfield>
@@ -100,13 +100,13 @@ export class HaFormMultiSelect extends LitElement implements HaFormElement {
           .path=${this._opened ? mdiMenuUp : mdiMenuDown}
         ></ha-icon-button>
         ${options.map((item: string | [string, string]) => {
-          const value = optionValue(item);
-          const selected = data.includes(value);
+          const value = optionValue(item)
+          const selected = data.includes(value)
           return html`<ha-md-menu-item
             type="option"
             aria-checked=${selected}
             .value=${value}
-            .action=${selected ? "remove" : "add"}
+            .action=${selected ? 'remove' : 'add'}
             .activated=${selected}
             @click=${this._toggleItem}
             @keydown=${this._keydown}
@@ -118,93 +118,93 @@ export class HaFormMultiSelect extends LitElement implements HaFormElement {
               .checked=${selected}
             ></ha-checkbox>
             ${optionLabel(item)}
-          </ha-md-menu-item>`;
+          </ha-md-menu-item>`
         })}
       </ha-md-button-menu>
-    `;
+    `
   }
 
   protected _keydown(ev) {
-    if (ev.code === "Space" || ev.code === "Enter") {
-      ev.preventDefault();
-      this._toggleItem(ev);
+    if (ev.code === 'Space' || ev.code === 'Enter') {
+      ev.preventDefault()
+      this._toggleItem(ev)
     }
   }
 
   protected _toggleItem(ev) {
-    const oldData = this.data || [];
-    let newData: string[];
-    if (ev.currentTarget.action === "add") {
-      newData = [...oldData, ev.currentTarget.value];
+    const oldData = this.data || []
+    let newData: string[]
+    if (ev.currentTarget.action === 'add') {
+      newData = [...oldData, ev.currentTarget.value]
     } else {
-      newData = oldData.filter((d) => d !== ev.currentTarget.value);
+      newData = oldData.filter(d => d !== ev.currentTarget.value)
     }
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: newData,
-    });
+    })
   }
 
   protected firstUpdated() {
     this.updateComplete.then(() => {
       const { formElement, mdcRoot } =
-        this.shadowRoot?.querySelector("ha-textfield") || ({} as any);
+        this.shadowRoot?.querySelector('ha-textfield') || ({} as any)
       if (formElement) {
-        formElement.style.textOverflow = "ellipsis";
+        formElement.style.textOverflow = 'ellipsis'
       }
       if (mdcRoot) {
-        mdcRoot.style.cursor = "pointer";
+        mdcRoot.style.cursor = 'pointer'
       }
-    });
+    })
   }
 
   protected updated(changedProps: PropertyValues): void {
-    if (changedProps.has("schema")) {
+    if (changedProps.has('schema')) {
       this.toggleAttribute(
-        "own-margin",
+        'own-margin',
         Object.keys(this.schema.options).length >= SHOW_ALL_ENTRIES_LIMIT &&
           !!this.schema.required
-      );
+      )
     }
   }
 
   private _valueChanged(ev: CustomEvent): void {
-    const { value, checked } = ev.target as HaCheckbox;
-    this._handleValueChanged(value, checked);
+    const { value, checked } = ev.target as HaCheckbox
+    this._handleValueChanged(value, checked)
   }
 
   private _handleValueChanged(value, checked: boolean): void {
-    let newValue: string[];
+    let newValue: string[]
 
     if (checked) {
       if (!this.data) {
-        newValue = [value];
+        newValue = [value]
       } else if (this.data.includes(value)) {
-        return;
+        return
       } else {
-        newValue = [...this.data, value];
+        newValue = [...this.data, value]
       }
     } else {
       if (!this.data.includes(value)) {
-        return;
+        return
       }
-      newValue = this.data.filter((v) => v !== value);
+      newValue = this.data.filter(v => v !== value)
     }
 
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: newValue,
-    });
+    })
   }
 
   private _handleOpen(ev: Event): void {
-    ev.stopPropagation();
-    this._opened = true;
-    this.toggleAttribute("opened", true);
+    ev.stopPropagation()
+    this._opened = true
+    this.toggleAttribute('opened', true)
   }
 
   private _handleClose(ev: Event): void {
-    ev.stopPropagation();
-    this._opened = false;
-    this.toggleAttribute("opened", false);
+    ev.stopPropagation()
+    this._opened = false
+    this.toggleAttribute('opened', false)
   }
 
   static styles = css`
@@ -244,11 +244,11 @@ export class HaFormMultiSelect extends LitElement implements HaFormElement {
       --mdc-text-field-idle-line-color: var(--input-hover-line-color);
       --mdc-text-field-label-ink-color: var(--primary-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-form-multi_select": HaFormMultiSelect;
+    'ha-form-multi_select': HaFormMultiSelect
   }
 }

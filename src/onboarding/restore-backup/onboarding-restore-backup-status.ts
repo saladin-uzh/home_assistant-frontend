@@ -1,28 +1,28 @@
-import "@material/mwc-linear-progress/mwc-linear-progress";
-import { css, html, LitElement, nothing, type CSSResultGroup } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../components/ha-alert";
-import "../../components/ha-button";
-import type { LocalizeFunc } from "../../common/translations/localize";
-import type { BackupOnboardingInfo } from "../../data/backup_onboarding";
-import { onBoardingStyles } from "../styles";
-import { fireEvent } from "../../common/dom/fire_event";
+import '@material/mwc-linear-progress/mwc-linear-progress'
+import { css, html, LitElement, nothing, type CSSResultGroup } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../components/ha-alert'
+import '../../components/ha-button'
+import type { LocalizeFunc } from '../../common/translations/localize'
+import type { BackupOnboardingInfo } from '../../data/backup_onboarding'
+import { onBoardingStyles } from '../styles'
+import { fireEvent } from '../../common/dom/fire_event'
 
-@customElement("onboarding-restore-backup-status")
+@customElement('onboarding-restore-backup-status')
 class OnboardingRestoreBackupStatus extends LitElement {
-  @property({ attribute: false }) public localize!: LocalizeFunc;
+  @property({ attribute: false }) public localize!: LocalizeFunc
 
   @property({ attribute: false })
-  public backupInfo!: BackupOnboardingInfo;
+  public backupInfo!: BackupOnboardingInfo
 
   render() {
     return html`
       <h1>
         ${this.localize(
-          `ui.panel.page-onboarding.restore.${this.backupInfo.state === "restore_backup" ? "in_progress" : "failed"}`
+          `ui.panel.page-onboarding.restore.${this.backupInfo.state === 'restore_backup' ? 'in_progress' : 'failed'}`
         )}
       </h1>
-      ${this.backupInfo.state === "restore_backup"
+      ${this.backupInfo.state === 'restore_backup'
         ? html` <p>
             ${this.localize(
               `ui.panel.page-onboarding.restore.in_progress_description`
@@ -30,7 +30,7 @@ class OnboardingRestoreBackupStatus extends LitElement {
           </p>`
         : nothing}
       <div class="card-content">
-        ${this.backupInfo.state === "restore_backup"
+        ${this.backupInfo.state === 'restore_backup'
           ? html`
               <div class="loading">
                 <mwc-linear-progress indeterminate></mwc-linear-progress>
@@ -39,7 +39,7 @@ class OnboardingRestoreBackupStatus extends LitElement {
           : html`
               <ha-alert alert-type="error">
                 ${this.localize(
-                  "ui.panel.page-onboarding.restore.failed_status_description"
+                  'ui.panel.page-onboarding.restore.failed_status_description'
                 )}
               </ha-alert>
               ${this.backupInfo.last_action_event?.reason
@@ -52,18 +52,18 @@ class OnboardingRestoreBackupStatus extends LitElement {
                 : nothing}
             `}
       </div>
-      ${this.backupInfo.state !== "restore_backup"
+      ${this.backupInfo.state !== 'restore_backup'
         ? html`<div class="actions">
             <ha-button @click=${this._back}>
-              ${this.localize("ui.panel.page-onboarding.restore.back")}
+              ${this.localize('ui.panel.page-onboarding.restore.back')}
             </ha-button>
           </div>`
         : nothing}
-    `;
+    `
   }
 
   private _back() {
-    fireEvent(this, "restore-backup-back");
+    fireEvent(this, 'restore-backup-back')
   }
 
   static get styles(): CSSResultGroup {
@@ -96,15 +96,15 @@ class OnboardingRestoreBackupStatus extends LitElement {
           width: 100%;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "onboarding-restore-backup-status": OnboardingRestoreBackupStatus;
+    'onboarding-restore-backup-status': OnboardingRestoreBackupStatus
   }
   interface HASSDomEvents {
-    "restore-started";
+    'restore-started'
   }
 }

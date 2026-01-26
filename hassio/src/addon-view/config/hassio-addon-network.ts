@@ -1,69 +1,69 @@
-import type { CSSResultGroup, PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../src/common/dom/fire_event";
-import "../../../../src/components/buttons/ha-progress-button";
-import "../../../../src/components/ha-alert";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-formfield";
-import "../../../../src/components/ha-form/ha-form";
-import type { HaFormSchema } from "../../../../src/components/ha-form/types";
+import type { CSSResultGroup, PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../src/common/dom/fire_event'
+import '../../../../src/components/buttons/ha-progress-button'
+import '../../../../src/components/ha-alert'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-formfield'
+import '../../../../src/components/ha-form/ha-form'
+import type { HaFormSchema } from '../../../../src/components/ha-form/types'
 import type {
   HassioAddonDetails,
   HassioAddonSetOptionParams,
-} from "../../../../src/data/hassio/addon";
-import { setHassioAddonOption } from "../../../../src/data/hassio/addon";
-import { extractApiErrorMessage } from "../../../../src/data/hassio/common";
-import type { Supervisor } from "../../../../src/data/supervisor/supervisor";
-import { haStyle } from "../../../../src/resources/styles";
-import type { HomeAssistant } from "../../../../src/types";
-import { suggestAddonRestart } from "../../dialogs/suggestAddonRestart";
-import { hassioStyle } from "../../resources/hassio-style";
+} from '../../../../src/data/hassio/addon'
+import { setHassioAddonOption } from '../../../../src/data/hassio/addon'
+import { extractApiErrorMessage } from '../../../../src/data/hassio/common'
+import type { Supervisor } from '../../../../src/data/supervisor/supervisor'
+import { haStyle } from '../../../../src/resources/styles'
+import type { HomeAssistant } from '../../../../src/types'
+import { suggestAddonRestart } from '../../dialogs/suggestAddonRestart'
+import { hassioStyle } from '../../resources/hassio-style'
 
-@customElement("hassio-addon-network")
+@customElement('hassio-addon-network')
 class HassioAddonNetwork extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public supervisor!: Supervisor;
+  @property({ attribute: false }) public supervisor!: Supervisor
 
-  @property({ attribute: false }) public addon!: HassioAddonDetails;
+  @property({ attribute: false }) public addon!: HassioAddonDetails
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @state() private _showOptional = false;
+  @state() private _showOptional = false
 
-  @state() private _configHasChanged = false;
+  @state() private _configHasChanged = false
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
-  @state() private _config?: Record<string, any>;
+  @state() private _config?: Record<string, any>
 
   public connectedCallback(): void {
-    super.connectedCallback();
-    this._setNetworkConfig();
+    super.connectedCallback()
+    this._setNetworkConfig()
   }
 
   protected render() {
     if (!this._config) {
-      return nothing;
+      return nothing
     }
 
     const hasHiddenOptions = Object.keys(this._config).find(
-      (entry) => this._config![entry] === null
-    );
+      entry => this._config![entry] === null
+    )
 
     return html`
       <ha-card
         outlined
         .header=${this.supervisor.localize(
-          "addon.configuration.network.header"
+          'addon.configuration.network.header'
         )}
       >
         <div class="card-content">
           <p>
             ${this.supervisor.localize(
-              "addon.configuration.network.introduction"
+              'addon.configuration.network.introduction'
             )}
           </p>
           ${this._error
@@ -87,7 +87,7 @@ class HassioAddonNetwork extends LitElement {
           ? html`<ha-formfield
               class="show-optional"
               .label=${this.supervisor.localize(
-                "addon.configuration.network.show_disabled"
+                'addon.configuration.network.show_disabled'
               )}
             >
               <ha-switch
@@ -104,23 +104,23 @@ class HassioAddonNetwork extends LitElement {
             .disabled=${this.disabled}
             @click=${this._resetTapped}
           >
-            ${this.supervisor.localize("common.reset_defaults")}
+            ${this.supervisor.localize('common.reset_defaults')}
           </ha-progress-button>
           <ha-progress-button
             @click=${this._saveTapped}
             .disabled=${!this._configHasChanged || this.disabled}
           >
-            ${this.supervisor.localize("common.save")}
+            ${this.supervisor.localize('common.save')}
           </ha-progress-button>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   protected update(changedProperties: PropertyValues): void {
-    super.update(changedProperties);
-    if (changedProperties.has("addon")) {
-      this._setNetworkConfig();
+    super.update(changedProperties)
+    if (changedProperties.has('addon')) {
+      this._setNetworkConfig()
     }
   }
 
@@ -132,107 +132,107 @@ class HassioAddonNetwork extends LitElement {
     ): HaFormSchema[] =>
       (showOptional
         ? Object.keys(config)
-        : Object.keys(config).filter((entry) => config[entry] !== null)
-      ).map((entry) => ({
+        : Object.keys(config).filter(entry => config[entry] !== null)
+      ).map(entry => ({
         name: entry,
         selector: {
           number: {
-            mode: "box",
+            mode: 'box',
             min: 0,
             max: 65535,
             unit_of_measurement: advanced ? entry : undefined,
           },
         },
       }))
-  );
+  )
 
-  private _computeLabel = (_: HaFormSchema): string => "";
+  private _computeLabel = (_: HaFormSchema): string => ''
 
   private _computeHelper = (item: HaFormSchema): string =>
     this.addon.translations[this.hass.language]?.network?.[item.name] ||
     this.addon.translations.en?.network?.[item.name] ||
     this.addon.network_description?.[item.name] ||
-    item.name;
+    item.name
 
   private _setNetworkConfig(): void {
-    this._config = this.addon.network || {};
+    this._config = this.addon.network || {}
   }
 
   private async _configChanged(ev: CustomEvent): Promise<void> {
-    this._configHasChanged = true;
-    this._config = ev.detail.value;
+    this._configHasChanged = true
+    this._config = ev.detail.value
   }
 
   private async _resetTapped(ev: CustomEvent): Promise<void> {
     if (this.disabled) {
-      return;
+      return
     }
 
-    const button = ev.currentTarget as any;
+    const button = ev.currentTarget as any
     const data: HassioAddonSetOptionParams = {
       network: null,
-    };
+    }
 
     try {
-      await setHassioAddonOption(this.hass, this.addon.slug, data);
-      this._configHasChanged = false;
+      await setHassioAddonOption(this.hass, this.addon.slug, data)
+      this._configHasChanged = false
       const eventdata = {
         success: true,
         response: undefined,
-        path: "option",
-      };
-      button.actionSuccess();
-      fireEvent(this, "hass-api-called", eventdata);
-      if (this.addon?.state === "started") {
-        await suggestAddonRestart(this, this.hass, this.supervisor, this.addon);
+        path: 'option',
+      }
+      button.actionSuccess()
+      fireEvent(this, 'hass-api-called', eventdata)
+      if (this.addon?.state === 'started') {
+        await suggestAddonRestart(this, this.hass, this.supervisor, this.addon)
       }
     } catch (err: any) {
-      this._error = this.supervisor.localize("addon.failed_to_reset", {
+      this._error = this.supervisor.localize('addon.failed_to_reset', {
         error: extractApiErrorMessage(err),
-      });
-      button.actionError();
+      })
+      button.actionError()
     }
   }
 
   private _toggleOptional() {
-    this._showOptional = !this._showOptional;
+    this._showOptional = !this._showOptional
   }
 
   private async _saveTapped(ev: CustomEvent): Promise<void> {
     if (!this._configHasChanged || this.disabled) {
-      return;
+      return
     }
 
-    const button = ev.currentTarget as any;
+    const button = ev.currentTarget as any
 
-    this._error = undefined;
-    const networkconfiguration = {};
+    this._error = undefined
+    const networkconfiguration = {}
     Object.entries(this._config!).forEach(([key, value]) => {
-      networkconfiguration[key] = value ?? null;
-    });
+      networkconfiguration[key] = value ?? null
+    })
 
     const data: HassioAddonSetOptionParams = {
       network: networkconfiguration,
-    };
+    }
 
     try {
-      await setHassioAddonOption(this.hass, this.addon.slug, data);
-      this._configHasChanged = false;
+      await setHassioAddonOption(this.hass, this.addon.slug, data)
+      this._configHasChanged = false
       const eventdata = {
         success: true,
         response: undefined,
-        path: "option",
-      };
-      button.actionSuccess();
-      fireEvent(this, "hass-api-called", eventdata);
-      if (this.addon?.state === "started") {
-        await suggestAddonRestart(this, this.hass, this.supervisor, this.addon);
+        path: 'option',
+      }
+      button.actionSuccess()
+      fireEvent(this, 'hass-api-called', eventdata)
+      if (this.addon?.state === 'started') {
+        await suggestAddonRestart(this, this.hass, this.supervisor, this.addon)
       }
     } catch (err: any) {
-      this._error = this.supervisor.localize("addon.failed_to_save", {
+      this._error = this.supervisor.localize('addon.failed_to_save', {
         error: extractApiErrorMessage(err),
-      });
-      button.actionError();
+      })
+      button.actionError()
     }
   }
 
@@ -255,12 +255,12 @@ class HassioAddonNetwork extends LitElement {
           padding: 16px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hassio-addon-network": HassioAddonNetwork;
+    'hassio-addon-network': HassioAddonNetwork
   }
 }

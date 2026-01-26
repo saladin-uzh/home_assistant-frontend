@@ -1,5 +1,5 @@
 export async function getObserverLogs() {
-  return fetch("/observer/logs");
+  return fetch('/observer/logs')
 }
 
-export const downloadUrl = "/observer/logs";
+export const downloadUrl = '/observer/logs'

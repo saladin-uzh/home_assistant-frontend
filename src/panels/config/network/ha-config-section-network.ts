@@ -1,27 +1,27 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { isComponentLoaded } from "../../../common/config/is_component_loaded";
-import "../../../layouts/hass-subpage";
-import "../../../components/ha-card";
-import "../../../components/ha-md-list";
-import "../../../components/ha-md-list-item";
-import "../../../components/ha-icon-next";
-import type { HomeAssistant, Route } from "../../../types";
-import "./ha-config-network";
-import "./ha-config-url-form";
-import "./supervisor-hostname";
-import "./supervisor-network";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { isComponentLoaded } from '../../../common/config/is_component_loaded'
+import '../../../layouts/hass-subpage'
+import '../../../components/ha-card'
+import '../../../components/ha-md-list'
+import '../../../components/ha-md-list-item'
+import '../../../components/ha-icon-next'
+import type { HomeAssistant, Route } from '../../../types'
+import './ha-config-network'
+import './ha-config-url-form'
+import './supervisor-hostname'
+import './supervisor-network'
 
-const NETWORK_BROWSERS = ["dhcp", "ssdp", "zeroconf"] as const;
+const NETWORK_BROWSERS = ['dhcp', 'ssdp', 'zeroconf'] as const
 
-@customElement("ha-config-section-network")
+@customElement('ha-config-section-network')
 class HaConfigSectionNetwork extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public route!: Route;
+  @property({ attribute: false }) public route!: Route
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
   protected render(): TemplateResult {
     return html`
@@ -29,19 +29,19 @@ class HaConfigSectionNetwork extends LitElement {
         back-path="/config/system"
         .hass=${this.hass}
         .narrow=${this.narrow}
-        .header=${this.hass.localize("ui.panel.config.network.caption")}
+        .header=${this.hass.localize('ui.panel.config.network.caption')}
       >
         <div class="content">
-          ${isComponentLoaded(this.hass, "hassio")
+          ${isComponentLoaded(this.hass, 'hassio')
             ? html`<supervisor-hostname
                   .hass=${this.hass}
                   .narrow=${this.narrow}
                 ></supervisor-hostname>
                 <supervisor-network .hass=${this.hass}></supervisor-network>`
-            : ""}
+            : ''}
           <ha-config-url-form .hass=${this.hass}></ha-config-url-form>
           <ha-config-network .hass=${this.hass}></ha-config-network>
-          ${NETWORK_BROWSERS.some((component) =>
+          ${NETWORK_BROWSERS.some(component =>
             isComponentLoaded(this.hass, component)
           )
             ? html`
@@ -49,13 +49,16 @@ class HaConfigSectionNetwork extends LitElement {
                   outlined
                   class="discovery-card"
                   header=${this.hass.localize(
-                    "ui.panel.config.network.discovery.title"
+                    'ui.panel.config.network.discovery.title'
                   )}
                 >
                   <ha-md-list>
                     ${NETWORK_BROWSERS.map(
-                      (domain) => html`
-                        <ha-md-list-item type="link" href="/config/${domain}">
+                      domain => html`
+                        <ha-md-list-item
+                          type="link"
+                          href="/config/${domain}"
+                        >
                           <div slot="headline">
                             ${this.hass.localize(
                               `ui.panel.config.network.discovery.${domain}`
@@ -73,10 +76,10 @@ class HaConfigSectionNetwork extends LitElement {
                   </ha-md-list>
                 </ha-card>
               `
-            : ""}
+            : ''}
         </div>
       </hass-subpage>
-    `;
+    `
   }
 
   static styles = css`
@@ -98,11 +101,11 @@ class HaConfigSectionNetwork extends LitElement {
     .discovery-card ha-md-list {
       padding-top: 0;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-config-section-network": HaConfigSectionNetwork;
+    'ha-config-section-network': HaConfigSectionNetwork
   }
 }

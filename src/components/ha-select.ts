@@ -1,25 +1,25 @@
-import { SelectBase } from "@material/mwc-select/mwc-select-base";
-import { styles } from "@material/mwc-select/mwc-select.css";
-import { mdiClose } from "@mdi/js";
-import { css, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { debounce } from "../common/util/debounce";
-import { nextRender } from "../common/util/render-status";
-import "./ha-icon-button";
-import "./ha-menu";
+import { SelectBase } from '@material/mwc-select/mwc-select-base'
+import { styles } from '@material/mwc-select/mwc-select.css'
+import { mdiClose } from '@mdi/js'
+import { css, html, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { debounce } from '../common/util/debounce'
+import { nextRender } from '../common/util/render-status'
+import './ha-icon-button'
+import './ha-menu'
 
-@customElement("ha-select")
+@customElement('ha-select')
 export class HaSelect extends SelectBase {
   // @ts-ignore
-  @property({ type: Boolean }) public icon = false;
+  @property({ type: Boolean }) public icon = false
 
-  @property({ type: Boolean, reflect: true }) public clearable = false;
+  @property({ type: Boolean, reflect: true }) public clearable = false
 
-  @property({ attribute: "inline-arrow", type: Boolean })
-  public inlineArrow = false;
+  @property({ attribute: 'inline-arrow', type: Boolean })
+  public inlineArrow = false
 
-  @property() public options;
+  @property() public options
 
   protected override render() {
     return html`
@@ -31,11 +31,11 @@ export class HaSelect extends SelectBase {
             .path=${mdiClose}
           ></ha-icon-button>`
         : nothing}
-    `;
+    `
   }
 
   protected override renderMenu() {
-    const classes = this.getMenuClasses();
+    const classes = this.getMenuClasses()
     return html`<ha-menu
       innerRole="listbox"
       wrapFocus
@@ -52,74 +52,72 @@ export class HaSelect extends SelectBase {
       @keydown=${this.handleTypeahead}
     >
       ${this.renderMenuContent()}
-    </ha-menu>`;
+    </ha-menu>`
   }
 
   protected override renderLeadingIcon() {
     if (!this.icon) {
-      return nothing;
+      return nothing
     }
 
-    return html`<span class="mdc-select__icon"
-      ><slot name="icon"></slot
-    ></span>`;
+    return html`<span class="mdc-select__icon"><slot name="icon"></slot></span>`
   }
 
   connectedCallback() {
-    super.connectedCallback();
-    window.addEventListener("translations-updated", this._translationsUpdated);
+    super.connectedCallback()
+    window.addEventListener('translations-updated', this._translationsUpdated)
   }
 
   protected async firstUpdated() {
-    super.firstUpdated();
+    super.firstUpdated()
 
     if (this.inlineArrow) {
       this.shadowRoot
-        ?.querySelector(".mdc-select__selected-text-container")
-        ?.classList.add("inline-arrow");
+        ?.querySelector('.mdc-select__selected-text-container')
+        ?.classList.add('inline-arrow')
     }
   }
 
   protected updated(changedProperties) {
-    super.updated(changedProperties);
+    super.updated(changedProperties)
 
-    if (changedProperties.has("inlineArrow")) {
+    if (changedProperties.has('inlineArrow')) {
       const textContainerElement = this.shadowRoot?.querySelector(
-        ".mdc-select__selected-text-container"
-      );
+        '.mdc-select__selected-text-container'
+      )
       if (this.inlineArrow) {
-        textContainerElement?.classList.add("inline-arrow");
+        textContainerElement?.classList.add('inline-arrow')
       } else {
-        textContainerElement?.classList.remove("inline-arrow");
+        textContainerElement?.classList.remove('inline-arrow')
       }
     }
-    if (changedProperties.get("options")) {
-      this.layoutOptions();
-      this.selectByValue(this.value);
+    if (changedProperties.get('options')) {
+      this.layoutOptions()
+      this.selectByValue(this.value)
     }
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
     window.removeEventListener(
-      "translations-updated",
+      'translations-updated',
       this._translationsUpdated
-    );
+    )
   }
 
   private _clearValue(): void {
     if (this.disabled || !this.value) {
-      return;
+      return
     }
-    this.valueSetDirectly = true;
-    this.select(-1);
-    this.mdcFoundation.handleChange();
+    this.valueSetDirectly = true
+    this.select(-1)
+    this.mdcFoundation.handleChange()
   }
 
   private _translationsUpdated = debounce(async () => {
-    await nextRender();
-    this.layoutOptions();
-  }, 500);
+    await nextRender()
+    this.layoutOptions()
+  }, 500)
 
   static override styles = [
     styles,
@@ -178,10 +176,10 @@ export class HaSelect extends SelectBase {
         flex-grow: 0;
       }
     `,
-  ];
+  ]
 }
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-select": HaSelect;
+    'ha-select': HaSelect
   }
 }

@@ -1,28 +1,28 @@
-import { fireEvent } from "../../../common/dom/fire_event";
+import { fireEvent } from '../../../common/dom/fire_event'
 import type {
   AreaRegistryEntry,
   AreaRegistryEntryMutableParams,
-} from "../../../data/area_registry";
+} from '../../../data/area_registry'
 
 export interface AreaRegistryDetailDialogParams {
-  entry?: AreaRegistryEntry;
-  suggestedName?: string;
-  createEntry?: (values: AreaRegistryEntryMutableParams) => Promise<unknown>;
+  entry?: AreaRegistryEntry
+  suggestedName?: string
+  createEntry?: (values: AreaRegistryEntryMutableParams) => Promise<unknown>
   updateEntry?: (
     updates: Partial<AreaRegistryEntryMutableParams>
-  ) => Promise<unknown>;
+  ) => Promise<unknown>
 }
 
 export const loadAreaRegistryDetailDialog = () =>
-  import("./dialog-area-registry-detail");
+  import('./dialog-area-registry-detail')
 
 export const showAreaRegistryDetailDialog = (
   element: HTMLElement,
   systemLogDetailParams: AreaRegistryDetailDialogParams
 ): void => {
-  fireEvent(element, "show-dialog", {
-    dialogTag: "dialog-area-registry-detail",
+  fireEvent(element, 'show-dialog', {
+    dialogTag: 'dialog-area-registry-detail',
     dialogImport: loadAreaRegistryDetailDialog,
     dialogParams: systemLogDetailParams,
-  });
-};
+  })
+}

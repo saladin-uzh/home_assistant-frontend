@@ -1,19 +1,19 @@
-import type { ReactiveElement } from "lit";
-import type { HomeAssistant } from "../types";
+import type { ReactiveElement } from 'lit'
+import type { HomeAssistant } from '../types'
 import {
   setupMediaQueryListeners,
   setupTimeListeners,
-} from "../common/condition/listeners";
-import type { Condition } from "../panels/lovelace/common/validate-condition";
+} from '../common/condition/listeners'
+import type { Condition } from '../panels/lovelace/common/validate-condition'
 
-type Constructor<T> = abstract new (...args: any[]) => T;
+type Constructor<T> = abstract new (...args: any[]) => T
 
 /**
  * Base config type that can be used with conditional listeners
  */
 export interface ConditionalConfig {
-  visibility?: Condition[];
-  [key: string]: any;
+  visibility?: Condition[]
+  [key: string]: any
 }
 
 /**
@@ -39,26 +39,26 @@ export const ConditionalListenerMixin = <
   superClass: Constructor<ReactiveElement>
 ) => {
   abstract class ConditionalListenerClass extends superClass {
-    private __listeners: (() => void)[] = [];
+    private __listeners: (() => void)[] = []
 
-    protected _config?: TConfig;
+    protected _config?: TConfig
 
-    public config?: TConfig;
+    public config?: TConfig
 
-    public hass?: HomeAssistant;
+    public hass?: HomeAssistant
 
-    protected _updateElement?(config: TConfig): void;
+    protected _updateElement?(config: TConfig): void
 
-    protected _updateVisibility?(conditionsMet?: boolean): void;
+    protected _updateVisibility?(conditionsMet?: boolean): void
 
     public connectedCallback() {
-      super.connectedCallback();
-      this.setupConditionalListeners();
+      super.connectedCallback()
+      this.setupConditionalListeners()
     }
 
     public disconnectedCallback() {
-      super.disconnectedCallback();
-      this.clearConditionalListeners();
+      super.disconnectedCallback()
+      this.clearConditionalListeners()
     }
 
     /**
@@ -68,8 +68,8 @@ export const ConditionalListenerMixin = <
      * It clears all the listeners that were set up by the setupConditionalListeners() method.
      */
     protected clearConditionalListeners(): void {
-      this.__listeners.forEach((unsub) => unsub());
-      this.__listeners = [];
+      this.__listeners.forEach(unsub => unsub())
+      this.__listeners = []
     }
 
     /**
@@ -82,7 +82,7 @@ export const ConditionalListenerMixin = <
      * @returns void
      */
     protected addConditionalListener(unsubscribe: () => void): void {
-      this.__listeners.push(unsubscribe);
+      this.__listeners.push(unsubscribe)
     }
 
     /**
@@ -99,35 +99,35 @@ export const ConditionalListenerMixin = <
      * @param conditions - Optional conditions array. If not provided, will check config.visibility or _config.visibility
      */
     protected setupConditionalListeners(conditions?: Condition[]): void {
-      const config = this.config || this._config;
-      const finalConditions = conditions || config?.visibility;
+      const config = this.config || this._config
+      const finalConditions = conditions || config?.visibility
 
       if (!finalConditions || !this.hass) {
-        return;
+        return
       }
 
       const onUpdate = (conditionsMet: boolean) => {
         if (this._updateVisibility) {
-          this._updateVisibility(conditionsMet);
+          this._updateVisibility(conditionsMet)
         } else if (this._updateElement && config) {
-          this._updateElement(config);
+          this._updateElement(config)
         }
-      };
+      }
 
       setupMediaQueryListeners(
         finalConditions,
         this.hass,
-        (unsub) => this.addConditionalListener(unsub),
+        unsub => this.addConditionalListener(unsub),
         onUpdate
-      );
+      )
 
       setupTimeListeners(
         finalConditions,
         this.hass,
-        (unsub) => this.addConditionalListener(unsub),
+        unsub => this.addConditionalListener(unsub),
         onUpdate
-      );
+      )
     }
   }
-  return ConditionalListenerClass;
-};
+  return ConditionalListenerClass
+}

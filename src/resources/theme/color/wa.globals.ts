@@ -1,4 +1,4 @@
-import { css } from "lit";
+import { css } from 'lit'
 
 export const waColorStyles = css`
   html {
@@ -67,4 +67,4 @@ export const waColorStyles = css`
 
     --wa-color-text-normal: var(--ha-color-text-primary);
   }
-`;
+`

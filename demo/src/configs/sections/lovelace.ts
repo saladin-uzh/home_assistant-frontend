@@ -1,28 +1,28 @@
-import { isFrontpageEmbed } from "../../util/is_frontpage";
-import type { DemoConfig } from "../types";
+import { isFrontpageEmbed } from '../../util/is_frontpage'
+import type { DemoConfig } from '../types'
 
-export const demoLovelaceSections: DemoConfig["lovelace"] = (localize) => ({
-  title: "Home Assistant Demo",
+export const demoLovelaceSections: DemoConfig['lovelace'] = localize => ({
+  title: 'Home Assistant Demo',
   views: [
     {
-      type: "sections",
-      title: isFrontpageEmbed ? "Home Assistant" : "Demo",
-      path: "home",
-      icon: "mdi:home-assistant",
+      type: 'sections',
+      title: isFrontpageEmbed ? 'Home Assistant' : 'Demo',
+      path: 'home',
+      icon: 'mdi:home-assistant',
       badges: [
         {
-          type: "entity",
-          entity: "sensor.outdoor_temperature",
-          color: "red",
+          type: 'entity',
+          entity: 'sensor.outdoor_temperature',
+          color: 'red',
         },
         {
-          type: "entity",
-          entity: "sensor.outdoor_humidity",
-          color: "indigo",
+          type: 'entity',
+          entity: 'sensor.outdoor_humidity',
+          color: 'indigo',
         },
         {
-          type: "entity",
-          entity: "device_tracker.car",
+          type: 'entity',
+          entity: 'device_tracker.car',
         },
       ],
       sections: [
@@ -32,334 +32,334 @@ export const demoLovelaceSections: DemoConfig["lovelace"] = (localize) => ({
               {
                 cards: [
                   {
-                    type: "heading",
-                    heading: `${localize("ui.panel.page-demo.config.sections.titles.welcome")} 👋`,
+                    type: 'heading',
+                    heading: `${localize('ui.panel.page-demo.config.sections.titles.welcome')} 👋`,
                   },
-                  { type: "custom:ha-demo-card" },
+                  { type: 'custom:ha-demo-card' },
                 ],
               },
             ]),
         {
           cards: [
             {
-              type: "heading",
+              type: 'heading',
               heading: localize(
-                "ui.panel.page-demo.config.sections.titles.living_room"
+                'ui.panel.page-demo.config.sections.titles.living_room'
               ),
-              icon: "mdi:sofa",
+              icon: 'mdi:sofa',
               badges: [
                 {
-                  type: "entity",
-                  entity: "sensor.living_room_temperature",
-                  color: "red",
+                  type: 'entity',
+                  entity: 'sensor.living_room_temperature',
+                  color: 'red',
                 },
                 {
-                  type: "entity",
-                  entity: "sensor.living_room_humidity",
-                  color: "indigo",
+                  type: 'entity',
+                  entity: 'sensor.living_room_humidity',
+                  color: 'indigo',
                 },
               ],
             },
             {
-              type: "tile",
-              entity: "light.floor_lamp",
+              type: 'tile',
+              entity: 'light.floor_lamp',
             },
             {
-              type: "tile",
-              entity: "light.living_room_spotlights",
-              name: "Spotlights",
+              type: 'tile',
+              entity: 'light.living_room_spotlights',
+              name: 'Spotlights',
               features: [
                 {
-                  type: "light-brightness",
+                  type: 'light-brightness',
                 },
               ],
             },
             {
-              type: "tile",
-              entity: "light.bar_lamp",
+              type: 'tile',
+              entity: 'light.bar_lamp',
             },
             {
-              type: "tile",
-              entity: "cover.living_room_garden_shutter",
-              name: "Blinds",
+              type: 'tile',
+              entity: 'cover.living_room_garden_shutter',
+              name: 'Blinds',
             },
             {
-              type: "tile",
-              entity: "media_player.living_room_nest_mini",
+              type: 'tile',
+              entity: 'media_player.living_room_nest_mini',
             },
           ],
         },
         {
-          type: "grid",
+          type: 'grid',
           cards: [
             {
-              type: "heading",
+              type: 'heading',
               heading: localize(
-                "ui.panel.page-demo.config.sections.titles.kitchen"
+                'ui.panel.page-demo.config.sections.titles.kitchen'
               ),
-              icon: "mdi:fridge",
+              icon: 'mdi:fridge',
               badges: [
                 {
-                  type: "entity",
-                  entity: "binary_sensor.kitchen_motion",
+                  type: 'entity',
+                  entity: 'binary_sensor.kitchen_motion',
                   show_state: false,
-                  color: "blue",
+                  color: 'blue',
                 },
               ],
             },
             {
-              type: "tile",
-              entity: "cover.kitchen_shutter",
-              name: "Shutter",
+              type: 'tile',
+              entity: 'cover.kitchen_shutter',
+              name: 'Shutter',
             },
             {
-              type: "tile",
-              entity: "light.kitchen_spotlights",
-              name: "Spotlights",
+              type: 'tile',
+              entity: 'light.kitchen_spotlights',
+              name: 'Spotlights',
               features: [
                 {
-                  type: "light-brightness",
+                  type: 'light-brightness',
                 },
               ],
             },
             {
-              type: "tile",
-              entity: "light.worktop_spotlights",
-              name: "Worktop",
+              type: 'tile',
+              entity: 'light.worktop_spotlights',
+              name: 'Worktop',
             },
             {
-              type: "tile",
-              entity: "binary_sensor.fridge_door",
-              name: "Fridge",
+              type: 'tile',
+              entity: 'binary_sensor.fridge_door',
+              name: 'Fridge',
             },
             {
-              type: "tile",
-              entity: "media_player.kitchen_nest_audio",
+              type: 'tile',
+              entity: 'media_player.kitchen_nest_audio',
             },
           ],
         },
         {
-          type: "grid",
+          type: 'grid',
           cards: [
             {
-              type: "heading",
+              type: 'heading',
               heading: localize(
-                "ui.panel.page-demo.config.sections.titles.energy"
+                'ui.panel.page-demo.config.sections.titles.energy'
               ),
-              icon: "mdi:transmission-tower",
+              icon: 'mdi:transmission-tower',
             },
             {
-              type: "tile",
-              entity: "binary_sensor.tesla_wall_connector_vehicle_connected",
-              name: "EV",
-              icon: "mdi:car",
+              type: 'tile',
+              entity: 'binary_sensor.tesla_wall_connector_vehicle_connected',
+              name: 'EV',
+              icon: 'mdi:car',
             },
             {
-              type: "tile",
-              entity: "sensor.tesla_wall_connector_session_energy",
-              name: "Last charge",
-              color: "green",
+              type: 'tile',
+              entity: 'sensor.tesla_wall_connector_session_energy',
+              name: 'Last charge',
+              color: 'green',
             },
             {
-              type: "tile",
-              entity: "sensor.electric_meter_power",
-              color: "deep-orange",
-              name: "Home power",
+              type: 'tile',
+              entity: 'sensor.electric_meter_power',
+              color: 'deep-orange',
+              name: 'Home power',
             },
             {
-              type: "tile",
-              entity: "sensor.eletric_meter_voltage",
-              name: "Voltage",
-              color: "deep-orange",
+              type: 'tile',
+              entity: 'sensor.eletric_meter_voltage',
+              name: 'Voltage',
+              color: 'deep-orange',
             },
             {
-              type: "tile",
-              entity: "sensor.electricity_maps_grid_fossil_fuel_percentage",
-              name: "Fossil fuel",
-              color: "brown",
+              type: 'tile',
+              entity: 'sensor.electricity_maps_grid_fossil_fuel_percentage',
+              name: 'Fossil fuel',
+              color: 'brown',
             },
             {
-              type: "tile",
-              entity: "sensor.electricity_maps_co2_intensity",
-              name: "CO2 Intensity",
-              color: "dark-grey",
+              type: 'tile',
+              entity: 'sensor.electricity_maps_co2_intensity',
+              name: 'CO2 Intensity',
+              color: 'dark-grey',
             },
           ],
         },
         {
-          type: "grid",
+          type: 'grid',
           cards: [
             {
-              type: "heading",
+              type: 'heading',
               heading: localize(
-                "ui.panel.page-demo.config.sections.titles.climate"
+                'ui.panel.page-demo.config.sections.titles.climate'
               ),
-              icon: "mdi:thermometer",
+              icon: 'mdi:thermometer',
             },
             {
-              type: "tile",
-              entity: "sun.sun",
+              type: 'tile',
+              entity: 'sun.sun',
             },
             {
-              type: "tile",
-              entity: "sensor.rain",
-              color: "blue",
-            },
-            {
-              features: [
-                {
-                  type: "target-temperature",
-                },
-              ],
-              type: "tile",
-              name: "Downstairs",
-              entity: "climate.ground_floor",
-              state_content: ["preset_mode", "current_temperature"],
+              type: 'tile',
+              entity: 'sensor.rain',
+              color: 'blue',
             },
             {
               features: [
                 {
-                  type: "target-temperature",
+                  type: 'target-temperature',
                 },
               ],
-              type: "tile",
-              name: "Upstairs",
-              entity: "climate.first_floor",
-              state_content: ["preset_mode", "current_temperature"],
+              type: 'tile',
+              name: 'Downstairs',
+              entity: 'climate.ground_floor',
+              state_content: ['preset_mode', 'current_temperature'],
+            },
+            {
+              features: [
+                {
+                  type: 'target-temperature',
+                },
+              ],
+              type: 'tile',
+              name: 'Upstairs',
+              entity: 'climate.first_floor',
+              state_content: ['preset_mode', 'current_temperature'],
             },
           ],
         },
         {
-          type: "grid",
+          type: 'grid',
           cards: [
             {
-              type: "heading",
+              type: 'heading',
               heading: localize(
-                "ui.panel.page-demo.config.sections.titles.study"
+                'ui.panel.page-demo.config.sections.titles.study'
               ),
-              icon: "mdi:desk-lamp",
+              icon: 'mdi:desk-lamp',
               badges: [
                 {
-                  type: "entity",
-                  entity: "switch.in_meeting",
-                  state: "on",
-                  state_content: "name",
+                  type: 'entity',
+                  entity: 'switch.in_meeting',
+                  state: 'on',
+                  state_content: 'name',
                   visibility: [
                     {
-                      condition: "state",
-                      state: "on",
-                      entity: "switch.in_meeting",
+                      condition: 'state',
+                      state: 'on',
+                      entity: 'switch.in_meeting',
                     },
                   ],
                 },
               ],
             },
             {
-              type: "tile",
-              entity: "cover.study_shutter",
-              name: "Shutter",
+              type: 'tile',
+              entity: 'cover.study_shutter',
+              name: 'Shutter',
             },
 
             {
-              type: "tile",
-              entity: "light.study_spotlights",
-              name: "Spotlights",
+              type: 'tile',
+              entity: 'light.study_spotlights',
+              name: 'Spotlights',
             },
             {
-              type: "tile",
-              entity: "media_player.study_nest_hub",
+              type: 'tile',
+              entity: 'media_player.study_nest_hub',
             },
             {
-              type: "tile",
-              entity: "sensor.standing_desk_height",
-              name: "Desk",
-              color: "brown",
-              icon: "mdi:desk",
+              type: 'tile',
+              entity: 'sensor.standing_desk_height',
+              name: 'Desk',
+              color: 'brown',
+              icon: 'mdi:desk',
             },
             {
-              type: "tile",
-              entity: "switch.in_meeting",
-              name: "Meeting mode",
+              type: 'tile',
+              entity: 'switch.in_meeting',
+              name: 'Meeting mode',
             },
           ],
         },
         {
-          type: "grid",
+          type: 'grid',
           cards: [
             {
-              type: "heading",
+              type: 'heading',
               heading: localize(
-                "ui.panel.page-demo.config.sections.titles.outdoor"
+                'ui.panel.page-demo.config.sections.titles.outdoor'
               ),
-              icon: "mdi:tree",
+              icon: 'mdi:tree',
             },
             {
-              type: "tile",
-              entity: "light.outdoor_light",
-              name: "Door light",
+              type: 'tile',
+              entity: 'light.outdoor_light',
+              name: 'Door light',
             },
             {
-              type: "tile",
-              entity: "light.flood_light",
+              type: 'tile',
+              entity: 'light.flood_light',
             },
             {
-              graph: "line",
-              type: "sensor",
-              entity: "sensor.outdoor_motion_sensor_temperature",
+              graph: 'line',
+              type: 'sensor',
+              entity: 'sensor.outdoor_motion_sensor_temperature',
               detail: 1,
-              name: "Temperature",
+              name: 'Temperature',
             },
             {
-              type: "tile",
-              entity: "binary_sensor.outdoor_motion_sensor_motion",
-              name: "Motion",
-              color: "blue",
+              type: 'tile',
+              entity: 'binary_sensor.outdoor_motion_sensor_motion',
+              name: 'Motion',
+              color: 'blue',
             },
             {
-              type: "tile",
-              entity: "sensor.outdoor_motion_sensor_illuminance",
-              color: "amber",
-              name: "Illuminance",
+              type: 'tile',
+              entity: 'sensor.outdoor_motion_sensor_illuminance',
+              color: 'amber',
+              name: 'Illuminance',
             },
           ],
         },
         {
-          type: "grid",
+          type: 'grid',
           cards: [
             {
-              type: "heading",
+              type: 'heading',
               heading: localize(
-                "ui.panel.page-demo.config.sections.titles.updates"
+                'ui.panel.page-demo.config.sections.titles.updates'
               ),
-              icon: "mdi:update",
+              icon: 'mdi:update',
             },
             {
-              type: "tile",
-              entity: "automation.home_assistant_auto_update",
-              name: "Auto-update",
-              color: "green",
+              type: 'tile',
+              entity: 'automation.home_assistant_auto_update',
+              name: 'Auto-update',
+              color: 'green',
             },
             {
-              type: "tile",
-              entity: "update.home_assistant_operating_system_update",
-              name: "OS",
-              icon: "mdi:home-assistant",
+              type: 'tile',
+              entity: 'update.home_assistant_operating_system_update',
+              name: 'OS',
+              icon: 'mdi:home-assistant',
             },
             {
-              type: "tile",
-              entity: "update.home_assistant_supervisor_update",
-              icon: "mdi:home-assistant",
-              name: "Supervisor",
+              type: 'tile',
+              entity: 'update.home_assistant_supervisor_update',
+              icon: 'mdi:home-assistant',
+              name: 'Supervisor',
             },
             {
-              type: "tile",
-              entity: "update.home_assistant_core_update",
-              name: "Core",
-              icon: "mdi:home-assistant",
+              type: 'tile',
+              entity: 'update.home_assistant_core_update',
+              name: 'Core',
+              icon: 'mdi:home-assistant',
             },
           ],
         },
       ],
     },
   ],
-});
+})

@@ -1,15 +1,15 @@
-import { LitElement, html } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../../../../../common/dom/fire_event";
-import "../../../../../../components/ha-icon-next";
-import "../../../../../../components/ha-md-list-item";
-import "../../../../../../components/ha-md-list";
-import type { HomeAssistant } from "../../../../../../types";
-import { sharedStyles } from "./matter-add-device-shared-styles";
+import { LitElement, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../../../../../common/dom/fire_event'
+import '../../../../../../components/ha-icon-next'
+import '../../../../../../components/ha-md-list-item'
+import '../../../../../../components/ha-md-list'
+import type { HomeAssistant } from '../../../../../../types'
+import { sharedStyles } from './matter-add-device-shared-styles'
 
-@customElement("matter-add-device-google-home")
+@customElement('matter-add-device-google-home')
 class MatterAddDeviceGoogleHome extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   render() {
     return html`
@@ -64,18 +64,18 @@ class MatterAddDeviceGoogleHome extends LitElement {
         </ol>
         <br />
       </div>
-    `;
+    `
   }
 
   private _nextStep() {
-    fireEvent(this, "step-selected", { step: "google_home_fallback" });
+    fireEvent(this, 'step-selected', { step: 'google_home_fallback' })
   }
 
-  static styles = [sharedStyles];
+  static styles = [sharedStyles]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "matter-add-device-google-home": MatterAddDeviceGoogleHome;
+    'matter-add-device-google-home': MatterAddDeviceGoogleHome
   }
 }

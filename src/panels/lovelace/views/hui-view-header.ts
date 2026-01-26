@@ -1,213 +1,211 @@
-import { mdiPencil, mdiPlus } from "@mdi/js";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { DragScrollController } from "../../../common/controllers/drag-scroll-controller";
-import "../../../components/ha-ripple";
-import "../../../components/ha-sortable";
-import "../../../components/ha-svg-icon";
-import type { LovelaceCardConfig } from "../../../data/lovelace/config/card";
+import { mdiPencil, mdiPlus } from '@mdi/js'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { DragScrollController } from '../../../common/controllers/drag-scroll-controller'
+import '../../../components/ha-ripple'
+import '../../../components/ha-sortable'
+import '../../../components/ha-svg-icon'
+import type { LovelaceCardConfig } from '../../../data/lovelace/config/card'
 import type {
   LovelaceViewConfig,
   LovelaceViewHeaderConfig,
-} from "../../../data/lovelace/config/view";
-import type { HomeAssistant } from "../../../types";
-import type { HuiBadge } from "../badges/hui-badge";
-import "../badges/hui-view-badges";
-import type { HuiCard } from "../cards/hui-card";
-import "../components/hui-badge-edit-mode";
-import { showEditCardDialog } from "../editor/card-editor/show-edit-card-dialog";
-import { replaceView } from "../editor/config-util";
-import { showEditViewHeaderDialog } from "../editor/view-header/show-edit-view-header-dialog";
-import type { Lovelace } from "../types";
+} from '../../../data/lovelace/config/view'
+import type { HomeAssistant } from '../../../types'
+import type { HuiBadge } from '../badges/hui-badge'
+import '../badges/hui-view-badges'
+import type { HuiCard } from '../cards/hui-card'
+import '../components/hui-badge-edit-mode'
+import { showEditCardDialog } from '../editor/card-editor/show-edit-card-dialog'
+import { replaceView } from '../editor/config-util'
+import { showEditViewHeaderDialog } from '../editor/view-header/show-edit-view-header-dialog'
+import type { Lovelace } from '../types'
 
-export const DEFAULT_VIEW_HEADER_LAYOUT = "center";
-export const DEFAULT_VIEW_HEADER_BADGES_POSITION = "bottom";
-export const DEFAULT_VIEW_HEADER_BADGES_WRAP = "wrap";
+export const DEFAULT_VIEW_HEADER_LAYOUT = 'center'
+export const DEFAULT_VIEW_HEADER_BADGES_POSITION = 'bottom'
+export const DEFAULT_VIEW_HEADER_BADGES_WRAP = 'wrap'
 
-@customElement("hui-view-header")
+@customElement('hui-view-header')
 export class HuiViewHeader extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public lovelace!: Lovelace;
+  @property({ attribute: false }) public lovelace!: Lovelace
 
-  @property({ attribute: false }) public card?: HuiCard;
+  @property({ attribute: false }) public card?: HuiCard
 
-  @property({ attribute: false }) public badges: HuiBadge[] = [];
+  @property({ attribute: false }) public badges: HuiBadge[] = []
 
-  @property({ attribute: false }) public config?: LovelaceViewHeaderConfig;
+  @property({ attribute: false }) public config?: LovelaceViewHeaderConfig
 
-  @property({ attribute: false }) public viewIndex!: number;
+  @property({ attribute: false }) public viewIndex!: number
 
   private _checkHidden() {
     const allHidden =
       !this.card &&
       !this.lovelace.editMode &&
-      this.badges.every((badges) => badges.hidden);
-    this.toggleAttribute("hidden", allHidden);
+      this.badges.every(badges => badges.hidden)
+    this.toggleAttribute('hidden', allHidden)
   }
 
   private _badgeVisibilityChanged = () => {
-    this._checkHidden();
-  };
+    this._checkHidden()
+  }
 
   private _dragScrollController = new DragScrollController(this, {
-    selector: ".scroll",
+    selector: '.scroll',
     enabled: false,
-  });
+  })
 
   connectedCallback(): void {
-    super.connectedCallback();
+    super.connectedCallback()
     this.addEventListener(
-      "badge-visibility-changed",
+      'badge-visibility-changed',
       this._badgeVisibilityChanged
-    );
+    )
   }
 
   disconnectedCallback(): void {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
     this.removeEventListener(
-      "badge-visibility-changed",
+      'badge-visibility-changed',
       this._badgeVisibilityChanged
-    );
+    )
   }
 
   willUpdate(changedProperties: PropertyValues<typeof this>): void {
     if (
-      changedProperties.has("badges") ||
-      changedProperties.has("lovelace") ||
-      changedProperties.has("card")
+      changedProperties.has('badges') ||
+      changedProperties.has('lovelace') ||
+      changedProperties.has('card')
     ) {
-      this._checkHidden();
+      this._checkHidden()
     }
 
-    if (changedProperties.has("config") || changedProperties.has("lovelace")) {
+    if (changedProperties.has('config') || changedProperties.has('lovelace')) {
       this._dragScrollController.enabled =
-        !this.lovelace.editMode && this.config?.badges_wrap === "scroll";
+        !this.lovelace.editMode && this.config?.badges_wrap === 'scroll'
     }
 
-    if (changedProperties.has("config")) {
+    if (changedProperties.has('config')) {
       if (this.config?.card) {
-        this.card = this._createCardElement(this.config.card);
+        this.card = this._createCardElement(this.config.card)
       } else {
-        this.card = undefined;
+        this.card = undefined
       }
-      this._checkHidden();
-      return;
+      this._checkHidden()
+      return
     }
 
     if (this.card) {
-      if (changedProperties.has("hass")) {
-        this.card.hass = this.hass;
+      if (changedProperties.has('hass')) {
+        this.card.hass = this.hass
       }
-      if (changedProperties.has("lovelace")) {
-        this.card.preview = this.lovelace.editMode;
+      if (changedProperties.has('lovelace')) {
+        this.card.preview = this.lovelace.editMode
       }
     }
   }
 
   private _createCardElement(cardConfig: LovelaceCardConfig) {
-    const element = document.createElement("hui-card");
-    element.hass = this.hass;
-    element.preview = this.lovelace.editMode;
-    element.config = cardConfig;
-    element.load();
-    return element;
+    const element = document.createElement('hui-card')
+    element.hass = this.hass
+    element.preview = this.lovelace.editMode
+    element.config = cardConfig
+    element.load()
+    return element
   }
 
   private _addCard() {
     const cardConfig: LovelaceCardConfig = {
-      type: "markdown",
+      type: 'markdown',
       text_only: true,
       content: this.hass.localize(
-        "ui.panel.lovelace.editor.edit_view_header.default_title",
-        { user: "{{ user }}" }
+        'ui.panel.lovelace.editor.edit_view_header.default_title',
+        { user: '{{ user }}' }
       ),
-    };
-
-    showEditCardDialog(this, {
-      cardConfig,
-      lovelaceConfig: this.lovelace.config,
-      saveCardConfig: (newCardConfig: LovelaceCardConfig) => {
-        const newConfig = { ...this.config };
-        newConfig.card = newCardConfig;
-        this._saveHeaderConfig(newConfig);
-      },
-      isNew: true,
-    });
-  }
-
-  private _deleteCard(ev) {
-    ev.stopPropagation();
-    const newConfig = { ...this.config };
-    delete newConfig.card;
-    this._saveHeaderConfig(newConfig);
-  }
-
-  private _editCard(ev) {
-    ev.stopPropagation();
-    const cardConfig = this.config!.card;
-
-    if (!cardConfig) {
-      return;
     }
 
     showEditCardDialog(this, {
       cardConfig,
       lovelaceConfig: this.lovelace.config,
       saveCardConfig: (newCardConfig: LovelaceCardConfig) => {
-        const newConfig = { ...this.config };
-        newConfig.card = newCardConfig;
-        this._saveHeaderConfig(newConfig);
+        const newConfig = { ...this.config }
+        newConfig.card = newCardConfig
+        this._saveHeaderConfig(newConfig)
       },
-    });
+      isNew: true,
+    })
+  }
+
+  private _deleteCard(ev) {
+    ev.stopPropagation()
+    const newConfig = { ...this.config }
+    delete newConfig.card
+    this._saveHeaderConfig(newConfig)
+  }
+
+  private _editCard(ev) {
+    ev.stopPropagation()
+    const cardConfig = this.config!.card
+
+    if (!cardConfig) {
+      return
+    }
+
+    showEditCardDialog(this, {
+      cardConfig,
+      lovelaceConfig: this.lovelace.config,
+      saveCardConfig: (newCardConfig: LovelaceCardConfig) => {
+        const newConfig = { ...this.config }
+        newConfig.card = newCardConfig
+        this._saveHeaderConfig(newConfig)
+      },
+    })
   }
 
   private _saveHeaderConfig(headerConfig: LovelaceViewHeaderConfig) {
     const viewConfig = this.lovelace.config.views[
       this.viewIndex
-    ] as LovelaceViewConfig;
+    ] as LovelaceViewConfig
 
-    const config = { ...viewConfig };
-    config.header = headerConfig;
+    const config = { ...viewConfig }
+    config.header = headerConfig
 
     const updatedConfig = replaceView(
       this.hass,
       this.lovelace.config,
       this.viewIndex,
       config
-    );
-    this.lovelace.saveConfig(updatedConfig);
+    )
+    this.lovelace.saveConfig(updatedConfig)
   }
 
   private _configure = () => {
     showEditViewHeaderDialog(this, {
       config: this.config!,
       saveConfig: (config: LovelaceViewHeaderConfig) => {
-        this._saveHeaderConfig(config);
+        this._saveHeaderConfig(config)
       },
-    });
-  };
+    })
+  }
 
   render() {
-    if (!this.lovelace) return nothing;
+    if (!this.lovelace) return nothing
 
-    const editMode = Boolean(this.lovelace?.editMode);
+    const editMode = Boolean(this.lovelace?.editMode)
 
-    const card = this.card;
+    const card = this.card
 
-    const layout = this.config?.layout ?? DEFAULT_VIEW_HEADER_LAYOUT;
+    const layout = this.config?.layout ?? DEFAULT_VIEW_HEADER_LAYOUT
     const badgesPosition =
-      this.config?.badges_position ?? DEFAULT_VIEW_HEADER_BADGES_POSITION;
+      this.config?.badges_position ?? DEFAULT_VIEW_HEADER_BADGES_POSITION
     const badgesWrap =
-      this.config?.badges_wrap ?? DEFAULT_VIEW_HEADER_BADGES_WRAP;
-    const badgeDragging = this._dragScrollController.scrolling
-      ? "dragging"
-      : "";
+      this.config?.badges_wrap ?? DEFAULT_VIEW_HEADER_BADGES_WRAP
+    const badgeDragging = this._dragScrollController.scrolling ? 'dragging' : ''
 
-    const hasHeading = card !== undefined;
-    const hasBadges = this.badges.length > 0;
+    const hasHeading = card !== undefined
+    const hasBadges = this.badges.length > 0
 
     return html`
       ${editMode
@@ -215,7 +213,7 @@ export class HuiViewHeader extends LitElement {
             <div class="actions-container">
               <div class="actions">
                 <ha-icon-button
-                  .label=${this.hass.localize("ui.common.edit")}
+                  .label=${this.hass.localize('ui.common.edit')}
                   @click=${this._configure}
                   .path=${mdiPencil}
                 ></ha-icon-button>
@@ -223,14 +221,14 @@ export class HuiViewHeader extends LitElement {
             </div>
           `
         : nothing}
-      <div class="container ${editMode ? "edit-mode" : ""}">
+      <div class="container ${editMode ? 'edit-mode' : ''}">
         <div
           class="layout ${classMap({
             [layout]: true,
             [`badges-${badgesPosition}`]: true,
             [`badges-${badgesWrap}`]: true,
-            "has-heading": hasHeading,
-            "has-badges": hasBadges,
+            'has-heading': hasHeading,
+            'has-badges': hasBadges,
           })}"
         >
           ${card || editMode
@@ -252,11 +250,14 @@ export class HuiViewHeader extends LitElement {
                           </hui-card-edit-mode>
                         `
                       : html`
-                          <button class="add" @click=${this._addCard}>
+                          <button
+                            class="add"
+                            @click=${this._addCard}
+                          >
                             <ha-ripple></ha-ripple>
                             <ha-svg-icon .path=${mdiPlus}></ha-svg-icon>
                             ${this.hass.localize(
-                              "ui.panel.lovelace.editor.edit_view_header.add_title"
+                              'ui.panel.lovelace.editor.edit_view_header.add_title'
                             )}
                           </button>
                         `
@@ -281,7 +282,7 @@ export class HuiViewHeader extends LitElement {
             : nothing}
         </div>
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -490,11 +491,11 @@ export class HuiViewHeader extends LitElement {
     .dragging {
       pointer-events: none;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-view-header": HuiViewHeader;
+    'hui-view-header': HuiViewHeader
   }
 }

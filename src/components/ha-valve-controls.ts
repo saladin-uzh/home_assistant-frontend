@@ -1,22 +1,22 @@
-import { mdiStop, mdiValveClosed, mdiValveOpen } from "@mdi/js";
-import { LitElement, html, css, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { supportsFeature } from "../common/entity/supports-feature";
-import type { ValveEntity } from "../data/valve";
-import { ValveEntityFeature, canClose, canOpen, canStop } from "../data/valve";
-import type { HomeAssistant } from "../types";
-import "./ha-icon-button";
+import { mdiStop, mdiValveClosed, mdiValveOpen } from '@mdi/js'
+import { LitElement, html, css, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { supportsFeature } from '../common/entity/supports-feature'
+import type { ValveEntity } from '../data/valve'
+import { ValveEntityFeature, canClose, canOpen, canStop } from '../data/valve'
+import type { HomeAssistant } from '../types'
+import './ha-icon-button'
 
-@customElement("ha-valve-controls")
+@customElement('ha-valve-controls')
 class HaValveControls extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj!: ValveEntity;
+  @property({ attribute: false }) public stateObj!: ValveEntity
 
   protected render() {
     if (!this.stateObj) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -25,7 +25,7 @@ class HaValveControls extends LitElement {
           class=${classMap({
             hidden: !supportsFeature(this.stateObj, ValveEntityFeature.OPEN),
           })}
-          .label=${this.hass.localize("ui.card.valve.open_valve")}
+          .label=${this.hass.localize('ui.card.valve.open_valve')}
           @click=${this._onOpenTap}
           .disabled=${!canOpen(this.stateObj)}
           .path=${mdiValveOpen}
@@ -35,7 +35,7 @@ class HaValveControls extends LitElement {
           class=${classMap({
             hidden: !supportsFeature(this.stateObj, ValveEntityFeature.STOP),
           })}
-          .label=${this.hass.localize("ui.card.valve.stop_valve")}
+          .label=${this.hass.localize('ui.card.valve.stop_valve')}
           @click=${this._onStopTap}
           .disabled=${!canStop(this.stateObj)}
           .path=${mdiStop}
@@ -44,35 +44,35 @@ class HaValveControls extends LitElement {
           class=${classMap({
             hidden: !supportsFeature(this.stateObj, ValveEntityFeature.CLOSE),
           })}
-          .label=${this.hass.localize("ui.card.valve.close_valve")}
+          .label=${this.hass.localize('ui.card.valve.close_valve')}
           @click=${this._onCloseTap}
           .disabled=${!canClose(this.stateObj)}
           .path=${mdiValveClosed}
         >
         </ha-icon-button>
       </div>
-    `;
+    `
   }
 
   private _onOpenTap(ev): void {
-    ev.stopPropagation();
-    this.hass.callService("valve", "open_valve", {
+    ev.stopPropagation()
+    this.hass.callService('valve', 'open_valve', {
       entity_id: this.stateObj.entity_id,
-    });
+    })
   }
 
   private _onCloseTap(ev): void {
-    ev.stopPropagation();
-    this.hass.callService("valve", "close_valve", {
+    ev.stopPropagation()
+    this.hass.callService('valve', 'close_valve', {
       entity_id: this.stateObj.entity_id,
-    });
+    })
   }
 
   private _onStopTap(ev): void {
-    ev.stopPropagation();
-    this.hass.callService("valve", "stop_valve", {
+    ev.stopPropagation()
+    this.hass.callService('valve', 'stop_valve', {
       entity_id: this.stateObj.entity_id,
-    });
+    })
   }
 
   static styles = css`
@@ -85,11 +85,11 @@ class HaValveControls extends LitElement {
     .hidden {
       visibility: hidden !important;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-valve-controls": HaValveControls;
+    'ha-valve-controls': HaValveControls
   }
 }

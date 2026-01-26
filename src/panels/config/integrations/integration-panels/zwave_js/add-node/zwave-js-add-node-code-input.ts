@@ -1,25 +1,25 @@
-import { customElement, property } from "lit/decorators";
-import { css, html, LitElement, nothing } from "lit";
+import { customElement, property } from 'lit/decorators'
+import { css, html, LitElement, nothing } from 'lit'
 
-import { fireEvent } from "../../../../../../common/dom/fire_event";
-import type { HaTextField } from "../../../../../../components/ha-textfield";
+import { fireEvent } from '../../../../../../common/dom/fire_event'
+import type { HaTextField } from '../../../../../../components/ha-textfield'
 
-import "../../../../../../components/ha-textfield";
-import "../../../../../../components/ha-alert";
+import '../../../../../../components/ha-textfield'
+import '../../../../../../components/ha-alert'
 
-@customElement("zwave-js-add-node-code-input")
+@customElement('zwave-js-add-node-code-input')
 export class ZWaveJsAddNodeCodeInput extends LitElement {
-  @property() public value = "";
+  @property() public value = ''
 
-  @property() public description = "";
+  @property() public description = ''
 
-  @property() public placeholder = "";
+  @property() public placeholder = ''
 
-  @property({ attribute: "reference-key" }) public referenceKey = "";
+  @property({ attribute: 'reference-key' }) public referenceKey = ''
 
-  @property() public error?: string;
+  @property() public error?: string
 
-  @property({ type: Boolean }) public numeric = false;
+  @property({ type: Boolean }) public numeric = false
 
   render() {
     return html`
@@ -37,33 +37,33 @@ export class ZWaveJsAddNodeCodeInput extends LitElement {
       ></ha-textfield>
       ${this.referenceKey
         ? html`<div>
-            <span>${this.value.padEnd(5, "·")}</span>${this.referenceKey}
+            <span>${this.value.padEnd(5, '·')}</span>${this.referenceKey}
           </div> `
         : nothing}
-    `;
+    `
   }
 
   private _handleKeyup(ev: KeyboardEvent): void {
-    if (ev.key === "Enter" && this.value) {
-      fireEvent(this, "z-wave-submit");
+    if (ev.key === 'Enter' && this.value) {
+      fireEvent(this, 'z-wave-submit')
     }
   }
 
   private _handleChange(ev: InputEvent): void {
-    const inputElement = ev.target as HaTextField;
+    const inputElement = ev.target as HaTextField
     if (
       this.numeric &&
       (isNaN(Number(inputElement.value)) || inputElement.value.length > 5)
     ) {
-      inputElement.value = this.value;
-      return;
+      inputElement.value = this.value
+      return
     }
 
-    this.value = (ev.target as HaTextField).value;
+    this.value = (ev.target as HaTextField).value
 
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: (ev.target as HaTextField).value,
-    });
+    })
   }
 
   static styles = css`
@@ -86,14 +86,14 @@ export class ZWaveJsAddNodeCodeInput extends LitElement {
     div span {
       color: var(--primary-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "zwave-js-add-node-code-input": ZWaveJsAddNodeCodeInput;
+    'zwave-js-add-node-code-input': ZWaveJsAddNodeCodeInput
   }
   interface HASSDomEvents {
-    "z-wave-submit";
+    'z-wave-submit'
   }
 }

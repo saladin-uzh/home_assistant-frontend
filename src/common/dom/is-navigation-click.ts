@@ -7,41 +7,41 @@ export const isNavigationClick = (e: MouseEvent, preventDefault = true) => {
     e.ctrlKey ||
     e.shiftKey
   ) {
-    return undefined;
+    return undefined
   }
 
   const anchor = e
     .composedPath()
-    .find((n) => (n as HTMLElement).tagName === "A") as
+    .find(n => (n as HTMLElement).tagName === 'A') as
     | HTMLAnchorElement
-    | undefined;
+    | undefined
   if (
     !anchor ||
     anchor.target ||
-    anchor.hasAttribute("download") ||
-    anchor.getAttribute("rel") === "external"
+    anchor.hasAttribute('download') ||
+    anchor.getAttribute('rel') === 'external'
   ) {
-    return undefined;
+    return undefined
   }
 
-  let href = anchor.href;
-  if (!href || href.indexOf("mailto:") !== -1) {
-    return undefined;
+  let href = anchor.href
+  if (!href || href.indexOf('mailto:') !== -1) {
+    return undefined
   }
 
-  const location = window.location;
-  const origin = location.origin || location.protocol + "//" + location.host;
+  const location = window.location
+  const origin = location.origin || location.protocol + '//' + location.host
   if (!href.startsWith(origin)) {
-    return undefined;
+    return undefined
   }
-  href = href.slice(origin.length);
+  href = href.slice(origin.length)
 
-  if (href === "#") {
-    return undefined;
+  if (href === '#') {
+    return undefined
   }
 
   if (preventDefault) {
-    e.preventDefault();
+    e.preventDefault()
   }
-  return href;
-};
+  return href
+}

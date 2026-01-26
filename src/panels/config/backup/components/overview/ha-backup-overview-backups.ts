@@ -1,72 +1,72 @@
-import { mdiCalendarSync, mdiGestureTap, mdiPuzzle } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { isComponentLoaded } from "../../../../../common/config/is_component_loaded";
-import "../../../../../components/ha-button";
-import "../../../../../components/ha-card";
-import "../../../../../components/ha-icon-next";
-import "../../../../../components/ha-md-list";
-import "../../../../../components/ha-md-list-item";
-import type { BackupContent, BackupType } from "../../../../../data/backup";
+import { mdiCalendarSync, mdiGestureTap, mdiPuzzle } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { isComponentLoaded } from '../../../../../common/config/is_component_loaded'
+import '../../../../../components/ha-button'
+import '../../../../../components/ha-card'
+import '../../../../../components/ha-icon-next'
+import '../../../../../components/ha-md-list'
+import '../../../../../components/ha-md-list-item'
+import type { BackupContent, BackupType } from '../../../../../data/backup'
 import {
   computeBackupSize,
   computeBackupType,
   getBackupTypes,
-} from "../../../../../data/backup";
-import { haStyle } from "../../../../../resources/styles";
-import type { HomeAssistant } from "../../../../../types";
-import { bytesToString } from "../../../../../util/bytes-to-string";
+} from '../../../../../data/backup'
+import { haStyle } from '../../../../../resources/styles'
+import type { HomeAssistant } from '../../../../../types'
+import { bytesToString } from '../../../../../util/bytes-to-string'
 
 interface BackupStats {
-  count: number;
-  size: number;
+  count: number
+  size: number
 }
 
 const TYPE_ICONS: Record<BackupType, string> = {
   automatic: mdiCalendarSync,
   manual: mdiGestureTap,
   addon_update: mdiPuzzle,
-};
+}
 
 const computeBackupStats = (backups: BackupContent[]): BackupStats =>
   backups.reduce(
     (stats, backup) => {
-      stats.count++;
-      stats.size += computeBackupSize(backup);
-      return stats;
+      stats.count++
+      stats.size += computeBackupSize(backup)
+      return stats
     },
     { count: 0, size: 0 }
-  );
+  )
 
-@customElement("ha-backup-overview-backups")
+@customElement('ha-backup-overview-backups')
 class HaBackupOverviewBackups extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public backups: BackupContent[] = [];
+  @property({ attribute: false }) public backups: BackupContent[] = []
 
   private _stats = memoizeOne(
     (
       backups: BackupContent[],
       isHassio: boolean
     ): [BackupType, BackupStats][] =>
-      getBackupTypes(isHassio).map((type) => {
+      getBackupTypes(isHassio).map(type => {
         const backupsOfType = backups.filter(
-          (backup) => computeBackupType(backup, isHassio) === type
-        );
-        return [type, computeBackupStats(backupsOfType)] as const;
+          backup => computeBackupType(backup, isHassio) === type
+        )
+        return [type, computeBackupStats(backupsOfType)] as const
       })
-  );
+  )
 
   render() {
-    const isHassio = isComponentLoaded(this.hass, "hassio");
-    const stats = this._stats(this.backups, isHassio);
+    const isHassio = isComponentLoaded(this.hass, 'hassio')
+    const stats = this._stats(this.backups, isHassio)
 
     return html`
       <ha-card class="my-backups">
         <div class="card-header">
-          ${this.hass.localize("ui.panel.config.backup.overview.backups.title")}
+          ${this.hass.localize('ui.panel.config.backup.overview.backups.title')}
         </div>
         <div class="card-content">
           <ha-md-list>
@@ -88,7 +88,7 @@ class HaBackupOverviewBackups extends LitElement {
                   </div>
                   <div slot="supporting-text">
                     ${this.hass.localize(
-                      "ui.panel.config.backup.overview.backups.total_size",
+                      'ui.panel.config.backup.overview.backups.total_size',
                       { size: bytesToString(size) }
                     )}
                   </div>
@@ -99,14 +99,17 @@ class HaBackupOverviewBackups extends LitElement {
           </ha-md-list>
         </div>
         <div class="card-actions">
-          <ha-button appearance="filled" href="/config/backup/backups?type=all">
+          <ha-button
+            appearance="filled"
+            href="/config/backup/backups?type=all"
+          >
             ${this.hass.localize(
-              "ui.panel.config.backup.overview.backups.show_all"
+              'ui.panel.config.backup.overview.backups.show_all'
             )}
           </ha-button>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -135,12 +138,12 @@ class HaBackupOverviewBackups extends LitElement {
           padding-bottom: 0;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-backup-overview-backups": HaBackupOverviewBackups;
+    'ha-backup-overview-backups': HaBackupOverviewBackups
   }
 }

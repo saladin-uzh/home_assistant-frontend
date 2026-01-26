@@ -6,14 +6,14 @@ You are an assistant helping with development of the Home Assistant frontend. Th
 
 ## Table of Contents
 
-- [Quick Reference](#quick-reference)
-- [Core Architecture](#core-architecture)
-- [Development Standards](#development-standards)
-- [Component Library](#component-library)
-- [Common Patterns](#common-patterns)
-- [Text and Copy Guidelines](#text-and-copy-guidelines)
-- [Development Workflow](#development-workflow)
-- [Review Guidelines](#review-guidelines)
+- [Quick Reference](copilot-instructions.md#quick-reference)
+- [Core Architecture](copilot-instructions.md#core-architecture)
+- [Development Standards](copilot-instructions.md#development-standards)
+- [Component Library](copilot-instructions.md#component-library)
+- [Common Patterns](copilot-instructions.md#common-patterns)
+- [Text and Copy Guidelines](copilot-instructions.md#text-and-copy-guidelines)
+- [Development Workflow](copilot-instructions.md#development-workflow)
+- [Review Guidelines](copilot-instructions.md#review-guidelines)
 
 ## Quick Reference
 
@@ -36,9 +36,9 @@ script/develop     # Development server
 ### Import Patterns
 
 ```typescript
-import type { HomeAssistant } from "../types";
-import { fireEvent } from "../common/dom/fire_event";
-import { showAlertDialog } from "../dialogs/generic/show-alert-dialog";
+import type { HomeAssistant } from '../types'
+import { fireEvent } from '../common/dom/fire_event'
+import { showAlertDialog } from '../dialogs/generic/show-alert-dialog'
 ```
 
 ## Core Architecture
@@ -54,14 +54,14 @@ The Home Assistant frontend is a modern web application that:
 
 ### Code Quality Requirements
 
-**Linting and Formatting (Enforced by Tools)**
+#### Linting and Formatting (Enforced by Tools)
 
 - ESLint config extends Airbnb, TypeScript strict, Lit, Web Components, Accessibility
 - Prettier with ES5 trailing commas enforced
 - No console statements (`no-console: "error"`) - use proper logging
 - Import organization: No unused imports, consistent type imports
 
-**Naming Conventions**
+#### Naming Conventions
 
 - PascalCase for types and classes
 - camelCase for variables, methods
@@ -101,24 +101,24 @@ hass: any;
 - **Define custom element names**: Use `ha-` prefix for components
 
 ```typescript
-@customElement("ha-my-component")
+@customElement('ha-my-component')
 export class HaMyComponent extends LitElement {
   @property({ attribute: false })
-  hass!: HomeAssistant;
+  hass!: HomeAssistant
 
   @state()
-  private _config?: MyComponentConfig;
+  private _config?: MyComponentConfig
 
   static get styles() {
     return css`
       :host {
         display: block;
       }
-    `;
+    `
   }
 
   render() {
-    return html`<div>Content</div>`;
+    return html`<div>Content</div>`
   }
 }
 ```
@@ -141,12 +141,12 @@ export class HaMyComponent extends LitElement {
 ```typescript
 // Good
 try {
-  const result = await fetchEntityRegistry(this.hass.connection);
-  this._processResult(result);
+  const result = await fetchEntityRegistry(this.hass.connection)
+  this._processResult(result)
 } catch (err) {
   showAlertDialog(this, {
     text: `Failed to load: ${err.message}`,
-  });
+  })
 }
 ```
 
@@ -255,11 +255,11 @@ For browser support, API details, and current specifications, refer to these aut
 **Opening Dialogs (Fire Event Pattern - Recommended):**
 
 ```typescript
-fireEvent(this, "show-dialog", {
-  dialogTag: "dialog-example",
-  dialogImport: () => import("./dialog-example"),
-  dialogParams: { title: "Example", data: someData },
-});
+fireEvent(this, 'show-dialog', {
+  dialogTag: 'dialog-example',
+  dialogImport: () => import('./dialog-example'),
+  dialogParams: { title: 'Example', data: someData },
+})
 ```
 
 **Dialog Implementation Requirements:**
@@ -333,8 +333,16 @@ See these files for current patterns:
 
 ```html
 <ha-alert alert-type="error">Error message</ha-alert>
-<ha-alert alert-type="warning" title="Warning">Description</ha-alert>
-<ha-alert alert-type="success" dismissable>Success message</ha-alert>
+<ha-alert
+  alert-type="warning"
+  title="Warning"
+  >Description</ha-alert
+>
+<ha-alert
+  alert-type="success"
+  dismissable
+  >Success message</ha-alert
+>
 ```
 
 **Gallery Documentation:**
@@ -371,23 +379,23 @@ The `ha-tooltip` component wraps Web Awesome tooltip with Home Assistant theming
 ### Creating a Panel
 
 ```typescript
-@customElement("ha-panel-myfeature")
+@customElement('ha-panel-myfeature')
 export class HaPanelMyFeature extends SubscribeMixin(LitElement) {
   @property({ attribute: false })
-  hass!: HomeAssistant;
+  hass!: HomeAssistant
 
   @property({ type: Boolean, reflect: true })
-  narrow!: boolean;
+  narrow!: boolean
 
   @property()
-  route!: Route;
+  route!: Route
 
   hassSubscribe() {
     return [
-      subscribeEntityRegistry(this.hass.connection, (entities) => {
-        this._entities = entities;
+      subscribeEntityRegistry(this.hass.connection, entities => {
+        this._entities = entities
       }),
-    ];
+    ]
   }
 }
 ```
@@ -395,37 +403,37 @@ export class HaPanelMyFeature extends SubscribeMixin(LitElement) {
 ### Creating a Dialog
 
 ```typescript
-@customElement("dialog-my-feature")
+@customElement('dialog-my-feature')
 export class DialogMyFeature
   extends LitElement
   implements HassDialog<MyDialogParams>
 {
   @property({ attribute: false })
-  hass!: HomeAssistant;
+  hass!: HomeAssistant
 
   @state()
-  private _params?: MyDialogParams;
+  private _params?: MyDialogParams
 
   @state()
-  private _open = false;
+  private _open = false
 
   public async showDialog(params: MyDialogParams): Promise<void> {
-    this._params = params;
-    this._open = true;
+    this._params = params
+    this._open = true
   }
 
   public closeDialog(): void {
-    this._open = false;
+    this._open = false
   }
 
   private _dialogClosed(): void {
-    this._params = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -443,17 +451,20 @@ export class DialogMyFeature
             appearance="plain"
             @click=${this.closeDialog}
           >
-            ${this.hass.localize("ui.common.cancel")}
+            ${this.hass.localize('ui.common.cancel')}
           </ha-button>
-          <ha-button slot="primaryAction" @click=${this._submit}>
-            ${this.hass.localize("ui.common.save")}
+          <ha-button
+            slot="primaryAction"
+            @click=${this._submit}
+          >
+            ${this.hass.localize('ui.common.save')}
           </ha-button>
         </ha-dialog-footer>
       </ha-wa-dialog>
-    `;
+    `
   }
 
-  static styles = [haStyleDialog, css``];
+  static styles = [haStyleDialog, css``]
 }
 ```
 
@@ -472,33 +483,33 @@ export class DialogMyFeature
 **Purpose**: Cards allow users to tell different stories about their house (based on gallery)
 
 ```typescript
-@customElement("hui-my-card")
+@customElement('hui-my-card')
 export class HuiMyCard extends LitElement implements LovelaceCard {
   @property({ attribute: false })
-  hass!: HomeAssistant;
+  hass!: HomeAssistant
 
   @state()
-  private _config?: MyCardConfig;
+  private _config?: MyCardConfig
 
   public setConfig(config: MyCardConfig): void {
     if (!config.entity) {
-      throw new Error("Entity required");
+      throw new Error('Entity required')
     }
-    this._config = config;
+    this._config = config
   }
 
   public getCardSize(): number {
-    return 3; // Height in grid units
+    return 3 // Height in grid units
   }
 
   // Optional: Editor for card configuration
   public static getConfigElement(): LovelaceCardEditor {
-    return document.createElement("hui-my-card-editor");
+    return document.createElement('hui-my-card-editor')
   }
 
   // Optional: Stub config for card picker
   public static getStubConfig(): object {
-    return { entity: "" };
+    return { entity: '' }
   }
 }
 ```
@@ -520,9 +531,9 @@ export class HuiMyCard extends LitElement implements LovelaceCard {
 - **Support placeholders**: Use proper placeholder syntax
 
 ```typescript
-this.hass.localize("ui.panel.config.updates.update_available", {
+this.hass.localize('ui.panel.config.updates.update_available', {
   count: 5,
-});
+})
 ```
 
 ### Accessibility
@@ -631,12 +642,12 @@ this.hass.localize("ui.panel.config.updates.update_available", {
 
 ```typescript
 // Good
-this.hass.localize("ui.panel.config.automation.delete_confirm", {
+this.hass.localize('ui.panel.config.automation.delete_confirm', {
   name: automation.alias,
-});
+})
 
 // Bad - hardcoded text
-("Are you sure you want to delete this automation?");
+;('Are you sure you want to delete this automation?')
 ```
 
 ### Common Review Issues (From PR Analysis)

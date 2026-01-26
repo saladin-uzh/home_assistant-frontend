@@ -1,56 +1,56 @@
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "../../../components/ha-textfield";
-import { isUnavailableState, UNAVAILABLE } from "../../../data/entity";
-import type { TextEntity } from "../../../data/text";
-import { setValue } from "../../../data/text";
-import type { HomeAssistant } from "../../../types";
-import { hasConfigOrEntityChanged } from "../common/has-changed";
-import "../components/hui-generic-entity-row";
-import { createEntityNotFoundWarning } from "../components/hui-warning";
-import type { EntityConfig, LovelaceRow } from "./types";
-import { computeLovelaceEntityName } from "../common/entity/compute-lovelace-entity-name";
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import '../../../components/ha-textfield'
+import { isUnavailableState, UNAVAILABLE } from '../../../data/entity'
+import type { TextEntity } from '../../../data/text'
+import { setValue } from '../../../data/text'
+import type { HomeAssistant } from '../../../types'
+import { hasConfigOrEntityChanged } from '../common/has-changed'
+import '../components/hui-generic-entity-row'
+import { createEntityNotFoundWarning } from '../components/hui-warning'
+import type { EntityConfig, LovelaceRow } from './types'
+import { computeLovelaceEntityName } from '../common/entity/compute-lovelace-entity-name'
 
-@customElement("hui-text-entity-row")
+@customElement('hui-text-entity-row')
 class HuiTextEntityRow extends LitElement implements LovelaceRow {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: EntityConfig;
+  @state() private _config?: EntityConfig
 
   public setConfig(config: EntityConfig): void {
     if (!config) {
-      throw new Error("Invalid configuration");
+      throw new Error('Invalid configuration')
     }
-    this._config = config;
+    this._config = config
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    return hasConfigOrEntityChanged(this, changedProps);
+    return hasConfigOrEntityChanged(this, changedProps)
   }
 
   protected render() {
     if (!this._config || !this.hass) {
-      return nothing;
+      return nothing
     }
 
     const stateObj = this.hass.states[this._config.entity] as
       | TextEntity
-      | undefined;
+      | undefined
 
     if (!stateObj) {
       return html`
         <hui-warning .hass=${this.hass}>
           ${createEntityNotFoundWarning(this.hass, this._config.entity)}
         </hui-warning>
-      `;
+      `
     }
 
     const name = computeLovelaceEntityName(
       this.hass!,
       stateObj,
       this._config.name
-    );
+    )
 
     return html`
       <hui-generic-entity-row
@@ -68,27 +68,27 @@ class HuiTextEntityRow extends LitElement implements LovelaceRow {
           .pattern=${stateObj.attributes.pattern}
           .type=${stateObj.attributes.mode}
           @change=${this._valueChanged}
-          placeholder=${this.hass!.localize("ui.card.text.emtpy_value")}
+          placeholder=${this.hass!.localize('ui.card.text.emtpy_value')}
         ></ha-textfield>
       </hui-generic-entity-row>
-    `;
+    `
   }
 
   private _valueChanged(ev): void {
-    const stateObj = this.hass!.states[this._config!.entity] as TextEntity;
-    const newValue = ev.target.value;
+    const stateObj = this.hass!.states[this._config!.entity] as TextEntity
+    const newValue = ev.target.value
 
     // Filter out invalid text states
     if (newValue && isUnavailableState(newValue)) {
-      ev.target.value = stateObj.state;
-      return;
+      ev.target.value = stateObj.state
+      return
     }
 
     if (newValue !== stateObj.state) {
-      setValue(this.hass!, stateObj.entity_id, newValue);
+      setValue(this.hass!, stateObj.entity_id, newValue)
     }
 
-    ev.target.blur();
+    ev.target.blur()
   }
 
   static styles = css`
@@ -99,11 +99,11 @@ class HuiTextEntityRow extends LitElement implements LovelaceRow {
     ha-textfield {
       width: 100%;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-text-entity-row": HuiTextEntityRow;
+    'hui-text-entity-row': HuiTextEntityRow
   }
 }

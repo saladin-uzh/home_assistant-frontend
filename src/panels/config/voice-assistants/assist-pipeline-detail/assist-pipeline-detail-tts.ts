@@ -1,31 +1,31 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import type { LocalizeKeys } from "../../../../common/translations/localize";
-import "../../../../components/ha-button";
-import "../../../../components/ha-form/ha-form";
-import type { AssistPipeline } from "../../../../data/assist_pipeline";
-import { showTTSTryDialog } from "../../../../dialogs/tts-try/show-dialog-tts-try";
-import type { HomeAssistant } from "../../../../types";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import type { LocalizeKeys } from '../../../../common/translations/localize'
+import '../../../../components/ha-button'
+import '../../../../components/ha-form/ha-form'
+import type { AssistPipeline } from '../../../../data/assist_pipeline'
+import { showTTSTryDialog } from '../../../../dialogs/tts-try/show-dialog-tts-try'
+import type { HomeAssistant } from '../../../../types'
 
-@customElement("assist-pipeline-detail-tts")
+@customElement('assist-pipeline-detail-tts')
 export class AssistPipelineDetailTTS extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public data?: Partial<AssistPipeline>;
+  @property({ attribute: false }) public data?: Partial<AssistPipeline>
 
-  @state() private _supportedLanguages?: string[];
+  @state() private _supportedLanguages?: string[]
 
   private _schema = memoizeOne(
     (language?: string, supportedLanguages?: string[]) =>
       [
         {
-          name: "",
-          type: "grid",
+          name: '',
+          type: 'grid',
           schema: [
             {
-              name: "tts_engine",
+              name: 'tts_engine',
               selector: {
                 tts: {
                   language,
@@ -34,32 +34,32 @@ export class AssistPipelineDetailTTS extends LitElement {
             },
             supportedLanguages?.length
               ? {
-                  name: "tts_language",
+                  name: 'tts_language',
                   required: true,
                   selector: {
                     language: { languages: supportedLanguages, no_sort: true },
                   },
                 }
-              : { name: "", type: "constant" },
+              : { name: '', type: 'constant' },
             {
-              name: "tts_voice",
+              name: 'tts_voice',
               selector: {
                 tts_voice: {},
               },
-              context: { language: "tts_language", engineId: "tts_engine" },
+              context: { language: 'tts_language', engineId: 'tts_engine' },
               required: true,
             },
           ] as const,
         },
       ] as const
-  );
+  )
 
   private _computeLabel = (schema): string =>
     schema.name
       ? this.hass.localize(
           `ui.panel.config.voice_assistants.assistants.pipeline.detail.form.${schema.name}` as LocalizeKeys
         )
-      : "";
+      : ''
 
   protected render() {
     return html`
@@ -94,7 +94,7 @@ export class AssistPipelineDetailTTS extends LitElement {
            ? html`<div class="footer">
                <ha-button @click=${this._preview}>
                  ${this.hass.localize(
-                   "ui.panel.config.voice_assistants.assistants.pipeline.detail.try_tts"
+                   'ui.panel.config.voice_assistants.assistants.pipeline.detail.try_tts'
                  )}
                </ha-button>
              </div>`
@@ -102,27 +102,27 @@ export class AssistPipelineDetailTTS extends LitElement {
        }
         </div>
       </div>
-    `;
+    `
   }
 
   private async _preview() {
-    if (!this.data) return;
+    if (!this.data) return
 
-    const engine = this.data.tts_engine;
-    const language = this.data.tts_language || undefined;
-    const voice = this.data.tts_voice || undefined;
+    const engine = this.data.tts_engine
+    const language = this.data.tts_language || undefined
+    const voice = this.data.tts_voice || undefined
 
-    if (!engine) return;
+    if (!engine) return
 
     showTTSTryDialog(this, {
       engine,
       language,
       voice,
-    });
+    })
   }
 
   private _supportedLanguagesChanged(ev) {
-    this._supportedLanguages = ev.detail.value;
+    this._supportedLanguages = ev.detail.value
 
     if (
       !this.data?.tts_language ||
@@ -130,10 +130,10 @@ export class AssistPipelineDetailTTS extends LitElement {
     ) {
       // wait for update of conversation_engine
       setTimeout(() => {
-        const value = { ...this.data };
-        value.tts_language = this._supportedLanguages?.[0] ?? null;
-        fireEvent(this, "value-changed", { value });
-      }, 0);
+        const value = { ...this.data }
+        value.tts_language = this._supportedLanguages?.[0] ?? null
+        fireEvent(this, 'value-changed', { value })
+      }, 0)
     }
   }
 
@@ -165,11 +165,11 @@ export class AssistPipelineDetailTTS extends LitElement {
       border-top: 1px solid var(--divider-color);
       padding: 8px 16px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "assist-pipeline-detail-tts": AssistPipelineDetailTTS;
+    'assist-pipeline-detail-tts': AssistPipelineDetailTTS
   }
 }

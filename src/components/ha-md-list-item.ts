@@ -1,8 +1,8 @@
-import { ListItemEl } from "@material/web/list/internal/listitem/list-item";
-import { styles } from "@material/web/list/internal/listitem/list-item-styles";
-import { css, html, nothing, type TemplateResult } from "lit";
-import { customElement } from "lit/decorators";
-import "./ha-ripple";
+import { ListItemEl } from '@material/web/list/internal/listitem/list-item'
+import { styles } from '@material/web/list/internal/listitem/list-item-styles'
+import { css, html, nothing, type TemplateResult } from 'lit'
+import { customElement } from 'lit/decorators'
+import './ha-ripple'
 
 export const haMdListStyles = [
   styles,
@@ -21,27 +21,27 @@ export const haMdListStyles = [
       gap: var(--ha-md-list-item-gap, 16px);
     }
   `,
-];
+]
 
-@customElement("ha-md-list-item")
+@customElement('ha-md-list-item')
 export class HaMdListItem extends ListItemEl {
-  static override styles = haMdListStyles;
+  static override styles = haMdListStyles
 
   protected renderRipple(): TemplateResult | typeof nothing {
-    if (this.type === "text") {
-      return nothing;
+    if (this.type === 'text') {
+      return nothing
     }
 
     return html`<ha-ripple
       part="ripple"
       for="item"
-      ?disabled=${this.disabled && this.type !== "link"}
-    ></ha-ripple>`;
+      ?disabled=${this.disabled && this.type !== 'link'}
+    ></ha-ripple>`
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-md-list-item": HaMdListItem;
+    'ha-md-list-item': HaMdListItem
   }
 }

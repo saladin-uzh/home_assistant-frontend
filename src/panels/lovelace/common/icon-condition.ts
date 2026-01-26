@@ -8,10 +8,10 @@ import {
   mdiNumeric,
   mdiResponsive,
   mdiStateMachine,
-} from "@mdi/js";
-import type { Condition } from "./validate-condition";
+} from '@mdi/js'
+import type { Condition } from './validate-condition'
 
-export const ICON_CONDITION: Record<Condition["condition"], string> = {
+export const ICON_CONDITION: Record<Condition['condition'], string> = {
   location: mdiMapMarker,
   numeric_state: mdiNumeric,
   state: mdiStateMachine,
@@ -21,4 +21,4 @@ export const ICON_CONDITION: Record<Condition["condition"], string> = {
   and: mdiAmpersand,
   not: mdiNotEqualVariant,
   or: mdiGateOr,
-};
+}

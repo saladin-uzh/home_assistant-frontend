@@ -1,100 +1,97 @@
-import {
-  addHasRemoveClass,
-  BaseElement,
-} from "@material/mwc-base/base-element";
-import { supportsPassiveEventListener } from "@material/mwc-base/utils";
-import type { MDCTopAppBarAdapter } from "@material/top-app-bar/adapter";
-import { strings } from "@material/top-app-bar/constants";
-import MDCFixedTopAppBarFoundation from "@material/top-app-bar/fixed/foundation";
-import { html, css, nothing } from "lit";
-import { property, query, customElement } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { styles } from "@material/mwc-top-app-bar/mwc-top-app-bar.css";
-import { haStyleScrollbar } from "../resources/styles";
+import { addHasRemoveClass, BaseElement } from '@material/mwc-base/base-element'
+import { supportsPassiveEventListener } from '@material/mwc-base/utils'
+import type { MDCTopAppBarAdapter } from '@material/top-app-bar/adapter'
+import { strings } from '@material/top-app-bar/constants'
+import MDCFixedTopAppBarFoundation from '@material/top-app-bar/fixed/foundation'
+import { html, css, nothing } from 'lit'
+import { property, query, customElement } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { styles } from '@material/mwc-top-app-bar/mwc-top-app-bar.css'
+import { haStyleScrollbar } from '../resources/styles'
 
 export const passiveEventOptionsIfSupported = supportsPassiveEventListener
   ? { passive: true }
-  : undefined;
+  : undefined
 
-@customElement("ha-two-pane-top-app-bar-fixed")
+@customElement('ha-two-pane-top-app-bar-fixed')
 export class TopAppBarBaseBase extends BaseElement {
-  protected override mdcFoundation!: MDCFixedTopAppBarFoundation;
+  protected override mdcFoundation!: MDCFixedTopAppBarFoundation
 
-  protected override mdcFoundationClass = MDCFixedTopAppBarFoundation;
+  protected override mdcFoundationClass = MDCFixedTopAppBarFoundation
 
-  @query(".mdc-top-app-bar") protected mdcRoot!: HTMLElement;
+  @query('.mdc-top-app-bar') protected mdcRoot!: HTMLElement
 
   // _actionItemsSlot should have type HTMLSlotElement, but when TypeScript's
   // emitDecoratorMetadata is enabled, the HTMLSlotElement constructor will
   // be emitted into the runtime, which will cause an "HTMLSlotElement is
   // undefined" error in browsers that don't define it (e.g. IE11).
-  @query('slot[name="actionItems"]') protected _actionItemsSlot!: HTMLElement;
+  @query('slot[name="actionItems"]') protected _actionItemsSlot!: HTMLElement
 
-  protected _scrollTarget!: HTMLElement | Window;
+  protected _scrollTarget!: HTMLElement | Window
 
-  @property({ type: Boolean, reflect: true }) public narrow = false;
+  @property({ type: Boolean, reflect: true }) public narrow = false
 
-  @property({ attribute: "center-title", type: Boolean }) centerTitle = false;
+  @property({ attribute: 'center-title', type: Boolean }) centerTitle = false
 
-  @property({ type: Boolean, reflect: true }) prominent = false;
+  @property({ type: Boolean, reflect: true }) prominent = false
 
-  @property({ type: Boolean, reflect: true }) dense = false;
+  @property({ type: Boolean, reflect: true }) dense = false
 
-  @property({ type: Boolean }) pane = false;
+  @property({ type: Boolean }) pane = false
 
-  @property({ type: Boolean }) footer = false;
+  @property({ type: Boolean }) footer = false
 
-  @query(".content") private _contentElement!: HTMLElement;
+  @query('.content') private _contentElement!: HTMLElement
 
-  @query(".pane .ha-scrollbar") private _paneElement?: HTMLElement;
+  @query('.pane .ha-scrollbar') private _paneElement?: HTMLElement
 
   @property({ attribute: false, type: Object })
   get scrollTarget() {
-    return this._scrollTarget || window;
+    return this._scrollTarget || window
   }
 
   set scrollTarget(value) {
-    this.unregisterListeners();
-    const old = this.scrollTarget;
-    this._scrollTarget = value;
-    this.updateRootPosition();
-    this.requestUpdate("scrollTarget", old);
-    this.registerListeners();
+    this.unregisterListeners()
+    const old = this.scrollTarget
+    this._scrollTarget = value
+    this.updateRootPosition()
+    this.requestUpdate('scrollTarget', old)
+    this.registerListeners()
   }
 
   protected updateRootPosition() {
     if (this.mdcRoot) {
-      const windowScroller = this.scrollTarget === window;
+      const windowScroller = this.scrollTarget === window
       // we add support for top-app-bar's tied to an element scroller.
-      this.mdcRoot.style.position = windowScroller ? "" : "absolute";
+      this.mdcRoot.style.position = windowScroller ? '' : 'absolute'
     }
   }
 
   protected barClasses() {
     return {
-      "mdc-top-app-bar--dense": this.dense,
-      "mdc-top-app-bar--prominent": this.prominent,
-      "center-title": this.centerTitle,
-      "mdc-top-app-bar--fixed": true,
-      "mdc-top-app-bar--pane": this.pane,
-    };
+      'mdc-top-app-bar--dense': this.dense,
+      'mdc-top-app-bar--prominent': this.prominent,
+      'center-title': this.centerTitle,
+      'mdc-top-app-bar--fixed': true,
+      'mdc-top-app-bar--pane': this.pane,
+    }
   }
 
   protected contentClasses() {
     return {
-      "mdc-top-app-bar--fixed-adjust": !this.dense && !this.prominent,
-      "mdc-top-app-bar--dense-fixed-adjust": this.dense && !this.prominent,
-      "mdc-top-app-bar--prominent-fixed-adjust": !this.dense && this.prominent,
-      "mdc-top-app-bar--dense-prominent-fixed-adjust":
+      'mdc-top-app-bar--fixed-adjust': !this.dense && !this.prominent,
+      'mdc-top-app-bar--dense-fixed-adjust': this.dense && !this.prominent,
+      'mdc-top-app-bar--prominent-fixed-adjust': !this.dense && this.prominent,
+      'mdc-top-app-bar--dense-prominent-fixed-adjust':
         this.dense && this.prominent,
-      "mdc-top-app-bar--pane": this.pane,
-    };
+      'mdc-top-app-bar--pane': this.pane,
+    }
   }
 
   protected override render() {
     const title = html`<span class="mdc-top-app-bar__title"
       ><slot name="title"></slot
-    ></span>`;
+    ></span>`
     return html`
       <header class="mdc-top-app-bar ${classMap(this.barClasses())}">
         <div class="mdc-top-app-bar__row">
@@ -110,7 +107,10 @@ export class TopAppBarBaseBase extends BaseElement {
                 ${title}
               </section>`
             : nothing}
-          <section class="mdc-top-app-bar__section" id="navigation">
+          <section
+            class="mdc-top-app-bar__section"
+            id="navigation"
+          >
             ${this.pane
               ? nothing
               : html`<slot
@@ -149,17 +149,17 @@ export class TopAppBarBaseBase extends BaseElement {
           </div>
         </div>
       </div>
-    `;
+    `
   }
 
   protected updated(changedProperties) {
-    super.updated(changedProperties);
+    super.updated(changedProperties)
     if (
-      changedProperties.has("pane") &&
-      changedProperties.get("pane") !== undefined
+      changedProperties.has('pane') &&
+      changedProperties.get('pane') !== undefined
     ) {
-      this.unregisterListeners();
-      this.registerListeners();
+      this.unregisterListeners()
+      this.registerListeners()
     }
   }
 
@@ -175,7 +175,7 @@ export class TopAppBarBaseBase extends BaseElement {
             bubbles: true,
             cancelable: true,
           })
-        );
+        )
       },
       getViewportScrollY: () =>
         this.scrollTarget instanceof Window
@@ -185,61 +185,61 @@ export class TopAppBarBaseBase extends BaseElement {
         (this._actionItemsSlot as HTMLSlotElement).assignedNodes({
           flatten: true,
         }).length,
-    };
+    }
   }
 
   protected handleTargetScroll = () => {
-    this.mdcFoundation.handleTargetScroll();
-  };
+    this.mdcFoundation.handleTargetScroll()
+  }
 
-  protected handlePaneScroll = (ev) => {
+  protected handlePaneScroll = ev => {
     if (ev.target.scrollTop > 0) {
-      ev.target.parentElement.classList.add("scrolled");
+      ev.target.parentElement.classList.add('scrolled')
     } else {
-      ev.target.parentElement.classList.remove("scrolled");
+      ev.target.parentElement.classList.remove('scrolled')
     }
-  };
+  }
 
   protected handleNavigationClick = () => {
-    this.mdcFoundation.handleNavigationClick();
-  };
+    this.mdcFoundation.handleNavigationClick()
+  }
 
   protected registerListeners() {
     if (this.pane) {
       this._paneElement!.addEventListener(
-        "scroll",
+        'scroll',
         this.handlePaneScroll,
         passiveEventOptionsIfSupported
-      );
+      )
       this._contentElement.addEventListener(
-        "scroll",
+        'scroll',
         this.handlePaneScroll,
         passiveEventOptionsIfSupported
-      );
-      return;
+      )
+      return
     }
     this.scrollTarget.addEventListener(
-      "scroll",
+      'scroll',
       this.handleTargetScroll,
       passiveEventOptionsIfSupported
-    );
+    )
   }
 
   protected unregisterListeners() {
-    this._paneElement?.removeEventListener("scroll", this.handlePaneScroll);
-    this._contentElement.removeEventListener("scroll", this.handlePaneScroll);
-    this.scrollTarget.removeEventListener("scroll", this.handleTargetScroll);
+    this._paneElement?.removeEventListener('scroll', this.handlePaneScroll)
+    this._contentElement.removeEventListener('scroll', this.handlePaneScroll)
+    this.scrollTarget.removeEventListener('scroll', this.handleTargetScroll)
   }
 
   protected override firstUpdated() {
-    super.firstUpdated();
-    this.updateRootPosition();
-    this.registerListeners();
+    super.firstUpdated()
+    this.updateRootPosition()
+    this.registerListeners()
   }
 
   override disconnectedCallback() {
-    super.disconnectedCallback();
-    this.unregisterListeners();
+    super.disconnectedCallback()
+    this.unregisterListeners()
   }
 
   static override styles = [
@@ -348,11 +348,11 @@ export class TopAppBarBaseBase extends BaseElement {
         padding-inline-end: initial;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-two-pane-top-app-bar-fixed": TopAppBarBaseBase;
+    'ha-two-pane-top-app-bar-fixed': TopAppBarBaseBase
   }
 }

@@ -1,16 +1,16 @@
-import "@material/mwc-drawer";
-import "@material/mwc-top-app-bar-fixed";
-import { html, css, LitElement } from "lit";
-import { customElement } from "lit/decorators";
-import "../../src/components/ha-icon-button";
-import "../../src/managers/notification-manager";
-import { haStyle } from "../../src/resources/styles";
-import "./components/page-description";
+import '@material/mwc-drawer'
+import '@material/mwc-top-app-bar-fixed'
+import { html, css, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import '../../src/components/ha-icon-button'
+import '../../src/managers/notification-manager'
+import { haStyle } from '../../src/resources/styles'
+import './components/page-description'
 
-@customElement("ha-demo-options")
+@customElement('ha-demo-options')
 class HaDemoOptions extends LitElement {
   render() {
-    return html`<slot></slot>`;
+    return html`<slot></slot>`
   }
 
   static styles = [
@@ -37,11 +37,11 @@ class HaDemoOptions extends LitElement {
         font-size: var(--ha-font-size-xl);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-demo-options": HaDemoOptions;
+    'ha-demo-options': HaDemoOptions
   }
 }

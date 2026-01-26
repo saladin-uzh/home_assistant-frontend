@@ -1,26 +1,26 @@
-import { mdiEye, mdiGauge, mdiWaterPercent, mdiWeatherWindy } from "@mdi/js";
-import type { CSSResultGroup, PropertyValues } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { DragScrollController } from "../../../common/controllers/drag-scroll-controller";
-import { formatDateWeekdayShort } from "../../../common/datetime/format_date";
-import { formatTime } from "../../../common/datetime/format_time";
-import { formatNumber } from "../../../common/number/format_number";
-import "../../../components/ha-alert";
-import "../../../components/ha-relative-time";
-import "../../../components/ha-spinner";
-import "../../../components/ha-state-icon";
-import "../../../components/ha-svg-icon";
-import "../../../components/ha-tab-group";
-import "../../../components/ha-tab-group-tab";
-import "../../../components/ha-tooltip";
+import { mdiEye, mdiGauge, mdiWaterPercent, mdiWeatherWindy } from '@mdi/js'
+import type { CSSResultGroup, PropertyValues } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { DragScrollController } from '../../../common/controllers/drag-scroll-controller'
+import { formatDateWeekdayShort } from '../../../common/datetime/format_date'
+import { formatTime } from '../../../common/datetime/format_time'
+import { formatNumber } from '../../../common/number/format_number'
+import '../../../components/ha-alert'
+import '../../../components/ha-relative-time'
+import '../../../components/ha-spinner'
+import '../../../components/ha-state-icon'
+import '../../../components/ha-svg-icon'
+import '../../../components/ha-tab-group'
+import '../../../components/ha-tab-group-tab'
+import '../../../components/ha-tooltip'
 import type {
   ForecastAttribute,
   ForecastEvent,
   ModernForecastType,
   WeatherEntity,
-} from "../../../data/weather";
+} from '../../../data/weather'
 import {
   getDefaultForecastType,
   getForecast,
@@ -31,141 +31,139 @@ import {
   getWind,
   subscribeForecast,
   weatherSVGStyles,
-} from "../../../data/weather";
-import type { HomeAssistant } from "../../../types";
+} from '../../../data/weather'
+import type { HomeAssistant } from '../../../types'
 
-@customElement("more-info-weather")
+@customElement('more-info-weather')
 class MoreInfoWeather extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj?: WeatherEntity;
+  @property({ attribute: false }) public stateObj?: WeatherEntity
 
-  @state() private _forecastEvent?: ForecastEvent;
+  @state() private _forecastEvent?: ForecastEvent
 
-  @state() private _forecastType?: ModernForecastType;
+  @state() private _forecastType?: ModernForecastType
 
-  @state() private _subscribed?: Promise<() => void>;
+  @state() private _subscribed?: Promise<() => void>
 
   // @ts-ignore
   private _dragScrollController = new DragScrollController(this, {
-    selector: ".forecast",
-  });
+    selector: '.forecast',
+  })
 
   private _unsubscribeForecastEvents() {
     if (this._subscribed) {
-      this._subscribed.then((unsub) => unsub());
-      this._subscribed = undefined;
+      this._subscribed.then(unsub => unsub())
+      this._subscribed = undefined
     }
-    this._forecastEvent = undefined;
+    this._forecastEvent = undefined
   }
 
   private async _subscribeForecastEvents() {
-    this._unsubscribeForecastEvents();
+    this._unsubscribeForecastEvents()
     if (
       !this.isConnected ||
       !this.hass ||
       !this.stateObj ||
       !this._forecastType
     ) {
-      return;
+      return
     }
 
     this._subscribed = subscribeForecast(
       this.hass!,
       this.stateObj!.entity_id,
       this._forecastType,
-      (event) => {
-        this._forecastEvent = event;
+      event => {
+        this._forecastEvent = event
       }
-    );
+    )
   }
 
   public connectedCallback() {
-    super.connectedCallback();
+    super.connectedCallback()
     if (this.hasUpdated) {
-      this._subscribeForecastEvents();
+      this._subscribeForecastEvents()
     }
   }
 
   public disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this._unsubscribeForecastEvents();
+    super.disconnectedCallback()
+    this._unsubscribeForecastEvents()
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    if (changedProps.has("stateObj")) {
-      return true;
+    if (changedProps.has('stateObj')) {
+      return true
     }
 
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined
     if (
       !oldHass ||
       oldHass.locale !== this.hass.locale ||
       oldHass.config.unit_system !== this.hass.config.unit_system
     ) {
-      return true;
+      return true
     }
 
-    return false;
+    return false
   }
 
   protected willUpdate(changedProps: PropertyValues): void {
-    super.willUpdate(changedProps);
+    super.willUpdate(changedProps)
 
-    if ((changedProps.has("stateObj") || !this._subscribed) && this.stateObj) {
-      const oldState = changedProps.get("stateObj") as
-        | WeatherEntity
-        | undefined;
+    if ((changedProps.has('stateObj') || !this._subscribed) && this.stateObj) {
+      const oldState = changedProps.get('stateObj') as WeatherEntity | undefined
       if (
         oldState?.entity_id !== this.stateObj?.entity_id ||
         !this._subscribed
       ) {
-        this._forecastType = getDefaultForecastType(this.stateObj);
-        this._subscribeForecastEvents();
+        this._forecastType = getDefaultForecastType(this.stateObj)
+        this._subscribeForecastEvents()
       }
-    } else if (changedProps.has("_forecastType")) {
-      this._subscribeForecastEvents();
+    } else if (changedProps.has('_forecastType')) {
+      this._subscribeForecastEvents()
     }
   }
 
   private _supportedForecasts = memoizeOne((stateObj: WeatherEntity) =>
     getSupportedForecastTypes(stateObj)
-  );
+  )
 
   private _groupForecastByDay = memoizeOne((forecast: ForecastAttribute[]) => {
-    if (!forecast) return [];
+    if (!forecast) return []
 
-    const grouped = new Map<string, NonNullable<typeof forecast>>();
+    const grouped = new Map<string, NonNullable<typeof forecast>>()
 
-    forecast.forEach((item) => {
-      const date = new Date(item.datetime);
-      const dateKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+    forecast.forEach(item => {
+      const date = new Date(item.datetime)
+      const dateKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
 
       if (!grouped.has(dateKey)) {
-        grouped.set(dateKey, []);
+        grouped.set(dateKey, [])
       }
-      grouped.get(dateKey)!.push(item);
-    });
+      grouped.get(dateKey)!.push(item)
+    })
 
-    return Array.from(grouped.values());
-  });
+    return Array.from(grouped.values())
+  })
 
   protected render() {
     if (!this.hass || !this.stateObj) {
-      return nothing;
+      return nothing
     }
 
-    const supportedForecasts = this._supportedForecasts(this.stateObj);
+    const supportedForecasts = this._supportedForecasts(this.stateObj)
 
     const forecastData = getForecast(
       this.stateObj.attributes,
       this._forecastEvent
-    );
-    const forecast = forecastData?.forecast;
-    const hourly = forecastData?.type === "hourly";
-    const dayNight = forecastData?.type === "twice_daily";
+    )
+    const forecast = forecastData?.forecast
+    const hourly = forecastData?.type === 'hourly'
+    const dayNight = forecastData?.type === 'twice_daily'
 
-    const weatherStateIcon = getWeatherStateIcon(this.stateObj.state, this);
+    const weatherStateIcon = getWeatherStateIcon(this.stateObj.state, this)
 
     return html`
       <div class="content">
@@ -195,7 +193,7 @@ class MoreInfoWeather extends LitElement {
                 <div class="row">
                   <span class="column-name">
                     ${this.hass.localize(
-                      "ui.dialogs.more_info_control.last_changed"
+                      'ui.dialogs.more_info_control.last_changed'
                     )}:
                   </span>
                   <ha-relative-time
@@ -207,7 +205,7 @@ class MoreInfoWeather extends LitElement {
                 <div class="row">
                   <span>
                     ${this.hass.localize(
-                      "ui.dialogs.more_info_control.last_updated"
+                      'ui.dialogs.more_info_control.last_updated'
                     )}:
                   </span>
                   <ha-relative-time
@@ -231,7 +229,7 @@ class MoreInfoWeather extends LitElement {
                       >${getWeatherUnit(
                         this.hass.config,
                         this.stateObj,
-                        "temperature"
+                        'temperature'
                       )}</span
                     >
                   `
@@ -252,12 +250,12 @@ class MoreInfoWeather extends LitElement {
             <div class="flex">
               <ha-svg-icon .path=${mdiGauge}></ha-svg-icon>
               <div class="main">
-                ${this.hass.localize("ui.card.weather.attributes.air_pressure")}
+                ${this.hass.localize('ui.card.weather.attributes.air_pressure')}
               </div>
               <div>
                 ${this.hass.formatEntityAttributeValue(
                   this.stateObj,
-                  "pressure"
+                  'pressure'
                 )}
               </div>
             </div>
@@ -268,12 +266,12 @@ class MoreInfoWeather extends LitElement {
             <div class="flex">
               <ha-svg-icon .path=${mdiWaterPercent}></ha-svg-icon>
               <div class="main">
-                ${this.hass.localize("ui.card.weather.attributes.humidity")}
+                ${this.hass.localize('ui.card.weather.attributes.humidity')}
               </div>
               <div>
                 ${this.hass.formatEntityAttributeValue(
                   this.stateObj,
-                  "humidity"
+                  'humidity'
                 )}
               </div>
             </div>
@@ -284,7 +282,7 @@ class MoreInfoWeather extends LitElement {
             <div class="flex">
               <ha-svg-icon .path=${mdiWeatherWindy}></ha-svg-icon>
               <div class="main">
-                ${this.hass.localize("ui.card.weather.attributes.wind_speed")}
+                ${this.hass.localize('ui.card.weather.attributes.wind_speed')}
               </div>
               <div>
                 ${getWind(
@@ -302,12 +300,12 @@ class MoreInfoWeather extends LitElement {
             <div class="flex">
               <ha-svg-icon .path=${mdiEye}></ha-svg-icon>
               <div class="main">
-                ${this.hass.localize("ui.card.weather.attributes.visibility")}
+                ${this.hass.localize('ui.card.weather.attributes.visibility')}
               </div>
               <div>
                 ${this.hass.formatEntityAttributeValue(
                   this.stateObj,
-                  "visibility"
+                  'visibility'
                 )}
               </div>
             </div>
@@ -315,12 +313,12 @@ class MoreInfoWeather extends LitElement {
         : nothing}
 
       <div class="section">
-        ${this.hass.localize("ui.card.weather.forecast")}:
+        ${this.hass.localize('ui.card.weather.forecast')}:
       </div>
       ${supportedForecasts?.length > 1
         ? html`<ha-tab-group @wa-tab-show=${this._handleForecastTypeChanged}>
             ${supportedForecasts.map(
-              (forecastType) =>
+              forecastType =>
                 html`<ha-tab-group-tab
                   slot="nav"
                   .panel=${forecastType}
@@ -333,8 +331,8 @@ class MoreInfoWeather extends LitElement {
         : nothing}
       <div class="forecast">
         ${forecast?.length
-          ? this._groupForecastByDay(forecast).map((dayForecast) => {
-              const showDayHeader = hourly || dayNight;
+          ? this._groupForecastByDay(forecast).map(dayForecast => {
+              const showDayHeader = hourly || dayNight
               return html`
                 <div class="forecast-day">
                   ${showDayHeader
@@ -347,15 +345,15 @@ class MoreInfoWeather extends LitElement {
                       </div>`
                     : nothing}
                   <div class="forecast-day-content">
-                    ${dayForecast.map((item) =>
+                    ${dayForecast.map(item =>
                       this._showValue(item.templow) ||
                       this._showValue(item.temperature)
                         ? html`
                             <div class="forecast-item">
                               <div
                                 class="forecast-item-label ${showDayHeader
-                                  ? ""
-                                  : "no-header"}"
+                                  ? ''
+                                  : 'no-header'}"
                               >
                                 ${hourly
                                   ? formatTime(
@@ -367,10 +365,10 @@ class MoreInfoWeather extends LitElement {
                                     ? html`<div class="daynight">
                                         ${item.is_daytime !== false
                                           ? this.hass!.localize(
-                                              "ui.card.weather.day"
+                                              'ui.card.weather.day'
                                             )
                                           : this.hass!.localize(
-                                              "ui.card.weather.night"
+                                              'ui.card.weather.night'
                                             )}
                                       </div>`
                                     : formatDateWeekdayShort(
@@ -399,7 +397,7 @@ class MoreInfoWeather extends LitElement {
                                       item.temperature,
                                       this.hass!.locale
                                     )}°`
-                                  : "—"}
+                                  : '—'}
                               </div>
                               <div class="templow">
                                 ${this._showValue(item.templow)
@@ -415,7 +413,7 @@ class MoreInfoWeather extends LitElement {
                     )}
                   </div>
                 </div>
-              `;
+              `
             })
           : html`<ha-spinner size="medium"></ha-spinner>`}
       </div>
@@ -427,11 +425,11 @@ class MoreInfoWeather extends LitElement {
             </div>
           `
         : nothing}
-    `;
+    `
   }
 
   private _handleForecastTypeChanged(ev: CustomEvent): void {
-    this._forecastType = ev.detail.name;
+    this._forecastType = ev.detail.name
   }
 
   static get styles(): CSSResultGroup {
@@ -654,16 +652,16 @@ class MoreInfoWeather extends LitElement {
           height: 120px;
         }
       `,
-    ];
+    ]
   }
 
   private _showValue(item: number | string | undefined): boolean {
-    return typeof item !== "undefined" && item !== null;
+    return typeof item !== 'undefined' && item !== null
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "more-info-weather": MoreInfoWeather;
+    'more-info-weather': MoreInfoWeather
   }
 }

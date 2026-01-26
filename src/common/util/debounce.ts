@@ -10,21 +10,21 @@ export const debounce = <T extends any[]>(
   wait: number,
   immediate = false
 ) => {
-  let timeout: number | undefined;
+  let timeout: number | undefined
   const debouncedFunc = (...args: T): void => {
     const later = () => {
-      timeout = undefined;
-      func(...args);
-    };
-    const callNow = immediate && !timeout;
-    clearTimeout(timeout);
-    timeout = window.setTimeout(later, wait);
-    if (callNow) {
-      func(...args);
+      timeout = undefined
+      func(...args)
     }
-  };
+    const callNow = immediate && !timeout
+    clearTimeout(timeout)
+    timeout = window.setTimeout(later, wait)
+    if (callNow) {
+      func(...args)
+    }
+  }
   debouncedFunc.cancel = () => {
-    clearTimeout(timeout);
-  };
-  return debouncedFunc;
-};
+    clearTimeout(timeout)
+  }
+  return debouncedFunc
+}

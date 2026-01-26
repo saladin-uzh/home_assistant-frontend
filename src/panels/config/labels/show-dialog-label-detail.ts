@@ -1,31 +1,31 @@
-import { fireEvent } from "../../../common/dom/fire_event";
+import { fireEvent } from '../../../common/dom/fire_event'
 import type {
   LabelRegistryEntry,
   LabelRegistryEntryMutableParams,
-} from "../../../data/label_registry";
+} from '../../../data/label_registry'
 
 export interface LabelDetailDialogParams {
-  entry?: LabelRegistryEntry;
-  suggestedName?: string;
+  entry?: LabelRegistryEntry
+  suggestedName?: string
   createEntry?: (
     values: LabelRegistryEntryMutableParams,
     labelId?: string
-  ) => Promise<unknown>;
+  ) => Promise<unknown>
   updateEntry?: (
     updates: Partial<LabelRegistryEntryMutableParams>
-  ) => Promise<unknown>;
-  removeEntry?: () => Promise<boolean>;
+  ) => Promise<unknown>
+  removeEntry?: () => Promise<boolean>
 }
 
-export const loadLabelDetailDialog = () => import("./dialog-label-detail");
+export const loadLabelDetailDialog = () => import('./dialog-label-detail')
 
 export const showLabelDetailDialog = (
   element: HTMLElement,
   dialogParams: LabelDetailDialogParams
 ): void => {
-  fireEvent(element, "show-dialog", {
-    dialogTag: "dialog-label-detail",
+  fireEvent(element, 'show-dialog', {
+    dialogTag: 'dialog-label-detail',
     dialogImport: loadLabelDetailDialog,
     dialogParams,
-  });
-};
+  })
+}

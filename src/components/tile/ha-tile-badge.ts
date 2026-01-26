@@ -1,16 +1,16 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators";
-import "../ha-icon";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import '../ha-icon'
 
-@customElement("ha-tile-badge")
+@customElement('ha-tile-badge')
 export class HaTileBadge extends LitElement {
   protected render(): TemplateResult {
     return html`
       <div class="badge">
         <slot></slot>
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -33,11 +33,11 @@ export class HaTileBadge extends LitElement {
     .badge ::slotted(*) {
       color: var(--tile-badge-icon-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-tile-badge": HaTileBadge;
+    'ha-tile-badge': HaTileBadge
   }
 }

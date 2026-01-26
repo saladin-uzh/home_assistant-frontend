@@ -1,102 +1,102 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { property, state } from "lit/decorators";
-import { fireEvent } from "../../../common/dom/fire_event";
-import "../../../components/entity/ha-entity-picker";
-import type { HaEntityPicker } from "../../../components/entity/ha-entity-picker";
-import "../../../components/ha-alert";
-import "../../../components/ha-aliases-editor";
-import { createCloseHeading } from "../../../components/ha-dialog";
-import "../../../components/ha-floor-picker";
-import "../../../components/ha-icon-picker";
-import "../../../components/ha-labels-picker";
-import "../../../components/ha-picture-upload";
-import type { HaPictureUpload } from "../../../components/ha-picture-upload";
-import "../../../components/ha-settings-row";
-import "../../../components/ha-textfield";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { property, state } from 'lit/decorators'
+import { fireEvent } from '../../../common/dom/fire_event'
+import '../../../components/entity/ha-entity-picker'
+import type { HaEntityPicker } from '../../../components/entity/ha-entity-picker'
+import '../../../components/ha-alert'
+import '../../../components/ha-aliases-editor'
+import { createCloseHeading } from '../../../components/ha-dialog'
+import '../../../components/ha-floor-picker'
+import '../../../components/ha-icon-picker'
+import '../../../components/ha-labels-picker'
+import '../../../components/ha-picture-upload'
+import type { HaPictureUpload } from '../../../components/ha-picture-upload'
+import '../../../components/ha-settings-row'
+import '../../../components/ha-textfield'
 import type {
   AreaRegistryEntry,
   AreaRegistryEntryMutableParams,
-} from "../../../data/area_registry";
-import { deleteAreaRegistryEntry } from "../../../data/area_registry";
+} from '../../../data/area_registry'
+import { deleteAreaRegistryEntry } from '../../../data/area_registry'
 import {
   SENSOR_DEVICE_CLASS_HUMIDITY,
   SENSOR_DEVICE_CLASS_TEMPERATURE,
-} from "../../../data/sensor";
-import { showConfirmationDialog } from "../../../dialogs/generic/show-dialog-box";
-import type { CropOptions } from "../../../dialogs/image-cropper-dialog/show-image-cropper-dialog";
-import { haStyleDialog } from "../../../resources/styles";
-import type { HomeAssistant, ValueChangedEvent } from "../../../types";
-import type { AreaRegistryDetailDialogParams } from "./show-dialog-area-registry-detail";
+} from '../../../data/sensor'
+import { showConfirmationDialog } from '../../../dialogs/generic/show-dialog-box'
+import type { CropOptions } from '../../../dialogs/image-cropper-dialog/show-image-cropper-dialog'
+import { haStyleDialog } from '../../../resources/styles'
+import type { HomeAssistant, ValueChangedEvent } from '../../../types'
+import type { AreaRegistryDetailDialogParams } from './show-dialog-area-registry-detail'
 
 const cropOptions: CropOptions = {
   round: false,
-  type: "image/jpeg",
+  type: 'image/jpeg',
   quality: 0.75,
-};
+}
 
-const SENSOR_DOMAINS = ["sensor"];
-const TEMPERATURE_DEVICE_CLASSES = [SENSOR_DEVICE_CLASS_TEMPERATURE];
-const HUMIDITY_DEVICE_CLASSES = [SENSOR_DEVICE_CLASS_HUMIDITY];
+const SENSOR_DOMAINS = ['sensor']
+const TEMPERATURE_DEVICE_CLASSES = [SENSOR_DEVICE_CLASS_TEMPERATURE]
+const HUMIDITY_DEVICE_CLASSES = [SENSOR_DEVICE_CLASS_HUMIDITY]
 
 class DialogAreaDetail extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _name!: string;
+  @state() private _name!: string
 
-  @state() private _aliases!: string[];
+  @state() private _aliases!: string[]
 
-  @state() private _labels!: string[];
+  @state() private _labels!: string[]
 
-  @state() private _picture!: string | null;
+  @state() private _picture!: string | null
 
-  @state() private _icon!: string | null;
+  @state() private _icon!: string | null
 
-  @state() private _floor!: string | null;
+  @state() private _floor!: string | null
 
-  @state() private _temperatureEntity!: string | null;
+  @state() private _temperatureEntity!: string | null
 
-  @state() private _humidityEntity!: string | null;
+  @state() private _humidityEntity!: string | null
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
-  @state() private _params?: AreaRegistryDetailDialogParams;
+  @state() private _params?: AreaRegistryDetailDialogParams
 
-  @state() private _submitting?: boolean;
+  @state() private _submitting?: boolean
 
   public async showDialog(
     params: AreaRegistryDetailDialogParams
   ): Promise<void> {
-    this._params = params;
-    this._error = undefined;
+    this._params = params
+    this._error = undefined
     if (this._params.entry) {
-      this._name = this._params.entry.name;
-      this._aliases = this._params.entry.aliases;
-      this._labels = this._params.entry.labels;
-      this._picture = this._params.entry.picture;
-      this._icon = this._params.entry.icon;
-      this._floor = this._params.entry.floor_id;
-      this._temperatureEntity = this._params.entry.temperature_entity_id;
-      this._humidityEntity = this._params.entry.humidity_entity_id;
+      this._name = this._params.entry.name
+      this._aliases = this._params.entry.aliases
+      this._labels = this._params.entry.labels
+      this._picture = this._params.entry.picture
+      this._icon = this._params.entry.icon
+      this._floor = this._params.entry.floor_id
+      this._temperatureEntity = this._params.entry.temperature_entity_id
+      this._humidityEntity = this._params.entry.humidity_entity_id
     } else {
-      this._name = this._params.suggestedName || "";
-      this._aliases = [];
-      this._labels = [];
-      this._picture = null;
-      this._icon = null;
-      this._floor = null;
-      this._temperatureEntity = null;
-      this._humidityEntity = null;
+      this._name = this._params.suggestedName || ''
+      this._aliases = []
+      this._labels = []
+      this._picture = null
+      this._icon = null
+      this._floor = null
+      this._temperatureEntity = null
+      this._humidityEntity = null
     }
 
-    await this.updateComplete;
+    await this.updateComplete
   }
 
   public closeDialog(): void {
-    this._error = "";
-    this._params = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._error = ''
+    this._params = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   private _renderSettings(entry: AreaRegistryEntry | undefined) {
@@ -105,7 +105,7 @@ class DialogAreaDetail extends LitElement {
         ? html`
             <ha-settings-row>
               <span slot="heading">
-                ${this.hass.localize("ui.panel.config.areas.editor.area_id")}
+                ${this.hass.localize('ui.panel.config.areas.editor.area_id')}
               </span>
               <span slot="description"> ${entry.area_id} </span>
             </ha-settings-row>
@@ -115,9 +115,9 @@ class DialogAreaDetail extends LitElement {
       <ha-textfield
         .value=${this._name}
         @input=${this._nameChanged}
-        .label=${this.hass.localize("ui.panel.config.areas.editor.name")}
+        .label=${this.hass.localize('ui.panel.config.areas.editor.name')}
         .validationMessage=${this.hass.localize(
-          "ui.panel.config.areas.editor.name_required"
+          'ui.panel.config.areas.editor.name_required'
         )}
         required
         dialogInitialFocus
@@ -127,23 +127,23 @@ class DialogAreaDetail extends LitElement {
         .hass=${this.hass}
         .value=${this._icon}
         @value-changed=${this._iconChanged}
-        .label=${this.hass.localize("ui.panel.config.areas.editor.icon")}
+        .label=${this.hass.localize('ui.panel.config.areas.editor.icon')}
       ></ha-icon-picker>
 
       <ha-floor-picker
         .hass=${this.hass}
         .value=${this._floor}
         @value-changed=${this._floorChanged}
-        .label=${this.hass.localize("ui.panel.config.areas.editor.floor")}
+        .label=${this.hass.localize('ui.panel.config.areas.editor.floor')}
       ></ha-floor-picker>
 
       <ha-labels-picker
-        .label=${this.hass.localize("ui.components.label-picker.labels")}
+        .label=${this.hass.localize('ui.components.label-picker.labels')}
         .hass=${this.hass}
         .value=${this._labels}
         @value-changed=${this._labelsChanged}
         .placeholder=${this.hass.localize(
-          "ui.panel.config.areas.editor.add_labels"
+          'ui.panel.config.areas.editor.add_labels'
         )}
       ></ha-labels-picker>
 
@@ -155,7 +155,7 @@ class DialogAreaDetail extends LitElement {
         .cropOptions=${cropOptions}
         @change=${this._pictureChanged}
       ></ha-picture-upload>
-    `;
+    `
   }
 
   private _renderAliasExpansion() {
@@ -163,14 +163,14 @@ class DialogAreaDetail extends LitElement {
       <ha-expansion-panel
         outlined
         .header=${this.hass.localize(
-          "ui.panel.config.areas.editor.aliases_section"
+          'ui.panel.config.areas.editor.aliases_section'
         )}
         expanded
       >
         <div class="content">
           <p class="description">
             ${this.hass.localize(
-              "ui.panel.config.areas.editor.aliases_description"
+              'ui.panel.config.areas.editor.aliases_description'
             )}
           </p>
           <ha-aliases-editor
@@ -180,7 +180,7 @@ class DialogAreaDetail extends LitElement {
           ></ha-aliases-editor>
         </div>
       </ha-expansion-panel>
-    `;
+    `
   }
 
   private _renderRelatedEntitiesExpansion() {
@@ -188,7 +188,7 @@ class DialogAreaDetail extends LitElement {
       <ha-expansion-panel
         outlined
         .header=${this.hass.localize(
-          "ui.panel.config.areas.editor.related_entities_section"
+          'ui.panel.config.areas.editor.related_entities_section'
         )}
         expanded
       >
@@ -196,10 +196,10 @@ class DialogAreaDetail extends LitElement {
           <ha-entity-picker
             .hass=${this.hass}
             .label=${this.hass.localize(
-              "ui.panel.config.areas.editor.temperature_entity"
+              'ui.panel.config.areas.editor.temperature_entity'
             )}
             .helper=${this.hass.localize(
-              "ui.panel.config.areas.editor.temperature_entity_description"
+              'ui.panel.config.areas.editor.temperature_entity_description'
             )}
             .value=${this._temperatureEntity}
             .includeDomains=${SENSOR_DOMAINS}
@@ -211,10 +211,10 @@ class DialogAreaDetail extends LitElement {
           <ha-entity-picker
             .hass=${this.hass}
             .label=${this.hass.localize(
-              "ui.panel.config.areas.editor.humidity_entity"
+              'ui.panel.config.areas.editor.humidity_entity'
             )}
             .helper=${this.hass.localize(
-              "ui.panel.config.areas.editor.humidity_entity_description"
+              'ui.panel.config.areas.editor.humidity_entity_description'
             )}
             .value=${this._humidityEntity}
             .includeDomains=${SENSOR_DOMAINS}
@@ -224,16 +224,16 @@ class DialogAreaDetail extends LitElement {
           ></ha-entity-picker>
         </div>
       </ha-expansion-panel>
-    `;
+    `
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
-    const entry = this._params.entry;
-    const nameInvalid = !this._isNameValid();
-    const isNew = !entry;
+    const entry = this._params.entry
+    const nameInvalid = !this._isNameValid()
+    const isNew = !entry
 
     return html`
       <ha-dialog
@@ -242,14 +242,14 @@ class DialogAreaDetail extends LitElement {
         .heading=${createCloseHeading(
           this.hass,
           entry
-            ? this.hass.localize("ui.panel.config.areas.editor.update_area")
-            : this.hass.localize("ui.panel.config.areas.editor.create_area")
+            ? this.hass.localize('ui.panel.config.areas.editor.update_area')
+            : this.hass.localize('ui.panel.config.areas.editor.create_area')
         )}
       >
         <div>
           ${this._error
             ? html`<ha-alert alert-type="error">${this._error}</ha-alert>`
-            : ""}
+            : ''}
           <div class="form">
             ${this._renderSettings(entry)} ${this._renderAliasExpansion()}
             ${!isNew ? this._renderRelatedEntitiesExpansion() : nothing}
@@ -262,7 +262,7 @@ class DialogAreaDetail extends LitElement {
               appearance="plain"
               @click=${this._deleteArea}
             >
-              ${this.hass.localize("ui.common.delete")}
+              ${this.hass.localize('ui.common.delete')}
             </ha-button>`
           : nothing}
         <ha-button
@@ -271,71 +271,71 @@ class DialogAreaDetail extends LitElement {
           .disabled=${nameInvalid || !!this._submitting}
         >
           ${entry
-            ? this.hass.localize("ui.common.save")
-            : this.hass.localize("ui.common.create")}
+            ? this.hass.localize('ui.common.save')
+            : this.hass.localize('ui.common.create')}
         </ha-button>
       </ha-dialog>
-    `;
+    `
   }
 
   private _isNameValid() {
-    return this._name.trim() !== "";
+    return this._name.trim() !== ''
   }
 
   private _areaEntityFilter = (stateObj: HassEntity): boolean => {
-    const entityReg = this.hass.entities[stateObj.entity_id];
+    const entityReg = this.hass.entities[stateObj.entity_id]
     if (!entityReg) {
-      return false;
+      return false
     }
-    const areaId = this._params!.entry!.area_id;
+    const areaId = this._params!.entry!.area_id
     if (entityReg.area_id === areaId) {
-      return true;
+      return true
     }
     if (!entityReg.device_id) {
-      return false;
+      return false
     }
-    const deviceReg = this.hass.devices[entityReg.device_id];
-    return deviceReg && deviceReg.area_id === areaId;
-  };
+    const deviceReg = this.hass.devices[entityReg.device_id]
+    return deviceReg && deviceReg.area_id === areaId
+  }
 
   private _nameChanged(ev) {
-    this._error = undefined;
-    this._name = ev.target.value;
+    this._error = undefined
+    this._name = ev.target.value
   }
 
   private _floorChanged(ev) {
-    this._error = undefined;
-    this._floor = ev.detail.value;
+    this._error = undefined
+    this._floor = ev.detail.value
   }
 
   private _iconChanged(ev) {
-    this._error = undefined;
-    this._icon = ev.detail.value;
+    this._error = undefined
+    this._icon = ev.detail.value
   }
 
   private _labelsChanged(ev) {
-    this._error = undefined;
-    this._labels = ev.detail.value;
+    this._error = undefined
+    this._labels = ev.detail.value
   }
 
   private _pictureChanged(ev: ValueChangedEvent<string | null>) {
-    this._error = undefined;
-    this._picture = (ev.target as HaPictureUpload).value;
+    this._error = undefined
+    this._picture = (ev.target as HaPictureUpload).value
   }
 
   private _aliasesChanged(ev: CustomEvent): void {
-    this._aliases = ev.detail.value;
+    this._aliases = ev.detail.value
   }
 
   private _sensorChanged(ev: CustomEvent): void {
-    const deviceClass = (ev.target as HaEntityPicker).includeDeviceClasses![0];
-    const key = `_${deviceClass}Entity`;
-    this[key] = ev.detail.value || null;
+    const deviceClass = (ev.target as HaEntityPicker).includeDeviceClasses![0]
+    const key = `_${deviceClass}Entity`
+    this[key] = ev.detail.value || null
   }
 
   private async _updateEntry() {
-    const create = !this._params!.entry;
-    this._submitting = true;
+    const create = !this._params!.entry
+    this._submitting = true
     try {
       const values: AreaRegistryEntryMutableParams = {
         name: this._name.trim(),
@@ -346,45 +346,45 @@ class DialogAreaDetail extends LitElement {
         aliases: this._aliases,
         temperature_entity_id: this._temperatureEntity,
         humidity_entity_id: this._humidityEntity,
-      };
-      if (create) {
-        await this._params!.createEntry!(values);
-      } else {
-        await this._params!.updateEntry!(values);
       }
-      this.closeDialog();
+      if (create) {
+        await this._params!.createEntry!(values)
+      } else {
+        await this._params!.updateEntry!(values)
+      }
+      this.closeDialog()
     } catch (err: any) {
       this._error =
         err.message ||
-        this.hass.localize("ui.panel.config.areas.editor.unknown_error");
+        this.hass.localize('ui.panel.config.areas.editor.unknown_error')
     } finally {
-      this._submitting = false;
+      this._submitting = false
     }
   }
 
   private async _deleteArea() {
     if (!this._params?.entry) {
-      return;
+      return
     }
 
     const confirmed = await showConfirmationDialog(this, {
       title: this.hass.localize(
-        "ui.panel.config.areas.delete.confirmation_title",
+        'ui.panel.config.areas.delete.confirmation_title',
         { name: this._params.entry.name }
       ),
       text: this.hass.localize(
-        "ui.panel.config.areas.delete.confirmation_text"
+        'ui.panel.config.areas.delete.confirmation_text'
       ),
-      dismissText: this.hass.localize("ui.common.cancel"),
-      confirmText: this.hass.localize("ui.common.delete"),
+      dismissText: this.hass.localize('ui.common.cancel'),
+      confirmText: this.hass.localize('ui.common.delete'),
       destructive: true,
-    });
+    })
     if (!confirmed) {
-      return;
+      return
     }
 
-    await deleteAreaRegistryEntry(this.hass!, this._params!.entry!.area_id);
-    this.closeDialog();
+    await deleteAreaRegistryEntry(this.hass!, this._params!.entry!.area_id)
+    this.closeDialog()
   }
 
   static get styles(): CSSResultGroup {
@@ -417,14 +417,14 @@ class DialogAreaDetail extends LitElement {
           margin: 0 0 16px 0;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-area-registry-detail": DialogAreaDetail;
+    'dialog-area-registry-detail': DialogAreaDetail
   }
 }
 
-customElements.define("dialog-area-registry-detail", DialogAreaDetail);
+customElements.define('dialog-area-registry-detail', DialogAreaDetail)

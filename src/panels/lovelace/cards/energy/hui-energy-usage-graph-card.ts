@@ -1,104 +1,104 @@
-import { endOfToday, isToday, startOfToday } from "date-fns";
-import type { HassConfig, UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import memoizeOne from "memoize-one";
-import type { BarSeriesOption } from "echarts/charts";
+import { endOfToday, isToday, startOfToday } from 'date-fns'
+import type { HassConfig, UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import memoizeOne from 'memoize-one'
+import type { BarSeriesOption } from 'echarts/charts'
 import type {
   TooltipOption,
   TopLevelFormatterParams,
-} from "echarts/types/dist/shared";
-import { getEnergyColor } from "./common/color";
-import { formatNumber } from "../../../../common/number/format_number";
-import "../../../../components/chart/ha-chart-base";
-import "../../../../components/ha-card";
-import "./common/hui-energy-graph-chip";
+} from 'echarts/types/dist/shared'
+import { getEnergyColor } from './common/color'
+import { formatNumber } from '../../../../common/number/format_number'
+import '../../../../components/chart/ha-chart-base'
+import '../../../../components/ha-card'
+import './common/hui-energy-graph-chip'
 import type {
   EnergyData,
   EnergySumData,
   EnergyConsumptionData,
-} from "../../../../data/energy";
+} from '../../../../data/energy'
 import {
   computeConsumptionData,
   getEnergyDataCollection,
   getSummedData,
-} from "../../../../data/energy";
-import type { Statistics, StatisticsMetaData } from "../../../../data/recorder";
-import { getStatisticLabel } from "../../../../data/recorder";
-import type { FrontendLocaleData } from "../../../../data/translation";
-import { SubscribeMixin } from "../../../../mixins/subscribe-mixin";
-import type { HomeAssistant } from "../../../../types";
-import type { LovelaceCard } from "../../types";
-import type { EnergyUsageGraphCardConfig } from "../types";
-import { hasConfigChanged } from "../../common/has-changed";
+} from '../../../../data/energy'
+import type { Statistics, StatisticsMetaData } from '../../../../data/recorder'
+import { getStatisticLabel } from '../../../../data/recorder'
+import type { FrontendLocaleData } from '../../../../data/translation'
+import { SubscribeMixin } from '../../../../mixins/subscribe-mixin'
+import type { HomeAssistant } from '../../../../types'
+import type { LovelaceCard } from '../../types'
+import type { EnergyUsageGraphCardConfig } from '../types'
+import { hasConfigChanged } from '../../common/has-changed'
 import {
   fillDataGapsAndRoundCaps,
   getCommonOptions,
   getCompareTransform,
-} from "./common/energy-chart-options";
-import type { ECOption } from "../../../../resources/echarts/echarts";
+} from './common/energy-chart-options'
+import type { ECOption } from '../../../../resources/echarts/echarts'
 
 const colorPropertyMap = {
-  to_grid: "--energy-grid-return-color",
-  to_battery: "--energy-battery-in-color",
-  from_grid: "--energy-grid-consumption-color",
-  used_grid: "--energy-grid-consumption-color",
-  used_solar: "--energy-solar-color",
-  used_battery: "--energy-battery-out-color",
-};
+  to_grid: '--energy-grid-return-color',
+  to_battery: '--energy-battery-in-color',
+  from_grid: '--energy-grid-consumption-color',
+  used_grid: '--energy-grid-consumption-color',
+  used_solar: '--energy-solar-color',
+  used_battery: '--energy-battery-out-color',
+}
 
-@customElement("hui-energy-usage-graph-card")
+@customElement('hui-energy-usage-graph-card')
 export class HuiEnergyUsageGraphCard
   extends SubscribeMixin(LitElement)
   implements LovelaceCard
 {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _config?: EnergyUsageGraphCardConfig;
+  @state() private _config?: EnergyUsageGraphCardConfig
 
-  @state() private _chartData: BarSeriesOption[] = [];
+  @state() private _chartData: BarSeriesOption[] = []
 
-  @state() private _start = startOfToday();
+  @state() private _start = startOfToday()
 
-  @state() private _end = endOfToday();
+  @state() private _end = endOfToday()
 
-  @state() private _compareStart?: Date;
+  @state() private _compareStart?: Date
 
-  @state() private _compareEnd?: Date;
+  @state() private _compareEnd?: Date
 
-  @state() private _total?: number;
+  @state() private _total?: number
 
-  protected hassSubscribeRequiredHostProps = ["_config"];
+  protected hassSubscribeRequiredHostProps = ['_config']
 
   public hassSubscribe(): UnsubscribeFunc[] {
     return [
       getEnergyDataCollection(this.hass, {
         key: this._config?.collection_key,
-      }).subscribe((data) => this._getStatistics(data)),
-    ];
+      }).subscribe(data => this._getStatistics(data)),
+    ]
   }
 
   public getCardSize(): Promise<number> | number {
-    return 3;
+    return 3
   }
 
   public setConfig(config: EnergyUsageGraphCardConfig): void {
-    this._config = config;
+    this._config = config
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     return (
       hasConfigChanged(this, changedProps) ||
       changedProps.size > 1 ||
-      !changedProps.has("hass")
-    );
+      !changedProps.has('hass')
+    )
   }
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -110,7 +110,7 @@ export class HuiEnergyUsageGraphCard
                 .tooltip=${this._formatTotal(this._total)}
               >
                 ${this.hass.localize(
-                  "ui.panel.lovelace.cards.energy.energy_usage_graph.total_usage",
+                  'ui.panel.lovelace.cards.energy.energy_usage_graph.total_usage',
                   { num: formatNumber(this._total, this.hass.locale) }
                 )}
               </hui-energy-graph-chip>`
@@ -118,7 +118,7 @@ export class HuiEnergyUsageGraphCard
         </div>
         <div
           class="content ${classMap({
-            "has-header": !!this._config.title,
+            'has-header': !!this._config.title,
           })}"
         >
           <ha-chart-base
@@ -134,30 +134,30 @@ export class HuiEnergyUsageGraphCard
             )}
             chart-type="bar"
           ></ha-chart-base>
-          ${!this._chartData.some((dataset) => dataset.data!.length)
+          ${!this._chartData.some(dataset => dataset.data!.length)
             ? html`<div class="no-data">
                 ${isToday(this._start)
-                  ? this.hass.localize("ui.panel.lovelace.cards.energy.no_data")
+                  ? this.hass.localize('ui.panel.lovelace.cards.energy.no_data')
                   : this.hass.localize(
-                      "ui.panel.lovelace.cards.energy.no_data_period"
+                      'ui.panel.lovelace.cards.energy.no_data_period'
                     )}
               </div>`
-            : ""}
+            : ''}
         </div>
       </ha-card>
-    `;
+    `
   }
 
   private _formatTotal = (total: number) =>
     total > 0
       ? this.hass.localize(
-          "ui.panel.lovelace.cards.energy.energy_usage_graph.total_consumed",
+          'ui.panel.lovelace.cards.energy.energy_usage_graph.total_consumed',
           { num: formatNumber(total, this.hass.locale) }
         )
       : this.hass.localize(
-          "ui.panel.lovelace.cards.energy.energy_usage_graph.total_returned",
+          'ui.panel.lovelace.cards.energy.energy_usage_graph.total_returned',
           { num: formatNumber(-total, this.hass.locale) }
-        );
+        )
 
   private _createOptions = memoizeOne(
     (
@@ -173,138 +173,138 @@ export class HuiEnergyUsageGraphCard
         end,
         locale,
         config,
-        "kWh",
+        'kWh',
         compareStart,
         compareEnd,
         this._formatTotal
-      );
+      )
       const options: ECOption = {
         ...commonOptions,
         tooltip: {
           ...commonOptions.tooltip,
           formatter: (params: TopLevelFormatterParams): string => {
             if (!Array.isArray(params)) {
-              return "";
+              return ''
             }
             params.sort((a, b) => {
-              const aValue = (a.value as number[])?.[1];
-              const bValue = (b.value as number[])?.[1];
+              const aValue = (a.value as number[])?.[1]
+              const bValue = (b.value as number[])?.[1]
               if (aValue > 0 && bValue < 0) {
-                return -1;
+                return -1
               }
               if (bValue > 0 && aValue < 0) {
-                return 1;
+                return 1
               }
               if (aValue > 0) {
-                return b.componentIndex - a.componentIndex;
+                return b.componentIndex - a.componentIndex
               }
-              return a.componentIndex - b.componentIndex;
-            });
+              return a.componentIndex - b.componentIndex
+            })
             return (
               (commonOptions.tooltip as TooltipOption)?.formatter as any
-            )?.(params);
+            )?.(params)
           },
         },
-      };
-      return options;
+      }
+      return options
     }
-  );
+  )
 
   private async _getStatistics(energyData: EnergyData): Promise<void> {
-    const datasets: BarSeriesOption[] = [];
+    const datasets: BarSeriesOption[] = []
 
     const statIds: {
-      to_grid?: string[];
-      from_grid?: string[];
-      solar?: string[];
-      to_battery?: string[];
-      from_battery?: string[];
-    } = {};
+      to_grid?: string[]
+      from_grid?: string[]
+      solar?: string[]
+      to_battery?: string[]
+      from_battery?: string[]
+    } = {}
 
     for (const source of energyData.prefs.energy_sources) {
-      if (source.type === "solar") {
+      if (source.type === 'solar') {
         if (statIds.solar) {
-          statIds.solar.push(source.stat_energy_from);
+          statIds.solar.push(source.stat_energy_from)
         } else {
-          statIds.solar = [source.stat_energy_from];
+          statIds.solar = [source.stat_energy_from]
         }
-        continue;
+        continue
       }
 
-      if (source.type === "battery") {
+      if (source.type === 'battery') {
         if (statIds.to_battery) {
-          statIds.to_battery.push(source.stat_energy_to);
-          statIds.from_battery!.push(source.stat_energy_from);
+          statIds.to_battery.push(source.stat_energy_to)
+          statIds.from_battery!.push(source.stat_energy_from)
         } else {
-          statIds.to_battery = [source.stat_energy_to];
-          statIds.from_battery = [source.stat_energy_from];
+          statIds.to_battery = [source.stat_energy_to]
+          statIds.from_battery = [source.stat_energy_from]
         }
-        continue;
+        continue
       }
 
-      if (source.type !== "grid") {
-        continue;
+      if (source.type !== 'grid') {
+        continue
       }
 
       // grid source
       for (const flowFrom of source.flow_from) {
         if (statIds.from_grid) {
-          statIds.from_grid.push(flowFrom.stat_energy_from);
+          statIds.from_grid.push(flowFrom.stat_energy_from)
         } else {
-          statIds.from_grid = [flowFrom.stat_energy_from];
+          statIds.from_grid = [flowFrom.stat_energy_from]
         }
       }
       for (const flowTo of source.flow_to) {
         if (statIds.to_grid) {
-          statIds.to_grid.push(flowTo.stat_energy_to);
+          statIds.to_grid.push(flowTo.stat_energy_to)
         } else {
-          statIds.to_grid = [flowTo.stat_energy_to];
+          statIds.to_grid = [flowTo.stat_energy_to]
         }
       }
     }
 
-    const computedStyles = getComputedStyle(this);
+    const computedStyles = getComputedStyle(this)
 
-    const colorIndices: Record<string, Record<string, number>> = {};
-    Object.keys(colorPropertyMap).forEach((key) => {
-      colorIndices[key] = {};
+    const colorIndices: Record<string, Record<string, number>> = {}
+    Object.keys(colorPropertyMap).forEach(key => {
+      colorIndices[key] = {}
       if (
-        key === "used_grid" ||
-        key === "used_solar" ||
-        key === "used_battery"
+        key === 'used_grid' ||
+        key === 'used_solar' ||
+        key === 'used_battery'
       ) {
-        return;
+        return
       }
       if (statIds[key]) {
         Object.values(statIds[key]).forEach((id, idx) => {
-          colorIndices[key][id as string] = idx;
-        });
+          colorIndices[key][id as string] = idx
+        })
       }
-    });
+    })
 
     const labels = {
       used_grid: this.hass.localize(
-        "ui.panel.lovelace.cards.energy.energy_usage_graph.combined_from_grid"
+        'ui.panel.lovelace.cards.energy.energy_usage_graph.combined_from_grid'
       ),
       used_solar: this.hass.localize(
-        "ui.panel.lovelace.cards.energy.energy_usage_graph.consumed_solar"
+        'ui.panel.lovelace.cards.energy.energy_usage_graph.consumed_solar'
       ),
       used_battery: this.hass.localize(
-        "ui.panel.lovelace.cards.energy.energy_usage_graph.consumed_battery"
+        'ui.panel.lovelace.cards.energy.energy_usage_graph.consumed_battery'
       ),
-    };
+    }
 
-    this._start = energyData.start;
-    this._end = energyData.end || endOfToday();
+    this._start = energyData.start
+    this._end = energyData.end || endOfToday()
 
-    this._compareStart = energyData.startCompare;
-    this._compareEnd = energyData.endCompare;
+    this._compareStart = energyData.startCompare
+    this._compareEnd = energyData.endCompare
 
-    const { summedData, compareSummedData } = getSummedData(energyData);
+    const { summedData, compareSummedData } = getSummedData(energyData)
     const { consumption, compareConsumption } = computeConsumptionData(
       summedData,
       compareSummedData
-    );
+    )
 
     if (energyData.statsCompare) {
       datasets.push(
@@ -319,19 +319,19 @@ export class HuiEnergyUsageGraphCard
           labels,
           true
         )
-      );
+      )
     }
 
     // add empty dataset so compare bars are first
     // `stack: usage` so it doesn't take up space yet
     datasets.push({
-      id: "compare-placeholder",
-      type: "bar",
-      stack: energyData.statsCompare ? "compare" : "usage",
+      id: 'compare-placeholder',
+      type: 'bar',
+      stack: energyData.statsCompare ? 'compare' : 'usage',
       data: [],
       // @ts-expect-error
       order: 0,
-    });
+    })
 
     datasets.push(
       ...this._processDataSet(
@@ -345,19 +345,19 @@ export class HuiEnergyUsageGraphCard
         labels,
         false
       )
-    );
+    )
 
     // @ts-expect-error
-    datasets.sort((a, b) => a.order - b.order);
-    fillDataGapsAndRoundCaps(datasets);
-    this._chartData = datasets;
-    this._total = this._processTotal(consumption);
+    datasets.sort((a, b) => a.order - b.order)
+    fillDataGapsAndRoundCaps(datasets)
+    this._chartData = datasets
+    this._total = this._processTotal(consumption)
   }
 
   private _processTotal(consumption: EnergyConsumptionData) {
     return consumption.total.used_total > 0
       ? consumption.total.used_total
-      : undefined;
+      : undefined
   }
 
   private _processDataSet(
@@ -366,65 +366,65 @@ export class HuiEnergyUsageGraphCard
     summedData: EnergySumData,
     consumptionData: EnergyConsumptionData,
     statIdsByCat: {
-      to_grid?: string[] | undefined;
-      from_grid?: string[] | undefined;
-      solar?: string[] | undefined;
-      to_battery?: string[] | undefined;
-      from_battery?: string[] | undefined;
+      to_grid?: string[] | undefined
+      from_grid?: string[] | undefined
+      solar?: string[] | undefined
+      to_battery?: string[] | undefined
+      from_battery?: string[] | undefined
     },
     colorIndices: Record<string, Record<string, number>>,
     computedStyles: CSSStyleDeclaration,
     labels: {
-      used_grid: string;
-      used_solar: string;
-      used_battery: string;
+      used_grid: string
+      used_solar: string
+      used_battery: string
     },
     compare = false
   ) {
-    const data: BarSeriesOption[] = [];
+    const data: BarSeriesOption[] = []
 
     const combinedData: {
-      to_grid?: Record<string, Record<number, number>>;
-      to_battery?: Record<string, Record<number, number>>;
-      from_grid?: Record<string, Record<number, number>>;
-      used_grid?: Record<string, Record<number, number>>;
-      used_solar?: Record<string, Record<number, number>>;
-      used_battery?: Record<string, Record<number, number>>;
-    } = {};
+      to_grid?: Record<string, Record<number, number>>
+      to_battery?: Record<string, Record<number, number>>
+      from_grid?: Record<string, Record<number, number>>
+      used_grid?: Record<string, Record<number, number>>
+      used_solar?: Record<string, Record<number, number>>
+      used_battery?: Record<string, Record<number, number>>
+    } = {}
 
     Object.entries(statIdsByCat).forEach(([key, statIds]) => {
-      if (!["to_grid", "from_grid", "to_battery"].includes(key)) {
-        return;
+      if (!['to_grid', 'from_grid', 'to_battery'].includes(key)) {
+        return
       }
-      const sets: Record<string, Record<number, number>> = {};
-      statIds!.forEach((id) => {
-        const stats = statistics[id];
+      const sets: Record<string, Record<number, number>> = {}
+      statIds!.forEach(id => {
+        const stats = statistics[id]
         if (!stats) {
-          return;
+          return
         }
 
-        const set = {};
-        stats.forEach((stat) => {
+        const set = {}
+        stats.forEach(stat => {
           if (stat.change === null || stat.change === undefined) {
-            return;
+            return
           }
-          const val = stat.change;
+          const val = stat.change
           if (!(stat.start in set)) {
-            set[stat.start] = val;
+            set[stat.start] = val
           }
-        });
-        sets[id] = set;
-      });
-      combinedData[key] = sets;
-    });
+        })
+        sets[id] = set
+      })
+      combinedData[key] = sets
+    })
 
-    combinedData.used_solar = { used_solar: consumptionData.used_solar };
+    combinedData.used_solar = { used_solar: consumptionData.used_solar }
     combinedData.used_battery = {
       used_battery: consumptionData.used_battery,
-    };
+    }
 
     if (combinedData.from_grid && summedData.to_battery) {
-      const used_grid = {};
+      const used_grid = {}
       // If we have to_battery and multiple grid sources in the same period, we
       // can't determine which source was used. So delete all the individual
       // sources and replace with a 'combined from grid' value.
@@ -432,62 +432,62 @@ export class HuiEnergyUsageGraphCard
         consumptionData.grid_to_battery
       )) {
         if (!grid_to_battery) {
-          continue;
+          continue
         }
-        let noOfSources = 0;
-        let source: string;
+        let noOfSources = 0
+        let source: string
         for (const [key, stats] of Object.entries(combinedData.from_grid)) {
           if (stats[start]) {
-            source = key;
-            noOfSources++;
+            source = key
+            noOfSources++
           }
           if (noOfSources > 1) {
-            break;
+            break
           }
         }
         if (noOfSources === 1) {
           combinedData.from_grid[source!][start] =
-            consumptionData.used_grid[start];
+            consumptionData.used_grid[start]
         } else {
-          Object.values(combinedData.from_grid).forEach((stats) => {
-            delete stats[start];
-          });
-          used_grid[start] = consumptionData.used_grid[start];
+          Object.values(combinedData.from_grid).forEach(stats => {
+            delete stats[start]
+          })
+          used_grid[start] = consumptionData.used_grid[start]
         }
       }
-      combinedData.used_grid = { used_grid };
+      combinedData.used_grid = { used_grid }
     }
 
-    const uniqueKeys = summedData.timestamps;
+    const uniqueKeys = summedData.timestamps
 
     const compareTransform = getCompareTransform(
       this._start,
       this._compareStart!
-    );
+    )
 
     Object.entries(combinedData).forEach(([type, sources], idx) => {
       Object.entries(sources).forEach(([statId, source]) => {
-        const points: BarSeriesOption["data"] = [];
+        const points: BarSeriesOption['data'] = []
         // Process chart data.
         for (const key of uniqueKeys) {
-          const value = source[key] || 0;
+          const value = source[key] || 0
           const dataPoint = [
             new Date(key),
-            value && ["to_grid", "to_battery"].includes(type)
+            value && ['to_grid', 'to_battery'].includes(type)
               ? -1 * value
               : value,
-          ];
+          ]
           if (compare) {
-            dataPoint[2] = dataPoint[0];
-            dataPoint[0] = compareTransform(dataPoint[0] as Date);
+            dataPoint[2] = dataPoint[0]
+            dataPoint[0] = compareTransform(dataPoint[0] as Date)
           }
-          points.push(dataPoint);
+          points.push(dataPoint)
         }
 
         data.push({
-          id: `${compare ? "compare-" : ""}${statId}-${type}`,
-          type: "bar",
-          cursor: "default",
+          id: `${compare ? 'compare-' : ''}${statId}-${type}`,
+          type: 'bar',
+          cursor: 'default',
           name:
             type in labels
               ? labels[type]
@@ -498,9 +498,9 @@ export class HuiEnergyUsageGraphCard
                 ),
           // @ts-expect-error
           order:
-            type === "used_solar"
+            type === 'used_solar'
               ? 1
-              : type === "to_battery"
+              : type === 'to_battery'
                 ? Object.keys(combinedData).length
                 : idx + 2,
           barMaxWidth: 50,
@@ -522,12 +522,12 @@ export class HuiEnergyUsageGraphCard
             colorPropertyMap[type],
             colorIndices[type]?.[statId]
           ),
-          stack: compare ? "compare" : "usage",
+          stack: compare ? 'compare' : 'usage',
           data: points,
-        });
-      });
-    });
-    return data;
+        })
+      })
+    })
+    return data
   }
 
   static styles = css`
@@ -561,11 +561,11 @@ export class HuiEnergyUsageGraphCard
       margin-inline-end: initial;
       box-sizing: border-box;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-energy-usage-graph-card": HuiEnergyUsageGraphCard;
+    'hui-energy-usage-graph-card': HuiEnergyUsageGraphCard
   }
 }

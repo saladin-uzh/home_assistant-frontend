@@ -1,64 +1,64 @@
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { keyed } from "lit/directives/keyed";
-import { repeat } from "lit/directives/repeat";
-import { fireEvent } from "../../common/dom/fire_event";
-import { ANY_STATE_VALUE } from "./const";
-import { ensureArray } from "../../common/array/ensure-array";
-import type { HomeAssistant } from "../../types";
-import "./ha-entity-state-picker";
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { keyed } from 'lit/directives/keyed'
+import { repeat } from 'lit/directives/repeat'
+import { fireEvent } from '../../common/dom/fire_event'
+import { ANY_STATE_VALUE } from './const'
+import { ensureArray } from '../../common/array/ensure-array'
+import type { HomeAssistant } from '../../types'
+import './ha-entity-state-picker'
 
-@customElement("ha-entity-states-picker")
+@customElement('ha-entity-states-picker')
 export class HaEntityStatesPicker extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public entityId?: string;
+  @property({ attribute: false }) public entityId?: string
 
-  @property() public attribute?: string;
+  @property() public attribute?: string
 
-  @property({ attribute: false }) public extraOptions?: any[];
+  @property({ attribute: false }) public extraOptions?: any[]
 
-  @property({ type: Boolean, attribute: "allow-custom-value" })
-  public allowCustomValue;
+  @property({ type: Boolean, attribute: 'allow-custom-value' })
+  public allowCustomValue
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property({ type: Array }) public value?: string[];
+  @property({ type: Array }) public value?: string[]
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = false;
+  @property({ type: Boolean }) public required = false
 
   @property({ attribute: false })
-  public hideStates?: string[];
+  public hideStates?: string[]
 
-  private _keys: string[] = [];
+  private _keys: string[] = []
 
   private _getKey(index: number) {
     if (!this._keys[index]) {
-      this._keys[index] = Math.random().toString();
+      this._keys[index] = Math.random().toString()
     }
-    return this._keys[index];
+    return this._keys[index]
   }
 
   protected willUpdate(changedProps: PropertyValues): void {
-    super.willUpdate(changedProps);
-    if (changedProps.has("value")) {
-      this.value = ensureArray(this.value);
+    super.willUpdate(changedProps)
+    if (changedProps.has('value')) {
+      this.value = ensureArray(this.value)
     }
   }
 
   protected render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
 
-    const value = this.value || [];
-    const hide = [...(this.hideStates || []), ...value];
-    const hideValue = value.includes(ANY_STATE_VALUE);
+    const value = this.value || []
+    const hide = [...(this.hideStates || []), ...value]
+    const hideValue = value.includes(ANY_STATE_VALUE)
 
     return html`
       ${repeat(
@@ -72,7 +72,7 @@ export class HaEntityStatesPicker extends LitElement {
               .entityId=${this.entityId}
               .attribute=${this.attribute}
               .extraOptions=${this.extraOptions}
-              .hideStates=${hide.filter((v) => v !== state)}
+              .hideStates=${hide.filter(v => v !== state)}
               .allowCustomValue=${this.allowCustomValue}
               .label=${this.label}
               .value=${state}
@@ -105,47 +105,47 @@ export class HaEntityStatesPicker extends LitElement {
               ></ha-entity-state-picker>`
             )}
       </div>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent) {
-    ev.stopPropagation();
-    const newState = ev.detail.value;
-    const newValue = [...this.value!];
-    const index = (ev.currentTarget as any)?.index;
+    ev.stopPropagation()
+    const newState = ev.detail.value
+    const newValue = [...this.value!]
+    const index = (ev.currentTarget as any)?.index
     if (index == null) {
-      return;
+      return
     }
     if (newState === undefined) {
-      newValue.splice(index, 1);
-      this._keys.splice(index, 1);
-      fireEvent(this, "value-changed", {
+      newValue.splice(index, 1)
+      this._keys.splice(index, 1)
+      fireEvent(this, 'value-changed', {
         value: newValue,
-      });
-      return;
+      })
+      return
     }
-    newValue[index] = newState;
-    fireEvent(this, "value-changed", {
+    newValue[index] = newState
+    fireEvent(this, 'value-changed', {
       value: newValue,
-    });
+    })
   }
 
   private _addValue(ev: CustomEvent) {
-    ev.stopPropagation();
-    fireEvent(this, "value-changed", {
+    ev.stopPropagation()
+    fireEvent(this, 'value-changed', {
       value: [...(this.value || []), ev.detail.value],
-    });
+    })
   }
 
   static override styles = css`
     div {
       margin-top: 8px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-entity-states-picker": HaEntityStatesPicker;
+    'ha-entity-states-picker': HaEntityStatesPicker
   }
 }

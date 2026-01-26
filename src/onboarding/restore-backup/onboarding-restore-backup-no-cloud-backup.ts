@@ -1,36 +1,36 @@
-import { LitElement, html, css, type CSSResultGroup } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { LocalizeFunc } from "../../common/translations/localize";
-import "../../components/ha-button";
-import "../../components/ha-icon-button-arrow-prev";
-import { fireEvent } from "../../common/dom/fire_event";
-import { navigate } from "../../common/navigate";
-import { removeSearchParam } from "../../common/url/search-params";
-import { onBoardingStyles } from "../styles";
+import { LitElement, html, css, type CSSResultGroup } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { LocalizeFunc } from '../../common/translations/localize'
+import '../../components/ha-button'
+import '../../components/ha-icon-button-arrow-prev'
+import { fireEvent } from '../../common/dom/fire_event'
+import { navigate } from '../../common/navigate'
+import { removeSearchParam } from '../../common/url/search-params'
+import { onBoardingStyles } from '../styles'
 
-@customElement("onboarding-restore-backup-no-cloud-backup")
+@customElement('onboarding-restore-backup-no-cloud-backup')
 class OnboardingRestoreBackupNoCloudBackup extends LitElement {
-  @property({ attribute: false }) public localize!: LocalizeFunc;
+  @property({ attribute: false }) public localize!: LocalizeFunc
 
   render() {
     return html`
       <ha-icon-button-arrow-prev
-        .label=${this.localize("ui.panel.page-onboarding.restore.back")}
+        .label=${this.localize('ui.panel.page-onboarding.restore.back')}
         @click=${this._back}
       ></ha-icon-button-arrow-prev>
       <h1>
         ${this.localize(
-          "ui.panel.page-onboarding.restore.ha-cloud.no_cloud_backup"
+          'ui.panel.page-onboarding.restore.ha-cloud.no_cloud_backup'
         )}
       </h1>
       <div class="description">
         ${this.localize(
-          "ui.panel.page-onboarding.restore.ha-cloud.no_cloud_backup_description"
+          'ui.panel.page-onboarding.restore.ha-cloud.no_cloud_backup_description'
         )}
       </div>
       <div class="actions">
         <ha-button @click=${this._signOut}>
-          ${this.localize("ui.panel.page-onboarding.restore.ha-cloud.sign_out")}
+          ${this.localize('ui.panel.page-onboarding.restore.ha-cloud.sign_out')}
         </ha-button>
         <ha-button
           href="https://www.nabucasa.com/config/backups/"
@@ -39,19 +39,19 @@ class OnboardingRestoreBackupNoCloudBackup extends LitElement {
           appearance="plain"
         >
           ${this.localize(
-            "ui.panel.page-onboarding.restore.ha-cloud.learn_more"
+            'ui.panel.page-onboarding.restore.ha-cloud.learn_more'
           )}
         </ha-button>
       </div>
-    `;
+    `
   }
 
   private _back() {
-    navigate(`${location.pathname}?${removeSearchParam("page")}`);
+    navigate(`${location.pathname}?${removeSearchParam('page')}`)
   }
 
   private _signOut() {
-    fireEvent(this, "sign-out");
+    fireEvent(this, 'sign-out')
   }
 
   static get styles(): CSSResultGroup {
@@ -73,15 +73,15 @@ class OnboardingRestoreBackupNoCloudBackup extends LitElement {
           justify-content: space-between;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "onboarding-restore-backup-no-cloud-backup": OnboardingRestoreBackupNoCloudBackup;
+    'onboarding-restore-backup-no-cloud-backup': OnboardingRestoreBackupNoCloudBackup
   }
   interface HASSDomEvents {
-    "sign-out": undefined;
+    'sign-out': undefined
   }
 }

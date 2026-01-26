@@ -1,8 +1,8 @@
-import type { HomeAssistant } from "../../types";
+import type { HomeAssistant } from '../../types'
 
 interface CacheResult<T> {
-  result: T;
-  cacheKey: any;
+  result: T
+  cacheKey: any
 }
 
 /**
@@ -26,19 +26,19 @@ export const timeCachePromiseFunc = async <T>(
   hass: HomeAssistant,
   ...args: any[]
 ): Promise<T> => {
-  const anyHass = hass as any;
+  const anyHass = hass as any
   const lastResult: Promise<CacheResult<T>> | CacheResult<T> | undefined =
-    anyHass[cacheKey];
+    anyHass[cacheKey]
 
   const checkCachedResult = (result: CacheResult<T>): T | Promise<T> => {
     if (
       !generateCacheKey ||
       generateCacheKey(hass, result.result) === result.cacheKey
     ) {
-      return result.result;
+      return result.result
     }
 
-    anyHass[cacheKey] = undefined;
+    anyHass[cacheKey] = undefined
     return timeCachePromiseFunc(
       cacheKey,
       cacheTime,
@@ -46,35 +46,35 @@ export const timeCachePromiseFunc = async <T>(
       generateCacheKey,
       hass,
       ...args
-    );
-  };
+    )
+  }
 
   // If we have a cached result, return it if it's still valid
   if (lastResult) {
     return lastResult instanceof Promise
       ? lastResult.then(checkCachedResult)
-      : checkCachedResult(lastResult);
+      : checkCachedResult(lastResult)
   }
 
-  const resultPromise = func(hass, ...args);
-  anyHass[cacheKey] = resultPromise;
+  const resultPromise = func(hass, ...args)
+  anyHass[cacheKey] = resultPromise
 
   resultPromise.then(
     // When successful, set timer to clear cache
-    (result) => {
+    result => {
       anyHass[cacheKey] = {
         result,
         cacheKey: generateCacheKey?.(hass, result),
-      };
+      }
       setTimeout(() => {
-        anyHass[cacheKey] = undefined;
-      }, cacheTime);
+        anyHass[cacheKey] = undefined
+      }, cacheTime)
     },
     // On failure, clear cache right away
     () => {
-      anyHass[cacheKey] = undefined;
+      anyHass[cacheKey] = undefined
     }
-  );
+  )
 
-  return resultPromise;
-};
+  return resultPromise
+}

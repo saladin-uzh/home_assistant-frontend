@@ -1,7 +1,7 @@
-import memoizeOne from "memoize-one";
-import { mdiGestureTap } from "@mdi/js";
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
+import memoizeOne from 'memoize-one'
+import { mdiGestureTap } from '@mdi/js'
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
 import {
   any,
   assert,
@@ -10,18 +10,18 @@ import {
   optional,
   string,
   union,
-} from "superstruct";
-import type { LocalizeFunc } from "../../../../../common/translations/localize";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import "../../../../../components/ha-form/ha-form";
-import type { SchemaUnion } from "../../../../../components/ha-form/types";
-import type { HomeAssistant } from "../../../../../types";
-import type { ImageElementConfig } from "../../../elements/types";
-import type { LovelacePictureElementEditor } from "../../../types";
-import { actionConfigStruct } from "../../structs/action-struct";
+} from 'superstruct'
+import type { LocalizeFunc } from '../../../../../common/translations/localize'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import '../../../../../components/ha-form/ha-form'
+import type { SchemaUnion } from '../../../../../components/ha-form/types'
+import type { HomeAssistant } from '../../../../../types'
+import type { ImageElementConfig } from '../../../elements/types'
+import type { LovelacePictureElementEditor } from '../../../types'
+import { actionConfigStruct } from '../../structs/action-struct'
 
 const imageElementConfigStruct = object({
-  type: literal("image"),
+  type: literal('image'),
   entity: optional(string()),
   image: optional(union([string(), object()])),
   style: optional(any()),
@@ -35,59 +35,59 @@ const imageElementConfigStruct = object({
   filter: optional(string()),
   state_filter: optional(any()),
   aspect_ratio: optional(string()),
-});
+})
 
-@customElement("hui-image-element-editor")
+@customElement('hui-image-element-editor')
 export class HuiImageElementEditor
   extends LitElement
   implements LovelacePictureElementEditor
 {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: ImageElementConfig;
+  @state() private _config?: ImageElementConfig
 
   public setConfig(config: ImageElementConfig): void {
-    assert(config, imageElementConfigStruct);
-    this._config = config;
+    assert(config, imageElementConfigStruct)
+    this._config = config
   }
 
   private _schema = memoizeOne(
     (localize: LocalizeFunc) =>
       [
-        { name: "entity", selector: { entity: {} } },
-        { name: "title", selector: { text: {} } },
+        { name: 'entity', selector: { entity: {} } },
+        { name: 'title', selector: { text: {} } },
         {
-          name: "interactions",
-          type: "expandable",
+          name: 'interactions',
+          type: 'expandable',
           flatten: true,
           iconPath: mdiGestureTap,
           schema: [
             {
-              name: "tap_action",
+              name: 'tap_action',
               selector: {
                 ui_action: {
-                  default_action: "more-info",
+                  default_action: 'more-info',
                 },
               },
             },
             {
-              name: "hold_action",
+              name: 'hold_action',
               selector: {
                 ui_action: {
-                  default_action: "more-info",
+                  default_action: 'more-info',
                 },
               },
             },
             {
-              name: "",
-              type: "optional_actions",
+              name: '',
+              type: 'optional_actions',
               flatten: true,
               schema: [
                 {
-                  name: "double_tap_action",
+                  name: 'double_tap_action',
                   selector: {
                     ui_action: {
-                      default_action: "none",
+                      default_action: 'none',
                     },
                   },
                 },
@@ -96,45 +96,45 @@ export class HuiImageElementEditor
           ],
         },
         {
-          name: "image",
+          name: 'image',
           selector: {
             media: {
-              accept: ["image/*"] as string[],
+              accept: ['image/*'] as string[],
               clearable: true,
               image_upload: true,
               hide_content_type: true,
               content_id_helper: localize(
-                "ui.panel.lovelace.editor.card.picture.content_id_helper"
+                'ui.panel.lovelace.editor.card.picture.content_id_helper'
               ),
             },
           },
         },
-        { name: "camera_image", selector: { entity: { domain: "camera" } } },
+        { name: 'camera_image', selector: { entity: { domain: 'camera' } } },
         {
-          name: "camera_view",
+          name: 'camera_view',
           selector: {
             select: {
-              options: ["auto", "live"].map((value) => ({
+              options: ['auto', 'live'].map(value => ({
                 value,
                 label: localize(
                   `ui.panel.lovelace.editor.card.generic.camera_view_options.${value}`
                 ),
               })),
-              mode: "dropdown",
+              mode: 'dropdown',
             },
           },
         },
-        { name: "state_image", selector: { object: {} } },
-        { name: "filter", selector: { text: {} } },
-        { name: "state_filter", selector: { object: {} } },
-        { name: "aspect_ratio", selector: { text: {} } },
-        { name: "style", selector: { object: {} } },
+        { name: 'state_image', selector: { object: {} } },
+        { name: 'filter', selector: { text: {} } },
+        { name: 'state_filter', selector: { object: {} } },
+        { name: 'aspect_ratio', selector: { text: {} } },
+        { name: 'style', selector: { object: {} } },
       ] as const
-  );
+  )
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -145,18 +145,18 @@ export class HuiImageElementEditor
         .computeLabel=${this._computeLabelCallback}
         @value-changed=${this._valueChanged}
       ></ha-form>
-    `;
+    `
   }
 
   private _processData = memoizeOne((config: ImageElementConfig) => ({
     ...config,
-    ...(typeof config.image === "string"
+    ...(typeof config.image === 'string'
       ? { image: { media_content_id: config.image } }
       : {}),
-  }));
+  }))
 
   private _valueChanged(ev: CustomEvent): void {
-    fireEvent(this, "config-changed", { config: ev.detail.value });
+    fireEvent(this, 'config-changed', { config: ev.detail.value })
   }
 
   private _computeLabelCallback = (
@@ -166,11 +166,11 @@ export class HuiImageElementEditor
       `ui.panel.lovelace.editor.card.generic.${schema.name}`
     ) ||
     this.hass!.localize(`ui.panel.lovelace.editor.elements.${schema.name}`) ||
-    schema.name;
+    schema.name
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-image-element-editor": HuiImageElementEditor;
+    'hui-image-element-editor': HuiImageElementEditor
   }
 }

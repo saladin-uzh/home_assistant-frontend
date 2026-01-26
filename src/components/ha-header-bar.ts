@@ -1,9 +1,9 @@
 // @ts-ignore
-import topAppBarStyles from "@material/top-app-bar/dist/mdc.top-app-bar.min.css";
-import { css, html, LitElement, unsafeCSS } from "lit";
-import { customElement } from "lit/decorators";
+import topAppBarStyles from '@material/top-app-bar/dist/mdc.top-app-bar.min.css'
+import { css, html, LitElement, unsafeCSS } from 'lit'
+import { customElement } from 'lit/decorators'
 
-@customElement("ha-header-bar")
+@customElement('ha-header-bar')
 export class HaHeaderBar extends LitElement {
   protected render() {
     return html`<header class="mdc-top-app-bar">
@@ -25,7 +25,7 @@ export class HaHeaderBar extends LitElement {
           <slot name="actionItems"></slot>
         </section>
       </div>
-    </header>`;
+    </header>`
   }
 
   static get styles() {
@@ -52,12 +52,12 @@ export class HaHeaderBar extends LitElement {
           padding-inline-end: initial;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-header-bar": HaHeaderBar;
+    'ha-header-bar': HaHeaderBar
   }
 }

@@ -1,79 +1,79 @@
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { fireEvent } from "../../common/dom/fire_event";
-import type { NumberSelector } from "../../data/selector";
-import type { HomeAssistant } from "../../types";
-import "../ha-input-helper-text";
-import "../ha-slider";
-import "../ha-textfield";
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { fireEvent } from '../../common/dom/fire_event'
+import type { NumberSelector } from '../../data/selector'
+import type { HomeAssistant } from '../../types'
+import '../ha-input-helper-text'
+import '../ha-slider'
+import '../ha-textfield'
 
-@customElement("ha-selector-number")
+@customElement('ha-selector-number')
 export class HaNumberSelector extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: NumberSelector;
+  @property({ attribute: false }) public selector!: NumberSelector
 
-  @property({ type: Number }) public value?: number;
+  @property({ type: Number }) public value?: number
 
-  @property({ type: Number }) public placeholder?: number;
+  @property({ type: Number }) public placeholder?: number
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
   @property({ attribute: false })
-  public localizeValue?: (key: string) => string;
+  public localizeValue?: (key: string) => string
 
-  @property({ type: Boolean }) public required = true;
+  @property({ type: Boolean }) public required = true
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  private _valueStr = "";
+  private _valueStr = ''
 
   protected willUpdate(changedProps: PropertyValues) {
-    if (changedProps.has("value")) {
-      if (this._valueStr === "" || this.value !== Number(this._valueStr)) {
+    if (changedProps.has('value')) {
+      if (this._valueStr === '' || this.value !== Number(this._valueStr)) {
         this._valueStr =
-          this.value == null || isNaN(this.value) ? "" : this.value.toString();
+          this.value == null || isNaN(this.value) ? '' : this.value.toString()
       }
     }
   }
 
   protected render() {
     const isBox =
-      this.selector.number?.mode === "box" ||
+      this.selector.number?.mode === 'box' ||
       this.selector.number?.min === undefined ||
-      this.selector.number?.max === undefined;
+      this.selector.number?.max === undefined
 
-    let sliderStep;
+    let sliderStep
 
     if (!isBox) {
-      sliderStep = this.selector.number!.step ?? 1;
-      if (sliderStep === "any") {
-        sliderStep = 1;
+      sliderStep = this.selector.number!.step ?? 1
+      if (sliderStep === 'any') {
+        sliderStep = 1
         // divide the range of the slider by 100 steps
         const step =
-          (this.selector.number!.max! - this.selector.number!.min!) / 100;
+          (this.selector.number!.max! - this.selector.number!.min!) / 100
         // biggest step size is 1, round the step size to a division of 1
         while (sliderStep > step) {
-          sliderStep /= 10;
+          sliderStep /= 10
         }
       }
     }
 
-    const translationKey = this.selector.number?.translation_key;
-    let unit = this.selector.number?.unit_of_measurement;
+    const translationKey = this.selector.number?.translation_key
+    let unit = this.selector.number?.unit_of_measurement
     if (isBox && unit && this.localizeValue && translationKey) {
       unit =
         this.localizeValue(`${translationKey}.unit_of_measurement.${unit}`) ||
-        unit;
+        unit
     }
 
     return html`
       ${this.label && !isBox
-        ? html`${this.label}${this.required ? "*" : ""}`
+        ? html`${this.label}${this.required ? '*' : ''}`
         : nothing}
       <div class="input">
         ${!isBox
@@ -93,16 +93,16 @@ export class HaNumberSelector extends LitElement {
             `
           : nothing}
         <ha-textfield
-          .inputMode=${this.selector.number?.step === "any" ||
+          .inputMode=${this.selector.number?.step === 'any' ||
           (this.selector.number?.step ?? 1) % 1 !== 0
-            ? "decimal"
-            : "numeric"}
+            ? 'decimal'
+            : 'numeric'}
           .label=${!isBox ? undefined : this.label}
           .placeholder=${this.placeholder}
           class=${classMap({ single: isBox })}
           .min=${this.selector.number?.min}
           .max=${this.selector.number?.max}
-          .value=${this._valueStr ?? ""}
+          .value=${this._valueStr ?? ''}
           .step=${this.selector.number?.step ?? 1}
           helperPersistent
           .helper=${isBox ? this.helper : undefined}
@@ -121,29 +121,29 @@ export class HaNumberSelector extends LitElement {
             >${this.helper}</ha-input-helper-text
           >`
         : nothing}
-    `;
+    `
   }
 
   private _handleInputChange(ev) {
-    ev.stopPropagation();
-    this._valueStr = ev.target.value;
+    ev.stopPropagation()
+    this._valueStr = ev.target.value
     const value =
-      ev.target.value === "" || isNaN(ev.target.value)
+      ev.target.value === '' || isNaN(ev.target.value)
         ? undefined
-        : Number(ev.target.value);
+        : Number(ev.target.value)
     if (this.value === value) {
-      return;
+      return
     }
-    fireEvent(this, "value-changed", { value });
+    fireEvent(this, 'value-changed', { value })
   }
 
   private _handleSliderChange(ev) {
-    ev.stopPropagation();
-    const value = Number(ev.target.value);
+    ev.stopPropagation()
+    const value = Number(ev.target.value)
     if (this.value === value) {
-      return;
+      return
     }
-    fireEvent(this, "value-changed", { value });
+    fireEvent(this, 'value-changed', { value })
   }
 
   static styles = css`
@@ -166,11 +166,11 @@ export class HaNumberSelector extends LitElement {
       --ha-textfield-input-width: unset;
       flex: 1;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-number": HaNumberSelector;
+    'ha-selector-number': HaNumberSelector
   }
 }

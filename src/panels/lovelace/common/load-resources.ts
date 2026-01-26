@@ -1,42 +1,42 @@
-import { loadCSS, loadJS, loadModule } from "../../../common/dom/load_resource";
-import type { LovelaceResource } from "../../../data/lovelace/resource";
-import type { HomeAssistant } from "../../../types";
+import { loadCSS, loadJS, loadModule } from '../../../common/dom/load_resource'
+import type { LovelaceResource } from '../../../data/lovelace/resource'
+import type { HomeAssistant } from '../../../types'
 
 // CSS and JS should only be imported once. Modules and HTML are safe.
-const CSS_CACHE = {};
-const JS_CACHE = {};
+const CSS_CACHE = {}
+const JS_CACHE = {}
 
 export const loadLovelaceResources = (
   resources: NonNullable<LovelaceResource[]>,
   hass: HomeAssistant
 ) => {
-  resources.forEach((resource) => {
+  resources.forEach(resource => {
     const normalizedUrl = new URL(
       resource.url,
       hass.auth.data.hassUrl
-    ).toString();
+    ).toString()
     switch (resource.type) {
-      case "css":
+      case 'css':
         if (normalizedUrl in CSS_CACHE) {
-          break;
+          break
         }
-        CSS_CACHE[normalizedUrl] = loadCSS(normalizedUrl);
-        break;
+        CSS_CACHE[normalizedUrl] = loadCSS(normalizedUrl)
+        break
 
-      case "js":
+      case 'js':
         if (normalizedUrl in JS_CACHE) {
-          break;
+          break
         }
-        JS_CACHE[normalizedUrl] = loadJS(normalizedUrl);
-        break;
+        JS_CACHE[normalizedUrl] = loadJS(normalizedUrl)
+        break
 
-      case "module":
-        loadModule(normalizedUrl);
-        break;
+      case 'module':
+        loadModule(normalizedUrl)
+        break
 
       default:
         // eslint-disable-next-line
-        console.warn(`Unknown resource type specified: ${resource.type}`);
+        console.warn(`Unknown resource type specified: ${resource.type}`)
     }
-  });
-};
+  })
+}

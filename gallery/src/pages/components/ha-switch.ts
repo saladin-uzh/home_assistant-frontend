@@ -1,1 +1,1 @@
-import "../../../../src/components/ha-switch";
+import '../../../../src/components/ha-switch'

@@ -1,23 +1,20 @@
-import { STATE_NOT_RUNNING } from "home-assistant-js-websocket";
-import { ReactiveElement } from "lit";
-import { customElement } from "lit/decorators";
-import type { LovelaceConfig } from "../../../../data/lovelace/config/types";
-import type { LovelaceViewRawConfig } from "../../../../data/lovelace/config/view";
-import type { HomeAssistant } from "../../../../types";
-import type { LovelaceStrategyEditor } from "../types";
-import {
-  getSummaryLabel,
-  HOME_SUMMARIES_ICONS,
-} from "./helpers/home-summaries";
-import type { HomeAreaViewStrategyConfig } from "./home-area-view-strategy";
-import type { HomeOverviewViewStrategyConfig } from "./home-overview-view-strategy";
+import { STATE_NOT_RUNNING } from 'home-assistant-js-websocket'
+import { ReactiveElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import type { LovelaceConfig } from '../../../../data/lovelace/config/types'
+import type { LovelaceViewRawConfig } from '../../../../data/lovelace/config/view'
+import type { HomeAssistant } from '../../../../types'
+import type { LovelaceStrategyEditor } from '../types'
+import { getSummaryLabel, HOME_SUMMARIES_ICONS } from './helpers/home-summaries'
+import type { HomeAreaViewStrategyConfig } from './home-area-view-strategy'
+import type { HomeOverviewViewStrategyConfig } from './home-overview-view-strategy'
 
 export interface HomeDashboardStrategyConfig {
-  type: "home";
-  favorite_entities?: string[];
+  type: 'home'
+  favorite_entities?: string[]
 }
 
-@customElement("home-dashboard-strategy")
+@customElement('home-dashboard-strategy')
 export class HomeDashboardStrategy extends ReactiveElement {
   static async generate(
     config: HomeDashboardStrategyConfig,
@@ -27,74 +24,74 @@ export class HomeDashboardStrategy extends ReactiveElement {
       return {
         views: [
           {
-            type: "sections",
-            sections: [{ cards: [{ type: "starting" }] }],
+            type: 'sections',
+            sections: [{ cards: [{ type: 'starting' }] }],
           },
         ],
-      };
+      }
     }
 
     if (hass.config.recovery_mode) {
       return {
         views: [
           {
-            type: "sections",
-            sections: [{ cards: [{ type: "recovery-mode" }] }],
+            type: 'sections',
+            sections: [{ cards: [{ type: 'recovery-mode' }] }],
           },
         ],
-      };
+      }
     }
 
-    const areas = Object.values(hass.areas);
+    const areas = Object.values(hass.areas)
 
-    const areaViews = areas.map<LovelaceViewRawConfig>((area) => {
-      const path = `areas-${area.area_id}`;
+    const areaViews = areas.map<LovelaceViewRawConfig>(area => {
+      const path = `areas-${area.area_id}`
 
       return {
         title: area.name,
         path: path,
         subview: true,
         strategy: {
-          type: "home-area",
+          type: 'home-area',
           area: area.area_id,
         } satisfies HomeAreaViewStrategyConfig,
-      };
-    });
+      }
+    })
 
     const mediaPlayersView = {
-      title: getSummaryLabel(hass.localize, "media_players"),
-      path: "media-players",
+      title: getSummaryLabel(hass.localize, 'media_players'),
+      path: 'media-players',
       subview: true,
       strategy: {
-        type: "home-media-players",
+        type: 'home-media-players',
       },
       icon: HOME_SUMMARIES_ICONS.media_players,
-    } satisfies LovelaceViewRawConfig;
+    } satisfies LovelaceViewRawConfig
 
     return {
       views: [
         {
-          icon: "mdi:home",
-          path: "overview",
+          icon: 'mdi:home',
+          path: 'overview',
           strategy: {
-            type: "home-overview",
+            type: 'home-overview',
             favorite_entities: config.favorite_entities,
           } satisfies HomeOverviewViewStrategyConfig,
         },
         ...areaViews,
         mediaPlayersView,
       ],
-    };
+    }
   }
 
   public static async getConfigElement(): Promise<LovelaceStrategyEditor> {
-    await import("./editor/hui-home-dashboard-strategy-editor");
-    return document.createElement("hui-home-dashboard-strategy-editor");
+    await import('./editor/hui-home-dashboard-strategy-editor')
+    return document.createElement('hui-home-dashboard-strategy-editor')
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "home-dashboard-strategy": HomeDashboardStrategy;
+    'home-dashboard-strategy': HomeDashboardStrategy
   }
 }

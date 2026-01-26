@@ -1,10 +1,10 @@
-import { css } from "lit";
-import { customElement, property } from "lit/decorators";
-import { HaIconButton } from "./ha-icon-button";
+import { css } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { HaIconButton } from './ha-icon-button'
 
-@customElement("ha-icon-button-toggle")
+@customElement('ha-icon-button-toggle')
 export class HaIconButtonToggle extends HaIconButton {
-  @property({ type: Boolean, reflect: true }) selected = false;
+  @property({ type: Boolean, reflect: true }) selected = false
 
   static styles = css`
     :host {
@@ -21,7 +21,7 @@ export class HaIconButtonToggle extends HaIconButton {
       border-radius: var(--ha-border-radius-2xl);
       height: 40px;
       width: 40px;
-      content: "";
+      content: '';
       position: absolute;
       top: -10px;
       left: -10px;
@@ -40,11 +40,11 @@ export class HaIconButtonToggle extends HaIconButton {
     :host([selected]:not([disabled])) mwc-icon-button::before {
       opacity: 1;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-icon-button-toggle": HaIconButtonToggle;
+    'ha-icon-button-toggle': HaIconButtonToggle
   }
 }

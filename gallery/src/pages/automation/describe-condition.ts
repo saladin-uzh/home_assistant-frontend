@@ -1,61 +1,61 @@
-import { dump } from "js-yaml";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-yaml-editor";
-import type { Condition } from "../../../../src/data/automation";
-import { describeCondition } from "../../../../src/data/automation_i18n";
-import { getEntity } from "../../../../src/fake_data/entity";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import type { HomeAssistant } from "../../../../src/types";
+import { dump } from 'js-yaml'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-yaml-editor'
+import type { Condition } from '../../../../src/data/automation'
+import { describeCondition } from '../../../../src/data/automation_i18n'
+import { getEntity } from '../../../../src/fake_data/entity'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import type { HomeAssistant } from '../../../../src/types'
 
 const ENTITIES = [
-  getEntity("light", "kitchen", "on", {
-    friendly_name: "Kitchen Light",
+  getEntity('light', 'kitchen', 'on', {
+    friendly_name: 'Kitchen Light',
   }),
-  getEntity("device_tracker", "person", "home", {
-    friendly_name: "Person",
+  getEntity('device_tracker', 'person', 'home', {
+    friendly_name: 'Person',
   }),
-  getEntity("zone", "home", "", {
-    friendly_name: "Home",
+  getEntity('zone', 'home', '', {
+    friendly_name: 'Home',
   }),
-];
+]
 
 const conditions: Condition[] = [
-  { condition: "and", conditions: [] },
-  { condition: "not", conditions: [] },
-  { condition: "or", conditions: [] },
-  { condition: "state", entity_id: "light.kitchen", state: "on" },
+  { condition: 'and', conditions: [] },
+  { condition: 'not', conditions: [] },
+  { condition: 'or', conditions: [] },
+  { condition: 'state', entity_id: 'light.kitchen', state: 'on' },
   {
-    condition: "numeric_state",
-    entity_id: "light.kitchen",
-    attribute: "brightness",
+    condition: 'numeric_state',
+    entity_id: 'light.kitchen',
+    attribute: 'brightness',
     below: 80,
     above: 20,
   },
-  { condition: "sun", after: "sunset" },
-  { condition: "sun", after: "sunrise", before_offset: 3600 },
-  { condition: "zone", entity_id: "device_tracker.person", zone: "zone.home" },
-  { condition: "trigger", id: "motion" },
-  { condition: "time" },
-  { condition: "template", value_template: "" },
-];
+  { condition: 'sun', after: 'sunset' },
+  { condition: 'sun', after: 'sunrise', before_offset: 3600 },
+  { condition: 'zone', entity_id: 'device_tracker.person', zone: 'zone.home' },
+  { condition: 'trigger', id: 'motion' },
+  { condition: 'time' },
+  { condition: 'template', value_template: '' },
+]
 
 const initialCondition: Condition = {
-  condition: "state",
-  entity_id: "light.kitchen",
-  state: "on",
-};
+  condition: 'state',
+  entity_id: 'light.kitchen',
+  state: 'on',
+}
 
-@customElement("demo-automation-describe-condition")
+@customElement('demo-automation-describe-condition')
 export class DemoAutomationDescribeCondition extends LitElement {
-  @property({ attribute: false }) hass!: HomeAssistant;
+  @property({ attribute: false }) hass!: HomeAssistant
 
-  @state() _condition = initialCondition;
+  @state() _condition = initialCondition
 
   protected render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -64,7 +64,7 @@ export class DemoAutomationDescribeCondition extends LitElement {
           <span>
             ${this._condition
               ? describeCondition(this._condition, this.hass, [])
-              : "<invalid YAML>"}
+              : '<invalid YAML>'}
           </span>
           <ha-yaml-editor
             label="Condition Config"
@@ -74,7 +74,7 @@ export class DemoAutomationDescribeCondition extends LitElement {
         </div>
 
         ${conditions.map(
-          (conf) => html`
+          conf => html`
             <div class="condition">
               <span>${describeCondition(conf as any, this.hass, [])}</span>
               <pre>${dump(conf)}</pre>
@@ -82,20 +82,20 @@ export class DemoAutomationDescribeCondition extends LitElement {
           `
         )}
       </ha-card>
-    `;
+    `
   }
 
   protected firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
-    const hass = provideHass(this);
-    hass.updateTranslations(null, "en");
-    hass.updateTranslations("config", "en");
-    hass.addEntities(ENTITIES);
+    super.firstUpdated(changedProps)
+    const hass = provideHass(this)
+    hass.updateTranslations(null, 'en')
+    hass.updateTranslations('config', 'en')
+    hass.addEntities(ENTITIES)
   }
 
   private _dataChanged(ev: CustomEvent): void {
-    ev.stopPropagation();
-    this._condition = ev.detail.isValid ? ev.detail.value : undefined;
+    ev.stopPropagation()
+    this._condition = ev.detail.isValid ? ev.detail.value : undefined
   }
 
   static styles = css`
@@ -115,11 +115,11 @@ export class DemoAutomationDescribeCondition extends LitElement {
     ha-yaml-editor {
       width: 50%;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-automation-describe-condition": DemoAutomationDescribeCondition;
+    'demo-automation-describe-condition': DemoAutomationDescribeCondition
   }
 }

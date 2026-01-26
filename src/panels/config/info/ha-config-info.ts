@@ -7,125 +7,128 @@ import {
   mdiNewspaperVariant,
   mdiOpenInNew,
   mdiTshirtCrew,
-} from "@mdi/js";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { isComponentLoaded } from "../../../common/config/is_component_loaded";
-import "../../../components/ha-card";
-import "../../../components/ha-icon-next";
-import "../../../components/ha-list";
-import "../../../components/ha-list-item";
-import "../../../components/ha-logo-svg";
-import "../../../components/ha-md-list";
-import "../../../components/ha-md-list-item";
-import type { HassioHassOSInfo } from "../../../data/hassio/host";
-import { fetchHassioHassOsInfo } from "../../../data/hassio/host";
-import type { HassioInfo } from "../../../data/hassio/supervisor";
-import { fetchHassioInfo } from "../../../data/hassio/supervisor";
-import { subscribeSystemHealthInfo } from "../../../data/system_health";
-import { showShortcutsDialog } from "../../../dialogs/shortcuts/show-shortcuts-dialog";
-import "../../../layouts/hass-subpage";
-import { mdiHomeAssistant } from "../../../resources/home-assistant-logo-svg";
-import { haStyle } from "../../../resources/styles";
-import type { HomeAssistant, Route } from "../../../types";
-import { documentationUrl } from "../../../util/documentation-url";
+} from '@mdi/js'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { isComponentLoaded } from '../../../common/config/is_component_loaded'
+import '../../../components/ha-card'
+import '../../../components/ha-icon-next'
+import '../../../components/ha-list'
+import '../../../components/ha-list-item'
+import '../../../components/ha-logo-svg'
+import '../../../components/ha-md-list'
+import '../../../components/ha-md-list-item'
+import type { HassioHassOSInfo } from '../../../data/hassio/host'
+import { fetchHassioHassOsInfo } from '../../../data/hassio/host'
+import type { HassioInfo } from '../../../data/hassio/supervisor'
+import { fetchHassioInfo } from '../../../data/hassio/supervisor'
+import { subscribeSystemHealthInfo } from '../../../data/system_health'
+import { showShortcutsDialog } from '../../../dialogs/shortcuts/show-shortcuts-dialog'
+import '../../../layouts/hass-subpage'
+import { mdiHomeAssistant } from '../../../resources/home-assistant-logo-svg'
+import { haStyle } from '../../../resources/styles'
+import type { HomeAssistant, Route } from '../../../types'
+import { documentationUrl } from '../../../util/documentation-url'
 
-const JS_TYPE = __BUILD__;
-const JS_VERSION = __VERSION__;
+const JS_TYPE = __BUILD__
+const JS_VERSION = __VERSION__
 
 const PAGES = [
   {
-    name: "change_log",
-    path: "/latest-release-notes/",
+    name: 'change_log',
+    path: '/latest-release-notes/',
     iconPath: mdiNewspaperVariant,
-    iconColor: "#4A5963",
+    iconColor: '#4A5963',
   },
   {
-    name: "thanks",
-    path: "/developers/credits/",
+    name: 'thanks',
+    path: '/developers/credits/',
     iconPath: mdiHandsPray,
-    iconColor: "#3B808E",
+    iconColor: '#3B808E',
   },
   {
-    name: "merch",
-    path: "/merch",
+    name: 'merch',
+    path: '/merch',
     iconPath: mdiTshirtCrew,
-    iconColor: "#C65326",
+    iconColor: '#C65326',
   },
   {
-    name: "feature",
-    path: "/feature-requests",
+    name: 'feature',
+    path: '/feature-requests',
     iconPath: mdiHomeAssistant,
-    iconColor: "#0D47A1",
+    iconColor: '#0D47A1',
   },
   {
-    name: "bug",
-    path: "/issues",
+    name: 'bug',
+    path: '/issues',
     iconPath: mdiBug,
-    iconColor: "#F1C447",
+    iconColor: '#F1C447',
   },
   {
-    name: "help",
-    path: "/community",
+    name: 'help',
+    path: '/community',
     iconPath: mdiHelp,
-    iconColor: "#B1345C",
+    iconColor: '#B1345C',
   },
   {
-    name: "license",
-    path: "/developers/license/",
+    name: 'license',
+    path: '/developers/license/',
     iconPath: mdiFileDocument,
-    iconColor: "#518C43",
+    iconColor: '#518C43',
   },
 ] as const satisfies readonly {
-  name: string;
-  path: string;
-  iconPath: string;
-  iconColor: string;
-}[];
+  name: string
+  path: string
+  iconPath: string
+  iconColor: string
+}[]
 
-@customElement("ha-config-info")
+@customElement('ha-config-info')
 class HaConfigInfo extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ attribute: "is-wide", type: Boolean }) public isWide = false;
+  @property({ attribute: 'is-wide', type: Boolean }) public isWide = false
 
-  @property({ attribute: false }) public showAdvanced = false;
+  @property({ attribute: false }) public showAdvanced = false
 
-  @property({ attribute: false }) public route!: Route;
+  @property({ attribute: false }) public route!: Route
 
-  @state() private _osInfo?: HassioHassOSInfo;
+  @state() private _osInfo?: HassioHassOSInfo
 
-  @state() private _hassioInfo?: HassioInfo;
+  @state() private _hassioInfo?: HassioInfo
 
-  @state() private _installationMethod?: string;
+  @state() private _installationMethod?: string
 
   protected render(): TemplateResult {
-    const hass = this.hass;
+    const hass = this.hass
     const customUiList: { name: string; url: string; version: string }[] =
-      (window as any).CUSTOM_UI_LIST || [];
+      (window as any).CUSTOM_UI_LIST || []
 
-    const isDark = this.hass.themes?.darkMode || false;
+    const isDark = this.hass.themes?.darkMode || false
 
     return html`
       <hass-subpage
         .hass=${this.hass}
         .narrow=${this.narrow}
         back-path="/config"
-        .header=${this.hass.localize("ui.panel.config.info.caption")}
+        .header=${this.hass.localize('ui.panel.config.info.caption')}
       >
         <div class="content">
-          <ha-card outlined class="header">
+          <ha-card
+            outlined
+            class="header"
+          >
             <a
-              href=${documentationUrl(this.hass, "")}
+              href=${documentationUrl(this.hass, '')}
               target="_blank"
               rel="noreferrer"
             >
               <ha-logo-svg
                 title=${this.hass.localize(
-                  "ui.panel.config.info.home_assistant_logo"
+                  'ui.panel.config.info.home_assistant_logo'
                 )}
               >
               </ha-logo-svg>
@@ -135,10 +138,10 @@ class HaConfigInfo extends LitElement {
               <li>
                 <span class="version-label"
                   >${this.hass.localize(
-                    "ui.panel.config.info.installation_method"
+                    'ui.panel.config.info.installation_method'
                   )}</span
                 >
-                <span class="version">${this._installationMethod || "…"}</span>
+                <span class="version">${this._installationMethod || '…'}</span>
               </li>
               <li>
                 <span class="version-label">Core</span>
@@ -165,11 +168,11 @@ class HaConfigInfo extends LitElement {
               <li>
                 <span class="version-label">
                   ${this.hass.localize(
-                    "ui.panel.config.info.frontend_version_label"
+                    'ui.panel.config.info.frontend_version_label'
                   )}
                 </span>
                 <span class="version">
-                  ${JS_VERSION}${JS_TYPE !== "modern" ? ` · ${JS_TYPE}` : ""}
+                  ${JS_VERSION}${JS_TYPE !== 'modern' ? ` · ${JS_TYPE}` : ''}
                 </span>
               </li>
               ${this.hass.auth.external?.config.appVersion
@@ -177,7 +180,7 @@ class HaConfigInfo extends LitElement {
                     <li>
                       <span class="version-label"
                         >${this.hass.localize(
-                          "ui.panel.config.info.external_app_version"
+                          'ui.panel.config.info.external_app_version'
                         )}</span
                       >
                       <span class="version"
@@ -188,22 +191,34 @@ class HaConfigInfo extends LitElement {
                 : nothing}
             </ul>
           </ha-card>
-          <ha-card outlined class="ohf ${isDark ? "dark" : ""}">
+          <ha-card
+            outlined
+            class="ohf ${isDark ? 'dark' : ''}"
+          >
             <div>
-              ${this.hass.localize("ui.panel.config.info.proud_part_of")}
+              ${this.hass.localize('ui.panel.config.info.proud_part_of')}
             </div>
             <a
               href="https://www.openhomefoundation.org"
               target="_blank"
               rel="noreferrer"
             >
-              <img src="/static/icons/ohf.svg" alt="Open Home Foundation" />
+              <img
+                src="/static/icons/ohf.svg"
+                alt="Open Home Foundation"
+              />
             </a>
           </ha-card>
 
-          <ha-card outlined class="pages">
+          <ha-card
+            outlined
+            class="pages"
+          >
             <ha-md-list>
-              <ha-md-list-item type="button" @click=${this._showShortcuts}>
+              <ha-md-list-item
+                type="button"
+                @click=${this._showShortcuts}
+              >
                 <div
                   slot="start"
                   class="icon-background"
@@ -212,12 +227,12 @@ class HaConfigInfo extends LitElement {
                   <ha-svg-icon .path=${mdiKeyboard}></ha-svg-icon>
                 </div>
                 <span
-                  >${this.hass.localize("ui.panel.config.info.shortcuts")}</span
+                  >${this.hass.localize('ui.panel.config.info.shortcuts')}</span
                 >
               </ha-md-list-item>
 
               ${PAGES.map(
-                (page) => html`
+                page => html`
                   <ha-md-list-item
                     type="link"
                     .href=${documentationUrl(this.hass, page.path)}
@@ -236,7 +251,10 @@ class HaConfigInfo extends LitElement {
                         `ui.panel.config.info.items.${page.name}`
                       )}
                     </span>
-                    <ha-svg-icon slot="end" .path=${mdiOpenInNew}></ha-svg-icon>
+                    <ha-svg-icon
+                      slot="end"
+                      .path=${mdiOpenInNew}
+                    ></ha-svg-icon>
                   </ha-md-list-item>
                 `
               )}
@@ -244,12 +262,16 @@ class HaConfigInfo extends LitElement {
             ${customUiList.length
               ? html`
                   <div class="custom-ui">
-                    ${this.hass.localize("ui.panel.config.info.custom_uis")}
+                    ${this.hass.localize('ui.panel.config.info.custom_uis')}
                     ${customUiList.map(
-                      (item) => html`
+                      item => html`
                         <div>
-                          <a href=${item.url} target="_blank"> ${item.name}</a>:
-                          ${item.version}
+                          <a
+                            href=${item.url}
+                            target="_blank"
+                          >
+                            ${item.name}</a
+                          >: ${item.version}
                         </div>
                       `
                     )}
@@ -259,45 +281,45 @@ class HaConfigInfo extends LitElement {
           </ha-card>
         </div>
       </hass-subpage>
-    `;
+    `
   }
 
   protected firstUpdated(changedProps): void {
-    super.firstUpdated(changedProps);
+    super.firstUpdated(changedProps)
 
     // Legacy custom UI can be slow to register, give them time.
-    const customUI = ((window as any).CUSTOM_UI_LIST || []).length;
+    const customUI = ((window as any).CUSTOM_UI_LIST || []).length
     setTimeout(() => {
       if (((window as any).CUSTOM_UI_LIST || []).length !== customUI.length) {
-        this.requestUpdate();
+        this.requestUpdate()
       }
-    }, 2000);
+    }, 2000)
 
-    if (isComponentLoaded(this.hass, "hassio")) {
-      this._loadSupervisorInfo();
+    if (isComponentLoaded(this.hass, 'hassio')) {
+      this._loadSupervisorInfo()
     }
 
-    const unsubSystemHealth = subscribeSystemHealthInfo(this.hass, (info) => {
+    const unsubSystemHealth = subscribeSystemHealthInfo(this.hass, info => {
       if (info?.homeassistant) {
-        this._installationMethod = info.homeassistant.info.installation_type;
-        unsubSystemHealth.then((unsub) => unsub());
+        this._installationMethod = info.homeassistant.info.installation_type
+        unsubSystemHealth.then(unsub => unsub())
       }
-    });
+    })
   }
 
   private async _loadSupervisorInfo(): Promise<void> {
     const [osInfo, hassioInfo] = await Promise.all([
       fetchHassioHassOsInfo(this.hass),
       fetchHassioInfo(this.hass),
-    ]);
+    ])
 
-    this._hassioInfo = hassioInfo;
-    this._osInfo = osInfo;
+    this._hassioInfo = hassioInfo
+    this._osInfo = osInfo
   }
 
   private _showShortcuts(ev): void {
-    ev.stopPropagation();
-    showShortcutsDialog(this);
+    ev.stopPropagation()
+    showShortcutsDialog(this)
   }
 
   static get styles(): CSSResultGroup {
@@ -407,12 +429,12 @@ class HaConfigInfo extends LitElement {
           text-align: center;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-config-info": HaConfigInfo;
+    'ha-config-info': HaConfigInfo
   }
 }

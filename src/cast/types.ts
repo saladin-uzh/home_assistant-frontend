@@ -1,4 +1,4 @@
 export interface BaseCastMessage {
-  type: string;
-  senderId?: string;
+  type: string
+  senderId?: string
 }

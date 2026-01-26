@@ -1,16 +1,16 @@
-import { LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../components/ha-ripple";
+import { LitElement, css, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../components/ha-ripple'
 
-@customElement("dashboard-card")
+@customElement('dashboard-card')
 export class DashboardCard extends LitElement {
-  @property({ type: String }) name = "";
+  @property({ type: String }) name = ''
 
-  @property({ type: String }) description = "";
+  @property({ type: String }) description = ''
 
-  @property({ type: String }) img = "";
+  @property({ type: String }) img = ''
 
-  @property({ type: String }) alt = "";
+  @property({ type: String }) alt = ''
 
   render() {
     return html`
@@ -28,17 +28,21 @@ export class DashboardCard extends LitElement {
           </div>
         </div>
         <div class="preview">
-          <img alt=${this.alt} loading="lazy" src=${this.img} />
+          <img
+            alt=${this.alt}
+            loading="lazy"
+            src=${this.img}
+          />
         </div>
         <ha-ripple></ha-ripple>
       </div>
-    `;
+    `
   }
 
   private _onKeyDown(e: KeyboardEvent) {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      this.click();
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      this.click()
     }
   }
 
@@ -74,11 +78,11 @@ export class DashboardCard extends LitElement {
       color: var(--secondary-text-color);
       font-size: 0.9rem;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dashboard-card": DashboardCard;
+    'dashboard-card': DashboardCard
   }
 }

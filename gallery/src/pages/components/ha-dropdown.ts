@@ -1,35 +1,39 @@
-import "@home-assistant/webawesome/dist/components/button/button";
-import "@home-assistant/webawesome/dist/components/dropdown/dropdown";
-import "@home-assistant/webawesome/dist/components/icon/icon";
-import "@home-assistant/webawesome/dist/components/popup/popup";
+import '@home-assistant/webawesome/dist/components/button/button'
+import '@home-assistant/webawesome/dist/components/dropdown/dropdown'
+import '@home-assistant/webawesome/dist/components/icon/icon'
+import '@home-assistant/webawesome/dist/components/popup/popup'
 import {
   mdiContentCopy,
   mdiContentCut,
   mdiContentPaste,
   mdiDelete,
-} from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators";
-import { applyThemesOnElement } from "../../../../src/common/dom/apply_themes_on_element";
-import "../../../../src/components/ha-button";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-dropdown";
-import "../../../../src/components/ha-dropdown-item";
-import "../../../../src/components/ha-icon-button";
-import "../../../../src/components/ha-svg-icon";
+} from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import { applyThemesOnElement } from '../../../../src/common/dom/apply_themes_on_element'
+import '../../../../src/components/ha-button'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-dropdown'
+import '../../../../src/components/ha-dropdown-item'
+import '../../../../src/components/ha-icon-button'
+import '../../../../src/components/ha-svg-icon'
 
-@customElement("demo-components-ha-dropdown")
+@customElement('demo-components-ha-dropdown')
 export class DemoHaDropdown extends LitElement {
   protected render(): TemplateResult {
     return html`
-      ${["light", "dark"].map(
-        (mode) => html`
+      ${['light', 'dark'].map(
+        mode => html`
           <div class=${mode}>
             <ha-card header="ha-button in ${mode}">
               <div class="card-content">
                 <ha-dropdown>
-                  <ha-button slot="trigger" with-caret>Dropdown</ha-button>
+                  <ha-button
+                    slot="trigger"
+                    with-caret
+                    >Dropdown</ha-button
+                  >
 
                   <ha-dropdown-item>
                     <ha-svg-icon
@@ -54,21 +58,32 @@ export class DemoHaDropdown extends LitElement {
                   </ha-dropdown-item>
                   <ha-dropdown-item>
                     Show images
-                    <ha-dropdown-item slot="submenu" value="show-all-images"
+                    <ha-dropdown-item
+                      slot="submenu"
+                      value="show-all-images"
                       >Show All Images</ha-dropdown-item
                     >
-                    <ha-dropdown-item slot="submenu" value="show-thumbnails"
+                    <ha-dropdown-item
+                      slot="submenu"
+                      value="show-thumbnails"
                       >Show Thumbnails</ha-dropdown-item
                     >
                   </ha-dropdown-item>
-                  <ha-dropdown-item type="checkbox" checked
+                  <ha-dropdown-item
+                    type="checkbox"
+                    checked
                     >Emoji Shortcuts</ha-dropdown-item
                   >
-                  <ha-dropdown-item type="checkbox" checked
+                  <ha-dropdown-item
+                    type="checkbox"
+                    checked
                     >Word Wrap</ha-dropdown-item
                   >
                   <ha-dropdown-item variant="danger">
-                    <ha-svg-icon .path=${mdiDelete} slot="icon"></ha-svg-icon>
+                    <ha-svg-icon
+                      .path=${mdiDelete}
+                      slot="icon"
+                    ></ha-svg-icon>
                     Delete
                   </ha-dropdown-item>
                 </ha-dropdown>
@@ -77,24 +92,24 @@ export class DemoHaDropdown extends LitElement {
           </div>
         `
       )}
-    `;
+    `
   }
 
   firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
+    super.firstUpdated(changedProps)
     applyThemesOnElement(
-      this.shadowRoot!.querySelector(".dark"),
+      this.shadowRoot!.querySelector('.dark'),
       {
-        default_theme: "default",
-        default_dark_theme: "default",
+        default_theme: 'default',
+        default_dark_theme: 'default',
         themes: {},
         darkMode: true,
-        theme: "default",
+        theme: 'default',
       },
       undefined,
       undefined,
       true
-    );
+    )
   }
 
   static styles = css`
@@ -123,11 +138,11 @@ export class DemoHaDropdown extends LitElement {
       display: flex;
       gap: 8px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-components-ha-dropdown": DemoHaDropdown;
+    'demo-components-ha-dropdown': DemoHaDropdown
   }
 }

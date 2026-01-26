@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest'
 import {
   formatDate,
   formatDateWeekdayDay,
@@ -10,26 +10,26 @@ import {
   formatDateYear,
   formatDateWeekday,
   formatDateWeekdayShort,
-} from "../../../src/common/datetime/format_date";
+} from '../../../src/common/datetime/format_date'
 import {
   NumberFormat,
   TimeFormat,
   FirstWeekday,
   DateFormat,
   TimeZone,
-} from "../../../src/data/translation";
-import { demoConfig } from "../../../src/fake_data/demo_config";
+} from '../../../src/data/translation'
+import { demoConfig } from '../../../src/fake_data/demo_config'
 
-describe("formatDate", () => {
-  const dateObj = new Date(2017, 10, 18, 11, 12, 13, 1400);
+describe('formatDate', () => {
+  const dateObj = new Date(2017, 10, 18, 11, 12, 13, 1400)
 
-  describe("formatDate", () => {
-    it("Formats English dates", () => {
+  describe('formatDate', () => {
+    it('Formats English dates', () => {
       expect(
         formatDate(
           dateObj,
           {
-            language: "en",
+            language: 'en',
             number_format: NumberFormat.language,
             time_format: TimeFormat.language,
             date_format: DateFormat.language,
@@ -38,17 +38,17 @@ describe("formatDate", () => {
           },
           demoConfig
         )
-      ).toBe("November 18, 2017");
-    });
-  });
+      ).toBe('November 18, 2017')
+    })
+  })
 
-  describe("formatDateWeekdayDay", () => {
-    it("Formats weekday and day", () => {
+  describe('formatDateWeekdayDay', () => {
+    it('Formats weekday and day', () => {
       expect(
         formatDateWeekdayDay(
           dateObj,
           {
-            language: "en",
+            language: 'en',
             number_format: NumberFormat.language,
             time_format: TimeFormat.language,
             date_format: DateFormat.language,
@@ -57,17 +57,17 @@ describe("formatDate", () => {
           },
           demoConfig
         )
-      ).toBe("Saturday, November 18");
-    });
-  });
+      ).toBe('Saturday, November 18')
+    })
+  })
 
-  describe("formatDateShort", () => {
-    it("Formats short date", () => {
+  describe('formatDateShort', () => {
+    it('Formats short date', () => {
       expect(
         formatDateShort(
           dateObj,
           {
-            language: "en",
+            language: 'en',
             number_format: NumberFormat.language,
             time_format: TimeFormat.language,
             date_format: DateFormat.language,
@@ -76,17 +76,17 @@ describe("formatDate", () => {
           },
           demoConfig
         )
-      ).toBe("Nov 18, 2017");
-    });
-  });
+      ).toBe('Nov 18, 2017')
+    })
+  })
 
-  describe("formatDateNumeric", () => {
-    it("Formats numeric date", () => {
+  describe('formatDateNumeric', () => {
+    it('Formats numeric date', () => {
       expect(
         formatDateNumeric(
           dateObj,
           {
-            language: "de",
+            language: 'de',
             number_format: NumberFormat.language,
             time_format: TimeFormat.language,
             date_format: DateFormat.language,
@@ -95,15 +95,15 @@ describe("formatDate", () => {
           },
           demoConfig
         )
-      ).toBe("18.11.2017");
-    });
+      ).toBe('18.11.2017')
+    })
 
-    it("Formats numeric date in DMY format", () => {
+    it('Formats numeric date in DMY format', () => {
       expect(
         formatDateNumeric(
           dateObj,
           {
-            language: "en",
+            language: 'en',
             number_format: NumberFormat.language,
             time_format: TimeFormat.language,
             date_format: DateFormat.DMY,
@@ -112,15 +112,15 @@ describe("formatDate", () => {
           },
           demoConfig
         )
-      ).toBe("18/11/2017");
-    });
+      ).toBe('18/11/2017')
+    })
 
-    it("Formats numeric date in MDY format", () => {
+    it('Formats numeric date in MDY format', () => {
       expect(
         formatDateNumeric(
           dateObj,
           {
-            language: "en",
+            language: 'en',
             number_format: NumberFormat.language,
             time_format: TimeFormat.language,
             date_format: DateFormat.MDY,
@@ -129,15 +129,15 @@ describe("formatDate", () => {
           },
           demoConfig
         )
-      ).toBe("11/18/2017");
-    });
+      ).toBe('11/18/2017')
+    })
 
-    it("Formats numeric date in YMD format", () => {
+    it('Formats numeric date in YMD format', () => {
       expect(
         formatDateNumeric(
           dateObj,
           {
-            language: "en",
+            language: 'en',
             number_format: NumberFormat.language,
             time_format: TimeFormat.language,
             date_format: DateFormat.YMD,
@@ -146,17 +146,17 @@ describe("formatDate", () => {
           },
           demoConfig
         )
-      ).toBe("2017/11/18");
-    });
-  });
+      ).toBe('2017/11/18')
+    })
+  })
 
-  describe("formatDateVeryShort", () => {
-    it("Formats very short date", () => {
+  describe('formatDateVeryShort', () => {
+    it('Formats very short date', () => {
       expect(
         formatDateVeryShort(
           dateObj,
           {
-            language: "en",
+            language: 'en',
             number_format: NumberFormat.language,
             time_format: TimeFormat.language,
             date_format: DateFormat.language,
@@ -165,17 +165,17 @@ describe("formatDate", () => {
           },
           demoConfig
         )
-      ).toBe("Nov 18");
-    });
-  });
+      ).toBe('Nov 18')
+    })
+  })
 
-  describe("formatDateMonthYear", () => {
-    it("Formats month and year", () => {
+  describe('formatDateMonthYear', () => {
+    it('Formats month and year', () => {
       expect(
         formatDateMonthYear(
           dateObj,
           {
-            language: "en",
+            language: 'en',
             number_format: NumberFormat.language,
             time_format: TimeFormat.language,
             date_format: DateFormat.language,
@@ -184,17 +184,17 @@ describe("formatDate", () => {
           },
           demoConfig
         )
-      ).toBe("November 2017");
-    });
-  });
+      ).toBe('November 2017')
+    })
+  })
 
-  describe("formatDateMonth", () => {
-    it("Formats month", () => {
+  describe('formatDateMonth', () => {
+    it('Formats month', () => {
       expect(
         formatDateMonth(
           dateObj,
           {
-            language: "en",
+            language: 'en',
             number_format: NumberFormat.language,
             time_format: TimeFormat.language,
             date_format: DateFormat.language,
@@ -203,17 +203,17 @@ describe("formatDate", () => {
           },
           demoConfig
         )
-      ).toBe("November");
-    });
-  });
+      ).toBe('November')
+    })
+  })
 
-  describe("formatDateYear", () => {
-    it("Formats year", () => {
+  describe('formatDateYear', () => {
+    it('Formats year', () => {
       expect(
         formatDateYear(
           dateObj,
           {
-            language: "en",
+            language: 'en',
             number_format: NumberFormat.language,
             time_format: TimeFormat.language,
             date_format: DateFormat.language,
@@ -222,17 +222,17 @@ describe("formatDate", () => {
           },
           demoConfig
         )
-      ).toBe("2017");
-    });
-  });
+      ).toBe('2017')
+    })
+  })
 
-  describe("formatDateWeekday", () => {
-    it("Formats weekday", () => {
+  describe('formatDateWeekday', () => {
+    it('Formats weekday', () => {
       expect(
         formatDateWeekday(
           dateObj,
           {
-            language: "en",
+            language: 'en',
             number_format: NumberFormat.language,
             time_format: TimeFormat.language,
             date_format: DateFormat.language,
@@ -241,17 +241,17 @@ describe("formatDate", () => {
           },
           demoConfig
         )
-      ).toBe("Saturday");
-    });
-  });
+      ).toBe('Saturday')
+    })
+  })
 
-  describe("formatDateWeekdayShort", () => {
-    it("Formats short weekday", () => {
+  describe('formatDateWeekdayShort', () => {
+    it('Formats short weekday', () => {
       expect(
         formatDateWeekdayShort(
           dateObj,
           {
-            language: "en",
+            language: 'en',
             number_format: NumberFormat.language,
             time_format: TimeFormat.language,
             date_format: DateFormat.language,
@@ -260,7 +260,7 @@ describe("formatDate", () => {
           },
           demoConfig
         )
-      ).toBe("Sat");
-    });
-  });
-});
+      ).toBe('Sat')
+    })
+  })
+})

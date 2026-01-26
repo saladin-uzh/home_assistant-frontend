@@ -1,4 +1,4 @@
-import { customElement } from "lit/decorators";
+import { customElement } from 'lit/decorators'
 import {
   any,
   array,
@@ -9,15 +9,15 @@ import {
   object,
   optional,
   string,
-} from "superstruct";
+} from 'superstruct'
 import type {
   HaFormSchema,
   SchemaUnion,
-} from "../../../../components/ha-form/types";
-import type { GridCardConfig } from "../../cards/types";
-import { baseLovelaceCardConfig } from "../structs/base-card-struct";
-import { HuiStackCardEditor } from "./hui-stack-card-editor";
-import { DEFAULT_COLUMNS } from "../../cards/hui-grid-card";
+} from '../../../../components/ha-form/types'
+import type { GridCardConfig } from '../../cards/types'
+import { baseLovelaceCardConfig } from '../structs/base-card-struct'
+import { HuiStackCardEditor } from './hui-stack-card-editor'
+import { DEFAULT_COLUMNS } from '../../cards/hui-grid-card'
 
 const cardConfigStruct = assign(
   baseLovelaceCardConfig,
@@ -27,46 +27,46 @@ const cardConfigStruct = assign(
     square: optional(boolean()),
     columns: optional(number()),
   })
-);
+)
 
 const SCHEMA = [
   {
-    type: "grid",
-    name: "",
+    type: 'grid',
+    name: '',
     schema: [
       {
-        name: "title",
+        name: 'title',
         selector: { text: {} },
       },
       {
-        name: "columns",
+        name: 'columns',
         default: DEFAULT_COLUMNS,
-        selector: { number: { min: 1, mode: "box" } },
+        selector: { number: { min: 1, mode: 'box' } },
       },
-      { name: "square", selector: { boolean: {} } },
+      { name: 'square', selector: { boolean: {} } },
     ],
   },
-] as const;
+] as const
 
-@customElement("hui-grid-card-editor")
+@customElement('hui-grid-card-editor')
 export class HuiGridCardEditor extends HuiStackCardEditor {
-  protected _schema: readonly HaFormSchema[] = SCHEMA;
+  protected _schema: readonly HaFormSchema[] = SCHEMA
 
   public setConfig(config: Readonly<GridCardConfig>): void {
-    assert(config, cardConfigStruct);
-    this._config = config;
+    assert(config, cardConfigStruct)
+    this._config = config
   }
 
   protected formData(): object {
-    return { square: true, ...this._config };
+    return { square: true, ...this._config }
   }
 
   protected _computeLabelCallback = (schema: SchemaUnion<typeof SCHEMA>) =>
-    this.hass!.localize(`ui.panel.lovelace.editor.card.grid.${schema.name}`);
+    this.hass!.localize(`ui.panel.lovelace.editor.card.grid.${schema.name}`)
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-grid-card-editor": HuiGridCardEditor;
+    'hui-grid-card-editor': HuiGridCardEditor
   }
 }

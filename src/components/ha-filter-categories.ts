@@ -1,4 +1,4 @@
-import type { ActionDetail, SelectedDetail } from "@material/mwc-list";
+import type { ActionDetail, SelectedDetail } from '@material/mwc-list'
 import {
   mdiDelete,
   mdiDotsVertical,
@@ -6,59 +6,59 @@ import {
   mdiPencil,
   mdiPlus,
   mdiTag,
-} from "@mdi/js";
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { CSSResultGroup } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../common/dom/fire_event";
-import { stopPropagation } from "../common/dom/stop_propagation";
-import type { CategoryRegistryEntry } from "../data/category_registry";
+} from '@mdi/js'
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { CSSResultGroup } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../common/dom/fire_event'
+import { stopPropagation } from '../common/dom/stop_propagation'
+import type { CategoryRegistryEntry } from '../data/category_registry'
 import {
   createCategoryRegistryEntry,
   deleteCategoryRegistryEntry,
   subscribeCategoryRegistry,
   updateCategoryRegistryEntry,
-} from "../data/category_registry";
-import { showConfirmationDialog } from "../dialogs/generic/show-dialog-box";
-import { SubscribeMixin } from "../mixins/subscribe-mixin";
-import { showCategoryRegistryDetailDialog } from "../panels/config/category/show-dialog-category-registry-detail";
-import { haStyleScrollbar } from "../resources/styles";
-import type { HomeAssistant } from "../types";
-import "./ha-button-menu";
-import "./ha-expansion-panel";
-import "./ha-icon";
-import "./ha-list";
-import "./ha-list-item";
+} from '../data/category_registry'
+import { showConfirmationDialog } from '../dialogs/generic/show-dialog-box'
+import { SubscribeMixin } from '../mixins/subscribe-mixin'
+import { showCategoryRegistryDetailDialog } from '../panels/config/category/show-dialog-category-registry-detail'
+import { haStyleScrollbar } from '../resources/styles'
+import type { HomeAssistant } from '../types'
+import './ha-button-menu'
+import './ha-expansion-panel'
+import './ha-icon'
+import './ha-list'
+import './ha-list-item'
 
-@customElement("ha-filter-categories")
+@customElement('ha-filter-categories')
 export class HaFilterCategories extends SubscribeMixin(LitElement) {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public value?: string[];
+  @property({ attribute: false }) public value?: string[]
 
-  @property() public scope?: string;
+  @property() public scope?: string
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ type: Boolean, reflect: true }) public expanded = false;
+  @property({ type: Boolean, reflect: true }) public expanded = false
 
-  @state() private _categories: CategoryRegistryEntry[] = [];
+  @state() private _categories: CategoryRegistryEntry[] = []
 
-  @state() private _shouldRender = false;
+  @state() private _shouldRender = false
 
-  protected hassSubscribeRequiredHostProps = ["scope"];
+  protected hassSubscribeRequiredHostProps = ['scope']
 
   protected hassSubscribe(): (UnsubscribeFunc | Promise<UnsubscribeFunc>)[] {
     return [
       subscribeCategoryRegistry(
         this.hass.connection,
         this.scope!,
-        (categories) => {
-          this._categories = categories;
+        categories => {
+          this._categories = categories
         }
       ),
-    ];
+    ]
   }
 
   protected render() {
@@ -69,8 +69,11 @@ export class HaFilterCategories extends SubscribeMixin(LitElement) {
         @expanded-will-change=${this._expandedWillChange}
         @expanded-changed=${this._expandedChanged}
       >
-        <div slot="header" class="header">
-          ${this.hass.localize("ui.panel.config.category.caption")}
+        <div
+          slot="header"
+          class="header"
+        >
+          ${this.hass.localize('ui.panel.config.category.caption')}
           ${this.value?.length
             ? html`<div class="badge">${this.value?.length}</div>
                 <ha-icon-button
@@ -91,12 +94,12 @@ export class HaFilterCategories extends SubscribeMixin(LitElement) {
                       .selected=${!this.value?.length}
                       .activated=${!this.value?.length}
                       >${this.hass.localize(
-                        "ui.panel.config.category.filter.show_all"
+                        'ui.panel.config.category.filter.show_all'
                       )}</ha-list-item
                     >`
                   : nothing}
                 ${this._categories.map(
-                  (category) =>
+                  category =>
                     html`<ha-list-item
                       .value=${category.category_id}
                       .selected=${this.value?.includes(category.category_id)}
@@ -131,17 +134,19 @@ export class HaFilterCategories extends SubscribeMixin(LitElement) {
                             slot="graphic"
                           ></ha-svg-icon
                           >${this.hass.localize(
-                            "ui.panel.config.category.editor.edit"
+                            'ui.panel.config.category.editor.edit'
                           )}</ha-list-item
                         >
-                        <ha-list-item graphic="icon" class="warning"
+                        <ha-list-item
+                          graphic="icon"
+                          class="warning"
                           ><ha-svg-icon
                             class="warning"
                             .path=${mdiDelete}
                             slot="graphic"
                           ></ha-svg-icon
                           >${this.hass.localize(
-                            "ui.panel.config.category.editor.delete"
+                            'ui.panel.config.category.editor.delete'
                           )}</ha-list-item
                         >
                       </ha-button-menu>
@@ -157,118 +162,121 @@ export class HaFilterCategories extends SubscribeMixin(LitElement) {
             @click=${this._addCategory}
             class="add"
           >
-            <ha-svg-icon slot="graphic" .path=${mdiPlus}></ha-svg-icon>
-            ${this.hass.localize("ui.panel.config.category.editor.add")}
+            <ha-svg-icon
+              slot="graphic"
+              .path=${mdiPlus}
+            ></ha-svg-icon>
+            ${this.hass.localize('ui.panel.config.category.editor.add')}
           </ha-list-item>`
         : nothing}
-    `;
+    `
   }
 
   protected updated(changed) {
-    if (changed.has("expanded") && this.expanded) {
+    if (changed.has('expanded') && this.expanded) {
       setTimeout(() => {
-        if (!this.expanded) return;
-        this.renderRoot.querySelector("ha-list")!.style.height =
-          `${this.clientHeight - (49 + 48)}px`;
-      }, 300);
+        if (!this.expanded) return
+        this.renderRoot.querySelector('ha-list')!.style.height =
+          `${this.clientHeight - (49 + 48)}px`
+      }, 300)
     }
   }
 
   private _handleAction(ev: CustomEvent<ActionDetail>) {
-    const categoryId = (ev.currentTarget as any).categoryId;
+    const categoryId = (ev.currentTarget as any).categoryId
     switch (ev.detail.index) {
       case 0:
-        this._editCategory(categoryId);
-        break;
+        this._editCategory(categoryId)
+        break
       case 1:
-        this._deleteCategory(categoryId);
-        break;
+        this._deleteCategory(categoryId)
+        break
     }
   }
 
   private _editCategory(id: string) {
     showCategoryRegistryDetailDialog(this, {
       scope: this.scope!,
-      entry: this._categories.find((cat) => cat.category_id === id),
-      updateEntry: (updates) =>
+      entry: this._categories.find(cat => cat.category_id === id),
+      updateEntry: updates =>
         updateCategoryRegistryEntry(this.hass, this.scope!, id, updates),
-    });
+    })
   }
 
   private async _deleteCategory(id: string) {
     const confirm = await showConfirmationDialog(this, {
       title: this.hass.localize(
-        "ui.panel.config.category.editor.confirm_delete"
+        'ui.panel.config.category.editor.confirm_delete'
       ),
       text: this.hass.localize(
-        "ui.panel.config.category.editor.confirm_delete_text"
+        'ui.panel.config.category.editor.confirm_delete_text'
       ),
-      confirmText: this.hass.localize("ui.common.delete"),
+      confirmText: this.hass.localize('ui.common.delete'),
       destructive: true,
-    });
+    })
     if (!confirm) {
-      return;
+      return
     }
     try {
-      await deleteCategoryRegistryEntry(this.hass, this.scope!, id);
-      fireEvent(this, "data-table-filter-changed", {
+      await deleteCategoryRegistryEntry(this.hass, this.scope!, id)
+      fireEvent(this, 'data-table-filter-changed', {
         value: [],
         items: undefined,
-      });
+      })
     } catch (err: any) {
-      alert(`Failed to delete: ${err.message}`);
+      alert(`Failed to delete: ${err.message}`)
     }
   }
 
   private _addCategory() {
     if (!this.scope) {
-      return;
+      return
     }
     showCategoryRegistryDetailDialog(this, {
       scope: this.scope,
-      createEntry: (values) =>
+      createEntry: values =>
         createCategoryRegistryEntry(this.hass, this.scope!, values),
-    });
+    })
   }
 
   private _expandedWillChange(ev) {
-    this._shouldRender = ev.detail.expanded;
+    this._shouldRender = ev.detail.expanded
   }
 
   private _expandedChanged(ev) {
-    this.expanded = ev.detail.expanded;
+    this.expanded = ev.detail.expanded
   }
 
   private async _categorySelected(ev: CustomEvent<SelectedDetail<number>>) {
     if (!ev.detail.index) {
-      fireEvent(this, "data-table-filter-changed", {
+      fireEvent(this, 'data-table-filter-changed', {
         value: [],
         items: undefined,
-      });
-      this.value = [];
-      return;
+      })
+      this.value = []
+      return
     }
-    const index = ev.detail.index - 1;
+    const index = ev.detail.index - 1
 
-    const val = this._categories![index]?.category_id;
+    const val = this._categories![index]?.category_id
     if (!val) {
-      return;
+      return
     }
-    this.value = [val];
+    this.value = [val]
 
-    fireEvent(this, "data-table-filter-changed", {
+    fireEvent(this, 'data-table-filter-changed', {
       value: this.value,
       items: undefined,
-    });
+    })
   }
 
   private _clearFilter(ev) {
-    ev.preventDefault();
-    this.value = undefined;
-    fireEvent(this, "data-table-filter-changed", {
+    ev.preventDefault()
+    this.value = undefined
+    fireEvent(this, 'data-table-filter-changed', {
       value: undefined,
       items: undefined,
-    });
+    })
   }
 
   static get styles(): CSSResultGroup {
@@ -326,12 +334,12 @@ export class HaFilterCategories extends SubscribeMixin(LitElement) {
           left: 0;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-filter-categories": HaFilterCategories;
+    'ha-filter-categories': HaFilterCategories
   }
 }

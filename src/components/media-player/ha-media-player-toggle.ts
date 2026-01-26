@@ -1,27 +1,27 @@
-import { type CSSResultGroup, LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators";
-import { mdiSpeaker } from "@mdi/js";
+import { type CSSResultGroup, LitElement, css, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { mdiSpeaker } from '@mdi/js'
 
-import type { HomeAssistant } from "../../types";
-import { computeStateName } from "../../common/entity/compute_state_name";
-import { fireEvent } from "../../common/dom/fire_event";
+import type { HomeAssistant } from '../../types'
+import { computeStateName } from '../../common/entity/compute_state_name'
+import { fireEvent } from '../../common/dom/fire_event'
 
-import "../ha-switch";
-import "../ha-svg-icon";
-import type { MediaPlayerEntity } from "../../data/media-player";
+import '../ha-switch'
+import '../ha-svg-icon'
+import type { MediaPlayerEntity } from '../../data/media-player'
 
-@customElement("ha-media-player-toggle")
+@customElement('ha-media-player-toggle')
 class HaMediaPlayerToggle extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public entityId!: string;
+  @property({ attribute: false }) public entityId!: string
 
-  @property({ type: Boolean }) public checked = false;
+  @property({ type: Boolean }) public checked = false
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
   protected render() {
-    const stateObj = this.hass.states[this.entityId];
+    const stateObj = this.hass.states[this.entityId]
     return html`<div class="list-item">
       <ha-svg-icon .path=${mdiSpeaker}></ha-svg-icon>
       <div class="info">
@@ -35,17 +35,17 @@ class HaMediaPlayerToggle extends LitElement {
         .checked=${this.checked}
         @change=${this._handleChange}
       ></ha-switch>
-    </div>`;
+    </div>`
   }
 
   private _formatSecondaryText(stateObj: MediaPlayerEntity): string {
-    if (stateObj.state !== "playing") {
-      return this.hass.localize("ui.card.media_player.idle");
+    if (stateObj.state !== 'playing') {
+      return this.hass.localize('ui.card.media_player.idle')
     }
 
     return [stateObj.attributes.media_title, stateObj.attributes.media_artist]
-      .filter((segment) => segment)
-      .join(" · ");
+      .filter(segment => segment)
+      .join(' · ')
   }
 
   static get styles(): CSSResultGroup {
@@ -78,19 +78,19 @@ class HaMediaPlayerToggle extends LitElement {
           white-space: nowrap;
         }
       `,
-    ];
+    ]
   }
 
   private _handleChange(ev) {
-    ev.stopPropagation();
+    ev.stopPropagation()
 
-    this.checked = ev.target.checked;
-    fireEvent(this, "change");
+    this.checked = ev.target.checked
+    fireEvent(this, 'change')
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-media-player-toggle": HaMediaPlayerToggle;
+    'ha-media-player-toggle': HaMediaPlayerToggle
   }
 }

@@ -1,15 +1,15 @@
-import { customElement, property } from "lit/decorators";
-import { css, html, LitElement, nothing } from "lit";
+import { customElement, property } from 'lit/decorators'
+import { css, html, LitElement, nothing } from 'lit'
 
-import "../../../../../../components/ha-fade-in";
-import "../../../../../../components/ha-spinner";
-import { WakeLockMixin } from "../../../../../../mixins/wakelock-mixin";
+import '../../../../../../components/ha-fade-in'
+import '../../../../../../components/ha-spinner'
+import { WakeLockMixin } from '../../../../../../mixins/wakelock-mixin'
 
-@customElement("zwave-js-add-node-loading")
+@customElement('zwave-js-add-node-loading')
 export class ZWaveJsAddNodeLoading extends WakeLockMixin(LitElement) {
-  @property() public description?: string;
+  @property() public description?: string
 
-  @property({ type: Number }) public delay = 0;
+  @property({ type: Number }) public delay = 0
 
   render() {
     return html`
@@ -19,7 +19,7 @@ export class ZWaveJsAddNodeLoading extends WakeLockMixin(LitElement) {
         </div>
         ${this.description ? html`<p>${this.description}</p>` : nothing}
       </ha-fade-in>
-    `;
+    `
   }
 
   static styles = css`
@@ -37,11 +37,11 @@ export class ZWaveJsAddNodeLoading extends WakeLockMixin(LitElement) {
       color: var(--secondary-text-color);
       text-align: center;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "zwave-js-add-node-loading": ZWaveJsAddNodeLoading;
+    'zwave-js-add-node-loading': ZWaveJsAddNodeLoading
   }
 }

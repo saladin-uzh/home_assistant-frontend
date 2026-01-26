@@ -1,20 +1,20 @@
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import type { DeviceRegistryEntry } from "../../../../../data/device_registry";
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import type { DeviceRegistryEntry } from '../../../../../data/device_registry'
 
 export interface ZWaveJSRebuildNodeRoutesDialogParams {
-  device: DeviceRegistryEntry;
+  device: DeviceRegistryEntry
 }
 
 export const loadRebuildNodeRoutesDialog = () =>
-  import("./dialog-zwave_js-rebuild-node-routes");
+  import('./dialog-zwave_js-rebuild-node-routes')
 
 export const showZWaveJSRebuildNodeRoutesDialog = (
   element: HTMLElement,
   rebuildNodeRoutesDialogParams: ZWaveJSRebuildNodeRoutesDialogParams
 ): void => {
-  fireEvent(element, "show-dialog", {
-    dialogTag: "dialog-zwave_js-rebuild-node-routes",
+  fireEvent(element, 'show-dialog', {
+    dialogTag: 'dialog-zwave_js-rebuild-node-routes',
     dialogImport: loadRebuildNodeRoutesDialog,
     dialogParams: rebuildNodeRoutesDialogParams,
-  });
-};
+  })
+}

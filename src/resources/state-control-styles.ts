@@ -1,4 +1,4 @@
-import { css } from "lit";
+import { css } from 'lit'
 
 /**
  * Shared styles for state control toggle components
@@ -43,7 +43,7 @@ export const stateControlToggleStyle = css`
   ha-control-button:not(:last-child) {
     margin-bottom: 6px;
   }
-`;
+`
 
 /**
  * Additional styles for components with pulse animation (like lock toggle)
@@ -64,4 +64,4 @@ export const stateControlPulseStyle = css`
   .pulse {
     animation: pulse 1s infinite;
   }
-`;
+`

@@ -1,4 +1,4 @@
-import { isToday } from "date-fns";
+import { isToday } from 'date-fns'
 import type {
   Circle,
   CircleMarker,
@@ -9,164 +9,164 @@ import type {
   Marker,
   MarkerClusterGroup,
   Polyline,
-} from "leaflet";
-import type { PropertyValues } from "lit";
-import { css, ReactiveElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { formatDateTime } from "../../common/datetime/format_date_time";
+} from 'leaflet'
+import type { PropertyValues } from 'lit'
+import { css, ReactiveElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { formatDateTime } from '../../common/datetime/format_date_time'
 import {
   formatTimeWeekday,
   formatTimeWithSeconds,
-} from "../../common/datetime/format_time";
-import { fireEvent } from "../../common/dom/fire_event";
-import type { LeafletModuleType } from "../../common/dom/setup-leaflet-map";
-import { setupLeafletMap } from "../../common/dom/setup-leaflet-map";
-import { computeStateDomain } from "../../common/entity/compute_state_domain";
-import { computeStateName } from "../../common/entity/compute_state_name";
-import { DecoratedMarker } from "../../common/map/decorated_marker";
-import type { HomeAssistant, ThemeMode } from "../../types";
-import { isTouch } from "../../util/is_touch";
-import "../ha-icon-button";
-import "./ha-entity-marker";
+} from '../../common/datetime/format_time'
+import { fireEvent } from '../../common/dom/fire_event'
+import type { LeafletModuleType } from '../../common/dom/setup-leaflet-map'
+import { setupLeafletMap } from '../../common/dom/setup-leaflet-map'
+import { computeStateDomain } from '../../common/entity/compute_state_domain'
+import { computeStateName } from '../../common/entity/compute_state_name'
+import { DecoratedMarker } from '../../common/map/decorated_marker'
+import type { HomeAssistant, ThemeMode } from '../../types'
+import { isTouch } from '../../util/is_touch'
+import '../ha-icon-button'
+import './ha-entity-marker'
 
 declare global {
   // for fire event
   interface HASSDomEvents {
-    "map-clicked": { location: [number, number] };
+    'map-clicked': { location: [number, number] }
   }
 }
 
-const PROGRAMMITIC_FIT_DELAY = 250;
+const PROGRAMMITIC_FIT_DELAY = 250
 
 const getEntityId = (entity: string | HaMapEntity): string =>
-  typeof entity === "string" ? entity : entity.entity_id;
+  typeof entity === 'string' ? entity : entity.entity_id
 
 export interface HaMapPathPoint {
-  point: LatLngTuple;
-  timestamp: Date;
+  point: LatLngTuple
+  timestamp: Date
 }
 export interface HaMapPaths {
-  points: HaMapPathPoint[];
-  color?: string;
-  name?: string;
-  gradualOpacity?: number;
-  fullDatetime?: boolean;
+  points: HaMapPathPoint[]
+  color?: string
+  name?: string
+  gradualOpacity?: number
+  fullDatetime?: boolean
 }
 
 export interface HaMapEntity {
-  entity_id: string;
-  color: string;
-  label_mode?: "name" | "state" | "attribute" | "icon";
-  attribute?: string;
-  unit?: string;
-  name?: string;
-  focus?: boolean;
+  entity_id: string
+  color: string
+  label_mode?: 'name' | 'state' | 'attribute' | 'icon'
+  attribute?: string
+  unit?: string
+  name?: string
+  focus?: boolean
 }
 
-@customElement("ha-map")
+@customElement('ha-map')
 export class HaMap extends ReactiveElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public entities?: string[] | HaMapEntity[];
+  @property({ attribute: false }) public entities?: string[] | HaMapEntity[]
 
-  @property({ attribute: false }) public paths?: HaMapPaths[];
+  @property({ attribute: false }) public paths?: HaMapPaths[]
 
-  @property({ attribute: false }) public layers?: Layer[];
+  @property({ attribute: false }) public layers?: Layer[]
 
-  @property({ type: Boolean }) public clickable = false;
+  @property({ type: Boolean }) public clickable = false
 
-  @property({ attribute: "auto-fit", type: Boolean }) public autoFit = false;
+  @property({ attribute: 'auto-fit', type: Boolean }) public autoFit = false
 
-  @property({ attribute: "render-passive", type: Boolean })
-  public renderPassive = false;
+  @property({ attribute: 'render-passive', type: Boolean })
+  public renderPassive = false
 
-  @property({ attribute: "interactive-zones", type: Boolean })
-  public interactiveZones = false;
+  @property({ attribute: 'interactive-zones', type: Boolean })
+  public interactiveZones = false
 
-  @property({ attribute: "fit-zones", type: Boolean }) public fitZones = false;
+  @property({ attribute: 'fit-zones', type: Boolean }) public fitZones = false
 
-  @property({ attribute: "theme-mode", type: String })
-  public themeMode: ThemeMode = "auto";
+  @property({ attribute: 'theme-mode', type: String })
+  public themeMode: ThemeMode = 'auto'
 
-  @property({ type: Number }) public zoom = 14;
+  @property({ type: Number }) public zoom = 14
 
-  @property({ attribute: "cluster-markers", type: Boolean })
-  public clusterMarkers = true;
+  @property({ attribute: 'cluster-markers', type: Boolean })
+  public clusterMarkers = true
 
-  @state() private _loaded = false;
+  @state() private _loaded = false
 
-  public leafletMap?: Map;
+  public leafletMap?: Map
 
-  private Leaflet?: LeafletModuleType;
+  private Leaflet?: LeafletModuleType
 
-  private _resizeObserver?: ResizeObserver;
+  private _resizeObserver?: ResizeObserver
 
-  private _mapItems: (Marker | Circle)[] = [];
+  private _mapItems: (Marker | Circle)[] = []
 
-  private _mapFocusItems: (Marker | Circle)[] = [];
+  private _mapFocusItems: (Marker | Circle)[] = []
 
-  private _mapZones: DecoratedMarker[] = [];
+  private _mapZones: DecoratedMarker[] = []
 
-  private _mapFocusZones: (Marker | Circle)[] = [];
+  private _mapFocusZones: (Marker | Circle)[] = []
 
-  private _mapCluster: MarkerClusterGroup | undefined;
+  private _mapCluster: MarkerClusterGroup | undefined
 
-  private _mapPaths: (Polyline | CircleMarker)[] = [];
+  private _mapPaths: (Polyline | CircleMarker)[] = []
 
-  private _clickCount = 0;
+  private _clickCount = 0
 
-  private _isProgrammaticFit = false;
+  private _isProgrammaticFit = false
 
-  private _pauseAutoFit = false;
+  private _pauseAutoFit = false
 
   public connectedCallback(): void {
-    this._pauseAutoFit = false;
-    document.addEventListener("visibilitychange", this._handleVisibilityChange);
-    this._handleVisibilityChange();
-    super.connectedCallback();
-    this._loadMap();
-    this._attachObserver();
+    this._pauseAutoFit = false
+    document.addEventListener('visibilitychange', this._handleVisibilityChange)
+    this._handleVisibilityChange()
+    super.connectedCallback()
+    this._loadMap()
+    this._attachObserver()
   }
 
   private _handleVisibilityChange = async () => {
     if (!document.hidden) {
       setTimeout(() => {
-        this._pauseAutoFit = false;
-      }, 500);
+        this._pauseAutoFit = false
+      }, 500)
     }
-  };
+  }
 
   public disconnectedCallback(): void {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
     document.removeEventListener(
-      "visibilitychange",
+      'visibilitychange',
       this._handleVisibilityChange
-    );
+    )
     if (this.leafletMap) {
-      this.leafletMap.remove();
-      this.leafletMap = undefined;
-      this.Leaflet = undefined;
+      this.leafletMap.remove()
+      this.leafletMap = undefined
+      this.Leaflet = undefined
     }
 
-    this._loaded = false;
+    this._loaded = false
 
     if (this._resizeObserver) {
-      this._resizeObserver.unobserve(this);
+      this._resizeObserver.unobserve(this)
     }
   }
 
   protected update(changedProps: PropertyValues) {
-    super.update(changedProps);
+    super.update(changedProps)
 
     if (!this._loaded) {
-      return;
+      return
     }
-    let autoFitRequired = false;
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
+    let autoFitRequired = false
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined
 
-    if (changedProps.has("_loaded") || changedProps.has("entities")) {
-      this._drawEntities();
-      autoFitRequired = !this._pauseAutoFit;
+    if (changedProps.has('_loaded') || changedProps.has('entities')) {
+      this._drawEntities()
+      autoFitRequired = !this._pauseAutoFit
     } else if (this._loaded && oldHass && this.entities) {
       // Check if any state has changed
       for (const entity of this.entities) {
@@ -174,117 +174,117 @@ export class HaMap extends ReactiveElement {
           oldHass.states[getEntityId(entity)] !==
           this.hass!.states[getEntityId(entity)]
         ) {
-          this._drawEntities();
-          autoFitRequired = !this._pauseAutoFit;
-          break;
+          this._drawEntities()
+          autoFitRequired = !this._pauseAutoFit
+          break
         }
       }
     }
 
-    if (changedProps.has("clusterMarkers")) {
-      this._drawEntities();
+    if (changedProps.has('clusterMarkers')) {
+      this._drawEntities()
     }
 
-    if (changedProps.has("_loaded") || changedProps.has("paths")) {
-      this._drawPaths();
+    if (changedProps.has('_loaded') || changedProps.has('paths')) {
+      this._drawPaths()
     }
 
-    if (changedProps.has("_loaded") || changedProps.has("layers")) {
-      this._drawLayers(changedProps.get("layers") as Layer[] | undefined);
-      autoFitRequired = true;
+    if (changedProps.has('_loaded') || changedProps.has('layers')) {
+      this._drawLayers(changedProps.get('layers') as Layer[] | undefined)
+      autoFitRequired = true
     }
 
-    if (changedProps.has("_loaded") || (this.autoFit && autoFitRequired)) {
-      this.fitMap();
+    if (changedProps.has('_loaded') || (this.autoFit && autoFitRequired)) {
+      this.fitMap()
     }
 
-    if (changedProps.has("zoom")) {
-      this._isProgrammaticFit = true;
-      this.leafletMap!.setZoom(this.zoom);
+    if (changedProps.has('zoom')) {
+      this._isProgrammaticFit = true
+      this.leafletMap!.setZoom(this.zoom)
       setTimeout(() => {
-        this._isProgrammaticFit = false;
-      }, PROGRAMMITIC_FIT_DELAY);
+        this._isProgrammaticFit = false
+      }, PROGRAMMITIC_FIT_DELAY)
     }
 
     if (
-      !changedProps.has("themeMode") &&
-      (!changedProps.has("hass") ||
+      !changedProps.has('themeMode') &&
+      (!changedProps.has('hass') ||
         (oldHass && oldHass.themes?.darkMode === this.hass.themes?.darkMode))
     ) {
-      return;
+      return
     }
 
-    this._updateMapStyle();
+    this._updateMapStyle()
   }
 
   private get _darkMode() {
     return (
-      this.themeMode === "dark" ||
-      (this.themeMode === "auto" && Boolean(this.hass.themes.darkMode))
-    );
+      this.themeMode === 'dark' ||
+      (this.themeMode === 'auto' && Boolean(this.hass.themes.darkMode))
+    )
   }
 
   private _updateMapStyle(): void {
-    const map = this.renderRoot.querySelector("#map");
-    map!.classList.toggle("clickable", this.clickable);
-    map!.classList.toggle("dark", this._darkMode);
-    map!.classList.toggle("forced-dark", this.themeMode === "dark");
-    map!.classList.toggle("forced-light", this.themeMode === "light");
+    const map = this.renderRoot.querySelector('#map')
+    map!.classList.toggle('clickable', this.clickable)
+    map!.classList.toggle('dark', this._darkMode)
+    map!.classList.toggle('forced-dark', this.themeMode === 'dark')
+    map!.classList.toggle('forced-light', this.themeMode === 'light')
   }
 
-  private _loading = false;
+  private _loading = false
 
   private async _loadMap(): Promise<void> {
-    if (this._loading) return;
-    let map = this.shadowRoot!.getElementById("map");
+    if (this._loading) return
+    let map = this.shadowRoot!.getElementById('map')
     if (!map) {
-      map = document.createElement("div");
-      map.id = "map";
-      this.shadowRoot!.append(map);
+      map = document.createElement('div')
+      map.id = 'map'
+      this.shadowRoot!.append(map)
     }
-    this._loading = true;
+    this._loading = true
     try {
-      [this.leafletMap, this.Leaflet] = await setupLeafletMap(map);
-      this._updateMapStyle();
-      this.leafletMap.on("click", (ev) => {
+      ;[this.leafletMap, this.Leaflet] = await setupLeafletMap(map)
+      this._updateMapStyle()
+      this.leafletMap.on('click', ev => {
         if (this._clickCount === 0) {
           setTimeout(() => {
             if (this._clickCount === 1) {
-              fireEvent(this, "map-clicked", {
+              fireEvent(this, 'map-clicked', {
                 location: [ev.latlng.lat, ev.latlng.lng],
-              });
+              })
             }
-            this._clickCount = 0;
-          }, 250);
+            this._clickCount = 0
+          }, 250)
         }
-        this._clickCount++;
-      });
-      this.leafletMap.on("zoomstart", () => {
+        this._clickCount++
+      })
+      this.leafletMap.on('zoomstart', () => {
         if (!this._isProgrammaticFit) {
-          this._pauseAutoFit = true;
+          this._pauseAutoFit = true
         }
-      });
-      this.leafletMap.on("movestart", () => {
+      })
+      this.leafletMap.on('movestart', () => {
         if (!this._isProgrammaticFit) {
-          this._pauseAutoFit = true;
+          this._pauseAutoFit = true
         }
-      });
-      this._loaded = true;
+      })
+      this._loaded = true
     } finally {
-      this._loading = false;
+      this._loading = false
     }
   }
 
   public fitMap(options?: {
-    zoom?: number;
-    pad?: number;
-    unpause_autofit?: boolean;
+    zoom?: number
+    pad?: number
+    unpause_autofit?: boolean
   }): void {
     if (options?.unpause_autofit) {
-      this._pauseAutoFit = false;
+      this._pauseAutoFit = false
     }
     if (!this.leafletMap || !this.Leaflet || !this.hass) {
-      return;
+      return
     }
 
     if (
@@ -292,42 +292,42 @@ export class HaMap extends ReactiveElement {
       !this._mapFocusZones.length &&
       !this.layers?.length
     ) {
-      this._isProgrammaticFit = true;
+      this._isProgrammaticFit = true
       this.leafletMap.setView(
         new this.Leaflet.LatLng(
           this.hass.config.latitude,
           this.hass.config.longitude
         ),
         options?.zoom || this.zoom
-      );
+      )
       setTimeout(() => {
-        this._isProgrammaticFit = false;
-      }, PROGRAMMITIC_FIT_DELAY);
-      return;
+        this._isProgrammaticFit = false
+      }, PROGRAMMITIC_FIT_DELAY)
+      return
     }
 
     let bounds = this.Leaflet.latLngBounds(
       this._mapFocusItems
-        ? this._mapFocusItems.map((item) => item.getLatLng())
+        ? this._mapFocusItems.map(item => item.getLatLng())
         : []
-    );
+    )
 
-    this._mapFocusZones?.forEach((zone) => {
-      bounds.extend("getBounds" in zone ? zone.getBounds() : zone.getLatLng());
-    });
+    this._mapFocusZones?.forEach(zone => {
+      bounds.extend('getBounds' in zone ? zone.getBounds() : zone.getLatLng())
+    })
 
     this.layers?.forEach((layer: any) => {
       bounds.extend(
-        "getBounds" in layer ? layer.getBounds() : layer.getLatLng()
-      );
-    });
+        'getBounds' in layer ? layer.getBounds() : layer.getLatLng()
+      )
+    })
 
-    bounds = bounds.pad(options?.pad ?? 0.5);
-    this._isProgrammaticFit = true;
-    this.leafletMap.fitBounds(bounds, { maxZoom: options?.zoom || this.zoom });
+    bounds = bounds.pad(options?.pad ?? 0.5)
+    this._isProgrammaticFit = true
+    this.leafletMap.fitBounds(bounds, { maxZoom: options?.zoom || this.zoom })
     setTimeout(() => {
-      this._isProgrammaticFit = false;
-    }, PROGRAMMITIC_FIT_DELAY);
+      this._isProgrammaticFit = false
+    }, PROGRAMMITIC_FIT_DELAY)
   }
 
   public fitBounds(
@@ -335,82 +335,82 @@ export class HaMap extends ReactiveElement {
     options?: { zoom?: number; pad?: number }
   ) {
     if (!this.leafletMap || !this.Leaflet || !this.hass) {
-      return;
+      return
     }
     const bounds = this.Leaflet.latLngBounds(boundingbox).pad(
       options?.pad ?? 0.5
-    );
-    this._isProgrammaticFit = true;
-    this.leafletMap.fitBounds(bounds, { maxZoom: options?.zoom || this.zoom });
+    )
+    this._isProgrammaticFit = true
+    this.leafletMap.fitBounds(bounds, { maxZoom: options?.zoom || this.zoom })
     setTimeout(() => {
-      this._isProgrammaticFit = false;
-    }, PROGRAMMITIC_FIT_DELAY);
+      this._isProgrammaticFit = false
+    }, PROGRAMMITIC_FIT_DELAY)
   }
 
   private _drawLayers(prevLayers: Layer[] | undefined): void {
     if (prevLayers) {
-      prevLayers.forEach((layer) => layer.remove());
+      prevLayers.forEach(layer => layer.remove())
     }
     if (!this.layers) {
-      return;
+      return
     }
-    const map = this.leafletMap!;
-    this.layers.forEach((layer) => {
-      map.addLayer(layer);
-    });
+    const map = this.leafletMap!
+    this.layers.forEach(layer => {
+      map.addLayer(layer)
+    })
   }
 
   private _computePathTooltip(path: HaMapPaths, point: HaMapPathPoint): string {
-    let formattedTime: string;
+    let formattedTime: string
     if (path.fullDatetime) {
       formattedTime = formatDateTime(
         point.timestamp,
         this.hass.locale,
         this.hass.config
-      );
+      )
     } else if (isToday(point.timestamp)) {
       formattedTime = formatTimeWithSeconds(
         point.timestamp,
         this.hass.locale,
         this.hass.config
-      );
+      )
     } else {
       formattedTime = formatTimeWeekday(
         point.timestamp,
         this.hass.locale,
         this.hass.config
-      );
+      )
     }
-    return `${path.name}<br>${formattedTime}`;
+    return `${path.name}<br>${formattedTime}`
   }
 
   private _drawPaths(): void {
-    const hass = this.hass;
-    const map = this.leafletMap;
+    const hass = this.hass
+    const map = this.leafletMap
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    const Leaflet = this.Leaflet;
+    const Leaflet = this.Leaflet
 
     if (!hass || !map || !Leaflet) {
-      return;
+      return
     }
     if (this._mapPaths.length) {
-      this._mapPaths.forEach((marker) => marker.remove());
-      this._mapPaths = [];
+      this._mapPaths.forEach(marker => marker.remove())
+      this._mapPaths = []
     }
     if (!this.paths) {
-      return;
+      return
     }
 
     const darkPrimaryColor = getComputedStyle(this).getPropertyValue(
-      "--dark-primary-color"
-    );
+      '--dark-primary-color'
+    )
 
-    this.paths.forEach((path) => {
-      let opacityStep: number;
-      let baseOpacity: number;
+    this.paths.forEach(path => {
+      let opacityStep: number
+      let baseOpacity: number
       if (path.gradualOpacity) {
-        opacityStep = path.gradualOpacity / (path.points.length - 2);
-        baseOpacity = 1 - path.gradualOpacity;
+        opacityStep = path.gradualOpacity / (path.points.length - 2)
+        baseOpacity = 1 - path.gradualOpacity
       }
 
       for (
@@ -420,7 +420,7 @@ export class HaMap extends ReactiveElement {
       ) {
         const opacity = path.gradualOpacity
           ? baseOpacity! + pointIndex * opacityStep!
-          : undefined;
+          : undefined
 
         // DRAW point
         this._mapPaths.push(
@@ -432,9 +432,9 @@ export class HaMap extends ReactiveElement {
             interactive: true,
           }).bindTooltip(
             this._computePathTooltip(path, path.points[pointIndex]),
-            { direction: "top" }
+            { direction: 'top' }
           )
-        );
+        )
 
         // DRAW line between this and next point
         this._mapPaths.push(
@@ -446,13 +446,13 @@ export class HaMap extends ReactiveElement {
               interactive: false,
             }
           )
-        );
+        )
       }
-      const pointIndex = path.points.length - 1;
+      const pointIndex = path.points.length - 1
       if (pointIndex >= 0) {
         const opacity = path.gradualOpacity
           ? baseOpacity! + pointIndex * opacityStep!
-          : undefined;
+          : undefined
         // DRAW end path point
         this._mapPaths.push(
           Leaflet.circleMarker(path.points[pointIndex].point, {
@@ -463,64 +463,64 @@ export class HaMap extends ReactiveElement {
             interactive: true,
           }).bindTooltip(
             this._computePathTooltip(path, path.points[pointIndex]),
-            { direction: "top" }
+            { direction: 'top' }
           )
-        );
+        )
       }
-      this._mapPaths.forEach((marker) => map.addLayer(marker));
-    });
+      this._mapPaths.forEach(marker => map.addLayer(marker))
+    })
   }
 
   private _drawEntities(): void {
-    const hass = this.hass;
-    const map = this.leafletMap;
+    const hass = this.hass
+    const map = this.leafletMap
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    const Leaflet = this.Leaflet;
+    const Leaflet = this.Leaflet
 
     if (!hass || !map || !Leaflet) {
-      return;
+      return
     }
 
     if (this._mapItems.length) {
-      this._mapItems.forEach((marker) => marker.remove());
-      this._mapItems = [];
-      this._mapFocusItems = [];
+      this._mapItems.forEach(marker => marker.remove())
+      this._mapItems = []
+      this._mapFocusItems = []
     }
 
     if (this._mapZones.length) {
-      this._mapZones.forEach((marker) => marker.remove());
-      this._mapZones = [];
-      this._mapFocusZones = [];
+      this._mapZones.forEach(marker => marker.remove())
+      this._mapZones = []
+      this._mapFocusZones = []
     }
 
     if (this._mapCluster) {
-      this._mapCluster.remove();
-      this._mapCluster = undefined;
+      this._mapCluster.remove()
+      this._mapCluster = undefined
     }
 
     if (!this.entities) {
-      return;
+      return
     }
 
-    const computedStyles = getComputedStyle(this);
-    const zoneColor = computedStyles.getPropertyValue("--accent-color");
+    const computedStyles = getComputedStyle(this)
+    const zoneColor = computedStyles.getPropertyValue('--accent-color')
     const passiveZoneColor = computedStyles.getPropertyValue(
-      "--secondary-text-color"
-    );
+      '--secondary-text-color'
+    )
 
     const darkPrimaryColor = computedStyles.getPropertyValue(
-      "--dark-primary-color"
-    );
+      '--dark-primary-color'
+    )
 
-    const className = this._darkMode ? "dark" : "light";
+    const className = this._darkMode ? 'dark' : 'light'
 
     for (const entity of this.entities) {
-      const stateObj = hass.states[getEntityId(entity)];
+      const stateObj = hass.states[getEntityId(entity)]
       if (!stateObj) {
-        continue;
+        continue
       }
-      const customTitle = typeof entity !== "string" ? entity.name : undefined;
-      const title = customTitle ?? computeStateName(stateObj);
+      const customTitle = typeof entity !== 'string' ? entity.name : undefined
+      const title = customTitle ?? computeStateName(stateObj)
       const {
         latitude,
         longitude,
@@ -529,28 +529,28 @@ export class HaMap extends ReactiveElement {
         radius,
         entity_picture: entityPicture,
         gps_accuracy: gpsAccuracy,
-      } = stateObj.attributes;
+      } = stateObj.attributes
 
       if (!(latitude && longitude)) {
-        continue;
+        continue
       }
 
-      if (computeStateDomain(stateObj) === "zone") {
+      if (computeStateDomain(stateObj) === 'zone') {
         // DRAW ZONE
         if (passive && !this.renderPassive) {
-          continue;
+          continue
         }
 
         // create icon
-        let iconHTML = "";
+        let iconHTML = ''
         if (icon) {
-          const el = document.createElement("ha-icon");
-          el.setAttribute("icon", icon);
-          iconHTML = el.outerHTML;
+          const el = document.createElement('ha-icon')
+          el.setAttribute('icon', icon)
+          iconHTML = el.outerHTML
         } else {
-          const el = document.createElement("span");
-          el.innerHTML = title;
-          iconHTML = el.outerHTML;
+          const el = document.createElement('span')
+          el.innerHTML = title
+          iconHTML = el.outerHTML
         }
 
         // create circle around it
@@ -558,7 +558,7 @@ export class HaMap extends ReactiveElement {
           interactive: false,
           color: passive ? passiveZoneColor : zoneColor,
           radius,
-        });
+        })
 
         const marker = new DecoratedMarker([latitude, longitude], circle, {
           icon: Leaflet.divIcon({
@@ -568,53 +568,53 @@ export class HaMap extends ReactiveElement {
           }),
           interactive: this.interactiveZones,
           title,
-        });
+        })
 
-        this._mapZones.push(marker);
+        this._mapZones.push(marker)
         if (
           this.fitZones &&
-          (typeof entity === "string" || entity.focus !== false)
+          (typeof entity === 'string' || entity.focus !== false)
         ) {
-          this._mapFocusZones.push(circle);
+          this._mapFocusZones.push(circle)
         }
 
-        continue;
+        continue
       }
 
       // DRAW ENTITY
       // create icon
       const entityName =
-        typeof entity !== "string" && entity.label_mode === "state"
+        typeof entity !== 'string' && entity.label_mode === 'state'
           ? this.hass.formatEntityState(stateObj)
-          : typeof entity !== "string" &&
-              entity.label_mode === "attribute" &&
+          : typeof entity !== 'string' &&
+              entity.label_mode === 'attribute' &&
               entity.attribute !== undefined
             ? this.hass.formatEntityAttributeValue(stateObj, entity.attribute)
             : (customTitle ??
               title
-                .split(" ")
-                .map((part) => part[0])
-                .join("")
-                .substr(0, 3));
+                .split(' ')
+                .map(part => part[0])
+                .join('')
+                .substr(0, 3))
 
-      const entityMarker = document.createElement("ha-entity-marker");
-      entityMarker.hass = this.hass;
+      const entityMarker = document.createElement('ha-entity-marker')
+      entityMarker.hass = this.hass
       entityMarker.showIcon =
-        typeof entity !== "string" && entity.label_mode === "icon";
-      entityMarker.entityId = getEntityId(entity);
-      entityMarker.entityName = entityName;
+        typeof entity !== 'string' && entity.label_mode === 'icon'
+      entityMarker.entityId = getEntityId(entity)
+      entityMarker.entityName = entityName
       entityMarker.entityUnit =
-        typeof entity !== "string" &&
+        typeof entity !== 'string' &&
         entity.unit &&
-        entity.label_mode === "attribute"
+        entity.label_mode === 'attribute'
           ? entity.unit
-          : "";
+          : ''
       entityMarker.entityPicture =
-        entityPicture && (typeof entity === "string" || !entity.label_mode)
+        entityPicture && (typeof entity === 'string' || !entity.label_mode)
           ? this.hass.hassUrl(entityPicture)
-          : "";
-      if (typeof entity !== "string") {
-        entityMarker.entityColor = entity.color;
+          : ''
+      if (typeof entity !== 'string') {
+        entityMarker.entityColor = entity.color
       }
 
       // create marker with the icon
@@ -622,12 +622,12 @@ export class HaMap extends ReactiveElement {
         icon: Leaflet.divIcon({
           html: entityMarker,
           iconSize: [48, 48],
-          className: "",
+          className: '',
         }),
         title: title,
-      });
-      if (typeof entity === "string" || entity.focus !== false) {
-        this._mapFocusItems.push(marker);
+      })
+      if (typeof entity === 'string' || entity.focus !== false) {
+        this._mapFocusItems.push(marker)
       }
 
       // create circle around if entity has accuracy
@@ -636,10 +636,10 @@ export class HaMap extends ReactiveElement {
           interactive: false,
           color: darkPrimaryColor,
           radius: gpsAccuracy,
-        });
+        })
       }
 
-      this._mapItems.push(marker);
+      this._mapItems.push(marker)
     }
 
     if (this.clusterMarkers) {
@@ -647,23 +647,23 @@ export class HaMap extends ReactiveElement {
         showCoverageOnHover: false,
         removeOutsideVisibleBounds: false,
         maxClusterRadius: 40,
-      });
-      this._mapCluster.addLayers(this._mapItems);
-      map.addLayer(this._mapCluster);
+      })
+      this._mapCluster.addLayers(this._mapItems)
+      map.addLayer(this._mapCluster)
     } else {
-      this._mapItems.forEach((marker) => map.addLayer(marker));
+      this._mapItems.forEach(marker => map.addLayer(marker))
     }
 
-    this._mapZones.forEach((marker) => map.addLayer(marker));
+    this._mapZones.forEach(marker => map.addLayer(marker))
   }
 
   private async _attachObserver(): Promise<void> {
     if (!this._resizeObserver) {
       this._resizeObserver = new ResizeObserver(() => {
-        this.leafletMap?.invalidateSize({ debounceMoveend: true });
-      });
+        this.leafletMap?.invalidateSize({ debounceMoveend: true })
+      })
     }
-    this._resizeObserver.observe(this);
+    this._resizeObserver.observe(this)
   }
 
   static styles = css`
@@ -754,11 +754,11 @@ export class HaMap extends ReactiveElement {
     .marker-cluster span {
       line-height: var(--ha-line-height-expanded);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-map": HaMap;
+    'ha-map': HaMap
   }
 }

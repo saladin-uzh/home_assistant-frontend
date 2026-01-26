@@ -1,31 +1,31 @@
-import { fireEvent } from "../../../../common/dom/fire_event";
+import { fireEvent } from '../../../../common/dom/fire_event'
 
 export const loadAutomationSaveTimeoutDialog = () =>
-  import("./dialog-automation-save-timeout");
+  import('./dialog-automation-save-timeout')
 
 export interface AutomationSaveTimeoutDialogParams {
-  onClose?: () => void;
-  savedPromise: Promise<any>;
-  type: "automation" | "script";
+  onClose?: () => void
+  savedPromise: Promise<any>
+  type: 'automation' | 'script'
 }
 
 export const showAutomationSaveTimeoutDialog = (
   element: HTMLElement,
   dialogParams: AutomationSaveTimeoutDialogParams
 ) =>
-  new Promise<void>((resolve) => {
-    const origClose = dialogParams.onClose;
-    fireEvent(element, "show-dialog", {
-      dialogTag: "ha-dialog-automation-save-timeout",
+  new Promise<void>(resolve => {
+    const origClose = dialogParams.onClose
+    fireEvent(element, 'show-dialog', {
+      dialogTag: 'ha-dialog-automation-save-timeout',
       dialogImport: loadAutomationSaveTimeoutDialog,
       dialogParams: {
         ...dialogParams,
         onClose: () => {
-          resolve();
+          resolve()
           if (origClose) {
-            origClose();
+            origClose()
           }
         },
       },
-    });
-  });
+    })
+  })

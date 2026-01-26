@@ -1,31 +1,31 @@
-import type { PropertyValues } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../common/dom/fire_event";
-import type { AttributeSelector } from "../../data/selector";
-import type { HomeAssistant } from "../../types";
-import "../entity/ha-entity-attribute-picker";
-import { ensureArray } from "../../common/array/ensure-array";
+import type { PropertyValues } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../common/dom/fire_event'
+import type { AttributeSelector } from '../../data/selector'
+import type { HomeAssistant } from '../../types'
+import '../entity/ha-entity-attribute-picker'
+import { ensureArray } from '../../common/array/ensure-array'
 
-@customElement("ha-selector-attribute")
+@customElement('ha-selector-attribute')
 export class HaSelectorAttribute extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: AttributeSelector;
+  @property({ attribute: false }) public selector!: AttributeSelector
 
-  @property() public value?: any;
+  @property() public value?: any
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = true;
+  @property({ type: Boolean }) public required = true
 
   @property({ attribute: false }) public context?: {
-    filter_entity?: string | string[];
-  };
+    filter_entity?: string | string[]
+  }
 
   protected render() {
     return html`
@@ -41,59 +41,59 @@ export class HaSelectorAttribute extends LitElement {
         .required=${this.required}
         allow-custom-value
       ></ha-entity-attribute-picker>
-    `;
+    `
   }
 
   protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
+    super.updated(changedProps)
     if (
       // No need to filter value if no value
       !this.value ||
       // Only adjust value if we used the context
       this.selector.attribute?.entity_id ||
       // Only check if context has changed
-      !changedProps.has("context")
+      !changedProps.has('context')
     ) {
-      return;
+      return
     }
 
-    const oldContext = changedProps.get("context") as this["context"];
+    const oldContext = changedProps.get('context') as this['context']
 
     if (
       !this.context ||
       !oldContext ||
       oldContext.filter_entity === this.context.filter_entity
     ) {
-      return;
+      return
     }
 
     // Validate that that the attribute is still valid for this entity, else unselect.
-    let invalid = false;
+    let invalid = false
     if (this.context.filter_entity) {
-      const entityIds = ensureArray(this.context.filter_entity);
+      const entityIds = ensureArray(this.context.filter_entity)
 
-      invalid = !entityIds.some((entityId) => {
-        const stateObj = this.hass.states[entityId];
+      invalid = !entityIds.some(entityId => {
+        const stateObj = this.hass.states[entityId]
         return (
           stateObj &&
           this.value in stateObj.attributes &&
           stateObj.attributes[this.value] !== undefined
-        );
-      });
+        )
+      })
     } else {
-      invalid = this.value !== undefined;
+      invalid = this.value !== undefined
     }
 
     if (invalid) {
-      fireEvent(this, "value-changed", {
+      fireEvent(this, 'value-changed', {
         value: undefined,
-      });
+      })
     }
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-attribute": HaSelectorAttribute;
+    'ha-selector-attribute': HaSelectorAttribute
   }
 }

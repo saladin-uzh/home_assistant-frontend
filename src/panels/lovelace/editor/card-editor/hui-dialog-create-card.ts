@@ -1,104 +1,102 @@
-import { mdiClose } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { cache } from "lit/directives/cache";
-import { classMap } from "lit/directives/class-map";
-import { ifDefined } from "lit/directives/if-defined";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-button";
-import "../../../../components/ha-dialog";
-import "../../../../components/ha-dialog-header";
-import "../../../../components/ha-tab-group";
-import "../../../../components/ha-tab-group-tab";
-import type { LovelaceSectionConfig } from "../../../../data/lovelace/config/section";
-import { isStrategySection } from "../../../../data/lovelace/config/section";
-import type { LovelaceViewConfig } from "../../../../data/lovelace/config/view";
-import type { HassDialog } from "../../../../dialogs/make-dialog-manager";
-import { haStyleDialog } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
+import { mdiClose } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { cache } from 'lit/directives/cache'
+import { classMap } from 'lit/directives/class-map'
+import { ifDefined } from 'lit/directives/if-defined'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-button'
+import '../../../../components/ha-dialog'
+import '../../../../components/ha-dialog-header'
+import '../../../../components/ha-tab-group'
+import '../../../../components/ha-tab-group-tab'
+import type { LovelaceSectionConfig } from '../../../../data/lovelace/config/section'
+import { isStrategySection } from '../../../../data/lovelace/config/section'
+import type { LovelaceViewConfig } from '../../../../data/lovelace/config/view'
+import type { HassDialog } from '../../../../dialogs/make-dialog-manager'
+import { haStyleDialog } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
 import {
   computeCards,
   computeSection,
-} from "../../common/generate-lovelace-config";
-import { addCard } from "../config-util";
+} from '../../common/generate-lovelace-config'
+import { addCard } from '../config-util'
 import {
   findLovelaceContainer,
   parseLovelaceContainerPath,
-} from "../lovelace-path";
-import "./hui-card-picker";
-import "./hui-entity-picker-table";
-import type { CreateCardDialogParams } from "./show-create-card-dialog";
-import { showEditCardDialog } from "./show-edit-card-dialog";
-import { showSuggestCardDialog } from "./show-suggest-card-dialog";
+} from '../lovelace-path'
+import './hui-card-picker'
+import './hui-entity-picker-table'
+import type { CreateCardDialogParams } from './show-create-card-dialog'
+import { showEditCardDialog } from './show-edit-card-dialog'
+import { showSuggestCardDialog } from './show-suggest-card-dialog'
 
 declare global {
   interface HASSDomEvents {
-    "selected-changed": SelectedChangedEvent;
+    'selected-changed': SelectedChangedEvent
   }
 }
 
 interface SelectedChangedEvent {
-  selectedEntities: string[];
+  selectedEntities: string[]
 }
 
-@customElement("hui-dialog-create-card")
+@customElement('hui-dialog-create-card')
 export class HuiCreateDialogCard
   extends LitElement
   implements HassDialog<CreateCardDialogParams>
 {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _params?: CreateCardDialogParams;
+  @state() private _params?: CreateCardDialogParams
 
-  @state() private _containerConfig!:
-    | LovelaceViewConfig
-    | LovelaceSectionConfig;
+  @state() private _containerConfig!: LovelaceViewConfig | LovelaceSectionConfig
 
-  @state() private _selectedEntities: string[] = [];
+  @state() private _selectedEntities: string[] = []
 
-  @state() private _currTab: "card" | "entity" = "card";
+  @state() private _currTab: 'card' | 'entity' = 'card'
 
-  @state() private _narrow = false;
+  @state() private _narrow = false
 
   public async showDialog(params: CreateCardDialogParams): Promise<void> {
-    this._params = params;
+    this._params = params
 
     this._narrow = matchMedia(
-      "all and (max-width: 450px), all and (max-height: 500px)"
-    ).matches;
+      'all and (max-width: 450px), all and (max-height: 500px)'
+    ).matches
 
     const containerConfig = findLovelaceContainer(
       params.lovelaceConfig,
       params.path
-    );
+    )
 
-    if ("strategy" in containerConfig) {
-      throw new Error("Can't edit strategy");
+    if ('strategy' in containerConfig) {
+      throw new Error("Can't edit strategy")
     }
 
-    this._containerConfig = containerConfig;
+    this._containerConfig = containerConfig
   }
 
   public closeDialog(): boolean {
-    this._params = undefined;
-    this._currTab = "card";
-    this._selectedEntities = [];
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
-    return true;
+    this._params = undefined
+    this._currTab = 'card'
+    this._selectedEntities = []
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
+    return true
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
 
     const title = this._containerConfig.title
       ? this.hass!.localize(
-          "ui.panel.lovelace.editor.edit_card.pick_card_title",
+          'ui.panel.lovelace.editor.edit_card.pick_card_title',
           { name: `"${this._containerConfig.title}"` }
         )
-      : this.hass!.localize("ui.panel.lovelace.editor.edit_card.pick_card");
+      : this.hass!.localize('ui.panel.lovelace.editor.edit_card.pick_card')
 
     return html`
       <ha-dialog
@@ -107,13 +105,16 @@ export class HuiCreateDialogCard
         @keydown=${this._ignoreKeydown}
         @closed=${this._cancel}
         .heading=${title}
-        class=${classMap({ table: this._currTab === "entity" })}
+        class=${classMap({ table: this._currTab === 'entity' })}
       >
-        <ha-dialog-header show-border slot="heading">
+        <ha-dialog-header
+          show-border
+          slot="heading"
+        >
           <ha-icon-button
             slot="navigationIcon"
             dialogAction="cancel"
-            .label=${this.hass.localize("ui.common.close")}
+            .label=${this.hass.localize('ui.common.close')}
             .path=${mdiClose}
           ></ha-icon-button>
           <span slot="title">${title}</span>
@@ -121,29 +122,29 @@ export class HuiCreateDialogCard
           <ha-tab-group @wa-tab-show=${this._handleTabChanged}>
             <ha-tab-group-tab
               slot="nav"
-              .active=${this._currTab === "card"}
+              .active=${this._currTab === 'card'}
               panel="card"
-              dialogInitialFocus=${ifDefined(this._narrow ? "" : undefined)}
+              dialogInitialFocus=${ifDefined(this._narrow ? '' : undefined)}
             >
               ${this.hass!.localize(
-                "ui.panel.lovelace.editor.cardpicker.by_card"
+                'ui.panel.lovelace.editor.cardpicker.by_card'
               )}
             </ha-tab-group-tab>
             <ha-tab-group-tab
               slot="nav"
-              .active=${this._currTab === "entity"}
+              .active=${this._currTab === 'entity'}
               panel="entity"
               >${this.hass!.localize(
-                "ui.panel.lovelace.editor.cardpicker.by_entity"
+                'ui.panel.lovelace.editor.cardpicker.by_entity'
               )}</ha-tab-group-tab
             >
           </ha-tab-group>
         </ha-dialog-header>
         ${cache(
-          this._currTab === "card"
+          this._currTab === 'card'
             ? html`
                 <hui-card-picker
-                  dialogInitialFocus=${ifDefined(this._narrow ? undefined : "")}
+                  dialogInitialFocus=${ifDefined(this._narrow ? undefined : '')}
                   .suggestedCards=${this._params.suggestedCards}
                   .lovelace=${this._params.lovelaceConfig}
                   .hass=${this.hass}
@@ -161,23 +162,26 @@ export class HuiCreateDialogCard
         )}
 
         <div slot="primaryAction">
-          <ha-button appearance="plain" @click=${this._cancel}>
-            ${this.hass!.localize("ui.common.cancel")}
+          <ha-button
+            appearance="plain"
+            @click=${this._cancel}
+          >
+            ${this.hass!.localize('ui.common.cancel')}
           </ha-button>
           ${this._selectedEntities.length
             ? html`
                 <ha-button @click=${this._suggestCards}>
-                  ${this.hass!.localize("ui.common.continue")}
+                  ${this.hass!.localize('ui.common.continue')}
                 </ha-button>
               `
-            : ""}
+            : ''}
         </div>
       </ha-dialog>
-    `;
+    `
   }
 
   private _ignoreKeydown(ev: KeyboardEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
   }
 
   static get styles(): CSSResultGroup {
@@ -234,89 +238,86 @@ export class HuiCreateDialogCard
           }
         }
       `,
-    ];
+    ]
   }
 
   private _handleCardPicked(ev) {
-    const config = ev.detail.config;
+    const config = ev.detail.config
     if (this._params!.entities && this._params!.entities.length) {
-      if ("entities" in config) {
-        config.entities = this._params!.entities;
-      } else if ("entity" in config) {
-        config.entity = this._params!.entities[0];
+      if ('entities' in config) {
+        config.entities = this._params!.entities
+      } else if ('entity' in config) {
+        config.entity = this._params!.entities[0]
       }
     }
 
-    const lovelaceConfig = this._params!.lovelaceConfig;
-    const containerPath = this._params!.path;
-    const saveConfig = this._params!.saveConfig;
+    const lovelaceConfig = this._params!.lovelaceConfig
+    const containerPath = this._params!.path
+    const saveConfig = this._params!.saveConfig
 
     const sectionConfig =
       containerPath.length === 2
         ? findLovelaceContainer(lovelaceConfig, containerPath)
-        : undefined;
+        : undefined
 
     showEditCardDialog(this, {
       lovelaceConfig,
-      saveCardConfig: async (newCardConfig) => {
-        const newConfig = addCard(lovelaceConfig, containerPath, newCardConfig);
-        await saveConfig(newConfig);
+      saveCardConfig: async newCardConfig => {
+        const newConfig = addCard(lovelaceConfig, containerPath, newCardConfig)
+        await saveConfig(newConfig)
       },
       cardConfig: config,
       sectionConfig,
       isNew: true,
-    });
+    })
 
-    this.closeDialog();
+    this.closeDialog()
   }
 
   private _handleTabChanged(ev: CustomEvent): void {
-    const newTab = ev.detail.name;
+    const newTab = ev.detail.name
     if (newTab === this._currTab) {
-      return;
+      return
     }
 
-    this._currTab = newTab;
-    this._selectedEntities = [];
+    this._currTab = newTab
+    this._selectedEntities = []
   }
 
   private _handleSelectedChanged(ev: CustomEvent): void {
-    this._selectedEntities = ev.detail.selectedEntities;
+    this._selectedEntities = ev.detail.selectedEntities
   }
 
   private _cancel(ev?: Event) {
     if (ev) {
-      ev.stopPropagation();
+      ev.stopPropagation()
     }
-    this.closeDialog();
+    this.closeDialog()
   }
 
   private _suggestCards(): void {
-    const cardConfig = computeCards(this.hass, this._selectedEntities, {});
+    const cardConfig = computeCards(this.hass, this._selectedEntities, {})
 
-    let sectionOptions: Partial<LovelaceSectionConfig> = {};
+    let sectionOptions: Partial<LovelaceSectionConfig> = {}
 
     const { viewIndex, sectionIndex } = parseLovelaceContainerPath(
       this._params!.path
-    );
-    const isSection = sectionIndex !== undefined;
+    )
+    const isSection = sectionIndex !== undefined
 
     // If we are in a section, we want to keep the section options for the preview
     if (isSection) {
       const containerConfig = findLovelaceContainer(
         this._params!.lovelaceConfig!,
         [viewIndex, sectionIndex]
-      );
+      )
       if (!isStrategySection(containerConfig)) {
-        const { cards, title, ...rest } = containerConfig;
-        sectionOptions = rest;
+        const { cards, title, ...rest } = containerConfig
+        sectionOptions = rest
       }
     }
 
-    const sectionConfig = computeSection(
-      this._selectedEntities,
-      sectionOptions
-    );
+    const sectionConfig = computeSection(this._selectedEntities, sectionOptions)
 
     showSuggestCardDialog(this, {
       lovelaceConfig: this._params!.lovelaceConfig,
@@ -325,14 +326,14 @@ export class HuiCreateDialogCard
       entities: this._selectedEntities,
       cardConfig,
       sectionConfig,
-    });
+    })
 
-    this.closeDialog();
+    this.closeDialog()
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-dialog-create-card": HuiCreateDialogCard;
+    'hui-dialog-create-card': HuiCreateDialogCard
   }
 }

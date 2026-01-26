@@ -1,14 +1,14 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import "./ha-ripple";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import './ha-ripple'
 
-@customElement("ha-control-button")
+@customElement('ha-control-button')
 export class HaControlButton extends LitElement {
-  @property({ type: Boolean, reflect: true }) disabled = false;
+  @property({ type: Boolean, reflect: true }) disabled = false
 
-  @property() public label?: string;
+  @property() public label?: string
 
   protected render(): TemplateResult {
     return html`
@@ -22,7 +22,7 @@ export class HaControlButton extends LitElement {
         <slot></slot>
         <ha-ripple .disabled=${this.disabled}></ha-ripple>
       </button>
-    `;
+    `
   }
 
   static styles = css`
@@ -76,7 +76,7 @@ export class HaControlButton extends LitElement {
       box-shadow: 0 0 0 2px var(--control-button-focus-color);
     }
     .button::before {
-      content: "";
+      content: '';
       position: absolute;
       top: 0;
       left: 0;
@@ -100,11 +100,11 @@ export class HaControlButton extends LitElement {
       --control-button-icon-color: var(--disabled-text-color);
       --control-button-background-opacity: 0.2;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-control-button": HaControlButton;
+    'ha-control-button': HaControlButton
   }
 }

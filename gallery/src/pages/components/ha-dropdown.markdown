@@ -12,38 +12,66 @@ A compact, accessible dropdown menu for choosing actions or settings. `ha-dropdo
 
 ```html
 <ha-dropdown>
-  <ha-button slot="trigger" with-caret>Dropdown</ha-button>
+  <ha-button
+    slot="trigger"
+    with-caret
+    >Dropdown</ha-button
+  >
 
   <ha-dropdown-item>
-    <ha-svg-icon .path="mdiContentCut" slot="icon"></ha-svg-icon>
+    <ha-svg-icon
+      .path="mdiContentCut"
+      slot="icon"
+    ></ha-svg-icon>
     Cut
   </ha-dropdown-item>
 
   <ha-dropdown-item>
-    <ha-svg-icon .path="mdiContentCopy" slot="icon"></ha-svg-icon>
+    <ha-svg-icon
+      .path="mdiContentCopy"
+      slot="icon"
+    ></ha-svg-icon>
     Copy
   </ha-dropdown-item>
 
   <ha-dropdown-item disabled>
-    <ha-svg-icon .path="mdiContentPaste" slot="icon"></ha-svg-icon>
+    <ha-svg-icon
+      .path="mdiContentPaste"
+      slot="icon"
+    ></ha-svg-icon>
     Paste
   </ha-dropdown-item>
 
   <ha-dropdown-item>
     Show images
-    <ha-dropdown-item slot="submenu" value="show-all-images"
+    <ha-dropdown-item
+      slot="submenu"
+      value="show-all-images"
       >Show all images</ha-dropdown-item
     >
-    <ha-dropdown-item slot="submenu" value="show-thumbnails"
+    <ha-dropdown-item
+      slot="submenu"
+      value="show-thumbnails"
       >Show thumbnails</ha-dropdown-item
     >
   </ha-dropdown-item>
 
-  <ha-dropdown-item type="checkbox" checked>Emoji shortcuts</ha-dropdown-item>
-  <ha-dropdown-item type="checkbox" checked>Word wrap</ha-dropdown-item>
+  <ha-dropdown-item
+    type="checkbox"
+    checked
+    >Emoji shortcuts</ha-dropdown-item
+  >
+  <ha-dropdown-item
+    type="checkbox"
+    checked
+    >Word wrap</ha-dropdown-item
+  >
 
   <ha-dropdown-item variant="danger">
-    <ha-svg-icon .path="mdiDelete" slot="icon"></ha-svg-icon>
+    <ha-svg-icon
+      .path="mdiDelete"
+      slot="icon"
+    ></ha-svg-icon>
     Delete
   </ha-dropdown-item>
 </ha-dropdown>

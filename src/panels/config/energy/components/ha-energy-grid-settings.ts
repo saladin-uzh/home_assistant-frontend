@@ -5,20 +5,20 @@ import {
   mdiPencil,
   mdiPlus,
   mdiTransmissionTower,
-} from "@mdi/js";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-card";
-import "../../../../components/ha-button";
-import "../../../../components/ha-icon-button";
-import "../../../../components/ha-svg-icon";
-import type { ConfigEntry } from "../../../../data/config_entries";
+} from '@mdi/js'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-card'
+import '../../../../components/ha-button'
+import '../../../../components/ha-icon-button'
+import '../../../../components/ha-svg-icon'
+import type { ConfigEntry } from '../../../../data/config_entries'
 import {
   deleteConfigEntry,
   getConfigEntries,
-} from "../../../../data/config_entries";
+} from '../../../../data/config_entries'
 import type {
   EnergyPreferences,
   EnergyPreferencesValidation,
@@ -28,66 +28,66 @@ import type {
   FlowToGridSourceEnergyPreference,
   GridPowerSourceEnergyPreference,
   GridSourceTypeEnergyPreference,
-} from "../../../../data/energy";
+} from '../../../../data/energy'
 import {
   emptyGridSourceEnergyPreference,
   energySourcesByType,
   saveEnergyPreferences,
-} from "../../../../data/energy";
-import type { StatisticsMetaData } from "../../../../data/recorder";
-import { getStatisticLabel } from "../../../../data/recorder";
-import { showConfigFlowDialog } from "../../../../dialogs/config-flow/show-dialog-config-flow";
+} from '../../../../data/energy'
+import type { StatisticsMetaData } from '../../../../data/recorder'
+import { getStatisticLabel } from '../../../../data/recorder'
+import { showConfigFlowDialog } from '../../../../dialogs/config-flow/show-dialog-config-flow'
 import {
   showAlertDialog,
   showConfirmationDialog,
-} from "../../../../dialogs/generic/show-dialog-box";
-import { haStyle } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import { brandsUrl } from "../../../../util/brands-url";
-import { documentationUrl } from "../../../../util/documentation-url";
+} from '../../../../dialogs/generic/show-dialog-box'
+import { haStyle } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import { brandsUrl } from '../../../../util/brands-url'
+import { documentationUrl } from '../../../../util/documentation-url'
 import {
   showEnergySettingsGridFlowFromDialog,
   showEnergySettingsGridFlowToDialog,
   showEnergySettingsGridPowerDialog,
-} from "../dialogs/show-dialogs-energy";
-import "./ha-energy-validation-result";
-import { energyCardStyles } from "./styles";
+} from '../dialogs/show-dialogs-energy'
+import './ha-energy-validation-result'
+import { energyCardStyles } from './styles'
 
-@customElement("ha-energy-grid-settings")
+@customElement('ha-energy-grid-settings')
 export class EnergyGridSettings extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   @property({ attribute: false })
-  public preferences!: EnergyPreferences;
+  public preferences!: EnergyPreferences
 
   @property({ attribute: false })
-  public statsMetadata?: Record<string, StatisticsMetaData>;
+  public statsMetadata?: Record<string, StatisticsMetaData>
 
   @property({ attribute: false })
-  public validationResult?: EnergyPreferencesValidation;
+  public validationResult?: EnergyPreferencesValidation
 
-  @state() private _co2ConfigEntry?: ConfigEntry;
+  @state() private _co2ConfigEntry?: ConfigEntry
 
   protected firstUpdated() {
-    this._fetchCO2SignalConfigEntries();
+    this._fetchCO2SignalConfigEntries()
   }
 
   protected render(): TemplateResult {
     const gridIdx = this.preferences.energy_sources.findIndex(
-      (source) => source.type === "grid"
-    );
+      source => source.type === 'grid'
+    )
 
-    let gridSource: GridSourceTypeEnergyPreference;
-    let gridValidation: EnergyValidationIssue[] | undefined;
+    let gridSource: GridSourceTypeEnergyPreference
+    let gridValidation: EnergyValidationIssue[] | undefined
 
     if (gridIdx === -1) {
-      gridSource = emptyGridSourceEnergyPreference();
+      gridSource = emptyGridSourceEnergyPreference()
     } else {
       gridSource = this.preferences.energy_sources[
         gridIdx
-      ] as GridSourceTypeEnergyPreference;
+      ] as GridSourceTypeEnergyPreference
       if (this.validationResult) {
-        gridValidation = this.validationResult.energy_sources[gridIdx];
+        gridValidation = this.validationResult.energy_sources[gridIdx]
       }
     }
 
@@ -95,21 +95,21 @@ export class EnergyGridSettings extends LitElement {
       <ha-card outlined>
         <h1 class="card-header">
           <ha-svg-icon .path=${mdiTransmissionTower}></ha-svg-icon>
-          ${this.hass.localize("ui.panel.config.energy.grid.title")}
+          ${this.hass.localize('ui.panel.config.energy.grid.title')}
         </h1>
 
         <div class="card-content">
           <p>
-            ${this.hass.localize("ui.panel.config.energy.grid.sub")}
+            ${this.hass.localize('ui.panel.config.energy.grid.sub')}
             <a
               target="_blank"
               rel="noopener noreferrer"
               href=${documentationUrl(
                 this.hass,
-                "/docs/energy/electricity-grid/"
+                '/docs/energy/electricity-grid/'
               )}
               >${this.hass.localize(
-                "ui.panel.config.energy.grid.learn_more"
+                'ui.panel.config.energy.grid.learn_more'
               )}</a
             >
           </p>
@@ -120,17 +120,20 @@ export class EnergyGridSettings extends LitElement {
                   .issues=${gridValidation}
                 ></ha-energy-validation-result>
               `
-            : ""}
+            : ''}
 
           <h3>
             ${this.hass.localize(
-              "ui.panel.config.energy.grid.grid_consumption"
+              'ui.panel.config.energy.grid.grid_consumption'
             )}
           </h3>
-          ${gridSource.flow_from.map((flow) => {
-            const entityState = this.hass.states[flow.stat_energy_from];
+          ${gridSource.flow_from.map(flow => {
+            const entityState = this.hass.states[flow.stat_energy_from]
             return html`
-              <div class="row" .source=${flow}>
+              <div
+                class="row"
+                .source=${flow}
+              >
                 ${entityState?.attributes.icon
                   ? html`<ha-icon
                       .icon=${entityState?.attributes.icon}
@@ -147,20 +150,20 @@ export class EnergyGridSettings extends LitElement {
                 >
                 <ha-icon-button
                   .label=${this.hass.localize(
-                    "ui.panel.config.energy.grid.edit_consumption"
+                    'ui.panel.config.energy.grid.edit_consumption'
                   )}
                   @click=${this._editFromSource}
                   .path=${mdiPencil}
                 ></ha-icon-button>
                 <ha-icon-button
                   .label=${this.hass.localize(
-                    "ui.panel.config.energy.grid.delete_consumption"
+                    'ui.panel.config.energy.grid.delete_consumption'
                   )}
                   @click=${this._deleteFromSource}
                   .path=${mdiDelete}
                 ></ha-icon-button>
               </div>
-            `;
+            `
           })}
           <div class="row border-bottom">
             <ha-svg-icon .path=${mdiHomeImportOutline}></ha-svg-icon>
@@ -169,20 +172,26 @@ export class EnergyGridSettings extends LitElement {
               size="small"
               @click=${this._addFromSource}
             >
-              <ha-svg-icon .path=${mdiPlus} slot="start"></ha-svg-icon>
+              <ha-svg-icon
+                .path=${mdiPlus}
+                slot="start"
+              ></ha-svg-icon>
               ${this.hass.localize(
-                "ui.panel.config.energy.grid.add_consumption"
+                'ui.panel.config.energy.grid.add_consumption'
               )}</ha-button
             >
           </div>
 
           <h3>
-            ${this.hass.localize("ui.panel.config.energy.grid.return_to_grid")}
+            ${this.hass.localize('ui.panel.config.energy.grid.return_to_grid')}
           </h3>
-          ${gridSource.flow_to.map((flow) => {
-            const entityState = this.hass.states[flow.stat_energy_to];
+          ${gridSource.flow_to.map(flow => {
+            const entityState = this.hass.states[flow.stat_energy_to]
             return html`
-              <div class="row" .source=${flow}>
+              <div
+                class="row"
+                .source=${flow}
+              >
                 ${entityState?.attributes.icon
                   ? html`<ha-icon
                       .icon=${entityState.attributes.icon}
@@ -199,20 +208,20 @@ export class EnergyGridSettings extends LitElement {
                 >
                 <ha-icon-button
                   .label=${this.hass.localize(
-                    "ui.panel.config.energy.grid.edit_return"
+                    'ui.panel.config.energy.grid.edit_return'
                   )}
                   @click=${this._editToSource}
                   .path=${mdiPencil}
                 ></ha-icon-button>
                 <ha-icon-button
                   .label=${this.hass.localize(
-                    "ui.panel.config.energy.grid.delete_return"
+                    'ui.panel.config.energy.grid.delete_return'
                   )}
                   @click=${this._deleteToSource}
                   .path=${mdiDelete}
                 ></ha-icon-button>
               </div>
-            `;
+            `
           })}
           <div class="row border-bottom">
             <ha-svg-icon .path=${mdiHomeExportOutline}></ha-svg-icon>
@@ -221,20 +230,26 @@ export class EnergyGridSettings extends LitElement {
               appearance="filled"
               size="small"
             >
-              <ha-svg-icon .path=${mdiPlus} slot="start"></ha-svg-icon
+              <ha-svg-icon
+                .path=${mdiPlus}
+                slot="start"
+              ></ha-svg-icon
               >${this.hass.localize(
-                "ui.panel.config.energy.grid.add_return"
+                'ui.panel.config.energy.grid.add_return'
               )}</ha-button
             >
           </div>
 
           <h3>
-            ${this.hass.localize("ui.panel.config.energy.grid.grid_power")}
+            ${this.hass.localize('ui.panel.config.energy.grid.grid_power')}
           </h3>
-          ${gridSource.power?.map((power) => {
-            const entityState = this.hass.states[power.stat_rate];
+          ${gridSource.power?.map(power => {
+            const entityState = this.hass.states[power.stat_rate]
             return html`
-              <div class="row" .source=${power}>
+              <div
+                class="row"
+                .source=${power}
+              >
                 ${entityState?.attributes.icon
                   ? html`<ha-icon
                       .icon=${entityState.attributes.icon}
@@ -251,20 +266,20 @@ export class EnergyGridSettings extends LitElement {
                 >
                 <ha-icon-button
                   .label=${this.hass.localize(
-                    "ui.panel.config.energy.grid.edit_power"
+                    'ui.panel.config.energy.grid.edit_power'
                   )}
                   @click=${this._editPowerSource}
                   .path=${mdiPencil}
                 ></ha-icon-button>
                 <ha-icon-button
                   .label=${this.hass.localize(
-                    "ui.panel.config.energy.grid.delete_power"
+                    'ui.panel.config.energy.grid.delete_power'
                   )}
                   @click=${this._deletePowerSource}
                   .path=${mdiDelete}
                 ></ha-icon-button>
               </div>
-            `;
+            `
           })}
           <div class="row border-bottom">
             <ha-svg-icon .path=${mdiTransmissionTower}></ha-svg-icon>
@@ -273,27 +288,33 @@ export class EnergyGridSettings extends LitElement {
               appearance="filled"
               size="small"
             >
-              <ha-svg-icon .path=${mdiPlus} slot="start"></ha-svg-icon
+              <ha-svg-icon
+                .path=${mdiPlus}
+                slot="start"
+              ></ha-svg-icon
               >${this.hass.localize(
-                "ui.panel.config.energy.grid.add_power"
+                'ui.panel.config.energy.grid.add_power'
               )}</ha-button
             >
           </div>
 
           <h3>
             ${this.hass.localize(
-              "ui.panel.config.energy.grid.grid_carbon_footprint"
+              'ui.panel.config.energy.grid.grid_carbon_footprint'
             )}
           </h3>
           ${this._co2ConfigEntry
-            ? html`<div class="row" .entry=${this._co2ConfigEntry}>
+            ? html`<div
+                class="row"
+                .entry=${this._co2ConfigEntry}
+              >
                 <img
                   alt=""
                   crossorigin="anonymous"
                   referrerpolicy="no-referrer"
                   src=${brandsUrl({
-                    domain: "co2signal",
-                    type: "icon",
+                    domain: 'co2signal',
+                    type: 'icon',
                     darkOptimized: this.hass.themes?.darkMode,
                   })}
                 />
@@ -305,7 +326,7 @@ export class EnergyGridSettings extends LitElement {
                 </a>
                 <ha-icon-button
                   .label=${this.hass.localize(
-                    "ui.panel.config.energy.grid.remove_co2_signal"
+                    'ui.panel.config.energy.grid.remove_co2_signal'
                   )}
                   @click=${this._removeCO2Sensor}
                   .path=${mdiDelete}
@@ -318,8 +339,8 @@ export class EnergyGridSettings extends LitElement {
                     crossorigin="anonymous"
                     referrerpolicy="no-referrer"
                     src=${brandsUrl({
-                      domain: "co2signal",
-                      type: "icon",
+                      domain: 'co2signal',
+                      type: 'icon',
                       darkOptimized: this.hass.themes?.darkMode,
                     })}
                   />
@@ -328,54 +349,57 @@ export class EnergyGridSettings extends LitElement {
                     appearance="filled"
                     size="small"
                   >
-                    <ha-svg-icon .path=${mdiPlus} slot="start"></ha-svg-icon>
+                    <ha-svg-icon
+                      .path=${mdiPlus}
+                      slot="start"
+                    ></ha-svg-icon>
                     ${this.hass.localize(
-                      "ui.panel.config.energy.grid.add_co2_signal"
+                      'ui.panel.config.energy.grid.add_co2_signal'
                     )}
                   </ha-button>
                 </div>
               `}
         </div>
       </ha-card>
-    `;
+    `
   }
 
   private async _fetchCO2SignalConfigEntries() {
-    const entries = await getConfigEntries(this.hass, { domain: "co2signal" });
-    this._co2ConfigEntry = entries.length ? entries[0] : undefined;
+    const entries = await getConfigEntries(this.hass, { domain: 'co2signal' })
+    this._co2ConfigEntry = entries.length ? entries[0] : undefined
   }
 
   private _addCO2Sensor() {
     showConfigFlowDialog(this, {
-      startFlowHandler: "co2signal",
+      startFlowHandler: 'co2signal',
       dialogClosedCallback: () => {
-        this._fetchCO2SignalConfigEntries();
+        this._fetchCO2SignalConfigEntries()
       },
-    });
+    })
   }
 
   private async _removeCO2Sensor(ev) {
-    const entryId = ev.currentTarget.closest(".row").entry.entry_id;
+    const entryId = ev.currentTarget.closest('.row').entry.entry_id
     if (
       !(await showConfirmationDialog(this, {
-        title: this.hass.localize("ui.panel.config.energy.delete_integration"),
+        title: this.hass.localize('ui.panel.config.energy.delete_integration'),
       }))
     ) {
-      return;
+      return
     }
 
-    await deleteConfigEntry(this.hass, entryId);
-    this._fetchCO2SignalConfigEntries();
+    await deleteConfigEntry(this.hass, entryId)
+    this._fetchCO2SignalConfigEntries()
   }
 
   private _addFromSource() {
     const gridSource = this.preferences.energy_sources.find(
-      (src) => src.type === "grid"
-    ) as GridSourceTypeEnergyPreference | undefined;
+      src => src.type === 'grid'
+    ) as GridSourceTypeEnergyPreference | undefined
     showEnergySettingsGridFlowFromDialog(this, {
       grid_source: gridSource,
-      saveCallback: async (flow) => {
-        let preferences: EnergyPreferences;
+      saveCallback: async flow => {
+        let preferences: EnergyPreferences
         if (!gridSource) {
           preferences = {
             ...this.preferences,
@@ -386,30 +410,30 @@ export class EnergyGridSettings extends LitElement {
                 flow_from: [flow],
               },
             ],
-          };
+          }
         } else {
           preferences = {
             ...this.preferences,
-            energy_sources: this.preferences.energy_sources.map((src) =>
-              src.type === "grid"
+            energy_sources: this.preferences.energy_sources.map(src =>
+              src.type === 'grid'
                 ? { ...src, flow_from: [...gridSource.flow_from, flow] }
                 : src
             ),
-          };
+          }
         }
-        await this._savePreferences(preferences);
+        await this._savePreferences(preferences)
       },
-    });
+    })
   }
 
   private _addToSource() {
     const gridSource = this.preferences.energy_sources.find(
-      (src) => src.type === "grid"
-    ) as GridSourceTypeEnergyPreference | undefined;
+      src => src.type === 'grid'
+    ) as GridSourceTypeEnergyPreference | undefined
     showEnergySettingsGridFlowToDialog(this, {
       grid_source: gridSource,
-      saveCallback: async (flow) => {
-        let preferences: EnergyPreferences;
+      saveCallback: async flow => {
+        let preferences: EnergyPreferences
         if (!gridSource) {
           preferences = {
             ...this.preferences,
@@ -420,147 +444,147 @@ export class EnergyGridSettings extends LitElement {
                 flow_to: [flow],
               },
             ],
-          };
+          }
         } else {
           preferences = {
             ...this.preferences,
-            energy_sources: this.preferences.energy_sources.map((src) =>
-              src.type === "grid"
+            energy_sources: this.preferences.energy_sources.map(src =>
+              src.type === 'grid'
                 ? { ...src, flow_to: [...gridSource.flow_to, flow] }
                 : src
             ),
-          };
+          }
         }
-        await this._savePreferences(preferences);
+        await this._savePreferences(preferences)
       },
-    });
+    })
   }
 
   private _editFromSource(ev) {
     const origSource: FlowFromGridSourceEnergyPreference =
-      ev.currentTarget.closest(".row").source;
+      ev.currentTarget.closest('.row').source
     const gridSource = this.preferences.energy_sources.find(
-      (src) => src.type === "grid"
-    ) as GridSourceTypeEnergyPreference | undefined;
+      src => src.type === 'grid'
+    ) as GridSourceTypeEnergyPreference | undefined
     showEnergySettingsGridFlowFromDialog(this, {
       source: { ...origSource },
       grid_source: gridSource,
       metadata: this.statsMetadata?.[origSource.stat_energy_from],
-      saveCallback: async (source) => {
+      saveCallback: async source => {
         const flowFrom = energySourcesByType(this.preferences).grid![0]
-          .flow_from;
+          .flow_from
 
         const preferences: EnergyPreferences = {
           ...this.preferences,
-          energy_sources: this.preferences.energy_sources.map((src) =>
-            src.type === "grid"
+          energy_sources: this.preferences.energy_sources.map(src =>
+            src.type === 'grid'
               ? {
                   ...src,
-                  flow_from: flowFrom.map((flow) =>
+                  flow_from: flowFrom.map(flow =>
                     flow === origSource ? source : flow
                   ),
                 }
               : src
           ),
-        };
-        await this._savePreferences(preferences);
+        }
+        await this._savePreferences(preferences)
       },
-    });
+    })
   }
 
   private _editToSource(ev) {
     const origSource: FlowToGridSourceEnergyPreference =
-      ev.currentTarget.closest(".row").source;
+      ev.currentTarget.closest('.row').source
     const gridSource = this.preferences.energy_sources.find(
-      (src) => src.type === "grid"
-    ) as GridSourceTypeEnergyPreference | undefined;
+      src => src.type === 'grid'
+    ) as GridSourceTypeEnergyPreference | undefined
     showEnergySettingsGridFlowToDialog(this, {
       source: { ...origSource },
       grid_source: gridSource,
       metadata: this.statsMetadata?.[origSource.stat_energy_to],
-      saveCallback: async (source) => {
-        const flowTo = energySourcesByType(this.preferences).grid![0].flow_to;
+      saveCallback: async source => {
+        const flowTo = energySourcesByType(this.preferences).grid![0].flow_to
 
         const preferences: EnergyPreferences = {
           ...this.preferences,
-          energy_sources: this.preferences.energy_sources.map((src) =>
-            src.type === "grid"
+          energy_sources: this.preferences.energy_sources.map(src =>
+            src.type === 'grid'
               ? {
                   ...src,
-                  flow_to: flowTo.map((flow) =>
+                  flow_to: flowTo.map(flow =>
                     flow === origSource ? source : flow
                   ),
                 }
               : src
           ),
-        };
-        await this._savePreferences(preferences);
+        }
+        await this._savePreferences(preferences)
       },
-    });
+    })
   }
 
   private async _deleteFromSource(ev) {
     const sourceToDelete: FlowFromGridSourceEnergyPreference =
-      ev.currentTarget.closest(".row").source;
+      ev.currentTarget.closest('.row').source
 
     if (
       !(await showConfirmationDialog(this, {
-        title: this.hass.localize("ui.panel.config.energy.delete_source"),
+        title: this.hass.localize('ui.panel.config.energy.delete_source'),
       }))
     ) {
-      return;
+      return
     }
 
     const flowFrom = energySourcesByType(
       this.preferences
-    ).grid![0].flow_from.filter((flow) => flow !== sourceToDelete);
+    ).grid![0].flow_from.filter(flow => flow !== sourceToDelete)
 
     const preferences: EnergyPreferences = {
       ...this.preferences,
-      energy_sources: this.preferences.energy_sources.map((source) =>
-        source.type === "grid" ? { ...source, flow_from: flowFrom } : source
+      energy_sources: this.preferences.energy_sources.map(source =>
+        source.type === 'grid' ? { ...source, flow_from: flowFrom } : source
       ),
-    };
+    }
 
-    const cleanedPreferences = this._removeEmptySources(preferences);
-    await this._savePreferences(cleanedPreferences);
+    const cleanedPreferences = this._removeEmptySources(preferences)
+    await this._savePreferences(cleanedPreferences)
   }
 
   private async _deleteToSource(ev) {
     const sourceToDelete: FlowToGridSourceEnergyPreference =
-      ev.currentTarget.closest(".row").source;
+      ev.currentTarget.closest('.row').source
 
     if (
       !(await showConfirmationDialog(this, {
-        title: this.hass.localize("ui.panel.config.energy.delete_source"),
+        title: this.hass.localize('ui.panel.config.energy.delete_source'),
       }))
     ) {
-      return;
+      return
     }
 
     const flowTo = energySourcesByType(
       this.preferences
-    ).grid![0].flow_to.filter((flow) => flow !== sourceToDelete);
+    ).grid![0].flow_to.filter(flow => flow !== sourceToDelete)
 
     const preferences: EnergyPreferences = {
       ...this.preferences,
-      energy_sources: this.preferences.energy_sources.map((source) =>
-        source.type === "grid" ? { ...source, flow_to: flowTo } : source
+      energy_sources: this.preferences.energy_sources.map(source =>
+        source.type === 'grid' ? { ...source, flow_to: flowTo } : source
       ),
-    };
+    }
 
-    const cleanedPreferences = this._removeEmptySources(preferences);
-    await this._savePreferences(cleanedPreferences);
+    const cleanedPreferences = this._removeEmptySources(preferences)
+    await this._savePreferences(cleanedPreferences)
   }
 
   private _addPowerSource() {
     const gridSource = this.preferences.energy_sources.find(
-      (src) => src.type === "grid"
-    ) as GridSourceTypeEnergyPreference | undefined;
+      src => src.type === 'grid'
+    ) as GridSourceTypeEnergyPreference | undefined
     showEnergySettingsGridPowerDialog(this, {
       grid_source: gridSource,
-      saveCallback: async (power) => {
-        let preferences: EnergyPreferences;
+      saveCallback: async power => {
+        let preferences: EnergyPreferences
         if (!gridSource) {
           preferences = {
             ...this.preferences,
@@ -571,77 +595,76 @@ export class EnergyGridSettings extends LitElement {
                 power: [power],
               },
             ],
-          };
+          }
         } else {
           preferences = {
             ...this.preferences,
-            energy_sources: this.preferences.energy_sources.map((src) =>
-              src.type === "grid"
+            energy_sources: this.preferences.energy_sources.map(src =>
+              src.type === 'grid'
                 ? { ...src, power: [...(gridSource.power || []), power] }
                 : src
             ),
-          };
+          }
         }
-        await this._savePreferences(preferences);
+        await this._savePreferences(preferences)
       },
-    });
+    })
   }
 
   private _editPowerSource(ev) {
     const origSource: GridPowerSourceEnergyPreference =
-      ev.currentTarget.closest(".row").source;
+      ev.currentTarget.closest('.row').source
     const gridSource = this.preferences.energy_sources.find(
-      (src) => src.type === "grid"
-    ) as GridSourceTypeEnergyPreference | undefined;
+      src => src.type === 'grid'
+    ) as GridSourceTypeEnergyPreference | undefined
     showEnergySettingsGridPowerDialog(this, {
       source: { ...origSource },
       grid_source: gridSource,
-      saveCallback: async (source) => {
-        const power =
-          energySourcesByType(this.preferences).grid![0].power || [];
+      saveCallback: async source => {
+        const power = energySourcesByType(this.preferences).grid![0].power || []
 
         const preferences: EnergyPreferences = {
           ...this.preferences,
-          energy_sources: this.preferences.energy_sources.map((src) =>
-            src.type === "grid"
+          energy_sources: this.preferences.energy_sources.map(src =>
+            src.type === 'grid'
               ? {
                   ...src,
-                  power: power.map((p) => (p === origSource ? source : p)),
+                  power: power.map(p => (p === origSource ? source : p)),
                 }
               : src
           ),
-        };
-        await this._savePreferences(preferences);
+        }
+        await this._savePreferences(preferences)
       },
-    });
+    })
   }
 
   private async _deletePowerSource(ev) {
     const sourceToDelete: GridPowerSourceEnergyPreference =
-      ev.currentTarget.closest(".row").source;
+      ev.currentTarget.closest('.row').source
 
     if (
       !(await showConfirmationDialog(this, {
-        title: this.hass.localize("ui.panel.config.energy.delete_source"),
+        title: this.hass.localize('ui.panel.config.energy.delete_source'),
       }))
     ) {
-      return;
+      return
     }
 
     const power =
       energySourcesByType(this.preferences).grid![0].power?.filter(
-        (p) => p !== sourceToDelete
-      ) || [];
+        p => p !== sourceToDelete
+      ) || []
 
     const preferences: EnergyPreferences = {
       ...this.preferences,
-      energy_sources: this.preferences.energy_sources.map((source) =>
-        source.type === "grid" ? { ...source, power } : source
+      energy_sources: this.preferences.energy_sources.map(source =>
+        source.type === 'grid' ? { ...source, power } : source
       ),
-    };
+    }
 
-    const cleanedPreferences = this._removeEmptySources(preferences);
-    await this._savePreferences(cleanedPreferences);
+    const cleanedPreferences = this._removeEmptySources(preferences)
+    await this._savePreferences(cleanedPreferences)
   }
 
   private _removeEmptySources(preferences: EnergyPreferences) {
@@ -650,35 +673,35 @@ export class EnergyGridSettings extends LitElement {
       EnergySource[]
     >((acc, source) => {
       if (
-        source.type !== "grid" ||
+        source.type !== 'grid' ||
         source.flow_from.length > 0 ||
         source.flow_to.length > 0 ||
         (source.power && source.power.length > 0)
       ) {
-        acc.push(source);
+        acc.push(source)
       }
-      return acc;
-    }, []);
+      return acc
+    }, [])
 
-    return preferences;
+    return preferences
   }
 
   private async _savePreferences(preferences: EnergyPreferences) {
     try {
-      const result = await saveEnergyPreferences(this.hass, preferences);
-      fireEvent(this, "value-changed", { value: result });
+      const result = await saveEnergyPreferences(this.hass, preferences)
+      fireEvent(this, 'value-changed', { value: result })
     } catch (err: any) {
-      showAlertDialog(this, { title: `Failed to save config: ${err.message}` });
+      showAlertDialog(this, { title: `Failed to save config: ${err.message}` })
     }
   }
 
   static get styles(): CSSResultGroup {
-    return [haStyle, energyCardStyles];
+    return [haStyle, energyCardStyles]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-energy-grid-settings": EnergyGridSettings;
+    'ha-energy-grid-settings': EnergyGridSettings
   }
 }

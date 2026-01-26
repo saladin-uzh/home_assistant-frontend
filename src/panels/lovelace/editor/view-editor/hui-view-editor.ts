@@ -1,53 +1,53 @@
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { slugify } from "../../../../common/string/slugify";
-import type { LocalizeFunc } from "../../../../common/translations/localize";
-import "../../../../components/ha-form/ha-form";
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { slugify } from '../../../../common/string/slugify'
+import type { LocalizeFunc } from '../../../../common/translations/localize'
+import '../../../../components/ha-form/ha-form'
 import type {
   HaFormSchema,
   SchemaUnion,
-} from "../../../../components/ha-form/types";
-import type { LovelaceViewConfig } from "../../../../data/lovelace/config/view";
-import type { HomeAssistant } from "../../../../types";
+} from '../../../../components/ha-form/types'
+import type { LovelaceViewConfig } from '../../../../data/lovelace/config/view'
+import type { HomeAssistant } from '../../../../types'
 import {
   MASONRY_VIEW_LAYOUT,
   SECTIONS_VIEW_LAYOUT,
   PANEL_VIEW_LAYOUT,
   SIDEBAR_VIEW_LAYOUT,
-} from "../../views/const";
-import { getViewType } from "../../views/get-view-type";
+} from '../../views/const'
+import { getViewType } from '../../views/get-view-type'
 
 declare global {
   interface HASSDomEvents {
-    "view-config-changed": {
-      config: LovelaceViewConfig;
-      valid?: boolean;
-    };
+    'view-config-changed': {
+      config: LovelaceViewConfig
+      valid?: boolean
+    }
   }
 }
 
-const VALID_PATH_REGEX = /^[a-zA-Z0-9_-]+$/;
-const INTEGER_REGEX = /^[0-9]+$/;
+const VALID_PATH_REGEX = /^[a-zA-Z0-9_-]+$/
+const INTEGER_REGEX = /^[0-9]+$/
 
-@customElement("hui-view-editor")
+@customElement('hui-view-editor')
 export class HuiViewEditor extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public isNew = false;
+  @property({ attribute: false }) public isNew = false
 
-  @state() private _config!: LovelaceViewConfig;
+  @state() private _config!: LovelaceViewConfig
 
-  @state() private _error: Record<string, string> | undefined;
+  @state() private _error: Record<string, string> | undefined
 
-  private _suggestedPath = false;
+  private _suggestedPath = false
 
   private _schema = memoizeOne(
     (localize: LocalizeFunc, viewType: string) =>
       [
         {
-          name: "type",
+          name: 'type',
           selector: {
             select: {
               options: (
@@ -57,7 +57,7 @@ export class HuiViewEditor extends LitElement {
                   SIDEBAR_VIEW_LAYOUT,
                   PANEL_VIEW_LAYOUT,
                 ] as const
-              ).map((type) => ({
+              ).map(type => ({
                 value: type,
                 label: localize(
                   `ui.panel.lovelace.editor.edit_view.types.${type}`
@@ -66,17 +66,17 @@ export class HuiViewEditor extends LitElement {
             },
           },
         },
-        { name: "title", selector: { text: {} } },
+        { name: 'title', selector: { text: {} } },
         {
-          name: "icon",
+          name: 'icon',
           selector: {
             icon: {},
           },
         },
-        { name: "path", selector: { text: {} } },
-        { name: "theme", selector: { theme: {} } },
+        { name: 'path', selector: { text: {} } },
+        { name: 'theme', selector: { theme: {} } },
         {
-          name: "subview",
+          name: 'subview',
           selector: {
             boolean: {},
           },
@@ -84,30 +84,30 @@ export class HuiViewEditor extends LitElement {
         ...(viewType === SECTIONS_VIEW_LAYOUT
           ? ([
               {
-                name: "section_specifics",
-                type: "expandable",
+                name: 'section_specifics',
+                type: 'expandable',
                 flatten: true,
                 expanded: true,
                 schema: [
                   {
-                    name: "max_columns",
+                    name: 'max_columns',
                     selector: {
                       number: {
                         min: 1,
                         max: 10,
-                        mode: "slider",
+                        mode: 'slider',
                         slider_ticks: true,
                       },
                     },
                   },
                   {
-                    name: "dense_section_placement",
+                    name: 'dense_section_placement',
                     selector: {
                       boolean: {},
                     },
                   },
                   {
-                    name: "top_margin",
+                    name: 'top_margin',
                     selector: {
                       boolean: {},
                     },
@@ -117,30 +117,30 @@ export class HuiViewEditor extends LitElement {
             ] as const satisfies HaFormSchema[])
           : []),
       ] as const satisfies HaFormSchema[]
-  );
+  )
 
   set config(config: LovelaceViewConfig) {
-    this._config = config;
+    this._config = config
   }
 
   get _type(): string {
-    return getViewType(this._config);
+    return getViewType(this._config)
   }
 
   protected render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
 
-    const schema = this._schema(this.hass.localize, this._type);
+    const schema = this._schema(this.hass.localize, this._type)
 
     const data = {
       ...this._config,
       type: this._type,
-    };
+    }
 
     if (data.max_columns === undefined && this._type === SECTIONS_VIEW_LAYOUT) {
-      data.max_columns = 4;
+      data.max_columns = 4
     }
 
     return html`
@@ -154,25 +154,25 @@ export class HuiViewEditor extends LitElement {
         .error=${this._error}
         @value-changed=${this._valueChanged}
       ></ha-form>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent): void {
-    const config = ev.detail.value as LovelaceViewConfig;
+    const config = ev.detail.value as LovelaceViewConfig
 
     if (config.type !== SECTIONS_VIEW_LAYOUT) {
-      delete config.max_columns;
-      delete config.dense_section_placement;
-      delete config.top_margin;
+      delete config.max_columns
+      delete config.dense_section_placement
+      delete config.top_margin
     }
 
     const slugifyTitle = (title: string | undefined) => {
-      const slug = slugify(title || "", "-");
+      const slug = slugify(title || '', '-')
       if (INTEGER_REGEX.test(slug)) {
-        return `view-${slug}`;
+        return `view-${slug}`
       }
-      return slug;
-    };
+      return slug
+    }
 
     if (
       this.isNew &&
@@ -180,68 +180,68 @@ export class HuiViewEditor extends LitElement {
       this._config.path === config.path &&
       (!this._config.path || config.path === slugifyTitle(this._config.title))
     ) {
-      config.path = slugifyTitle(config.title);
+      config.path = slugifyTitle(config.title)
     }
 
-    let valid = true;
-    this._error = undefined;
+    let valid = true
+    this._error = undefined
     if (config.path && !VALID_PATH_REGEX.test(config.path)) {
-      valid = false;
-      this._error = { path: "error_invalid_path" };
+      valid = false
+      this._error = { path: 'error_invalid_path' }
     } else if (config.path && INTEGER_REGEX.test(config.path)) {
-      valid = false;
-      this._error = { path: "error_number" };
+      valid = false
+      this._error = { path: 'error_number' }
     }
 
-    fireEvent(this, "view-config-changed", { valid, config });
+    fireEvent(this, 'view-config-changed', { valid, config })
   }
 
   private _computeError = (error: string) =>
     this.hass.localize(`ui.panel.lovelace.editor.edit_view.${error}` as any) ||
-    error;
+    error
 
   private _computeLabel = (
     schema: SchemaUnion<ReturnType<typeof this._schema>>
   ) => {
     switch (schema.name) {
-      case "path":
-        return this.hass!.localize("ui.panel.lovelace.editor.card.generic.url");
-      case "type":
-      case "subview":
-      case "max_columns":
-      case "dense_section_placement":
-      case "top_margin":
-      case "section_specifics":
+      case 'path':
+        return this.hass!.localize('ui.panel.lovelace.editor.card.generic.url')
+      case 'type':
+      case 'subview':
+      case 'max_columns':
+      case 'dense_section_placement':
+      case 'top_margin':
+      case 'section_specifics':
         return this.hass.localize(
           `ui.panel.lovelace.editor.edit_view.${schema.name}`
-        );
+        )
       default:
         return this.hass!.localize(
           `ui.panel.lovelace.editor.card.generic.${schema.name}`
-        );
+        )
     }
-  };
+  }
 
   private _computeHelper = (
     schema: SchemaUnion<ReturnType<typeof this._schema>>
   ) => {
     switch (schema.name) {
-      case "path":
-      case "subview":
-      case "dense_section_placement":
-      case "top_margin":
+      case 'path':
+      case 'subview':
+      case 'dense_section_placement':
+      case 'top_margin':
         return this.hass.localize(
           `ui.panel.lovelace.editor.edit_view.${schema.name}_helper`
-        );
+        )
 
       default:
-        return undefined;
+        return undefined
     }
-  };
+  }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-view-editor": HuiViewEditor;
+    'hui-view-editor': HuiViewEditor
   }
 }

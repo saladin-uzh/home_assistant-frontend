@@ -1,24 +1,24 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { LanguageSelector } from "../../data/selector";
-import type { HomeAssistant } from "../../types";
-import "../ha-language-picker";
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { LanguageSelector } from '../../data/selector'
+import type { HomeAssistant } from '../../types'
+import '../ha-language-picker'
 
-@customElement("ha-selector-language")
+@customElement('ha-selector-language')
 export class HaLanguageSelector extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: LanguageSelector;
+  @property({ attribute: false }) public selector!: LanguageSelector
 
-  @property() public value?: any;
+  @property() public value?: any
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = true;
+  @property({ type: Boolean }) public required = true
 
   protected render() {
     return html`
@@ -33,18 +33,18 @@ export class HaLanguageSelector extends LitElement {
         .disabled=${this.disabled}
         .required=${this.required}
       ></ha-language-picker>
-    `;
+    `
   }
 
   static styles = css`
     ha-language-picker {
       width: 100%;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-language": HaLanguageSelector;
+    'ha-selector-language': HaLanguageSelector
   }
 }

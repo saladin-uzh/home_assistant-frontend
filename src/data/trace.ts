@@ -1,61 +1,61 @@
-import { strStartsWith } from "../common/string/starts-with";
-import type { Context, HomeAssistant } from "../types";
+import { strStartsWith } from '../common/string/starts-with'
+import type { Context, HomeAssistant } from '../types'
 import type {
   BlueprintAutomationConfig,
   ManualAutomationConfig,
-} from "./automation";
-import { flattenTriggers } from "./automation";
-import type { BlueprintScriptConfig, ScriptConfig } from "./script";
+} from './automation'
+import { flattenTriggers } from './automation'
+import type { BlueprintScriptConfig, ScriptConfig } from './script'
 
 interface BaseTraceStep {
-  path: string;
-  timestamp: string;
-  error?: string;
-  changed_variables?: Record<string, unknown>;
+  path: string
+  timestamp: string
+  error?: string
+  changed_variables?: Record<string, unknown>
 }
 
 export interface TriggerTraceStep extends BaseTraceStep {
   changed_variables: {
     trigger: {
-      alias?: string;
-      description: string;
-      [key: string]: unknown;
-    };
-    [key: string]: unknown;
-  };
+      alias?: string
+      description: string
+      [key: string]: unknown
+    }
+    [key: string]: unknown
+  }
 }
 
 export interface ConditionTraceStep extends BaseTraceStep {
-  result?: { result: boolean };
+  result?: { result: boolean }
 }
 
 export interface CallServiceActionTraceStep extends BaseTraceStep {
   result?: {
-    limit: number;
-    running_script: boolean;
-    params: Record<string, unknown>;
-  };
+    limit: number
+    running_script: boolean
+    params: Record<string, unknown>
+  }
   child_id?: {
-    domain: string;
-    item_id: string;
-    run_id: string;
-  };
+    domain: string
+    item_id: string
+    run_id: string
+  }
 }
 
 export interface ChooseActionTraceStep extends BaseTraceStep {
-  result?: { choice: number | "default" };
+  result?: { choice: number | 'default' }
 }
 
 export interface IfActionTraceStep extends BaseTraceStep {
-  result?: { choice: "then" | "else" };
+  result?: { choice: 'then' | 'else' }
 }
 
 export interface StopActionTraceStep extends BaseTraceStep {
-  result?: { stop: string; error: boolean };
+  result?: { stop: string; error: boolean }
 }
 
 export interface ChooseChoiceActionTraceStep extends BaseTraceStep {
-  result?: { result: boolean };
+  result?: { result: boolean }
 }
 
 export type ActionTraceStep =
@@ -63,75 +63,75 @@ export type ActionTraceStep =
   | ConditionTraceStep
   | CallServiceActionTraceStep
   | ChooseActionTraceStep
-  | ChooseChoiceActionTraceStep;
+  | ChooseChoiceActionTraceStep
 
 interface BaseTrace {
-  domain: string;
-  item_id: string;
-  last_step: string | null;
-  run_id: string;
-  state: "running" | "stopped" | "debugged";
+  domain: string
+  item_id: string
+  last_step: string | null
+  run_id: string
+  state: 'running' | 'stopped' | 'debugged'
   timestamp: {
-    start: string;
-    finish: string | null;
-  };
+    start: string
+    finish: string | null
+  }
   script_execution:
     | // The script was not executed because the automation's condition failed
-    "failed_conditions"
+    'failed_conditions'
     // The script was not executed because the run mode is single
-    | "failed_single"
+    | 'failed_single'
     // The script was not executed because max parallel runs would be exceeded
-    | "failed_max_runs"
+    | 'failed_max_runs'
     // All script steps finished:
-    | "finished"
+    | 'finished'
     // Script execution stopped by the script itself because a condition fails, wait_for_trigger timeouts etc:
-    | "aborted"
+    | 'aborted'
     // Details about failing condition, timeout etc. is in the last element of the trace
     // Script execution stops because of an unexpected exception:
-    | "error"
+    | 'error'
     // The exception is in the trace itself or in the last element of the trace
     // Script execution stopped by async_stop called on the script run because home assistant is shutting down, script mode is SCRIPT_MODE_RESTART etc:
-    | "cancelled";
+    | 'cancelled'
 }
 
 interface BaseTraceExtended {
-  trace: Record<string, ActionTraceStep[]>;
-  context: Context;
-  error?: string;
+  trace: Record<string, ActionTraceStep[]>
+  context: Context
+  error?: string
 }
 
 export interface AutomationTrace extends BaseTrace {
-  domain: "automation";
-  trigger: string;
+  domain: 'automation'
+  trigger: string
 }
 
 export interface AutomationTraceExtended
   extends AutomationTrace,
     BaseTraceExtended {
-  config: ManualAutomationConfig;
-  blueprint_inputs?: BlueprintAutomationConfig;
+  config: ManualAutomationConfig
+  blueprint_inputs?: BlueprintAutomationConfig
 }
 
 export interface ScriptTrace extends BaseTrace {
-  domain: "script";
+  domain: 'script'
 }
 
 export interface ScriptTraceExtended extends ScriptTrace, BaseTraceExtended {
-  config: ScriptConfig;
-  blueprint_inputs?: BlueprintScriptConfig;
+  config: ScriptConfig
+  blueprint_inputs?: BlueprintScriptConfig
 }
 
-export type TraceExtended = AutomationTraceExtended | ScriptTraceExtended;
+export type TraceExtended = AutomationTraceExtended | ScriptTraceExtended
 
 interface TraceTypes {
   automation: {
-    short: AutomationTrace;
-    extended: AutomationTraceExtended;
-  };
+    short: AutomationTrace
+    extended: AutomationTraceExtended
+  }
   script: {
-    short: ScriptTrace;
-    extended: ScriptTraceExtended;
-  };
+    short: ScriptTrace
+    extended: ScriptTraceExtended
+  }
 }
 
 export const loadTrace = <T extends keyof TraceTypes>(
@@ -139,29 +139,29 @@ export const loadTrace = <T extends keyof TraceTypes>(
   domain: T,
   item_id: string,
   run_id: string
-): Promise<TraceTypes[T]["extended"]> =>
+): Promise<TraceTypes[T]['extended']> =>
   hass.callWS({
-    type: "trace/get",
+    type: 'trace/get',
     domain,
     item_id,
     run_id,
-  });
+  })
 
 export const loadTraces = <T extends keyof TraceTypes>(
   hass: HomeAssistant,
   domain: T,
   item_id: string
-): Promise<TraceTypes[T]["short"][]> =>
+): Promise<TraceTypes[T]['short'][]> =>
   hass.callWS({
-    type: "trace/list",
+    type: 'trace/list',
     domain,
     item_id,
-  });
+  })
 
 export type TraceContexts = Record<
   string,
   { run_id: string; domain: string; item_id: string }
->;
+>
 
 export const loadTraceContexts = (
   hass: HomeAssistant,
@@ -169,64 +169,64 @@ export const loadTraceContexts = (
   item_id?: string
 ): Promise<TraceContexts> =>
   hass.callWS({
-    type: "trace/contexts",
+    type: 'trace/contexts',
     domain,
     item_id,
-  });
+  })
 
 export const getDataFromPath = (
-  config: TraceExtended["config"],
+  config: TraceExtended['config'],
   path: string
 ): any => {
-  const parts = path.split("/").reverse();
+  const parts = path.split('/').reverse()
 
-  let result: any = config;
+  let result: any = config
 
   while (parts.length) {
-    const raw = parts.pop()!;
-    const asNumber = Number(raw);
+    const raw = parts.pop()!
+    const asNumber = Number(raw)
 
     if (isNaN(asNumber)) {
-      let tempResult = result[raw];
-      if (!tempResult && raw === "sequence") {
-        continue;
+      let tempResult = result[raw]
+      if (!tempResult && raw === 'sequence') {
+        continue
       }
 
-      if (!tempResult && raw === "trigger") {
-        tempResult = result.triggers;
+      if (!tempResult && raw === 'trigger') {
+        tempResult = result.triggers
       }
-      if (!tempResult && raw === "condition") {
-        tempResult = result.conditions;
+      if (!tempResult && raw === 'condition') {
+        tempResult = result.conditions
       }
-      if (!tempResult && raw === "action") {
-        tempResult = result.actions;
+      if (!tempResult && raw === 'action') {
+        tempResult = result.actions
       }
 
-      if (raw === "trigger") {
-        result = flattenTriggers(tempResult);
+      if (raw === 'trigger') {
+        result = flattenTriggers(tempResult)
       } else {
-        result = tempResult;
+        result = tempResult
       }
-      continue;
+      continue
     }
 
     if (Array.isArray(result)) {
-      result = result[asNumber];
-      continue;
+      result = result[asNumber]
+      continue
     }
 
     if (asNumber !== 0) {
-      throw new Error("If config is not an array, can only return index 0");
+      throw new Error('If config is not an array, can only return index 0')
     }
   }
 
-  return result;
-};
+  return result
+}
 
 // It is 'trigger' if manually triggered by the user via UI
 export const isTriggerPath = (path: string): boolean =>
-  path === "trigger" || strStartsWith(path, "trigger/");
+  path === 'trigger' || strStartsWith(path, 'trigger/')
 
 export const getTriggerPathFromTrace = (
   steps: Record<string, BaseTraceStep[]>
-): string | undefined => Object.keys(steps).find((path) => isTriggerPath(path));
+): string | undefined => Object.keys(steps).find(path => isTriggerPath(path))

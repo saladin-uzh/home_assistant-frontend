@@ -1,51 +1,51 @@
-import { html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { ManagerStateEvent } from "../../../../../data/backup_manager";
-import type { HomeAssistant } from "../../../../../types";
-import "../ha-backup-summary-card";
+import { html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { ManagerStateEvent } from '../../../../../data/backup_manager'
+import type { HomeAssistant } from '../../../../../types'
+import '../ha-backup-summary-card'
 
-@customElement("ha-backup-overview-progress")
+@customElement('ha-backup-overview-progress')
 export class HaBackupOverviewProgress extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public manager!: ManagerStateEvent;
+  @property({ attribute: false }) public manager!: ManagerStateEvent
 
   private get _heading() {
-    const state = this.manager.manager_state;
-    if (state === "idle") {
-      return "";
+    const state = this.manager.manager_state
+    if (state === 'idle') {
+      return ''
     }
     return this.hass.localize(
       `ui.panel.config.backup.overview.progress.heading.${state}`
-    );
+    )
   }
 
   private get _description() {
     switch (this.manager.manager_state) {
-      case "create_backup":
+      case 'create_backup':
         if (!this.manager.stage) {
-          return "";
+          return ''
         }
         return this.hass.localize(
           `ui.panel.config.backup.overview.progress.description.create_backup.${this.manager.stage}`
-        );
-      case "restore_backup":
+        )
+      case 'restore_backup':
         if (!this.manager.stage) {
-          return "";
+          return ''
         }
         return this.hass.localize(
           `ui.panel.config.backup.overview.progress.description.restore_backup.${this.manager.stage}`
-        );
+        )
 
-      case "receive_backup":
+      case 'receive_backup':
         if (!this.manager.stage) {
-          return "";
+          return ''
         }
         return this.hass.localize(
           `ui.panel.config.backup.overview.progress.description.receive_backup.${this.manager.stage}`
-        );
+        )
       default:
-        return "";
+        return ''
     }
   }
 
@@ -58,12 +58,12 @@ export class HaBackupOverviewProgress extends LitElement {
         status="loading"
       >
       </ha-backup-summary-card>
-    `;
+    `
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-backup-overview-progress": HaBackupOverviewProgress;
+    'ha-backup-overview-progress': HaBackupOverviewProgress
   }
 }

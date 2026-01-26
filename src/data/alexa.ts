@@ -1,19 +1,19 @@
-import type { HomeAssistant } from "../types";
+import type { HomeAssistant } from '../types'
 
 export interface AlexaEntity {
-  entity_id: string;
-  display_categories: string[];
-  interfaces: string[];
+  entity_id: string
+  display_categories: string[]
+  interfaces: string[]
 }
 
 export const fetchCloudAlexaEntities = (hass: HomeAssistant) =>
-  hass.callWS<AlexaEntity[]>({ type: "cloud/alexa/entities" });
+  hass.callWS<AlexaEntity[]>({ type: 'cloud/alexa/entities' })
 
 export const fetchCloudAlexaEntity = (hass: HomeAssistant, entity_id: string) =>
   hass.callWS<AlexaEntity>({
-    type: "cloud/alexa/entities/get",
+    type: 'cloud/alexa/entities/get',
     entity_id,
-  });
+  })
 
 export const syncCloudAlexaEntities = (hass: HomeAssistant) =>
-  hass.callWS({ type: "cloud/alexa/sync" });
+  hass.callWS({ type: 'cloud/alexa/sync' })

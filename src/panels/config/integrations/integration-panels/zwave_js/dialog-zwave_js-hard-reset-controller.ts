@@ -1,17 +1,17 @@
-import { mdiCheckCircle, mdiDeleteForever, mdiRestore } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import { createCloseHeading } from "../../../../../components/ha-dialog";
-import "../../../../../components/ha-svg-icon";
-import "../../../../../components/ha-button";
-import { hardResetController } from "../../../../../data/zwave_js";
-import { haStyleDialog } from "../../../../../resources/styles";
-import type { HomeAssistant } from "../../../../../types";
-import type { ZWaveJSHardResetControllerDialogParams } from "./show-dialog-zwave_js-hard-reset-controller";
-import { showConfirmationDialog } from "../../../../../dialogs/generic/show-dialog-box";
-import { navigate } from "../../../../../common/navigate";
+import { mdiCheckCircle, mdiDeleteForever, mdiRestore } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import { createCloseHeading } from '../../../../../components/ha-dialog'
+import '../../../../../components/ha-svg-icon'
+import '../../../../../components/ha-button'
+import { hardResetController } from '../../../../../data/zwave_js'
+import { haStyleDialog } from '../../../../../resources/styles'
+import type { HomeAssistant } from '../../../../../types'
+import type { ZWaveJSHardResetControllerDialogParams } from './show-dialog-zwave_js-hard-reset-controller'
+import { showConfirmationDialog } from '../../../../../dialogs/generic/show-dialog-box'
+import { navigate } from '../../../../../common/navigate'
 
 enum ResetStatus {
   NotStarted,
@@ -23,30 +23,30 @@ const iconMap = {
   [ResetStatus.NotStarted]: mdiDeleteForever,
   [ResetStatus.InProgress]: mdiRestore,
   [ResetStatus.Done]: mdiCheckCircle,
-};
+}
 
-@customElement("dialog-zwave_js-hard-reset-controller")
+@customElement('dialog-zwave_js-hard-reset-controller')
 class DialogZWaveJSHardResetController extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _entryId?: string;
+  @state() private _entryId?: string
 
-  @state() private _resetStatus = ResetStatus.NotStarted;
+  @state() private _resetStatus = ResetStatus.NotStarted
 
   public showDialog(params: ZWaveJSHardResetControllerDialogParams): void {
-    this._entryId = params.entryId;
+    this._entryId = params.entryId
   }
 
   public closeDialog(): void {
-    this._entryId = undefined;
-    this._resetStatus = ResetStatus.NotStarted;
+    this._entryId = undefined
+    this._resetStatus = ResetStatus.NotStarted
 
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._entryId) {
-      return nothing;
+      return nothing
     }
 
     return html`<ha-dialog
@@ -82,13 +82,16 @@ class DialogZWaveJSHardResetController extends LitElement {
               slot="primaryAction"
               @click=${this.closeDialog}
             >
-              ${this.hass.localize("ui.common.cancel")}
+              ${this.hass.localize('ui.common.cancel')}
             </ha-button>
-            <ha-button slot="primaryAction" @click=${this._hardResetController}>
-              ${this.hass.localize("ui.common.continue")}
+            <ha-button
+              slot="primaryAction"
+              @click=${this._hardResetController}
+            >
+              ${this.hass.localize('ui.common.continue')}
             </ha-button>`
         : nothing}
-    </ha-dialog>`;
+    </ha-dialog>`
   }
 
   private async _hardResetController(): Promise<void> {
@@ -97,15 +100,15 @@ class DialogZWaveJSHardResetController extends LitElement {
         text: this.hass.localize(
           `ui.panel.config.zwave_js.hard_reset_controller.confirmation`
         ),
-        dismissText: this.hass.localize("ui.common.cancel"),
-        confirmText: this.hass.localize("ui.common.continue"),
+        dismissText: this.hass.localize('ui.common.cancel'),
+        confirmText: this.hass.localize('ui.common.continue'),
         destructive: true,
       })
     ) {
-      this._resetStatus = ResetStatus.InProgress;
-      const deviceId = await hardResetController(this.hass, this._entryId!);
-      setTimeout(() => navigate(`/config/devices/device/${deviceId}`), 0);
-      this._resetStatus = ResetStatus.Done;
+      this._resetStatus = ResetStatus.InProgress
+      const deviceId = await hardResetController(this.hass, this._entryId!)
+      setTimeout(() => navigate(`/config/devices/device/${deviceId}`), 0)
+      this._resetStatus = ResetStatus.Done
     }
   }
 
@@ -127,12 +130,12 @@ class DialogZWaveJSHardResetController extends LitElement {
           height: 48px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-zwave_js-hard-reset-controller": DialogZWaveJSHardResetController;
+    'dialog-zwave_js-hard-reset-controller': DialogZWaveJSHardResetController
   }
 }

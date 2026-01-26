@@ -1,19 +1,19 @@
-import { dump } from "js-yaml";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
+import { dump } from 'js-yaml'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
 
-@customElement("mqtt-discovery-payload")
+@customElement('mqtt-discovery-payload')
 class MQTTDiscoveryPayload extends LitElement {
-  @property({ attribute: false }) public payload!: Record<string, unknown>;
+  @property({ attribute: false }) public payload!: Record<string, unknown>
 
-  @property({ attribute: "show-as-yaml", type: Boolean })
-  public showAsYaml = false;
+  @property({ attribute: 'show-as-yaml', type: Boolean })
+  public showAsYaml = false
 
-  @property() public summary!: string;
+  @property() public summary!: string
 
-  @state() private _open = false;
+  @state() private _open = false
 
   protected render(): TemplateResult {
     return html`
@@ -25,21 +25,21 @@ class MQTTDiscoveryPayload extends LitElement {
       </div>
       ${this._open
         ? html` <div class="payload">${this._renderPayload()}</div>`
-        : ""}
-    `;
+        : ''}
+    `
   }
 
   private _renderPayload(): TemplateResult {
-    const payload = this.payload;
+    const payload = this.payload
     return html`
       ${this.showAsYaml
         ? html` <pre>${dump(payload)}</pre> `
         : html` <pre>${JSON.stringify(payload, null, 2)}</pre> `}
-    `;
+    `
   }
 
   private _handleToggle() {
-    this._open = !this._open;
+    this._open = !this._open
   }
 
   static styles = css`
@@ -53,7 +53,7 @@ class MQTTDiscoveryPayload extends LitElement {
       border: 1px solid var(--divider-color);
     }
     .expander:before {
-      content: "";
+      content: '';
       position: absolute;
       border-right: 2px solid var(--primary-text-color);
       border-bottom: 2px solid var(--primary-text-color);
@@ -82,11 +82,11 @@ class MQTTDiscoveryPayload extends LitElement {
       padding-inline-end: 4px;
       font-family: var(--ha-font-family-code);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "mqtt-discovery-payload": MQTTDiscoveryPayload;
+    'mqtt-discovery-payload': MQTTDiscoveryPayload
   }
 }

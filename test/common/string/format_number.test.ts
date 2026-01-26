@@ -1,11 +1,11 @@
-import { assert, describe, it } from "vitest";
-import type { HassEntity } from "home-assistant-js-websocket";
+import { assert, describe, it } from 'vitest'
+import type { HassEntity } from 'home-assistant-js-websocket'
 
 import {
   formatNumber,
   getDefaultFormatOptions,
   getNumberFormatOptions,
-} from "../../../src/common/number/format_number";
+} from '../../../src/common/number/format_number'
 import {
   type FrontendLocaleData,
   NumberFormat,
@@ -13,67 +13,67 @@ import {
   FirstWeekday,
   DateFormat,
   TimeZone,
-} from "../../../src/data/translation";
+} from '../../../src/data/translation'
 
-describe("formatNumber", () => {
+describe('formatNumber', () => {
   // Create default to not have to specify a not relevant TimeFormat over and over again.
   const defaultLocale: FrontendLocaleData = {
-    language: "en",
+    language: 'en',
     number_format: NumberFormat.language,
     time_format: TimeFormat.language,
     date_format: DateFormat.language,
     time_zone: TimeZone.local,
     first_weekday: FirstWeekday.language,
-  };
+  }
 
   // Node only ships with English support for `Intl`, so we cannot test for other number formats here.
-  it("Formats English numbers", () => {
-    assert.strictEqual(formatNumber(1234.5, defaultLocale), "1,234.5");
-  });
+  it('Formats English numbers', () => {
+    assert.strictEqual(formatNumber(1234.5, defaultLocale), '1,234.5')
+  })
 
   it("Test format 'none' (keep dot despite language 'de')", () => {
     assert.strictEqual(
       formatNumber(1.23, {
         ...defaultLocale,
-        language: "de",
+        language: 'de',
         number_format: NumberFormat.none,
       }),
-      "1.23"
-    );
-  });
+      '1.23'
+    )
+  })
 
   it("Ensure zero is kept for format 'language'", () => {
-    assert.strictEqual(formatNumber(0, defaultLocale), "0");
-  });
+    assert.strictEqual(formatNumber(0, defaultLocale), '0')
+  })
 
   it("Ensure zero is kept for format 'none'", () => {
     assert.strictEqual(
       formatNumber(0, { ...defaultLocale, number_format: NumberFormat.none }),
-      "0"
-    );
-  });
+      '0'
+    )
+  })
 
   it("Test empty string input for format 'none'", () => {
     assert.strictEqual(
-      formatNumber("", { ...defaultLocale, number_format: NumberFormat.none }),
-      ""
-    );
-  });
+      formatNumber('', { ...defaultLocale, number_format: NumberFormat.none }),
+      ''
+    )
+  })
 
   it("Test empty string input for format 'language'", () => {
-    assert.strictEqual(formatNumber("", defaultLocale), "0");
-  });
+    assert.strictEqual(formatNumber('', defaultLocale), '0')
+  })
 
-  it("Formats number with options", () => {
+  it('Formats number with options', () => {
     assert.strictEqual(
       formatNumber(1234.5, defaultLocale, {
         minimumFractionDigits: 2,
       }),
-      "1,234.50"
-    );
-  });
+      '1,234.50'
+    )
+  })
 
-  it("Formats number with fraction digits options if number format is none", () => {
+  it('Formats number with fraction digits options if number format is none', () => {
     assert.strictEqual(
       formatNumber(
         1234.5,
@@ -83,11 +83,11 @@ describe("formatNumber", () => {
           maximumFractionDigits: 2,
         }
       ),
-      "1234.50"
-    );
-  });
+      '1234.50'
+    )
+  })
 
-  it("Do not formats number with others options if number format is none", () => {
+  it('Do not formats number with others options if number format is none', () => {
     assert.strictEqual(
       formatNumber(
         1234.5,
@@ -96,83 +96,83 @@ describe("formatNumber", () => {
           useGrouping: true,
         }
       ),
-      "1234.5"
-    );
-  });
+      '1234.5'
+    )
+  })
 
-  it("Sets only the maximumFractionDigits format option when none are provided for a number value", () => {
+  it('Sets only the maximumFractionDigits format option when none are provided for a number value', () => {
     assert.deepEqual(getDefaultFormatOptions(1234.5), {
       maximumFractionDigits: 2,
-    });
-  });
+    })
+  })
 
   it("Sets minimumFractionDigits and maximumFractionDigits to '2' when none are provided for a string numeric value with two decimal places", () => {
-    assert.deepEqual(getDefaultFormatOptions("1234.50"), {
+    assert.deepEqual(getDefaultFormatOptions('1234.50'), {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    });
-  });
+    })
+  })
 
-  it("Merges default format options (minimumFractionDigits and maximumFractionDigits) and non-default format options for a string numeric value with two decimal places", () => {
-    assert.deepEqual(getDefaultFormatOptions("1234.50", { currency: "USD" }), {
+  it('Merges default format options (minimumFractionDigits and maximumFractionDigits) and non-default format options for a string numeric value with two decimal places', () => {
+    assert.deepEqual(getDefaultFormatOptions('1234.50', { currency: 'USD' }), {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-      currency: "USD",
-    });
-  });
+      currency: 'USD',
+    })
+  })
 
-  it("Sets maximumFractionDigits when that is the only format option provided", () => {
+  it('Sets maximumFractionDigits when that is the only format option provided', () => {
     assert.deepEqual(
-      getDefaultFormatOptions("1234.50", { maximumFractionDigits: 0 }),
+      getDefaultFormatOptions('1234.50', { maximumFractionDigits: 0 }),
       {
         maximumFractionDigits: 0,
       }
-    );
-  });
+    )
+  })
 
   it("Sets maximumFractionDigits to '2' and minimumFractionDigits to the provided value when only minimumFractionDigits is provided", () => {
     assert.deepEqual(
-      getDefaultFormatOptions("1234.50", { minimumFractionDigits: 1 }),
+      getDefaultFormatOptions('1234.50', { minimumFractionDigits: 1 }),
       {
         minimumFractionDigits: 1,
         maximumFractionDigits: 2,
       }
-    );
-  });
+    )
+  })
 
   it("Sets maximumFractionDigits to '0' when the state value and step are integers", () => {
     assert.deepEqual(
       getNumberFormatOptions({
-        state: "3.0",
+        state: '3.0',
         attributes: { step: 1 },
       } as unknown as HassEntity),
       {
         maximumFractionDigits: 0,
       }
-    );
-  });
+    )
+  })
 
-  it("Does not set any Intl.NumberFormatOptions when the step is not an integer", () => {
+  it('Does not set any Intl.NumberFormatOptions when the step is not an integer', () => {
     assert.strictEqual(
       getNumberFormatOptions({
-        state: "3.0",
+        state: '3.0',
         attributes: { step: 0.5 },
       } as unknown as HassEntity),
       undefined
-    );
-  });
+    )
+  })
 
-  it("Does not set any Intl.NumberFormatOptions when the state value is not an integer", () => {
+  it('Does not set any Intl.NumberFormatOptions when the state value is not an integer', () => {
     assert.strictEqual(
-      getNumberFormatOptions({ state: "3.5" } as unknown as HassEntity),
+      getNumberFormatOptions({ state: '3.5' } as unknown as HassEntity),
       undefined
-    );
-  });
+    )
+  })
 
-  it("Does not set any Intl.NumberFormatOptions when there is no step attribute", () => {
+  it('Does not set any Intl.NumberFormatOptions when there is no step attribute', () => {
     assert.strictEqual(
-      getNumberFormatOptions({ state: "3.0" } as unknown as HassEntity),
+      getNumberFormatOptions({ state: '3.0' } as unknown as HassEntity),
       undefined
-    );
-  });
-});
+    )
+  })
+})

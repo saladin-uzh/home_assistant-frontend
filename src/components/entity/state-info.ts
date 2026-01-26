@@ -1,28 +1,28 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { computeStateName } from "../../common/entity/compute_state_name";
-import type { HomeAssistant } from "../../types";
-import "../ha-relative-time";
-import "./state-badge";
-import "../ha-tooltip";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { computeStateName } from '../../common/entity/compute_state_name'
+import type { HomeAssistant } from '../../types'
+import '../ha-relative-time'
+import './state-badge'
+import '../ha-tooltip'
 
-@customElement("state-info")
+@customElement('state-info')
 class StateInfo extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj?: HassEntity;
+  @property({ attribute: false }) public stateObj?: HassEntity
 
-  @property({ attribute: "in-dialog", type: Boolean }) public inDialog = false;
+  @property({ attribute: 'in-dialog', type: Boolean }) public inDialog = false
 
-  @property() public color?: string;
+  @property() public color?: string
 
   protected render() {
     if (!this.hass || !this.stateObj) {
-      return nothing;
+      return nothing
     }
 
-    const name = computeStateName(this.stateObj);
+    const name = computeStateName(this.stateObj)
 
     return html`<state-badge
         .hass=${this.hass}
@@ -31,7 +31,10 @@ class StateInfo extends LitElement {
         .color=${this.color}
       ></state-badge>
       <div class="info">
-        <div class="name ${this.inDialog ? "in-dialog" : ""}" .title=${name}>
+        <div
+          class="name ${this.inDialog ? 'in-dialog' : ''}"
+          .title=${name}
+        >
           ${name}
         </div>
         ${this.inDialog
@@ -40,7 +43,7 @@ class StateInfo extends LitElement {
                 <div class="row">
                   <span class="column-name">
                     ${this.hass.localize(
-                      "ui.dialogs.more_info_control.last_changed"
+                      'ui.dialogs.more_info_control.last_changed'
                     )}:
                   </span>
                   <ha-relative-time
@@ -52,7 +55,7 @@ class StateInfo extends LitElement {
                 <div class="row">
                   <span>
                     ${this.hass.localize(
-                      "ui.dialogs.more_info_control.last_updated"
+                      'ui.dialogs.more_info_control.last_updated'
                     )}:
                   </span>
                   <ha-relative-time
@@ -70,7 +73,7 @@ class StateInfo extends LitElement {
               ></ha-relative-time>
             </div>`
           : html`<div class="extra-info"><slot></slot></div>`}
-      </div>`;
+      </div>`
   }
 
   static styles = css`
@@ -131,11 +134,11 @@ class StateInfo extends LitElement {
     .row:last-child {
       margin-bottom: 0px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "state-info": StateInfo;
+    'state-info': StateInfo
   }
 }

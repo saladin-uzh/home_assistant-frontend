@@ -1,80 +1,80 @@
-import type { PropertyValues } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import type { LocalizeKeys } from "../../../../common/translations/localize";
-import "../../../../components/ha-form/ha-form";
-import type { AssistPipeline } from "../../../../data/assist_pipeline";
-import type { WakeWord } from "../../../../data/wake_word";
-import { fetchWakeWordInfo } from "../../../../data/wake_word";
-import type { HomeAssistant } from "../../../../types";
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import type { LocalizeKeys } from '../../../../common/translations/localize'
+import '../../../../components/ha-form/ha-form'
+import type { AssistPipeline } from '../../../../data/assist_pipeline'
+import type { WakeWord } from '../../../../data/wake_word'
+import { fetchWakeWordInfo } from '../../../../data/wake_word'
+import type { HomeAssistant } from '../../../../types'
 
-@customElement("assist-pipeline-detail-wakeword")
+@customElement('assist-pipeline-detail-wakeword')
 export class AssistPipelineDetailWakeWord extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public data?: Partial<AssistPipeline>;
+  @property({ attribute: false }) public data?: Partial<AssistPipeline>
 
-  @state() private _wakeWords?: WakeWord[];
+  @state() private _wakeWords?: WakeWord[]
 
   private _schema = memoizeOne(
     (wakeWords?: WakeWord[]) =>
       [
         {
-          name: "",
-          type: "grid",
+          name: '',
+          type: 'grid',
           schema: [
             {
-              name: "wake_word_entity",
+              name: 'wake_word_entity',
               selector: {
                 entity: {
-                  domain: "wake_word",
+                  domain: 'wake_word',
                 },
               },
             },
             wakeWords?.length
               ? {
-                  name: "wake_word_id",
+                  name: 'wake_word_id',
                   required: true,
                   selector: {
                     select: {
-                      mode: "dropdown",
+                      mode: 'dropdown',
                       sort: true,
-                      options: wakeWords.map((ww) => ({
+                      options: wakeWords.map(ww => ({
                         value: ww.id,
                         label: ww.name,
                       })),
                     },
                   },
                 }
-              : { name: "", type: "constant" },
+              : { name: '', type: 'constant' },
           ] as const,
         },
       ] as const
-  );
+  )
 
   private _computeLabel = (schema): string =>
     schema.name
       ? this.hass.localize(
           `ui.panel.config.voice_assistants.assistants.pipeline.detail.form.${schema.name}` as LocalizeKeys
         )
-      : "";
+      : ''
 
   protected willUpdate(changedProps: PropertyValues) {
     if (
-      changedProps.has("data") &&
-      changedProps.get("data")?.wake_word_entity !== this.data?.wake_word_entity
+      changedProps.has('data') &&
+      changedProps.get('data')?.wake_word_entity !== this.data?.wake_word_entity
     ) {
       if (
-        changedProps.get("data")?.wake_word_entity &&
+        changedProps.get('data')?.wake_word_entity &&
         this.data?.wake_word_id
       ) {
-        fireEvent(this, "value-changed", {
+        fireEvent(this, 'value-changed', {
           value: { ...this.data, wake_word_id: undefined },
-        });
+        })
       }
-      this._fetchWakeWords();
+      this._fetchWakeWords()
     }
   }
 
@@ -107,29 +107,29 @@ export class AssistPipelineDetailWakeWord extends LitElement {
           ></ha-form>
         </div>
       </div>
-    `;
+    `
   }
 
   private async _fetchWakeWords() {
-    this._wakeWords = undefined;
+    this._wakeWords = undefined
     if (!this.data?.wake_word_entity) {
-      return;
+      return
     }
-    const wakeWordEntity = this.data.wake_word_entity;
-    const wakewordInfo = await fetchWakeWordInfo(this.hass, wakeWordEntity);
+    const wakeWordEntity = this.data.wake_word_entity
+    const wakewordInfo = await fetchWakeWordInfo(this.hass, wakeWordEntity)
     if (this.data.wake_word_entity !== wakeWordEntity) {
       // wake word entity changed while we were fetching
-      return;
+      return
     }
-    this._wakeWords = wakewordInfo.wake_words;
+    this._wakeWords = wakewordInfo.wake_words
     if (
       this.data &&
       (!this.data?.wake_word_id ||
-        !this._wakeWords.some((ww) => ww.id === this.data!.wake_word_id))
+        !this._wakeWords.some(ww => ww.id === this.data!.wake_word_id))
     ) {
-      fireEvent(this, "value-changed", {
+      fireEvent(this, 'value-changed', {
         value: { ...this.data, wake_word_id: this._wakeWords[0]?.id },
-      });
+      })
     }
   }
 
@@ -160,11 +160,11 @@ export class AssistPipelineDetailWakeWord extends LitElement {
     a {
       color: var(--primary-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "assist-pipeline-detail-wakeword": AssistPipelineDetailWakeWord;
+    'assist-pipeline-detail-wakeword': AssistPipelineDetailWakeWord
   }
 }

@@ -1,65 +1,65 @@
-import { mdiPlayCircleOutline, mdiRobot } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { storage } from "../../../../common/decorators/storage";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { stopPropagation } from "../../../../common/dom/stop_propagation";
-import { computeStateDomain } from "../../../../common/entity/compute_state_domain";
-import { computeStateName } from "../../../../common/entity/compute_state_name";
-import { supportsFeature } from "../../../../common/entity/supports-feature";
-import { createCloseHeading } from "../../../../components/ha-dialog";
-import "../../../../components/ha-list-item";
-import "../../../../components/ha-select";
-import "../../../../components/ha-button";
-import "../../../../components/ha-textarea";
-import type { HaTextArea } from "../../../../components/ha-textarea";
-import { showAutomationEditor } from "../../../../data/automation";
-import { MediaPlayerEntityFeature } from "../../../../data/media-player";
-import { convertTextToSpeech } from "../../../../data/tts";
-import { showAlertDialog } from "../../../../dialogs/generic/show-dialog-box";
-import { haStyleDialog } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import type { TryTtsDialogParams } from "./show-dialog-cloud-tts-try";
+import { mdiPlayCircleOutline, mdiRobot } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { storage } from '../../../../common/decorators/storage'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { stopPropagation } from '../../../../common/dom/stop_propagation'
+import { computeStateDomain } from '../../../../common/entity/compute_state_domain'
+import { computeStateName } from '../../../../common/entity/compute_state_name'
+import { supportsFeature } from '../../../../common/entity/supports-feature'
+import { createCloseHeading } from '../../../../components/ha-dialog'
+import '../../../../components/ha-list-item'
+import '../../../../components/ha-select'
+import '../../../../components/ha-button'
+import '../../../../components/ha-textarea'
+import type { HaTextArea } from '../../../../components/ha-textarea'
+import { showAutomationEditor } from '../../../../data/automation'
+import { MediaPlayerEntityFeature } from '../../../../data/media-player'
+import { convertTextToSpeech } from '../../../../data/tts'
+import { showAlertDialog } from '../../../../dialogs/generic/show-dialog-box'
+import { haStyleDialog } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import type { TryTtsDialogParams } from './show-dialog-cloud-tts-try'
 
-@customElement("dialog-cloud-try-tts")
+@customElement('dialog-cloud-try-tts')
 export class DialogTryTts extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _loadingExample = false;
+  @state() private _loadingExample = false
 
-  @state() private _params?: TryTtsDialogParams;
+  @state() private _params?: TryTtsDialogParams
 
-  @query("#message") private _messageInput?: HaTextArea;
+  @query('#message') private _messageInput?: HaTextArea
 
   @storage({
-    key: "cloudTtsTryMessage",
+    key: 'cloudTtsTryMessage',
     state: false,
     subscribe: false,
   })
-  private _message!: string;
+  private _message!: string
 
   @storage({
-    key: "cloudTtsTryTarget",
+    key: 'cloudTtsTryTarget',
     state: false,
     subscribe: false,
   })
-  private _target!: string;
+  private _target!: string
 
   public showDialog(params: TryTtsDialogParams) {
-    this._params = params;
+    this._params = params
   }
 
   public closeDialog() {
-    this._params = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
-    const target = this._target || "browser";
+    const target = this._target || 'browser'
     return html`
       <ha-dialog
         open
@@ -68,7 +68,7 @@ export class DialogTryTts extends LitElement {
         escapeKeyAction
         .heading=${createCloseHeading(
           this.hass,
-          this.hass.localize("ui.panel.config.cloud.account.tts.dialog.header")
+          this.hass.localize('ui.panel.config.cloud.account.tts.dialog.header')
         )}
       >
         <div>
@@ -76,11 +76,11 @@ export class DialogTryTts extends LitElement {
             autogrow
             id="message"
             .label=${this.hass.localize(
-              "ui.panel.config.cloud.account.tts.dialog.message"
+              'ui.panel.config.cloud.account.tts.dialog.message'
             )}
             .value=${this._message ||
             this.hass.localize(
-              "ui.panel.config.cloud.account.tts.dialog.example_message",
+              'ui.panel.config.cloud.account.tts.dialog.example_message',
               { name: this.hass.user!.name }
             )}
           >
@@ -88,7 +88,7 @@ export class DialogTryTts extends LitElement {
 
           <ha-select
             .label=${this.hass.localize(
-              "ui.panel.config.cloud.account.tts.dialog.target"
+              'ui.panel.config.cloud.account.tts.dialog.target'
             )}
             id="target"
             .value=${target}
@@ -99,17 +99,17 @@ export class DialogTryTts extends LitElement {
           >
             <ha-list-item value="browser">
               ${this.hass.localize(
-                "ui.panel.config.cloud.account.tts.dialog.target_browser"
+                'ui.panel.config.cloud.account.tts.dialog.target_browser'
               )}
             </ha-list-item>
             ${Object.values(this.hass.states)
               .filter(
-                (entity) =>
-                  computeStateDomain(entity) === "media_player" &&
+                entity =>
+                  computeStateDomain(entity) === 'media_player' &&
                   supportsFeature(entity, MediaPlayerEntityFeature.PLAY_MEDIA)
               )
               .map(
-                (entity) => html`
+                entity => html`
                   <ha-list-item .value=${entity.entity_id}>
                     ${computeStateName(entity)}
                   </ha-list-item>
@@ -122,100 +122,106 @@ export class DialogTryTts extends LitElement {
           @click=${this._playExample}
           .disabled=${this._loadingExample}
         >
-          <ha-svg-icon slot="start" .path=${mdiPlayCircleOutline}></ha-svg-icon>
-          ${this.hass.localize("ui.panel.config.cloud.account.tts.dialog.play")}
+          <ha-svg-icon
+            slot="start"
+            .path=${mdiPlayCircleOutline}
+          ></ha-svg-icon>
+          ${this.hass.localize('ui.panel.config.cloud.account.tts.dialog.play')}
         </ha-button>
         <ha-button
           appearance="plain"
           slot="secondaryAction"
-          .disabled=${target === "browser"}
+          .disabled=${target === 'browser'}
           @click=${this._createAutomation}
         >
-          <ha-svg-icon slot="start" .path=${mdiRobot}></ha-svg-icon>
+          <ha-svg-icon
+            slot="start"
+            .path=${mdiRobot}
+          ></ha-svg-icon>
           ${this.hass.localize(
-            "ui.panel.config.cloud.account.tts.dialog.create_automation"
+            'ui.panel.config.cloud.account.tts.dialog.create_automation'
           )}
         </ha-button>
       </ha-dialog>
-    `;
+    `
   }
 
   private _handleTargetChanged(ev) {
-    this._target = ev.target.value;
-    this.requestUpdate("_target");
+    this._target = ev.target.value
+    this.requestUpdate('_target')
   }
 
   private async _playExample() {
-    const message = this._messageInput?.value;
+    const message = this._messageInput?.value
     if (!message) {
-      return;
+      return
     }
-    this._message = message;
+    this._message = message
 
-    if (this._target === "browser") {
+    if (this._target === 'browser') {
       // We create the audio element here + do a play, because iOS requires it to be done by user action
-      const audio = new Audio();
-      audio.play();
-      this._playBrowser(message, audio);
+      const audio = new Audio()
+      audio.play()
+      this._playBrowser(message, audio)
     } else {
-      this.hass.callService("tts", "cloud_say", {
+      this.hass.callService('tts', 'cloud_say', {
         entity_id: this._target,
         message,
-      });
+      })
     }
   }
 
   private _createAutomation() {
-    const message = this._messageInput!.value!;
-    this._message = message;
+    const message = this._messageInput!.value!
+    this._message = message
     showAutomationEditor({
       action: [
         {
-          service: "tts.cloud_say",
+          service: 'tts.cloud_say',
           data: {
             entity_id: this._target,
             message: message,
           },
         },
       ],
-    });
-    this.closeDialog();
+    })
+    this.closeDialog()
   }
 
   private async _playBrowser(message: string, audio: HTMLAudioElement) {
-    this._loadingExample = true;
+    this._loadingExample = true
 
-    const language = this._params!.defaultVoice[0];
-    const voice = this._params!.defaultVoice[1];
+    const language = this._params!.defaultVoice[0]
+    const voice = this._params!.defaultVoice[1]
 
-    let url;
+    let url
     try {
       const result = await convertTextToSpeech(this.hass, {
-        platform: "cloud",
+        platform: 'cloud',
         message,
         language,
         options: { voice },
-      });
-      url = result.path;
+      })
+      url = result.path
     } catch (err: any) {
-      this._loadingExample = false;
+      this._loadingExample = false
       showAlertDialog(this, {
         text: `Unable to load example. ${err.error || err.body || err}`,
         warning: true,
-      });
-      return;
+      })
+      return
     }
-    audio.src = url;
-    audio.addEventListener("canplaythrough", () => {
-      audio.play();
-    });
-    audio.addEventListener("playing", () => {
-      this._loadingExample = false;
-    });
-    audio.addEventListener("error", () => {
-      showAlertDialog(this, { title: "Error playing audio." });
-      this._loadingExample = false;
-    });
+    audio.src = url
+    audio.addEventListener('canplaythrough', () => {
+      audio.play()
+    })
+    audio.addEventListener('playing', () => {
+      this._loadingExample = false
+    })
+    audio.addEventListener('error', () => {
+      showAlertDialog(this, { title: 'Error playing audio.' })
+      this._loadingExample = false
+    })
   }
 
   static get styles(): CSSResultGroup {
@@ -233,12 +239,12 @@ export class DialogTryTts extends LitElement {
           margin-top: 8px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-cloud-try-tts": DialogTryTts;
+    'dialog-cloud-try-tts': DialogTryTts
   }
 }

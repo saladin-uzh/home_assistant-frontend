@@ -1,40 +1,40 @@
-import type { PropertyValues } from "lit";
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import "../../../../../components/data-table/ha-data-table";
+import type { PropertyValues } from 'lit'
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import '../../../../../components/data-table/ha-data-table'
 import type {
   DataTableColumnContainer,
   DataTableRowData,
-} from "../../../../../components/data-table/ha-data-table";
-import "../../../../../components/ha-spinner";
-import "../../../../../components/ha-code-editor";
-import type { ZHADevice } from "../../../../../data/zha";
-import { fetchDevices } from "../../../../../data/zha";
-import type { HomeAssistant } from "../../../../../types";
+} from '../../../../../components/data-table/ha-data-table'
+import '../../../../../components/ha-spinner'
+import '../../../../../components/ha-code-editor'
+import type { ZHADevice } from '../../../../../data/zha'
+import { fetchDevices } from '../../../../../data/zha'
+import type { HomeAssistant } from '../../../../../types'
 
 export interface DeviceRowData extends DataTableRowData {
-  id: string;
-  name: string;
-  lqi: number;
-  depth: number;
-  relationship: string;
+  id: string
+  name: string
+  lqi: number
+  depth: number
+  relationship: string
 }
 
-@customElement("zha-device-neighbors")
+@customElement('zha-device-neighbors')
 class ZHADeviceNeighbors extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ attribute: false }) public device?: ZHADevice;
+  @property({ attribute: false }) public device?: ZHADevice
 
-  @state() private _devices: Map<string, ZHADevice> | undefined;
+  @state() private _devices: Map<string, ZHADevice> | undefined
 
   protected updated(changedProperties: PropertyValues) {
-    super.updated(changedProperties);
-    if (this.hass && changedProperties.has("device")) {
-      this._fetchData();
+    super.updated(changedProperties)
+    if (this.hass && changedProperties.has('device')) {
+      this._fetchData()
     }
   }
 
@@ -43,10 +43,10 @@ class ZHADeviceNeighbors extends LitElement {
       device: ZHADevice | undefined,
       devices: Map<string, ZHADevice> | undefined
     ) => {
-      const outputDevices: DeviceRowData[] = [];
+      const outputDevices: DeviceRowData[] = []
       if (device && devices) {
-        device.neighbors.forEach((neighbor) => {
-          const zhaDevice: ZHADevice | undefined = devices.get(neighbor.ieee);
+        device.neighbors.forEach(neighbor => {
+          const zhaDevice: ZHADevice | undefined = devices.get(neighbor.ieee)
           if (zhaDevice) {
             outputDevices.push({
               name: zhaDevice.user_given_name || zhaDevice.name,
@@ -54,65 +54,65 @@ class ZHADeviceNeighbors extends LitElement {
               lqi: parseInt(neighbor.lqi),
               depth: parseInt(neighbor.depth),
               relationship: neighbor.relationship,
-            });
+            })
           }
-        });
+        })
       }
-      return outputDevices;
+      return outputDevices
     }
-  );
+  )
 
   private _columns = memoizeOne(
     (narrow: boolean): DataTableColumnContainer =>
       narrow
         ? {
             name: {
-              title: this.hass.localize("ui.panel.config.zha.neighbors.name"),
+              title: this.hass.localize('ui.panel.config.zha.neighbors.name'),
               sortable: true,
               filterable: true,
-              direction: "asc",
+              direction: 'asc',
               flex: 2,
             },
             lqi: {
-              title: this.hass.localize("ui.panel.config.zha.neighbors.lqi"),
+              title: this.hass.localize('ui.panel.config.zha.neighbors.lqi'),
               sortable: true,
               filterable: true,
-              type: "numeric",
+              type: 'numeric',
             },
           }
         : {
             name: {
-              title: this.hass.localize("ui.panel.config.zha.neighbors.name"),
+              title: this.hass.localize('ui.panel.config.zha.neighbors.name'),
               sortable: true,
               filterable: true,
-              direction: "asc",
+              direction: 'asc',
               flex: 2,
             },
             lqi: {
-              title: this.hass.localize("ui.panel.config.zha.neighbors.lqi"),
+              title: this.hass.localize('ui.panel.config.zha.neighbors.lqi'),
               sortable: true,
               filterable: true,
-              type: "numeric",
+              type: 'numeric',
             },
             relationship: {
               title: this.hass.localize(
-                "ui.panel.config.zha.neighbors.relationship"
+                'ui.panel.config.zha.neighbors.relationship'
               ),
               sortable: true,
               filterable: true,
             },
             depth: {
-              title: this.hass.localize("ui.panel.config.zha.neighbors.depth"),
+              title: this.hass.localize('ui.panel.config.zha.neighbors.depth'),
               sortable: true,
               filterable: true,
-              type: "numeric",
+              type: 'numeric',
             },
           }
-  );
+  )
 
   protected render() {
     if (!this.device) {
-      return nothing;
+      return nothing
     }
     return html`
       ${!this._devices
@@ -123,27 +123,27 @@ class ZHADeviceNeighbors extends LitElement {
             .data=${this._deviceNeighbors(this.device, this._devices)}
             auto-height
             .searchLabel=${this.hass.localize(
-              "ui.components.data-table.search"
+              'ui.components.data-table.search'
             )}
             .noDataText=${this.hass.localize(
-              "ui.components.data-table.no-data"
+              'ui.components.data-table.no-data'
             )}
           ></ha-data-table>`}
-    `;
+    `
   }
 
   private async _fetchData(): Promise<void> {
     if (this.device && this.hass) {
-      const devices = await fetchDevices(this.hass!);
+      const devices = await fetchDevices(this.hass!)
       this._devices = new Map(
         devices.map((device: ZHADevice) => [device.ieee, device])
-      );
+      )
     }
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "zha-device-neighbors": ZHADeviceNeighbors;
+    'zha-device-neighbors': ZHADeviceNeighbors
   }
 }

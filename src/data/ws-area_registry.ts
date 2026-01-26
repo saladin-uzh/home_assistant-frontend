@@ -1,13 +1,13 @@
-import type { Connection } from "home-assistant-js-websocket";
-import { createCollection } from "home-assistant-js-websocket";
-import type { Store } from "home-assistant-js-websocket/dist/store";
-import { debounce } from "../common/util/debounce";
-import type { AreaRegistryEntry } from "./area_registry";
+import type { Connection } from 'home-assistant-js-websocket'
+import { createCollection } from 'home-assistant-js-websocket'
+import type { Store } from 'home-assistant-js-websocket/dist/store'
+import { debounce } from '../common/util/debounce'
+import type { AreaRegistryEntry } from './area_registry'
 
 const fetchAreaRegistry = (conn: Connection) =>
   conn.sendMessagePromise<AreaRegistryEntry[]>({
-    type: "config/area_registry/list",
-  });
+    type: 'config/area_registry/list',
+  })
 
 const subscribeAreaRegistryUpdates = (
   conn: Connection,
@@ -22,17 +22,17 @@ const subscribeAreaRegistryUpdates = (
       500,
       true
     ),
-    "area_registry_updated"
-  );
+    'area_registry_updated'
+  )
 
 export const subscribeAreaRegistry = (
   conn: Connection,
   onChange: (areas: AreaRegistryEntry[]) => void
 ) =>
   createCollection<AreaRegistryEntry[]>(
-    "_areaRegistry",
+    '_areaRegistry',
     fetchAreaRegistry,
     subscribeAreaRegistryUpdates,
     conn,
     onChange
-  );
+  )

@@ -1,50 +1,50 @@
-import type { GraphicType } from "@material/mwc-list/mwc-list-item-base";
-import { ListItemBase } from "@material/mwc-list/mwc-list-item-base";
-import { styles } from "@material/mwc-list/mwc-list-item.css";
-import { mdiFileCodeOutline, mdiPackageVariant, mdiWeb } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { domainToName } from "../../../data/integration";
-import type { HomeAssistant } from "../../../types";
-import { brandsUrl } from "../../../util/brands-url";
-import type { IntegrationListItem } from "./dialog-add-integration";
-import "../../../components/ha-svg-icon";
-import "../../../components/ha-icon-next";
-import "../../../components/ha-tooltip";
+import type { GraphicType } from '@material/mwc-list/mwc-list-item-base'
+import { ListItemBase } from '@material/mwc-list/mwc-list-item-base'
+import { styles } from '@material/mwc-list/mwc-list-item.css'
+import { mdiFileCodeOutline, mdiPackageVariant, mdiWeb } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { domainToName } from '../../../data/integration'
+import type { HomeAssistant } from '../../../types'
+import { brandsUrl } from '../../../util/brands-url'
+import type { IntegrationListItem } from './dialog-add-integration'
+import '../../../components/ha-svg-icon'
+import '../../../components/ha-icon-next'
+import '../../../components/ha-tooltip'
 
-@customElement("ha-integration-list-item")
+@customElement('ha-integration-list-item')
 export class HaIntegrationListItem extends ListItemBase {
-  public hass!: HomeAssistant;
+  public hass!: HomeAssistant
 
-  @property({ attribute: false }) public integration?: IntegrationListItem;
+  @property({ attribute: false }) public integration?: IntegrationListItem
 
-  @property({ type: String, reflect: true }) graphic: GraphicType = "medium";
+  @property({ type: String, reflect: true }) graphic: GraphicType = 'medium'
 
   // eslint-disable-next-line lit/attribute-names
-  @property({ type: Boolean }) hasMeta = true;
+  @property({ type: Boolean }) hasMeta = true
 
-  @property({ type: Boolean }) brand = false;
+  @property({ type: Boolean }) brand = false
 
   // @ts-expect-error
   protected override renderSingleLine() {
     if (!this.integration) {
-      return nothing;
+      return nothing
     }
     return html`${this.integration.name ||
     domainToName(this.hass.localize, this.integration.domain)}
-    ${this.integration.is_helper ? " (helper)" : ""}`;
+    ${this.integration.is_helper ? ' (helper)' : ''}`
   }
 
   // @ts-expect-error
   protected override renderGraphic() {
     if (!this.integration) {
-      return nothing;
+      return nothing
     }
     const graphicClasses = {
       multi: this.multipleGraphics,
-    };
+    }
 
     return html` <span
       class="mdc-deprecated-list-item__graphic material-icons ${classMap(
@@ -56,7 +56,7 @@ export class HaIntegrationListItem extends ListItemBase {
         loading="lazy"
         src=${brandsUrl({
           domain: this.integration.domain,
-          type: "icon",
+          type: 'icon',
           useFallback: true,
           darkOptimized: this.hass.themes?.darkMode,
           brand: this.brand,
@@ -64,38 +64,45 @@ export class HaIntegrationListItem extends ListItemBase {
         crossorigin="anonymous"
         referrerpolicy="no-referrer"
       />
-    </span>`;
+    </span>`
   }
 
   // @ts-expect-error
   protected override renderMeta() {
     if (!this.integration) {
-      return nothing;
+      return nothing
     }
     return html`<span class="mdc-deprecated-list-item__meta material-icons">
       ${this.integration.cloud
-        ? html` <ha-svg-icon id="icon-cloud" .path=${mdiWeb}></ha-svg-icon>
-            <ha-tooltip for="icon-cloud" placement="left"
+        ? html` <ha-svg-icon
+              id="icon-cloud"
+              .path=${mdiWeb}
+            ></ha-svg-icon>
+            <ha-tooltip
+              for="icon-cloud"
+              placement="left"
               >${this.hass.localize(
-                "ui.panel.config.integrations.config_entry.depends_on_cloud"
+                'ui.panel.config.integrations.config_entry.depends_on_cloud'
               )}
             </ha-tooltip>`
         : nothing}
       ${!this.integration.is_built_in
         ? html`<span
             class=${this.integration.overwrites_built_in
-              ? "overwrites"
-              : "custom"}
+              ? 'overwrites'
+              : 'custom'}
           >
             <ha-svg-icon
               id="icon-custom"
               .path=${mdiPackageVariant}
             ></ha-svg-icon>
-            <ha-tooltip for="icon-custom" placement="left"
+            <ha-tooltip
+              for="icon-custom"
+              placement="left"
               >${this.hass.localize(
                 this.integration.overwrites_built_in
-                  ? "ui.panel.config.integrations.config_entry.custom_overwrites_core"
-                  : "ui.panel.config.integrations.config_entry.custom_integration"
+                  ? 'ui.panel.config.integrations.config_entry.custom_overwrites_core'
+                  : 'ui.panel.config.integrations.config_entry.custom_integration'
               )}</ha-tooltip
             ></span
           >`
@@ -108,13 +115,16 @@ export class HaIntegrationListItem extends ListItemBase {
               .path=${mdiFileCodeOutline}
               class="open-in-new"
             ></ha-svg-icon>
-            <ha-tooltip for="icon-yaml" placement="left">
+            <ha-tooltip
+              for="icon-yaml"
+              placement="left"
+            >
               ${this.hass.localize(
-                "ui.panel.config.integrations.config_entry.yaml_only"
+                'ui.panel.config.integrations.config_entry.yaml_only'
               )}
             </ha-tooltip>`
         : html`<ha-icon-next></ha-icon-next>`}
-    </span>`;
+    </span>`
   }
 
   static get styles(): CSSResultGroup {
@@ -125,8 +135,8 @@ export class HaIntegrationListItem extends ListItemBase {
           --mdc-list-side-padding: 24px;
           --mdc-list-item-graphic-size: 40px;
         }
-        :host([graphic="avatar"]:not([twoLine])),
-        :host([graphic="icon"]:not([twoLine])) {
+        :host([graphic='avatar']:not([twoLine])),
+        :host([graphic='icon']:not([twoLine])) {
           height: 48px;
         }
         span.material-icons:first-of-type {
@@ -176,12 +186,12 @@ export class HaIntegrationListItem extends ListItemBase {
           color: var(--error-color);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-integration-list-item": HaIntegrationListItem;
+    'ha-integration-list-item': HaIntegrationListItem
   }
 }

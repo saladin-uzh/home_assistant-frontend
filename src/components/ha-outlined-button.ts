@@ -1,10 +1,10 @@
-import { OutlinedButton } from "@material/web/button/internal/outlined-button";
-import { styles as sharedStyles } from "@material/web/button/internal/shared-styles";
-import { styles } from "@material/web/button/internal/outlined-styles";
-import { css } from "lit";
-import { customElement } from "lit/decorators";
+import { OutlinedButton } from '@material/web/button/internal/outlined-button'
+import { styles as sharedStyles } from '@material/web/button/internal/shared-styles'
+import { styles } from '@material/web/button/internal/outlined-styles'
+import { css } from 'lit'
+import { customElement } from 'lit/decorators'
 
-@customElement("ha-outlined-button")
+@customElement('ha-outlined-button')
 export class HaOutlinedButton extends OutlinedButton {
   static override styles = [
     sharedStyles,
@@ -16,11 +16,11 @@ export class HaOutlinedButton extends OutlinedButton {
         --md-sys-color-outline: var(--outline-color);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-outlined-button": HaOutlinedButton;
+    'ha-outlined-button': HaOutlinedButton
   }
 }

@@ -1,9 +1,9 @@
-import { RadioBase } from "@material/mwc-radio/mwc-radio-base";
-import { styles } from "@material/mwc-radio/mwc-radio.css";
-import { css } from "lit";
-import { customElement } from "lit/decorators";
+import { RadioBase } from '@material/mwc-radio/mwc-radio-base'
+import { styles } from '@material/mwc-radio/mwc-radio.css'
+import { css } from 'lit'
+import { customElement } from 'lit/decorators'
 
-@customElement("ha-radio")
+@customElement('ha-radio')
 export class HaRadio extends RadioBase {
   static override styles = [
     styles,
@@ -12,11 +12,11 @@ export class HaRadio extends RadioBase {
         --mdc-theme-secondary: var(--primary-color);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-radio": HaRadio;
+    'ha-radio': HaRadio
   }
 }

@@ -1,26 +1,26 @@
-import { mdiEarth, mdiMicrophoneMessage, mdiOpenInNew } from "@mdi/js";
-import { LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../../common/dom/fire_event";
-import "../../../components/ha-button";
-import "../../../components/ha-svg-icon";
-import type { HomeAssistant } from "../../../types";
-import { brandsUrl } from "../../../util/brands-url";
-import { AssistantSetupStyles } from "../styles";
+import { mdiEarth, mdiMicrophoneMessage, mdiOpenInNew } from '@mdi/js'
+import { LitElement, css, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../../common/dom/fire_event'
+import '../../../components/ha-button'
+import '../../../components/ha-svg-icon'
+import type { HomeAssistant } from '../../../types'
+import { brandsUrl } from '../../../util/brands-url'
+import { AssistantSetupStyles } from '../styles'
 
-@customElement("cloud-step-intro")
+@customElement('cloud-step-intro')
 export class CloudStepIntro extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   render() {
     return html`<div class="content">
         <img
-          src=${`/static/images/logo_nabu_casa${this.hass.themes?.darkMode ? "_dark" : ""}.png`}
+          src=${`/static/images/logo_nabu_casa${this.hass.themes?.darkMode ? '_dark' : ''}.png`}
           alt="Nabu Casa logo"
         />
         <h1>
           ${this.hass.localize(
-            "ui.panel.config.voice_assistants.satellite_wizard.cloud.title"
+            'ui.panel.config.voice_assistants.satellite_wizard.cloud.title'
           )}
         </h1>
         <div class="features">
@@ -32,13 +32,13 @@ export class CloudStepIntro extends LitElement {
             </div>
             <h2>
               ${this.hass.localize(
-                "ui.panel.config.voice_assistants.assistants.cloud.features.speech.title"
+                'ui.panel.config.voice_assistants.assistants.cloud.features.speech.title'
               )}
               <span class="no-wrap"></span>
             </h2>
             <p>
               ${this.hass.localize(
-                "ui.panel.config.voice_assistants.assistants.cloud.features.speech.text"
+                'ui.panel.config.voice_assistants.assistants.cloud.features.speech.text'
               )}
             </p>
           </div>
@@ -50,13 +50,13 @@ export class CloudStepIntro extends LitElement {
             </div>
             <h2>
               ${this.hass.localize(
-                "ui.panel.config.voice_assistants.assistants.cloud.features.remote_access.title"
+                'ui.panel.config.voice_assistants.assistants.cloud.features.remote_access.title'
               )}
               <span class="no-wrap"></span>
             </h2>
             <p>
               ${this.hass.localize(
-                "ui.panel.config.voice_assistants.assistants.cloud.features.remote_access.text"
+                'ui.panel.config.voice_assistants.assistants.cloud.features.remote_access.text'
               )}
             </p>
           </div>
@@ -65,8 +65,8 @@ export class CloudStepIntro extends LitElement {
               <img
                 alt="Google Assistant"
                 src=${brandsUrl({
-                  domain: "google_assistant",
-                  type: "icon",
+                  domain: 'google_assistant',
+                  type: 'icon',
                   darkOptimized: this.hass.themes?.darkMode,
                 })}
                 crossorigin="anonymous"
@@ -75,8 +75,8 @@ export class CloudStepIntro extends LitElement {
               <img
                 alt="Amazon Alexa"
                 src=${brandsUrl({
-                  domain: "alexa",
-                  type: "icon",
+                  domain: 'alexa',
+                  type: 'icon',
                   darkOptimized: this.hass.themes?.darkMode,
                 })}
                 crossorigin="anonymous"
@@ -85,12 +85,12 @@ export class CloudStepIntro extends LitElement {
             </div>
             <h2>
               ${this.hass.localize(
-                "ui.panel.config.voice_assistants.assistants.cloud.features.assistants.title"
+                'ui.panel.config.voice_assistants.assistants.cloud.features.assistants.title'
               )}
             </h2>
             <p>
               ${this.hass.localize(
-                "ui.panel.config.voice_assistants.assistants.cloud.features.assistants.text"
+                'ui.panel.config.voice_assistants.assistants.cloud.features.assistants.text'
               )}
             </p>
           </div>
@@ -103,19 +103,22 @@ export class CloudStepIntro extends LitElement {
           rel="noreferrer noopener"
           appearance="plain"
         >
-          <ha-svg-icon .path=${mdiOpenInNew} slot="start"></ha-svg-icon>
+          <ha-svg-icon
+            .path=${mdiOpenInNew}
+            slot="start"
+          ></ha-svg-icon>
           nabucasa.com
         </ha-button>
         <ha-button @click=${this._signUp}
           >${this.hass.localize(
-            "ui.panel.config.cloud.register.headline"
+            'ui.panel.config.cloud.register.headline'
           )}</ha-button
         >
-      </div>`;
+      </div>`
   }
 
   private _signUp() {
-    fireEvent(this, "cloud-step", { step: "SIGNUP" });
+    fireEvent(this, 'cloud-step', { step: 'SIGNUP' })
   }
 
   static styles = [
@@ -172,11 +175,11 @@ export class CloudStepIntro extends LitElement {
         margin: 0;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "cloud-step-intro": CloudStepIntro;
+    'cloud-step-intro': CloudStepIntro
   }
 }

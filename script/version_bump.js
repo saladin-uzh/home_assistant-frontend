@@ -1,34 +1,34 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
-import fs from "fs";
-import util from "util";
-import child_process from "child_process";
+import fs from 'fs'
+import util from 'util'
+import child_process from 'child_process'
 
-const exec = util.promisify(child_process.exec);
+const exec = util.promisify(child_process.exec)
 
 function patch(version) {
-  const parts = version.split(".");
-  return `${parts[0]}.${Number(parts[1]) + 1}`;
+  const parts = version.split('.')
+  return `${parts[0]}.${Number(parts[1]) + 1}`
 }
 
 function today() {
-  const now = new Date();
+  const now = new Date()
   return `${now.getUTCFullYear()}${String(now.getUTCMonth() + 1).padStart(
     2,
-    "0"
-  )}${String(now.getUTCDate()).padStart(2, "0")}.0`;
+    '0'
+  )}${String(now.getUTCDate()).padStart(2, '0')}.0`
 }
 
 function auto(version) {
-  const todayVersion = today();
-  if (todayVersion.split(".")[0] !== version.split(".")[0]) {
-    return todayVersion;
+  const todayVersion = today()
+  if (todayVersion.split('.')[0] !== version.split('.')[0]) {
+    return todayVersion
   }
-  return patch(version);
+  return patch(version)
 }
 
 function nightly() {
-  return `${today()}.dev`;
+  return `${today()}.dev`
 }
 
 const methods = {
@@ -36,49 +36,49 @@ const methods = {
   today,
   auto,
   nightly,
-};
+}
 
 async function main(args) {
-  let method;
-  let commit;
+  let method
+  let commit
 
   if (args.length === 0) {
-    method = methods.auto;
-    commit = true;
+    method = methods.auto
+    commit = true
   } else {
-    method = args.length > 0 && methods[args[0]];
-    commit = args.length > 1 && args[1] === "--commit";
+    method = args.length > 0 && methods[args[0]]
+    commit = args.length > 1 && args[1] === '--commit'
   }
 
   if (!method) {
     console.error(
-      "Missing required method. Choose from",
-      Object.keys(methods).join(", ")
-    );
-    return;
+      'Missing required method. Choose from',
+      Object.keys(methods).join(', ')
+    )
+    return
   }
 
-  const setup = fs.readFileSync("pyproject.toml", "utf8");
-  const version = setup.match(/version\W+=\W"(\d{8}\.\d)"/)[1];
-  const newVersion = method(version);
+  const setup = fs.readFileSync('pyproject.toml', 'utf8')
+  const version = setup.match(/version\W+=\W"(\d{8}\.\d)"/)[1]
+  const newVersion = method(version)
 
-  console.log("Current version:", version);
-  console.log("New version:", newVersion);
+  console.log('Current version:', version)
+  console.log('New version:', newVersion)
 
   fs.writeFileSync(
-    "pyproject.toml",
+    'pyproject.toml',
     setup.replace(version, newVersion),
-    "utf-8"
-  );
+    'utf-8'
+  )
 
   if (!commit) {
-    return;
+    return
   }
 
   const { stdout } = await exec(
     `git commit -am "Bumped version to ${newVersion}"`
-  );
-  console.log(stdout);
+  )
+  console.log(stdout)
 }
 
-main(process.argv.slice(2)).catch(console.error);
+main(process.argv.slice(2)).catch(console.error)

@@ -1,62 +1,62 @@
-import { mdiPlus } from "@mdi/js";
-import type { PropertyValues, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { fireEvent } from "../../../common/dom/fire_event";
-import { computeRTL } from "../../../common/util/compute_rtl";
-import "../../../components/ha-alert";
-import type { LovelaceViewElement } from "../../../data/lovelace";
-import type { LovelaceViewConfig } from "../../../data/lovelace/config/view";
-import type { HomeAssistant } from "../../../types";
-import type { HuiCard } from "../cards/hui-card";
-import type { HuiCardOptions } from "../components/hui-card-options";
-import type { Lovelace } from "../types";
+import { mdiPlus } from '@mdi/js'
+import type { PropertyValues, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { fireEvent } from '../../../common/dom/fire_event'
+import { computeRTL } from '../../../common/util/compute_rtl'
+import '../../../components/ha-alert'
+import type { LovelaceViewElement } from '../../../data/lovelace'
+import type { LovelaceViewConfig } from '../../../data/lovelace/config/view'
+import type { HomeAssistant } from '../../../types'
+import type { HuiCard } from '../cards/hui-card'
+import type { HuiCardOptions } from '../components/hui-card-options'
+import type { Lovelace } from '../types'
 
-let editCodeLoaded = false;
+let editCodeLoaded = false
 
 export class PanelView extends LitElement implements LovelaceViewElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public lovelace?: Lovelace;
+  @property({ attribute: false }) public lovelace?: Lovelace
 
-  @property({ type: Number }) public index?: number;
+  @property({ type: Number }) public index?: number
 
-  @property({ attribute: false }) public isStrategy = false;
+  @property({ attribute: false }) public isStrategy = false
 
-  @property({ attribute: false }) public cards: HuiCard[] = [];
+  @property({ attribute: false }) public cards: HuiCard[] = []
 
-  @state() private _card?: HuiCard | HuiCardOptions;
+  @state() private _card?: HuiCard | HuiCardOptions
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   public setConfig(_config: LovelaceViewConfig): void {}
 
   public willUpdate(changedProperties: PropertyValues): void {
-    super.willUpdate(changedProperties);
+    super.willUpdate(changedProperties)
 
     if (this.lovelace?.editMode && !editCodeLoaded) {
-      editCodeLoaded = true;
-      import("./default-view-editable");
+      editCodeLoaded = true
+      import('./default-view-editable')
     }
 
-    if (changedProperties.has("cards")) {
-      this._createCard();
+    if (changedProperties.has('cards')) {
+      this._createCard()
     }
 
-    if (!changedProperties.has("lovelace")) {
-      return;
+    if (!changedProperties.has('lovelace')) {
+      return
     }
 
-    const oldLovelace = changedProperties.get("lovelace") as
+    const oldLovelace = changedProperties.get('lovelace') as
       | Lovelace
-      | undefined;
+      | undefined
 
     if (
-      (!changedProperties.has("cards") &&
+      (!changedProperties.has('cards') &&
         oldLovelace?.config !== this.lovelace?.config) ||
       (oldLovelace && oldLovelace?.editMode !== this.lovelace?.editMode)
     ) {
-      this._createCard();
+      this._createCard()
     }
   }
 
@@ -65,16 +65,16 @@ export class PanelView extends LitElement implements LovelaceViewElement {
       ${this.cards!.length > 1
         ? html`<ha-alert alert-type="warning"
             >${this.hass!.localize(
-              "ui.panel.lovelace.editor.view.panel_mode.warning_multiple_cards"
+              'ui.panel.lovelace.editor.view.panel_mode.warning_multiple_cards'
             )}</ha-alert
           >`
-        : ""}
+        : ''}
       ${this._card}
       ${this.lovelace?.editMode && this.cards.length === 0
         ? html`
             <ha-fab
               .label=${this.hass!.localize(
-                "ui.panel.lovelace.editor.edit_card.add"
+                'ui.panel.lovelace.editor.edit_card.add'
               )}
               extended
               @click=${this._addCard}
@@ -82,40 +82,43 @@ export class PanelView extends LitElement implements LovelaceViewElement {
                 rtl: computeRTL(this.hass!),
               })}
             >
-              <ha-svg-icon slot="icon" .path=${mdiPlus}></ha-svg-icon>
+              <ha-svg-icon
+                slot="icon"
+                .path=${mdiPlus}
+              ></ha-svg-icon>
             </ha-fab>
           `
-        : ""}
-    `;
+        : ''}
+    `
   }
 
   private _addCard(): void {
-    fireEvent(this, "ll-create-card");
+    fireEvent(this, 'll-create-card')
   }
 
   private _createCard(): void {
     if (this.cards.length === 0) {
-      this._card = undefined;
-      return;
+      this._card = undefined
+      return
     }
 
-    const card: HuiCard = this.cards[0];
-    card.layout = "panel";
+    const card: HuiCard = this.cards[0]
+    card.layout = 'panel'
 
     if (this.isStrategy || !this.lovelace?.editMode) {
-      card.preview = false;
-      this._card = card;
-      return;
+      card.preview = false
+      this._card = card
+      return
     }
 
-    const wrapper = document.createElement("hui-card-options");
-    wrapper.hass = this.hass;
-    wrapper.lovelace = this.lovelace;
-    wrapper.path = [this.index!, 0];
-    wrapper.hidePosition = true;
-    card.preview = true;
-    wrapper.appendChild(card);
-    this._card = wrapper;
+    const wrapper = document.createElement('hui-card-options')
+    wrapper.hass = this.hass
+    wrapper.lovelace = this.lovelace
+    wrapper.path = [this.index!, 0]
+    wrapper.hidePosition = true
+    card.preview = true
+    wrapper.appendChild(card)
+    this._card = wrapper
   }
 
   static styles = css`
@@ -145,13 +148,13 @@ export class PanelView extends LitElement implements LovelaceViewElement {
       inset-inline-end: calc(16px + var(--safe-area-inset-right));
       inset-inline-start: initial;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-panel-view": PanelView;
+    'hui-panel-view': PanelView
   }
 }
 
-customElements.define("hui-panel-view", PanelView);
+customElements.define('hui-panel-view', PanelView)

@@ -1,6 +1,6 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import { computeDomain } from "../../../common/entity/compute_domain";
-import type { HomeAssistant } from "../../../types";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import { computeDomain } from '../../../common/entity/compute_domain'
+import type { HomeAssistant } from '../../../types'
 
 const arrayFilter = <T>(
   array: T[],
@@ -8,28 +8,28 @@ const arrayFilter = <T>(
   maxSize: number
 ): T[] => {
   if (!maxSize || maxSize > array.length) {
-    maxSize = array.length;
+    maxSize = array.length
   }
 
-  const filteredArray: T[] = [];
+  const filteredArray: T[] = []
 
   for (let i = 0; i < array.length && filteredArray.length < maxSize; i++) {
-    let meetsConditions = true;
+    let meetsConditions = true
 
     for (const condition of conditions) {
       if (!condition(array[i])) {
-        meetsConditions = false;
-        break;
+        meetsConditions = false
+        break
       }
     }
 
     if (meetsConditions) {
-      filteredArray.push(array[i]);
+      filteredArray.push(array[i])
     }
   }
 
-  return filteredArray;
-};
+  return filteredArray
+}
 
 export const findEntities = (
   hass: HomeAssistant,
@@ -39,19 +39,17 @@ export const findEntities = (
   includeDomains?: string[],
   entityFilter?: (stateObj: HassEntity) => boolean
 ) => {
-  const conditions: ((value: string) => boolean)[] = [];
+  const conditions: ((value: string) => boolean)[] = []
 
   if (includeDomains?.length) {
-    conditions.push((eid) => includeDomains!.includes(computeDomain(eid)));
+    conditions.push(eid => includeDomains!.includes(computeDomain(eid)))
   }
 
   if (entityFilter) {
-    conditions.push(
-      (eid) => hass.states[eid] && entityFilter(hass.states[eid])
-    );
+    conditions.push(eid => hass.states[eid] && entityFilter(hass.states[eid]))
   }
 
-  const entityIds = arrayFilter(entities, conditions, maxEntities);
+  const entityIds = arrayFilter(entities, conditions, maxEntities)
 
   if (entityIds.length < maxEntities && entitiesFallback.length) {
     const fallbackEntityIds = findEntities(
@@ -61,10 +59,10 @@ export const findEntities = (
       [],
       includeDomains,
       entityFilter
-    );
+    )
 
-    entityIds.push(...fallbackEntityIds);
+    entityIds.push(...fallbackEntityIds)
   }
 
-  return entityIds;
-};
+  return entityIds
+}

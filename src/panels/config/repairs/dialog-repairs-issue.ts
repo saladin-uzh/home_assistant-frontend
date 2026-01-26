@@ -1,65 +1,65 @@
-import { mdiOpenInNew } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../common/dom/fire_event";
-import { isNavigationClick } from "../../../common/dom/is-navigation-click";
-import "../../../components/ha-alert";
-import "../../../components/ha-wa-dialog";
-import "../../../components/ha-button";
-import "../../../components/ha-svg-icon";
-import "../../../components/ha-dialog-footer";
-import "./dialog-repairs-issue-subtitle";
-import "../../../components/ha-markdown";
-import type { RepairsIssue } from "../../../data/repairs";
-import { ignoreRepairsIssue } from "../../../data/repairs";
-import { haStyleDialog } from "../../../resources/styles";
-import type { HomeAssistant } from "../../../types";
-import type { RepairsIssueDialogParams } from "./show-repair-issue-dialog";
+import { mdiOpenInNew } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../common/dom/fire_event'
+import { isNavigationClick } from '../../../common/dom/is-navigation-click'
+import '../../../components/ha-alert'
+import '../../../components/ha-wa-dialog'
+import '../../../components/ha-button'
+import '../../../components/ha-svg-icon'
+import '../../../components/ha-dialog-footer'
+import './dialog-repairs-issue-subtitle'
+import '../../../components/ha-markdown'
+import type { RepairsIssue } from '../../../data/repairs'
+import { ignoreRepairsIssue } from '../../../data/repairs'
+import { haStyleDialog } from '../../../resources/styles'
+import type { HomeAssistant } from '../../../types'
+import type { RepairsIssueDialogParams } from './show-repair-issue-dialog'
 
-@customElement("dialog-repairs-issue")
+@customElement('dialog-repairs-issue')
 class DialogRepairsIssue extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _issue?: RepairsIssue;
+  @state() private _issue?: RepairsIssue
 
-  @state() private _params?: RepairsIssueDialogParams;
+  @state() private _params?: RepairsIssueDialogParams
 
-  @state() private _open = false;
+  @state() private _open = false
 
   public showDialog(params: RepairsIssueDialogParams): void {
-    this._params = params;
-    this._issue = this._params.issue;
-    this._open = true;
+    this._params = params
+    this._issue = this._params.issue
+    this._open = true
   }
 
   private _dialogClosed() {
     if (this._params?.dialogClosedCallback) {
-      this._params.dialogClosedCallback();
+      this._params.dialogClosedCallback()
     }
 
-    this._params = undefined;
-    this._issue = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    this._issue = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   public closeDialog() {
-    this._open = false;
+    this._open = false
   }
 
   protected render() {
     if (!this._issue) {
-      return nothing;
+      return nothing
     }
 
     const learnMoreUrlIsHomeAssistant =
-      this._issue.learn_more_url?.startsWith("homeassistant://") || false;
+      this._issue.learn_more_url?.startsWith('homeassistant://') || false
 
     const dialogTitle =
       this.hass.localize(
         `component.${this._issue.domain}.issues.${this._issue.translation_key || this._issue.issue_id}.title`,
         this._issue.translation_placeholders || {}
-      ) || this.hass!.localize("ui.panel.config.repairs.dialog.title");
+      ) || this.hass!.localize('ui.panel.config.repairs.dialog.title')
 
     return html`
       <ha-wa-dialog
@@ -79,12 +79,12 @@ class DialogRepairsIssue extends LitElement {
             ? html`
                 <ha-alert alert-type="warning">
                   ${this.hass.localize(
-                    "ui.panel.config.repairs.dialog.breaks_in_version",
+                    'ui.panel.config.repairs.dialog.breaks_in_version',
                     { version: this._issue.breaks_in_ha_version }
                   )}
                 </ha-alert>
               `
-            : ""}
+            : ''}
           <ha-markdown
             id="dialog-repairs-issue-description"
             allow-svg
@@ -102,12 +102,12 @@ class DialogRepairsIssue extends LitElement {
             ? html`
                 <br /><span class="dismissed">
                   ${this.hass.localize(
-                    "ui.panel.config.repairs.dialog.ignored_in_version",
+                    'ui.panel.config.repairs.dialog.ignored_in_version',
                     { version: this._issue.dismissed_version }
                   )}</span
                 >
               `
-            : ""}
+            : ''}
         </div>
         <ha-dialog-footer slot="footer">
           <ha-button
@@ -116,8 +116,8 @@ class DialogRepairsIssue extends LitElement {
             @click=${this._ignoreIssue}
           >
             ${this._issue!.ignored
-              ? this.hass!.localize("ui.panel.config.repairs.dialog.unignore")
-              : this.hass!.localize("ui.panel.config.repairs.dialog.ignore")}
+              ? this.hass!.localize('ui.panel.config.repairs.dialog.unignore')
+              : this.hass!.localize('ui.panel.config.repairs.dialog.ignore')}
           </ha-button>
           ${this._issue.learn_more_url
             ? html`
@@ -127,33 +127,36 @@ class DialogRepairsIssue extends LitElement {
                   rel="noopener noreferrer"
                   href=${learnMoreUrlIsHomeAssistant
                     ? this._issue.learn_more_url.replace(
-                        "homeassistant://",
-                        "/"
+                        'homeassistant://',
+                        '/'
                       )
                     : this._issue.learn_more_url}
-                  .target=${learnMoreUrlIsHomeAssistant ? "" : "_blank"}
+                  .target=${learnMoreUrlIsHomeAssistant ? '' : '_blank'}
                   @click=${learnMoreUrlIsHomeAssistant
                     ? this.closeDialog
                     : undefined}
                 >
-                  ${this.hass!.localize("ui.panel.config.repairs.dialog.learn")}
-                  <ha-svg-icon slot="end" .path=${mdiOpenInNew}></ha-svg-icon>
+                  ${this.hass!.localize('ui.panel.config.repairs.dialog.learn')}
+                  <ha-svg-icon
+                    slot="end"
+                    .path=${mdiOpenInNew}
+                  ></ha-svg-icon>
                 </ha-button>
               `
-            : ""}
+            : ''}
         </ha-dialog-footer>
       </ha-wa-dialog>
-    `;
+    `
   }
 
   private _ignoreIssue() {
-    ignoreRepairsIssue(this.hass, this._issue!, !this._issue!.ignored);
-    this.closeDialog();
+    ignoreRepairsIssue(this.hass, this._issue!, !this._issue!.ignored)
+    this.closeDialog()
   }
 
   private _clickHandler(ev: MouseEvent) {
     if (isNavigationClick(ev, false)) {
-      this.closeDialog();
+      this.closeDialog()
     }
   }
 
@@ -171,11 +174,11 @@ class DialogRepairsIssue extends LitElement {
         font-style: italic;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-repairs-issue": DialogRepairsIssue;
+    'dialog-repairs-issue': DialogRepairsIssue
   }
 }

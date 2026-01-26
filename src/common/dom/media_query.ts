@@ -1,4 +1,4 @@
-export type MediaQueriesListener = () => void;
+export type MediaQueriesListener = () => void
 
 /**
  * Attach a media query. Listener is called right away and when it matches.
@@ -10,9 +10,9 @@ export const listenMediaQuery = (
   mediaQuery: string,
   matchesChanged: (matches: boolean) => void
 ): MediaQueriesListener => {
-  const mql = matchMedia(mediaQuery);
-  const listener = (e) => matchesChanged(e.matches);
-  mql.addListener(listener);
-  matchesChanged(mql.matches);
-  return () => mql.removeListener(listener);
-};
+  const mql = matchMedia(mediaQuery)
+  const listener = e => matchesChanged(e.matches)
+  mql.addListener(listener)
+  matchesChanged(mql.matches)
+  return () => mql.removeListener(listener)
+}

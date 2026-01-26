@@ -1,38 +1,38 @@
-import { css, type CSSResultGroup, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-button";
-import { createCloseHeading } from "../../../../components/ha-dialog";
-import "../../../../components/ha-yaml-editor";
-import type { HassDialog } from "../../../../dialogs/make-dialog-manager";
-import { haStyle, haStyleDialog } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import type { PasteReplaceDialogParams } from "./show-dialog-paste-replace";
+import { css, type CSSResultGroup, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-button'
+import { createCloseHeading } from '../../../../components/ha-dialog'
+import '../../../../components/ha-yaml-editor'
+import type { HassDialog } from '../../../../dialogs/make-dialog-manager'
+import { haStyle, haStyleDialog } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import type { PasteReplaceDialogParams } from './show-dialog-paste-replace'
 
-@customElement("ha-dialog-paste-replace")
+@customElement('ha-dialog-paste-replace')
 class DialogPasteReplace extends LitElement implements HassDialog {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _opened = false;
+  @state() private _opened = false
 
-  @state() private _params!: PasteReplaceDialogParams;
+  @state() private _params!: PasteReplaceDialogParams
 
   public showDialog(params: PasteReplaceDialogParams): void {
-    this._opened = true;
-    this._params = params;
+    this._opened = true
+    this._params = params
   }
 
   public closeDialog() {
     if (this._opened) {
-      fireEvent(this, "dialog-closed", { dialog: this.localName });
+      fireEvent(this, 'dialog-closed', { dialog: this.localName })
     }
-    this._opened = false;
-    return true;
+    this._opened = false
+    return true
   }
 
   public render() {
     if (!this._opened) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -59,25 +59,28 @@ class DialogPasteReplace extends LitElement implements HassDialog {
         ></ha-yaml-editor>
 
         <div slot="primaryAction">
-          <ha-button appearance="plain" @click=${this._handleAppend}>
-            ${this.hass.localize("ui.common.append")}
+          <ha-button
+            appearance="plain"
+            @click=${this._handleAppend}
+          >
+            ${this.hass.localize('ui.common.append')}
           </ha-button>
           <ha-button @click=${this._handleReplace}>
-            ${this.hass.localize("ui.common.replace")}
+            ${this.hass.localize('ui.common.replace')}
           </ha-button>
         </div>
       </ha-dialog>
-    `;
+    `
   }
 
   private _handleReplace() {
-    this._params?.onReplace();
-    this.closeDialog();
+    this._params?.onReplace()
+    this.closeDialog()
   }
 
   private _handleAppend() {
-    this._params?.onAppend();
-    this.closeDialog();
+    this._params?.onAppend()
+    this.closeDialog()
   }
 
   static get styles(): CSSResultGroup {
@@ -90,17 +93,17 @@ class DialogPasteReplace extends LitElement implements HassDialog {
           font-size: inherit;
           font-weight: inherit;
         }
-        div[slot="primaryAction"] {
+        div[slot='primaryAction'] {
           display: flex;
           gap: var(--ha-space-2);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-dialog-paste-replace": DialogPasteReplace;
+    'ha-dialog-paste-replace': DialogPasteReplace
   }
 }

@@ -1,11 +1,11 @@
-import { TopAppBarFixedBase } from "@material/mwc-top-app-bar-fixed/mwc-top-app-bar-fixed-base";
-import { styles } from "@material/mwc-top-app-bar/mwc-top-app-bar.css";
-import { css } from "lit";
-import { customElement, property } from "lit/decorators";
+import { TopAppBarFixedBase } from '@material/mwc-top-app-bar-fixed/mwc-top-app-bar-fixed-base'
+import { styles } from '@material/mwc-top-app-bar/mwc-top-app-bar.css'
+import { css } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
-@customElement("ha-top-app-bar-fixed")
+@customElement('ha-top-app-bar-fixed')
 export class HaTopAppBarFixed extends TopAppBarFixedBase {
-  @property({ type: Boolean, reflect: true }) public narrow = false;
+  @property({ type: Boolean, reflect: true }) public narrow = false
 
   static override styles = [
     styles,
@@ -46,11 +46,11 @@ export class HaTopAppBarFixed extends TopAppBarFixedBase {
         padding-inline-end: initial;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-top-app-bar-fixed": HaTopAppBarFixed;
+    'ha-top-app-bar-fixed': HaTopAppBarFixed
   }
 }

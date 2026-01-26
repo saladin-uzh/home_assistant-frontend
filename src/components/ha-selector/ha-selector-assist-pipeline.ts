@@ -1,24 +1,24 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { AssistPipelineSelector } from "../../data/selector";
-import type { HomeAssistant } from "../../types";
-import "../ha-assist-pipeline-picker";
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { AssistPipelineSelector } from '../../data/selector'
+import type { HomeAssistant } from '../../types'
+import '../ha-assist-pipeline-picker'
 
-@customElement("ha-selector-assist_pipeline")
+@customElement('ha-selector-assist_pipeline')
 export class HaAssistPipelineSelector extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: AssistPipelineSelector;
+  @property({ attribute: false }) public selector!: AssistPipelineSelector
 
-  @property() public value?: any;
+  @property() public value?: any
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = true;
+  @property({ type: Boolean }) public required = true
 
   protected render() {
     return html`
@@ -33,18 +33,18 @@ export class HaAssistPipelineSelector extends LitElement {
           this.selector.assist_pipeline?.include_last_used
         )}
       ></ha-assist-pipeline-picker>
-    `;
+    `
   }
 
   static styles = css`
     ha-conversation-agent-picker {
       width: 100%;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-assist_pipeline": HaAssistPipelineSelector;
+    'ha-selector-assist_pipeline': HaAssistPipelineSelector
   }
 }

@@ -1,25 +1,22 @@
-import { mdiClose, mdiContentCopy, mdiDownload } from "@mdi/js";
-import type { CSSResultGroup, PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { isComponentLoaded } from "../../../../common/config/is_component_loaded";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { copyToClipboard } from "../../../../common/util/copy-clipboard";
-import "../../../../components/ha-button";
-import "../../../../components/ha-dialog-header";
-import "../../../../components/ha-icon-button";
-import "../../../../components/ha-icon-button-prev";
-import "../../../../components/ha-icon-next";
-import "../../../../components/ha-md-dialog";
-import type { HaMdDialog } from "../../../../components/ha-md-dialog";
-import "../../../../components/ha-md-list";
-import "../../../../components/ha-md-list-item";
-import "../../../../components/ha-password-field";
-import "../../../../components/ha-svg-icon";
-import type {
-  BackupConfig,
-  BackupMutableConfig,
-} from "../../../../data/backup";
+import { mdiClose, mdiContentCopy, mdiDownload } from '@mdi/js'
+import type { CSSResultGroup, PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { isComponentLoaded } from '../../../../common/config/is_component_loaded'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { copyToClipboard } from '../../../../common/util/copy-clipboard'
+import '../../../../components/ha-button'
+import '../../../../components/ha-dialog-header'
+import '../../../../components/ha-icon-button'
+import '../../../../components/ha-icon-button-prev'
+import '../../../../components/ha-icon-next'
+import '../../../../components/ha-md-dialog'
+import type { HaMdDialog } from '../../../../components/ha-md-dialog'
+import '../../../../components/ha-md-list'
+import '../../../../components/ha-md-list-item'
+import '../../../../components/ha-password-field'
+import '../../../../components/ha-svg-icon'
+import type { BackupConfig, BackupMutableConfig } from '../../../../data/backup'
 import {
   BackupScheduleRecurrence,
   CLOUD_AGENT,
@@ -28,32 +25,32 @@ import {
   generateEncryptionKey,
   HASSIO_LOCAL_AGENT,
   updateBackupConfig,
-} from "../../../../data/backup";
-import type { HassDialog } from "../../../../dialogs/make-dialog-manager";
-import { haStyle, haStyleDialog } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import { showToast } from "../../../../util/toast";
-import "../components/config/ha-backup-config-agents";
-import "../components/config/ha-backup-config-data";
-import type { BackupConfigData } from "../components/config/ha-backup-config-data";
-import "../components/config/ha-backup-config-schedule";
-import type { BackupConfigSchedule } from "../components/config/ha-backup-config-schedule";
-import type { BackupOnboardingDialogParams } from "./show-dialog-backup_onboarding";
+} from '../../../../data/backup'
+import type { HassDialog } from '../../../../dialogs/make-dialog-manager'
+import { haStyle, haStyleDialog } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import { showToast } from '../../../../util/toast'
+import '../components/config/ha-backup-config-agents'
+import '../components/config/ha-backup-config-data'
+import type { BackupConfigData } from '../components/config/ha-backup-config-data'
+import '../components/config/ha-backup-config-schedule'
+import type { BackupConfigSchedule } from '../components/config/ha-backup-config-schedule'
+import type { BackupOnboardingDialogParams } from './show-dialog-backup_onboarding'
 
 const STEPS = [
-  "welcome",
-  "key",
-  "setup",
-  "schedule",
-  "data",
-  "locations",
-] as const;
+  'welcome',
+  'key',
+  'setup',
+  'schedule',
+  'data',
+  'locations',
+] as const
 
-type Step = (typeof STEPS)[number];
+type Step = (typeof STEPS)[number]
 
-const FULL_DIALOG_STEPS = new Set<Step>(["setup"]);
+const FULL_DIALOG_STEPS = new Set<Step>(['setup'])
 
-const SAVE_STEPS = new Set<Step>(["schedule", "data", "locations"]);
+const SAVE_STEPS = new Set<Step>(['schedule', 'data', 'locations'])
 
 const RECOMMENDED_CONFIG: BackupConfig = {
   automatic_backups_configured: false,
@@ -80,31 +77,31 @@ const RECOMMENDED_CONFIG: BackupConfig = {
   last_completed_automatic_backup: null,
   next_automatic_backup: null,
   next_automatic_backup_additional: false,
-};
+}
 
-@customElement("ha-dialog-backup-onboarding")
+@customElement('ha-dialog-backup-onboarding')
 class DialogBackupOnboarding extends LitElement implements HassDialog {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _opened = false;
+  @state() private _opened = false
 
-  @state() private _step?: Step;
+  @state() private _step?: Step
 
-  @state() private _params?: BackupOnboardingDialogParams;
+  @state() private _params?: BackupOnboardingDialogParams
 
-  @query("ha-md-dialog") private _dialog!: HaMdDialog;
+  @query('ha-md-dialog') private _dialog!: HaMdDialog
 
-  @state() private _config?: BackupConfig;
+  @state() private _config?: BackupConfig
 
   public showDialog(params: BackupOnboardingDialogParams): void {
-    this._params = params;
+    this._params = params
 
     if (this._params.config?.create_backup.password) {
       // onboarding wizard was started before, but not finished.
-      this._config = this._params.config;
-      this._step = "setup";
+      this._config = this._params.config
+      this._step = 'setup'
     } else {
-      this._step = this._firstStep;
+      this._step = this._firstStep
       this._config = {
         ...RECOMMENDED_CONFIG,
         create_backup: {
@@ -112,33 +109,33 @@ class DialogBackupOnboarding extends LitElement implements HassDialog {
           agent_ids: this._defaultAgents,
           password: generateEncryptionKey(),
         },
-      };
+      }
     }
 
-    this._opened = true;
+    this._opened = true
   }
 
   public closeDialog() {
     if (this._params!.cancel) {
-      this._params!.cancel();
+      this._params!.cancel()
     }
     if (this._opened) {
-      fireEvent(this, "dialog-closed", { dialog: this.localName });
+      fireEvent(this, 'dialog-closed', { dialog: this.localName })
     }
-    this._opened = false;
-    this._step = undefined;
-    this._config = undefined;
-    this._params = undefined;
-    return true;
+    this._opened = false
+    this._step = undefined
+    this._config = undefined
+    this._params = undefined
+    return true
   }
 
   private get _firstStep(): Step {
-    return this._params?.skipWelcome ? STEPS[1] : STEPS[0];
+    return this._params?.skipWelcome ? STEPS[1] : STEPS[0]
   }
 
   private async _save(done = false) {
     if (!this._config) {
-      return;
+      return
     }
 
     const params: BackupMutableConfig = {
@@ -150,73 +147,77 @@ class DialogBackupOnboarding extends LitElement implements HassDialog {
       schedule: this._config.schedule,
       retention: this._config.retention,
       automatic_backups_configured: done,
-    };
-
-    if (isComponentLoaded(this.hass, "hassio")) {
-      params.create_backup!.include_folders =
-        this._config.create_backup.include_folders || [];
-      params.create_backup!.include_all_addons =
-        this._config.create_backup.include_all_addons;
-      params.create_backup!.include_addons =
-        this._config.create_backup.include_addons || [];
     }
 
-    await updateBackupConfig(this.hass, params);
+    if (isComponentLoaded(this.hass, 'hassio')) {
+      params.create_backup!.include_folders =
+        this._config.create_backup.include_folders || []
+      params.create_backup!.include_all_addons =
+        this._config.create_backup.include_all_addons
+      params.create_backup!.include_addons =
+        this._config.create_backup.include_addons || []
+    }
+
+    await updateBackupConfig(this.hass, params)
   }
 
   private async _done() {
     try {
-      await this._save(true);
-      this._params?.submit!(true);
-      this._dialog.close();
+      await this._save(true)
+      this._params?.submit!(true)
+      this._dialog.close()
     } catch (err) {
       // eslint-disable-next-line no-console
-      console.error(err);
-      showToast(this, { message: "Failed to save backup configuration" });
+      console.error(err)
+      showToast(this, { message: 'Failed to save backup configuration' })
     }
   }
 
   private _previousStep() {
-    const index = STEPS.indexOf(this._step!);
+    const index = STEPS.indexOf(this._step!)
     if (index === 0) {
-      return;
+      return
     }
-    this._step = STEPS[index - 1];
+    this._step = STEPS[index - 1]
   }
 
   private _nextStep() {
     if (this._step && SAVE_STEPS.has(this._step)) {
-      this._save();
+      this._save()
     }
-    const index = STEPS.indexOf(this._step!);
+    const index = STEPS.indexOf(this._step!)
     if (index === STEPS.length - 1) {
-      return;
+      return
     }
-    this._step = STEPS[index + 1];
+    this._step = STEPS[index + 1]
   }
 
   protected updated(changedProps: PropertyValues) {
-    if (changedProps.has("_step") && this._step === "key") {
-      this._save();
+    if (changedProps.has('_step') && this._step === 'key') {
+      this._save()
     }
   }
 
   protected render() {
     if (!this._opened || !this._params || !this._step) {
-      return nothing;
+      return nothing
     }
 
-    const isLastStep = this._step === STEPS[STEPS.length - 1];
-    const isFirstStep = this._step === this._firstStep;
+    const isLastStep = this._step === STEPS[STEPS.length - 1]
+    const isFirstStep = this._step === this._firstStep
 
     return html`
-      <ha-md-dialog disable-cancel-action open @closed=${this.closeDialog}>
+      <ha-md-dialog
+        disable-cancel-action
+        open
+        @closed=${this.closeDialog}
+      >
         <ha-dialog-header slot="headline">
           ${isFirstStep
             ? html`
                 <ha-icon-button
                   slot="navigationIcon"
-                  .label=${this.hass.localize("ui.common.close")}
+                  .label=${this.hass.localize('ui.common.close')}
                   .path=${mdiClose}
                   @click=${this.closeDialog}
                 ></ha-icon-button>
@@ -241,7 +242,7 @@ class DialogBackupOnboarding extends LitElement implements HassDialog {
                         .disabled=${!this._isStepValid()}
                       >
                         ${this.hass.localize(
-                          "ui.panel.config.backup.dialogs.onboarding.save_and_create"
+                          'ui.panel.config.backup.dialogs.onboarding.save_and_create'
                         )}
                       </ha-button>
                     `
@@ -250,36 +251,36 @@ class DialogBackupOnboarding extends LitElement implements HassDialog {
                         @click=${this._nextStep}
                         .disabled=${!this._isStepValid()}
                       >
-                        ${this.hass.localize("ui.common.next")}
+                        ${this.hass.localize('ui.common.next')}
                       </ha-button>
                     `}
               </div>
             `
           : nothing}
       </ha-md-dialog>
-    `;
+    `
   }
 
   private get _defaultAgents(): string[] {
-    const agents: string[] = [];
+    const agents: string[] = []
     // Enable local location by default
-    if (isComponentLoaded(this.hass, "hassio")) {
-      agents.push(HASSIO_LOCAL_AGENT);
+    if (isComponentLoaded(this.hass, 'hassio')) {
+      agents.push(HASSIO_LOCAL_AGENT)
     } else {
-      agents.push(CORE_LOCAL_AGENT);
+      agents.push(CORE_LOCAL_AGENT)
     }
     // Enable cloud location if logged in
     if (this._params?.cloudStatus?.logged_in) {
-      agents.push(CLOUD_AGENT);
+      agents.push(CLOUD_AGENT)
     }
-    return agents;
+    return agents
   }
 
   private _useRecommended() {
     if (!this._config?.create_backup.password) {
       // this should not happen, if there is no password set, restart the wizard
-      this.showDialog(this._params!);
-      return;
+      this.showDialog(this._params!)
+      return
     }
     this._config = {
       ...RECOMMENDED_CONFIG,
@@ -288,49 +289,49 @@ class DialogBackupOnboarding extends LitElement implements HassDialog {
         agent_ids: this._defaultAgents,
         password: this._config.create_backup.password,
       },
-    };
-    this._done();
+    }
+    this._done()
   }
 
   private get _stepTitle(): string {
     switch (this._step) {
-      case "key":
-      case "setup":
-      case "schedule":
-      case "data":
-      case "locations":
+      case 'key':
+      case 'setup':
+      case 'schedule':
+      case 'data':
+      case 'locations':
         return this.hass.localize(
           `ui.panel.config.backup.dialogs.onboarding.${this._step}.title`
-        );
+        )
       default:
-        return "";
+        return ''
     }
   }
 
   private _isStepValid(): boolean {
     switch (this._step) {
-      case "key":
-        return true;
-      case "setup":
-        return true;
-      case "schedule":
-        return !!this._config?.schedule;
-      case "data":
-        return !!this._config?.schedule;
-      case "locations":
-        return !!this._config?.create_backup.agent_ids.length;
+      case 'key':
+        return true
+      case 'setup':
+        return true
+      case 'schedule':
+        return !!this._config?.schedule
+      case 'data':
+        return !!this._config?.schedule
+      case 'locations':
+        return !!this._config?.create_backup.agent_ids.length
       default:
-        return true;
+        return true
     }
   }
 
   private _renderStepContent() {
     if (!this._config) {
-      return nothing;
+      return nothing
     }
 
     switch (this._step) {
-      case "welcome":
+      case 'welcome':
         return html`
           <div class="welcome">
             <img
@@ -339,21 +340,21 @@ class DialogBackupOnboarding extends LitElement implements HassDialog {
             />
             <h1>
               ${this.hass.localize(
-                "ui.panel.config.backup.dialogs.onboarding.welcome.title"
+                'ui.panel.config.backup.dialogs.onboarding.welcome.title'
               )}
             </h1>
             <p class="secondary">
               ${this.hass.localize(
-                "ui.panel.config.backup.dialogs.onboarding.welcome.description"
+                'ui.panel.config.backup.dialogs.onboarding.welcome.description'
               )}
             </p>
           </div>
-        `;
-      case "key":
+        `
+      case 'key':
         return html`
           <p>
             ${this.hass.localize(
-              "ui.panel.config.backup.dialogs.onboarding.key.description"
+              'ui.panel.config.backup.dialogs.onboarding.key.description'
             )}
           </p>
           <div class="encryption-key">
@@ -367,12 +368,12 @@ class DialogBackupOnboarding extends LitElement implements HassDialog {
             <ha-md-list-item>
               <span slot="headline">
                 ${this.hass.localize(
-                  "ui.panel.config.backup.encryption_key.download_emergency_kit"
+                  'ui.panel.config.backup.encryption_key.download_emergency_kit'
                 )}
               </span>
               <span slot="supporting-text">
                 ${this.hass.localize(
-                  "ui.panel.config.backup.encryption_key.download_emergency_kit_description"
+                  'ui.panel.config.backup.encryption_key.download_emergency_kit_description'
                 )}
               </span>
               <ha-button
@@ -381,50 +382,59 @@ class DialogBackupOnboarding extends LitElement implements HassDialog {
                 slot="end"
                 @click=${this._downloadKey}
               >
-                <ha-svg-icon .path=${mdiDownload} slot="start"></ha-svg-icon>
+                <ha-svg-icon
+                  .path=${mdiDownload}
+                  slot="start"
+                ></ha-svg-icon>
                 ${this.hass.localize(
-                  "ui.panel.config.backup.encryption_key.download_emergency_kit_action"
+                  'ui.panel.config.backup.encryption_key.download_emergency_kit_action'
                 )}
               </ha-button>
             </ha-md-list-item>
           </ha-md-list>
-        `;
-      case "setup":
+        `
+      case 'setup':
         return html`
           <ha-md-list class="full">
-            <ha-md-list-item type="button" @click=${this._useRecommended}>
+            <ha-md-list-item
+              type="button"
+              @click=${this._useRecommended}
+            >
               <span slot="headline">
                 ${this.hass.localize(
-                  "ui.panel.config.backup.dialogs.onboarding.setup.recommended_heading"
+                  'ui.panel.config.backup.dialogs.onboarding.setup.recommended_heading'
                 )}
               </span>
               <span slot="supporting-text">
                 ${this.hass.localize(
-                  "ui.panel.config.backup.dialogs.onboarding.setup.recommended_description"
+                  'ui.panel.config.backup.dialogs.onboarding.setup.recommended_description'
                 )}
               </span>
               <ha-icon-next slot="end"></ha-icon-next>
             </ha-md-list-item>
-            <ha-md-list-item type="button" @click=${this._nextStep}>
+            <ha-md-list-item
+              type="button"
+              @click=${this._nextStep}
+            >
               <span slot="headline">
                 ${this.hass.localize(
-                  "ui.panel.config.backup.dialogs.onboarding.setup.custom_heading"
+                  'ui.panel.config.backup.dialogs.onboarding.setup.custom_heading'
                 )}
               </span>
               <span slot="supporting-text">
                 ${this.hass.localize(
-                  "ui.panel.config.backup.dialogs.onboarding.setup.custom_description"
+                  'ui.panel.config.backup.dialogs.onboarding.setup.custom_description'
                 )}
               </span>
               <ha-icon-next slot="end"></ha-icon-next>
             </ha-md-list-item>
           </ha-md-list>
-        `;
-      case "schedule":
+        `
+      case 'schedule':
         return html`
           <p>
             ${this.hass.localize(
-              "ui.panel.config.backup.dialogs.onboarding.schedule.description"
+              'ui.panel.config.backup.dialogs.onboarding.schedule.description'
             )}
           </p>
           <ha-backup-config-schedule
@@ -432,12 +442,12 @@ class DialogBackupOnboarding extends LitElement implements HassDialog {
             .value=${this._config}
             @value-changed=${this._scheduleChanged}
           ></ha-backup-config-schedule>
-        `;
-      case "data":
+        `
+      case 'data':
         return html`
           <p>
             ${this.hass.localize(
-              "ui.panel.config.backup.dialogs.onboarding.data.description"
+              'ui.panel.config.backup.dialogs.onboarding.data.description'
             )}
           </p>
           <ha-backup-config-data
@@ -447,12 +457,12 @@ class DialogBackupOnboarding extends LitElement implements HassDialog {
             force-home-assistant
             hide-addon-version
           ></ha-backup-config-data>
-        `;
-      case "locations":
+        `
+      case 'locations':
         return html`
           <p>
             ${this.hass.localize(
-              "ui.panel.config.backup.dialogs.onboarding.locations.description"
+              'ui.panel.config.backup.dialogs.onboarding.locations.description'
             )}
           </p>
           <ha-backup-config-agents
@@ -461,27 +471,27 @@ class DialogBackupOnboarding extends LitElement implements HassDialog {
             .cloudStatus=${this._params!.cloudStatus}
             @value-changed=${this._agentsConfigChanged}
           ></ha-backup-config-agents>
-        `;
+        `
     }
-    return nothing;
+    return nothing
   }
 
   private _downloadKey() {
-    const key = this._config?.create_backup.password;
+    const key = this._config?.create_backup.password
     if (!key) {
-      return;
+      return
     }
-    downloadEmergencyKit(this.hass, key);
+    downloadEmergencyKit(this.hass, key)
   }
 
   private async _copyKeyToClipboard() {
     await copyToClipboard(
       this._config!.create_backup.password!,
-      this.renderRoot.querySelector("div")!
-    );
+      this.renderRoot.querySelector('div')!
+    )
     showToast(this, {
-      message: this.hass.localize("ui.common.copied_clipboard"),
-    });
+      message: this.hass.localize('ui.common.copied_clipboard'),
+    })
   }
 
   private _dataConfig(config: BackupConfig): BackupConfigData {
@@ -490,7 +500,7 @@ class DialogBackupOnboarding extends LitElement implements HassDialog {
       include_all_addons,
       include_database,
       include_folders,
-    } = config.create_backup;
+    } = config.create_backup
 
     return {
       include_homeassistant: true,
@@ -498,11 +508,11 @@ class DialogBackupOnboarding extends LitElement implements HassDialog {
       include_folders: include_folders || undefined,
       include_all_addons,
       include_addons: include_addons || undefined,
-    };
+    }
   }
 
   private _dataChanged(ev) {
-    const data = ev.detail.value as BackupConfigData;
+    const data = ev.detail.value as BackupConfigData
     this._config = {
       ...this._config!,
       create_backup: {
@@ -512,27 +522,27 @@ class DialogBackupOnboarding extends LitElement implements HassDialog {
         include_all_addons: data.include_all_addons,
         include_addons: data.include_addons || null,
       },
-    };
+    }
   }
 
   private _scheduleChanged(ev) {
-    const value = ev.detail.value as BackupConfigSchedule;
+    const value = ev.detail.value as BackupConfigSchedule
     this._config = {
       ...this._config!,
       schedule: value.schedule,
       retention: value.retention,
-    };
+    }
   }
 
   private _agentsConfigChanged(ev) {
-    const agents = ev.detail.value as string[];
+    const agents = ev.detail.value as string[]
     this._config = {
       ...this._config!,
       create_backup: {
         ...this._config!.create_backup,
         agent_ids: agents,
       },
-    };
+    }
   }
 
   static get styles(): CSSResultGroup {
@@ -561,7 +571,7 @@ class DialogBackupOnboarding extends LitElement implements HassDialog {
           ha-md-dialog {
             max-width: none;
           }
-          div[slot="content"] {
+          div[slot='content'] {
             margin-top: 0;
           }
         }
@@ -596,12 +606,12 @@ class DialogBackupOnboarding extends LitElement implements HassDialog {
           margin: -16px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-dialog-backup-onboarding": DialogBackupOnboarding;
+    'ha-dialog-backup-onboarding': DialogBackupOnboarding
   }
 }

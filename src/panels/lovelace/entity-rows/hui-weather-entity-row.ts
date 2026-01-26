@@ -1,11 +1,11 @@
-import type { CSSResultGroup, PropertyValues } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { ifDefined } from "lit/directives/if-defined";
-import { isUnavailableState } from "../../../data/entity";
-import type { ActionHandlerEvent } from "../../../data/lovelace/action_handler";
-import type { ForecastEvent, WeatherEntity } from "../../../data/weather";
+import type { CSSResultGroup, PropertyValues } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { ifDefined } from 'lit/directives/if-defined'
+import { isUnavailableState } from '../../../data/entity'
+import type { ActionHandlerEvent } from '../../../data/lovelace/action_handler'
+import type { ForecastEvent, WeatherEntity } from '../../../data/weather'
 import {
   getDefaultForecastType,
   getForecast,
@@ -13,117 +13,117 @@ import {
   getWeatherStateIcon,
   subscribeForecast,
   weatherSVGStyles,
-} from "../../../data/weather";
-import type { HomeAssistant } from "../../../types";
-import type { EntitiesCardEntityConfig } from "../cards/types";
-import { actionHandler } from "../common/directives/action-handler-directive";
-import { handleAction } from "../common/handle-action";
-import { hasAction, hasAnyAction } from "../common/has-action";
-import { hasConfigOrEntityChanged } from "../common/has-changed";
-import "../components/hui-generic-entity-row";
-import { createEntityNotFoundWarning } from "../components/hui-warning";
-import type { LovelaceRow } from "./types";
-import { computeLovelaceEntityName } from "../common/entity/compute-lovelace-entity-name";
+} from '../../../data/weather'
+import type { HomeAssistant } from '../../../types'
+import type { EntitiesCardEntityConfig } from '../cards/types'
+import { actionHandler } from '../common/directives/action-handler-directive'
+import { handleAction } from '../common/handle-action'
+import { hasAction, hasAnyAction } from '../common/has-action'
+import { hasConfigOrEntityChanged } from '../common/has-changed'
+import '../components/hui-generic-entity-row'
+import { createEntityNotFoundWarning } from '../components/hui-warning'
+import type { LovelaceRow } from './types'
+import { computeLovelaceEntityName } from '../common/entity/compute-lovelace-entity-name'
 
-@customElement("hui-weather-entity-row")
+@customElement('hui-weather-entity-row')
 class HuiWeatherEntityRow extends LitElement implements LovelaceRow {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: EntitiesCardEntityConfig;
+  @state() private _config?: EntitiesCardEntityConfig
 
-  @state() private _forecastEvent?: ForecastEvent;
+  @state() private _forecastEvent?: ForecastEvent
 
-  @state() private _subscribed?: Promise<() => void>;
+  @state() private _subscribed?: Promise<() => void>
 
   private _unsubscribeForecastEvents() {
     if (this._subscribed) {
-      this._subscribed.then((unsub) => unsub());
-      this._subscribed = undefined;
+      this._subscribed.then(unsub => unsub())
+      this._subscribed = undefined
     }
   }
 
   private async _subscribeForecastEvents() {
-    this._unsubscribeForecastEvents();
+    this._unsubscribeForecastEvents()
     if (!this.hass || !this._config || !this.isConnected) {
-      return;
+      return
     }
-    const stateObj = this.hass!.states[this._config!.entity];
-    const forecastType = getDefaultForecastType(stateObj);
+    const stateObj = this.hass!.states[this._config!.entity]
+    const forecastType = getDefaultForecastType(stateObj)
     if (forecastType) {
       this._subscribed = subscribeForecast(
         this.hass!,
         stateObj.entity_id,
         forecastType,
-        (event) => {
-          this._forecastEvent = event;
+        event => {
+          this._forecastEvent = event
         }
-      );
+      )
     }
   }
 
   public connectedCallback() {
-    super.connectedCallback();
+    super.connectedCallback()
     if (this.hasUpdated) {
-      this._subscribeForecastEvents();
+      this._subscribeForecastEvents()
     }
   }
 
   public disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this._unsubscribeForecastEvents();
+    super.disconnectedCallback()
+    this._unsubscribeForecastEvents()
   }
 
   public setConfig(config: EntitiesCardEntityConfig): void {
     if (!config?.entity) {
-      throw new Error("Entity must be specified");
+      throw new Error('Entity must be specified')
     }
 
-    this._config = config;
+    this._config = config
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     return (
       hasConfigOrEntityChanged(this, changedProps) ||
       changedProps.size > 1 ||
-      !changedProps.has("hass")
-    );
+      !changedProps.has('hass')
+    )
   }
 
   protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
-    if (changedProps.has("_config") || !this._subscribed) {
-      this._subscribeForecastEvents();
+    super.updated(changedProps)
+    if (changedProps.has('_config') || !this._subscribed) {
+      this._subscribeForecastEvents()
     }
   }
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
-    const stateObj = this.hass.states[this._config.entity] as WeatherEntity;
+    const stateObj = this.hass.states[this._config.entity] as WeatherEntity
 
     if (!stateObj) {
       return html`
         <hui-warning .hass=${this.hass}>
           ${createEntityNotFoundWarning(this.hass, this._config.entity)}
         </hui-warning>
-      `;
+      `
     }
 
-    const pointer = hasAnyAction(this._config);
+    const pointer = hasAnyAction(this._config)
 
-    const hasSecondary = this._config.secondary_info;
-    const weatherStateIcon = getWeatherStateIcon(stateObj.state, this);
+    const hasSecondary = this._config.secondary_info
+    const weatherStateIcon = getWeatherStateIcon(stateObj.state, this)
 
-    const forecastData = getForecast(stateObj.attributes, this._forecastEvent);
-    const forecast = forecastData?.forecast;
+    const forecastData = getForecast(stateObj.attributes, this._forecastEvent)
+    const forecast = forecastData?.forecast
 
     const name = computeLovelaceEntityName(
       this.hass!,
       stateObj,
       this._config.name
-    );
+    )
 
     return html`
       <div
@@ -137,7 +137,7 @@ class HuiWeatherEntityRow extends LitElement implements LovelaceRow {
         })}
         tabindex=${ifDefined(
           !this._config.tap_action || hasAction(this._config.tap_action)
-            ? "0"
+            ? '0'
             : undefined
         )}
       >
@@ -153,7 +153,7 @@ class HuiWeatherEntityRow extends LitElement implements LovelaceRow {
       <div
         class="info ${classMap({
           pointer,
-          "text-content": !hasSecondary,
+          'text-content': !hasSecondary,
         })}"
         @action=${this._handleAction}
         .actionHandler=${actionHandler({
@@ -165,9 +165,9 @@ class HuiWeatherEntityRow extends LitElement implements LovelaceRow {
         ${hasSecondary
           ? html`
               <div class="secondary">
-                ${this._config.secondary_info === "entity-id"
+                ${this._config.secondary_info === 'entity-id'
                   ? stateObj.entity_id
-                  : this._config.secondary_info === "last-changed"
+                  : this._config.secondary_info === 'last-changed'
                     ? html`
                         <ha-relative-time
                           .hass=${this.hass}
@@ -175,7 +175,7 @@ class HuiWeatherEntityRow extends LitElement implements LovelaceRow {
                           capitalize
                         ></ha-relative-time>
                       `
-                    : this._config.secondary_info === "last-updated"
+                    : this._config.secondary_info === 'last-updated'
                       ? html`
                           <ha-relative-time
                             .hass=${this.hass}
@@ -183,10 +183,10 @@ class HuiWeatherEntityRow extends LitElement implements LovelaceRow {
                             capitalize
                           ></ha-relative-time>
                         `
-                      : ""}
+                      : ''}
               </div>
             `
-          : ""}
+          : ''}
       </div>
       <div
         class="attributes ${classMap({
@@ -203,17 +203,17 @@ class HuiWeatherEntityRow extends LitElement implements LovelaceRow {
           stateObj.attributes.temperature === undefined ||
           stateObj.attributes.temperature === null
             ? this.hass.formatEntityState(stateObj)
-            : this.hass.formatEntityAttributeValue(stateObj, "temperature")}
+            : this.hass.formatEntityAttributeValue(stateObj, 'temperature')}
         </div>
         <div class="secondary">
           ${getSecondaryWeatherAttribute(this.hass!, stateObj, forecast!)}
         </div>
       </div>
-    `;
+    `
   }
 
   private _handleAction(ev: ActionHandlerEvent) {
-    handleAction(this, this.hass!, this._config!, ev.detail.action!);
+    handleAction(this, this.hass!, this._config!, ev.detail.action!)
   }
 
   static get styles(): CSSResultGroup {
@@ -279,12 +279,12 @@ class HuiWeatherEntityRow extends LitElement implements LovelaceRow {
           color: var(--secondary-text-color);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-weather-entity-row": HuiWeatherEntityRow;
+    'hui-weather-entity-row': HuiWeatherEntityRow
   }
 }

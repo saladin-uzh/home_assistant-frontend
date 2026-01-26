@@ -1,10 +1,10 @@
-import type { HomeAssistant } from "../types";
+import type { HomeAssistant } from '../types'
 
 export interface SpeechMetadata {
-  language: string;
-  format: "wav" | "ogg";
-  codec: "pcm" | "opus";
-  bit_rate: 8 | 16 | 24 | 32;
+  language: string
+  format: 'wav' | 'ogg'
+  codec: 'pcm' | 'opus'
+  bit_rate: 8 | 16 | 24 | 32
   sample_rate:
     | 8000
     | 11000
@@ -14,15 +14,15 @@ export interface SpeechMetadata {
     | 32000
     | 37800
     | 44100
-    | 48000;
-  channel: 1 | 2;
+    | 48000
+  channel: 1 | 2
 }
 
 export interface STTEngine {
-  engine_id: string;
-  supported_languages?: string[];
-  name?: string;
-  deprecated: boolean;
+  engine_id: string
+  supported_languages?: string[]
+  name?: string
+  deprecated: boolean
 }
 
 export const listSTTEngines = (
@@ -31,7 +31,7 @@ export const listSTTEngines = (
   country?: string
 ): Promise<{ providers: STTEngine[] }> =>
   hass.callWS({
-    type: "stt/engine/list",
+    type: 'stt/engine/list',
     language,
     country,
-  });
+  })

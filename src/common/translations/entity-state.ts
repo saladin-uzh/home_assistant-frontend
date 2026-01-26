@@ -1,55 +1,55 @@
-import type { HassConfig, HassEntity } from "home-assistant-js-websocket";
-import type { FrontendLocaleData } from "../../data/translation";
-import type { HomeAssistant } from "../../types";
+import type { HassConfig, HassEntity } from 'home-assistant-js-websocket'
+import type { FrontendLocaleData } from '../../data/translation'
+import type { HomeAssistant } from '../../types'
 import {
   computeEntityNameDisplay,
   type EntityNameItem,
   type EntityNameOptions,
-} from "../entity/compute_entity_name_display";
-import type { LocalizeFunc } from "./localize";
+} from '../entity/compute_entity_name_display'
+import type { LocalizeFunc } from './localize'
 
 export type FormatEntityStateFunc = (
   stateObj: HassEntity,
   state?: string
-) => string;
+) => string
 export type FormatEntityAttributeValueFunc = (
   stateObj: HassEntity,
   attribute: string,
   value?: any
-) => string;
+) => string
 export type FormatEntityAttributeNameFunc = (
   stateObj: HassEntity,
   attribute: string
-) => string;
+) => string
 
-export type EntityNameType = "entity" | "device" | "area" | "floor";
+export type EntityNameType = 'entity' | 'device' | 'area' | 'floor'
 
 export type FormatEntityNameFunc = (
   stateObj: HassEntity,
   name: EntityNameItem | EntityNameItem[],
   options?: EntityNameOptions
-) => string;
+) => string
 
 export const computeFormatFunctions = async (
   localize: LocalizeFunc,
   locale: FrontendLocaleData,
   config: HassConfig,
-  entities: HomeAssistant["entities"],
-  devices: HomeAssistant["devices"],
-  areas: HomeAssistant["areas"],
-  floors: HomeAssistant["floors"],
+  entities: HomeAssistant['entities'],
+  devices: HomeAssistant['devices'],
+  areas: HomeAssistant['areas'],
+  floors: HomeAssistant['floors'],
   sensorNumericDeviceClasses: string[]
 ): Promise<{
-  formatEntityState: FormatEntityStateFunc;
-  formatEntityAttributeValue: FormatEntityAttributeValueFunc;
-  formatEntityAttributeName: FormatEntityAttributeNameFunc;
-  formatEntityName: FormatEntityNameFunc;
+  formatEntityState: FormatEntityStateFunc
+  formatEntityAttributeValue: FormatEntityAttributeValueFunc
+  formatEntityAttributeName: FormatEntityAttributeNameFunc
+  formatEntityName: FormatEntityNameFunc
 }> => {
   const { computeStateDisplay } = await import(
-    "../entity/compute_state_display"
-  );
+    '../entity/compute_state_display'
+  )
   const { computeAttributeValueDisplay, computeAttributeNameDisplay } =
-    await import("../entity/compute_attribute_display");
+    await import('../entity/compute_attribute_display')
 
   return {
     formatEntityState: (stateObj, state) =>
@@ -84,5 +84,5 @@ export const computeFormatFunctions = async (
         floors,
         options
       ),
-  };
-};
+  }
+}

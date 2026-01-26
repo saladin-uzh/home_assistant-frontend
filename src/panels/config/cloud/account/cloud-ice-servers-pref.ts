@@ -1,35 +1,35 @@
-import { mdiHelpCircle } from "@mdi/js";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-card";
-import "../../../../components/ha-icon-button";
-import "../../../../components/ha-switch";
-import type { HaSwitch } from "../../../../components/ha-switch";
-import type { CloudStatusLoggedIn } from "../../../../data/cloud";
-import { updateCloudPref } from "../../../../data/cloud";
-import type { HomeAssistant } from "../../../../types";
-import { showToast } from "../../../../util/toast";
+import { mdiHelpCircle } from '@mdi/js'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-card'
+import '../../../../components/ha-icon-button'
+import '../../../../components/ha-switch'
+import type { HaSwitch } from '../../../../components/ha-switch'
+import type { CloudStatusLoggedIn } from '../../../../data/cloud'
+import { updateCloudPref } from '../../../../data/cloud'
+import type { HomeAssistant } from '../../../../types'
+import { showToast } from '../../../../util/toast'
 
-@customElement("cloud-ice-servers-pref")
+@customElement('cloud-ice-servers-pref')
 export class CloudICEServersPref extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public cloudStatus?: CloudStatusLoggedIn;
+  @property({ attribute: false }) public cloudStatus?: CloudStatusLoggedIn
 
   protected render() {
     if (!this.cloudStatus) {
-      return nothing;
+      return nothing
     }
 
     const { cloud_ice_servers_enabled: cloudICEServersEnabled } =
-      this.cloudStatus.prefs;
+      this.cloudStatus.prefs
 
     return html`
       <ha-card
         outlined
         header=${this.hass.localize(
-          "ui.panel.config.cloud.account.ice_servers.title"
+          'ui.panel.config.cloud.account.ice_servers.title'
         )}
       >
         <div class="header-actions">
@@ -41,7 +41,7 @@ export class CloudICEServersPref extends LitElement {
           >
             <ha-icon-button
               .label=${this.hass.localize(
-                "ui.panel.config.cloud.account.ice_servers.link_learn_how_it_works"
+                'ui.panel.config.cloud.account.ice_servers.link_learn_how_it_works'
               )}
               .path=${mdiHelpCircle}
             ></ha-icon-button>
@@ -55,25 +55,25 @@ export class CloudICEServersPref extends LitElement {
         <div class="card-content">
           <p>
             ${this.hass.localize(
-              "ui.panel.config.cloud.account.ice_servers.info"
+              'ui.panel.config.cloud.account.ice_servers.info'
             )}
           </p>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   private async _toggleCloudICEServersEnabledChanged(ev) {
-    const toggle = ev.target as HaSwitch;
+    const toggle = ev.target as HaSwitch
 
     try {
       await updateCloudPref(this.hass, {
         cloud_ice_servers_enabled: toggle.checked,
-      });
-      fireEvent(this, "ha-refresh-cloud-status");
+      })
+      fireEvent(this, 'ha-refresh-cloud-status')
     } catch (err: any) {
-      showToast(this, { message: err.message });
-      toggle.checked = !toggle.checked;
+      showToast(this, { message: err.message })
+      toggle.checked = !toggle.checked
     }
   }
 
@@ -98,11 +98,11 @@ export class CloudICEServersPref extends LitElement {
       direction: var(--direction);
       color: var(--secondary-text-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "cloud-ice-servers-pref": CloudICEServersPref;
+    'cloud-ice-servers-pref': CloudICEServersPref
   }
 }

@@ -1,17 +1,17 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../components/ha-card";
-import type { HomeAssistant } from "../../../types";
-import "../../config/logs/error-log-card";
-import type { LovelaceCard } from "../types";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../components/ha-card'
+import type { HomeAssistant } from '../../../types'
+import '../../config/logs/error-log-card'
+import type { LovelaceCard } from '../types'
 
-@customElement("hui-recovery-mode-card")
+@customElement('hui-recovery-mode-card')
 export class HuiRecoveryModeCard extends LitElement implements LovelaceCard {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
   public getCardSize(): number {
-    return 3;
+    return 3
   }
 
   public setConfig(_config: any): void {
@@ -22,17 +22,20 @@ export class HuiRecoveryModeCard extends LitElement implements LovelaceCard {
     return html`
       <ha-card
         .header=${this.hass!.localize(
-          "ui.panel.lovelace.cards.recovery-mode.header"
+          'ui.panel.lovelace.cards.recovery-mode.header'
         )}
       >
         <div class="card-content">
           ${this.hass!.localize(
-            "ui.panel.lovelace.cards.recovery-mode.description"
+            'ui.panel.lovelace.cards.recovery-mode.description'
           )}
         </div>
-        <error-log-card .hass=${this.hass} provider="core"></error-log-card>
+        <error-log-card
+          .hass=${this.hass}
+          provider="core"
+        ></error-log-card>
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -43,11 +46,11 @@ export class HuiRecoveryModeCard extends LitElement implements LovelaceCard {
       display: block;
       padding-bottom: 16px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-recovery-mode-card": HuiRecoveryModeCard;
+    'hui-recovery-mode-card': HuiRecoveryModeCard
   }
 }

@@ -1,73 +1,73 @@
-import { mdiHelpCircle } from "@mdi/js";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import { computeDomain } from "../../../../../common/entity/compute_domain";
-import "../../../../../components/ha-checkbox";
-import "../../../../../components/ha-selector/ha-selector";
-import "../../../../../components/ha-settings-row";
-import type { PlatformCondition } from "../../../../../data/automation";
+import { mdiHelpCircle } from '@mdi/js'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import { computeDomain } from '../../../../../common/entity/compute_domain'
+import '../../../../../components/ha-checkbox'
+import '../../../../../components/ha-selector/ha-selector'
+import '../../../../../components/ha-settings-row'
+import type { PlatformCondition } from '../../../../../data/automation'
 import {
   getConditionDomain,
   getConditionObjectId,
   type ConditionDescription,
-} from "../../../../../data/condition";
-import type { IntegrationManifest } from "../../../../../data/integration";
-import { fetchIntegrationManifest } from "../../../../../data/integration";
-import type { TargetSelector } from "../../../../../data/selector";
-import type { HomeAssistant } from "../../../../../types";
-import { documentationUrl } from "../../../../../util/documentation-url";
+} from '../../../../../data/condition'
+import type { IntegrationManifest } from '../../../../../data/integration'
+import { fetchIntegrationManifest } from '../../../../../data/integration'
+import type { TargetSelector } from '../../../../../data/selector'
+import type { HomeAssistant } from '../../../../../types'
+import { documentationUrl } from '../../../../../util/documentation-url'
 
-const showOptionalToggle = (field: ConditionDescription["fields"][string]) =>
+const showOptionalToggle = (field: ConditionDescription['fields'][string]) =>
   field.selector &&
   !field.required &&
-  !("boolean" in field.selector && field.default);
+  !('boolean' in field.selector && field.default)
 
-@customElement("ha-automation-condition-platform")
+@customElement('ha-automation-condition-platform')
 export class HaPlatformCondition extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public condition!: PlatformCondition;
+  @property({ attribute: false }) public condition!: PlatformCondition
 
-  @property({ attribute: false }) public description?: ConditionDescription;
+  @property({ attribute: false }) public description?: ConditionDescription
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @state() private _checkedKeys = new Set();
+  @state() private _checkedKeys = new Set()
 
-  @state() private _manifest?: IntegrationManifest;
+  @state() private _manifest?: IntegrationManifest
 
   public static get defaultConfig(): PlatformCondition {
-    return { condition: "" };
+    return { condition: '' }
   }
 
   protected willUpdate(changedProperties: PropertyValues<this>) {
-    super.willUpdate(changedProperties);
+    super.willUpdate(changedProperties)
     if (!this.hasUpdated) {
-      this.hass.loadBackendTranslation("conditions");
-      this.hass.loadBackendTranslation("selector");
+      this.hass.loadBackendTranslation('conditions')
+      this.hass.loadBackendTranslation('selector')
     }
-    if (!changedProperties.has("condition")) {
-      return;
+    if (!changedProperties.has('condition')) {
+      return
     }
-    const oldValue = changedProperties.get("condition") as
+    const oldValue = changedProperties.get('condition') as
       | undefined
-      | this["condition"];
+      | this['condition']
 
     // Fetch the manifest if we have a condition selected and the condition domain changed.
     // If no condition is selected, clear the manifest.
     if (this.condition?.condition) {
-      const domain = getConditionDomain(this.condition.condition);
+      const domain = getConditionDomain(this.condition.condition)
 
-      const oldDomain = getConditionDomain(oldValue?.condition || "");
+      const oldDomain = getConditionDomain(oldValue?.condition || '')
 
       if (domain !== oldDomain) {
-        this._fetchManifest(domain);
+        this._fetchManifest(domain)
       }
     } else {
-      this._manifest = undefined;
+      this._manifest = undefined
     }
 
     if (
@@ -75,59 +75,59 @@ export class HaPlatformCondition extends LitElement {
       this.condition &&
       this.description?.fields
     ) {
-      let updatedDefaultValue = false;
-      const updatedOptions = {};
-      const loadDefaults = !("options" in this.condition);
+      let updatedDefaultValue = false
+      const updatedOptions = {}
+      const loadDefaults = !('options' in this.condition)
       // Set mandatory bools without a default value to false
       Object.entries(this.description.fields).forEach(([key, field]) => {
         if (
           field.selector &&
           field.required &&
           field.default === undefined &&
-          "boolean" in field.selector &&
+          'boolean' in field.selector &&
           updatedOptions[key] === undefined
         ) {
-          updatedDefaultValue = true;
-          updatedOptions[key] = false;
+          updatedDefaultValue = true
+          updatedOptions[key] = false
         } else if (
           loadDefaults &&
           field.selector &&
           field.default !== undefined &&
           updatedOptions[key] === undefined
         ) {
-          updatedDefaultValue = true;
-          updatedOptions[key] = field.default;
+          updatedDefaultValue = true
+          updatedOptions[key] = field.default
         }
-      });
+      })
       if (updatedDefaultValue) {
-        fireEvent(this, "value-changed", {
+        fireEvent(this, 'value-changed', {
           value: {
             ...this.condition,
             options: updatedOptions,
           },
-        });
+        })
       }
     }
   }
 
   protected render() {
-    const domain = getConditionDomain(this.condition.condition);
-    const conditionName = getConditionObjectId(this.condition.condition);
+    const domain = getConditionDomain(this.condition.condition)
+    const conditionName = getConditionObjectId(this.condition.condition)
 
     const description = this.hass.localize(
       `component.${domain}.conditions.${conditionName}.description`
-    );
+    )
 
-    const conditionDesc = this.description;
+    const conditionDesc = this.description
 
-    const shouldRenderDataYaml = !conditionDesc?.fields;
+    const shouldRenderDataYaml = !conditionDesc?.fields
 
     const hasOptional = Boolean(
       conditionDesc?.fields &&
-        Object.values(conditionDesc.fields).some((field) =>
+        Object.values(conditionDesc.fields).some(field =>
           showOptionalToggle(field)
         )
-    );
+    )
 
     return html`
       <div class="description">
@@ -141,7 +141,7 @@ export class HaPlatformCondition extends LitElement {
                   )
                 : this._manifest.documentation}
               title=${this.hass.localize(
-                "ui.components.service-control.integration_doc"
+                'ui.components.service-control.integration_doc'
               )}
               target="_blank"
               rel="noreferrer"
@@ -153,19 +153,22 @@ export class HaPlatformCondition extends LitElement {
             </a>`
           : nothing}
       </div>
-      ${conditionDesc && "target" in conditionDesc
+      ${conditionDesc && 'target' in conditionDesc
         ? html`<ha-settings-row narrow>
             ${hasOptional
-              ? html`<div slot="prefix" class="checkbox-spacer"></div>`
+              ? html`<div
+                  slot="prefix"
+                  class="checkbox-spacer"
+                ></div>`
               : nothing}
             <span slot="heading"
               >${this.hass.localize(
-                "ui.components.service-control.target"
+                'ui.components.service-control.target'
               )}</span
             >
             <span slot="description"
               >${this.hass.localize(
-                "ui.components.service-control.target_secondary"
+                'ui.components.service-control.target_secondary'
               )}</span
             ><ha-selector
               .hass=${this.hass}
@@ -180,9 +183,9 @@ export class HaPlatformCondition extends LitElement {
         ? html`<ha-yaml-editor
             .hass=${this.hass}
             .label=${this.hass.localize(
-              "ui.components.service-control.action_data"
+              'ui.components.service-control.action_data'
             )}
-            .name=${"data"}
+            .name=${'data'}
             .readOnly=${this.disabled}
             .defaultValue=${this.condition?.options}
             @value-changed=${this._dataChanged}
@@ -196,30 +199,33 @@ export class HaPlatformCondition extends LitElement {
               conditionName
             )
           )}
-    `;
+    `
   }
 
   private _targetSelector = memoizeOne(
-    (targetSelector: TargetSelector["target"] | null | undefined) =>
+    (targetSelector: TargetSelector['target'] | null | undefined) =>
       targetSelector ? { target: { ...targetSelector } } : { target: {} }
-  );
+  )
 
   private _renderField = (
     fieldName: string,
-    dataField: ConditionDescription["fields"][string],
+    dataField: ConditionDescription['fields'][string],
     hasOptional: boolean,
     domain: string | undefined,
     conditionName: string | undefined
   ) => {
-    const selector = dataField?.selector ?? { text: null };
+    const selector = dataField?.selector ?? { text: null }
 
-    const showOptional = showOptionalToggle(dataField);
+    const showOptional = showOptionalToggle(dataField)
 
     return dataField.selector
       ? html`<ha-settings-row narrow>
           ${!showOptional
             ? hasOptional
-              ? html`<div slot="prefix" class="checkbox-spacer"></div>`
+              ? html`<div
+                  slot="prefix"
+                  class="checkbox-spacer"
+                ></div>`
               : nothing
             : html`<ha-checkbox
                 .key=${fieldName}
@@ -258,136 +264,136 @@ export class HaPlatformCondition extends LitElement {
             .localizeValue=${this._localizeValueCallback}
           ></ha-selector>
         </ha-settings-row>`
-      : nothing;
-  };
+      : nothing
+  }
 
   private _generateContext(
-    field: ConditionDescription["fields"][string]
+    field: ConditionDescription['fields'][string]
   ): Record<string, any> | undefined {
     if (!field.context) {
-      return undefined;
+      return undefined
     }
 
-    const context = {};
+    const context = {}
     for (const [context_key, data_key] of Object.entries(field.context)) {
       context[context_key] =
-        data_key === "target"
+        data_key === 'target'
           ? this.condition.target
-          : this.condition.options?.[data_key];
+          : this.condition.options?.[data_key]
     }
-    return context;
+    return context
   }
 
   private _dataChanged(ev: CustomEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (ev.detail.isValid === false) {
       // Don't clear an object selector that returns invalid YAML
-      return;
+      return
     }
-    const key = (ev.currentTarget as any).key;
-    const value = ev.detail.value;
+    const key = (ev.currentTarget as any).key
+    const value = ev.detail.value
     if (
       this.condition?.options?.[key] === value ||
       ((!this.condition?.options || !(key in this.condition.options)) &&
-        (value === "" || value === undefined))
+        (value === '' || value === undefined))
     ) {
-      return;
+      return
     }
 
-    const options = { ...this.condition?.options, [key]: value };
+    const options = { ...this.condition?.options, [key]: value }
 
     if (
-      value === "" ||
+      value === '' ||
       value === undefined ||
-      (typeof value === "object" && !Object.keys(value).length)
+      (typeof value === 'object' && !Object.keys(value).length)
     ) {
-      delete options[key];
+      delete options[key]
     }
 
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: {
         ...this.condition,
         options,
       },
-    });
+    })
   }
 
   private _targetChanged(ev: CustomEvent): void {
-    ev.stopPropagation();
-    fireEvent(this, "value-changed", {
+    ev.stopPropagation()
+    fireEvent(this, 'value-changed', {
       value: {
         ...this.condition,
         target: ev.detail.value,
       },
-    });
+    })
   }
 
   private _checkboxChanged(ev) {
-    const checked = ev.currentTarget.checked;
-    const key = ev.currentTarget.key;
-    let options;
+    const checked = ev.currentTarget.checked
+    const key = ev.currentTarget.key
+    let options
 
     if (checked) {
-      this._checkedKeys.add(key);
+      this._checkedKeys.add(key)
       const field =
         this.description &&
-        Object.entries(this.description).find(([k, _value]) => k === key)?.[1];
-      let defaultValue = field?.default;
+        Object.entries(this.description).find(([k, _value]) => k === key)?.[1]
+      let defaultValue = field?.default
 
       if (
         defaultValue == null &&
         field?.selector &&
-        "constant" in field.selector
+        'constant' in field.selector
       ) {
-        defaultValue = field.selector.constant?.value;
+        defaultValue = field.selector.constant?.value
       }
 
       if (
         defaultValue == null &&
         field?.selector &&
-        "boolean" in field.selector
+        'boolean' in field.selector
       ) {
-        defaultValue = false;
+        defaultValue = false
       }
 
       if (defaultValue != null) {
         options = {
           ...this.condition?.options,
           [key]: defaultValue,
-        };
+        }
       }
     } else {
-      this._checkedKeys.delete(key);
-      options = { ...this.condition?.options };
-      delete options[key];
+      this._checkedKeys.delete(key)
+      options = { ...this.condition?.options }
+      delete options[key]
     }
     if (options) {
-      fireEvent(this, "value-changed", {
+      fireEvent(this, 'value-changed', {
         value: {
           ...this.condition,
           options,
         },
-      });
+      })
     }
-    this.requestUpdate("_checkedKeys");
+    this.requestUpdate('_checkedKeys')
   }
 
   private _localizeValueCallback = (key: string) => {
     if (!this.condition?.condition) {
-      return "";
+      return ''
     }
     return this.hass.localize(
       `component.${computeDomain(this.condition.condition)}.selector.${key}`
-    );
-  };
+    )
+  }
 
   private async _fetchManifest(integration: string) {
-    this._manifest = undefined;
+    this._manifest = undefined
     try {
-      this._manifest = await fetchIntegrationManifest(this.hass, integration);
+      this._manifest = await fetchIntegrationManifest(this.hass, integration)
     } catch (_err: any) {
       // eslint-disable-next-line no-console
-      console.log(`Unable to fetch integration manifest for ${integration}`);
+      console.log(`Unable to fetch integration manifest for ${integration}`)
       // Ignore if loading manifest fails. Probably bad JSON in manifest
     }
   }
@@ -449,11 +455,11 @@ export class HaPlatformCondition extends LitElement {
     .description p {
       direction: ltr;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-condition-platform": HaPlatformCondition;
+    'ha-automation-condition-platform': HaPlatformCondition
   }
 }

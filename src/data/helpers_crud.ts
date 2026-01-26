@@ -1,32 +1,32 @@
-import { deleteCounter, fetchCounter, updateCounter } from "./counter";
+import { deleteCounter, fetchCounter, updateCounter } from './counter'
 import {
   deleteInputBoolean,
   fetchInputBoolean,
   updateInputBoolean,
-} from "./input_boolean";
+} from './input_boolean'
 import {
   deleteInputButton,
   fetchInputButton,
   updateInputButton,
-} from "./input_button";
+} from './input_button'
 import {
   deleteInputDateTime,
   fetchInputDateTime,
   updateInputDateTime,
-} from "./input_datetime";
+} from './input_datetime'
 import {
   deleteInputNumber,
   fetchInputNumber,
   updateInputNumber,
-} from "./input_number";
+} from './input_number'
 import {
   deleteInputSelect,
   fetchInputSelect,
   updateInputSelect,
-} from "./input_select";
-import { deleteInputText, fetchInputText, updateInputText } from "./input_text";
-import { deleteSchedule, fetchSchedule, updateSchedule } from "./schedule";
-import { deleteTimer, fetchTimer, updateTimer } from "./timer";
+} from './input_select'
+import { deleteInputText, fetchInputText, updateInputText } from './input_text'
+import { deleteSchedule, fetchSchedule, updateSchedule } from './schedule'
+import { deleteTimer, fetchTimer, updateTimer } from './timer'
 
 export const HELPERS_CRUD = {
   input_boolean: {
@@ -74,4 +74,4 @@ export const HELPERS_CRUD = {
     update: updateSchedule,
     delete: deleteSchedule,
   },
-};
+}

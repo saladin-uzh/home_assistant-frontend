@@ -2,8 +2,8 @@
 export default function isValidObject(obj, requiredKeys = []) {
   return (
     obj &&
-    typeof obj === "object" &&
+    typeof obj === 'object' &&
     !Array.isArray(obj) &&
-    requiredKeys.every((k) => k in obj)
-  );
+    requiredKeys.every(k => k in obj)
+  )
 }

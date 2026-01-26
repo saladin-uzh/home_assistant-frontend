@@ -1,22 +1,22 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
 
-@customElement("ha-config-section")
+@customElement('ha-config-section')
 export class HaConfigSection extends LitElement {
-  @property({ attribute: "is-wide", type: Boolean }) public isWide = false;
+  @property({ attribute: 'is-wide', type: Boolean }) public isWide = false
 
-  @property({ type: Boolean }) public vertical = false;
+  @property({ type: Boolean }) public vertical = false
 
-  @property({ type: Boolean, attribute: "full-width" })
-  public fullWidth = false;
+  @property({ type: Boolean, attribute: 'full-width' })
+  public fullWidth = false
 
   protected render() {
     return html`
       <div
         class="content ${classMap({
           narrow: !this.isWide,
-          "full-width": this.fullWidth,
+          'full-width': this.fullWidth,
         })}"
       >
         <div class="header"><slot name="header"></slot></div>
@@ -31,7 +31,7 @@ export class HaConfigSection extends LitElement {
           <div class="panel flex-auto"><slot></slot></div>
         </div>
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -127,11 +127,11 @@ export class HaConfigSection extends LitElement {
     .full-width .layout {
       flex-direction: column;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-config-section": HaConfigSection;
+    'ha-config-section': HaConfigSection
   }
 }

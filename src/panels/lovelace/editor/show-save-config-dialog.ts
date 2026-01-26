@@ -1,35 +1,35 @@
-import { fireEvent } from "../../../common/dom/fire_event";
-import type { Lovelace } from "../types";
+import { fireEvent } from '../../../common/dom/fire_event'
+import type { Lovelace } from '../types'
 
 declare global {
   // for fire event
   interface HASSDomEvents {
-    "show-save-config": SaveDialogParams;
+    'show-save-config': SaveDialogParams
   }
 }
 
-const dialogShowEvent = "show-save-config";
-const dialogTag = "hui-dialog-save-config";
+const dialogShowEvent = 'show-save-config'
+const dialogTag = 'hui-dialog-save-config'
 
 export interface SaveDialogParams {
-  lovelace: Lovelace;
-  mode: "yaml" | "storage";
-  narrow: boolean;
+  lovelace: Lovelace
+  mode: 'yaml' | 'storage'
+  narrow: boolean
 }
 
-let registeredDialog = false;
+let registeredDialog = false
 
 export const showSaveDialog = (
   element: HTMLElement,
   saveDialogParams: SaveDialogParams
 ) => {
   if (!registeredDialog) {
-    registeredDialog = true;
-    fireEvent(element, "register-dialog", {
+    registeredDialog = true
+    fireEvent(element, 'register-dialog', {
       dialogShowEvent,
       dialogTag,
-      dialogImport: () => import("./hui-dialog-save-config"),
-    });
+      dialogImport: () => import('./hui-dialog-save-config'),
+    })
   }
-  fireEvent(element, dialogShowEvent, saveDialogParams);
-};
+  fireEvent(element, dialogShowEvent, saveDialogParams)
+}

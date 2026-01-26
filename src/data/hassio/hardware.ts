@@ -1,31 +1,31 @@
-import { atLeastVersion } from "../../common/config/version";
-import type { HomeAssistant } from "../../types";
-import type { HassioResponse } from "./common";
-import { hassioApiResultExtractor } from "./common";
+import { atLeastVersion } from '../../common/config/version'
+import type { HomeAssistant } from '../../types'
+import type { HassioResponse } from './common'
+import { hassioApiResultExtractor } from './common'
 
 export interface HassioHardwareAudioDevice {
-  device?: string | null;
-  name: string;
+  device?: string | null
+  name: string
 }
 
 interface HassioHardwareAudioList {
   audio: {
-    input: Record<string, string>;
-    output: Record<string, string>;
-  };
+    input: Record<string, string>
+    output: Record<string, string>
+  }
 }
 
 interface HardwareDevice {
-  attributes: Record<string, string>;
-  by_id: null | string;
-  dev_path: string;
-  name: string;
-  subsystem: string;
-  sysfs: string;
+  attributes: Record<string, string>
+  by_id: null | string
+  dev_path: string
+  name: string
+  subsystem: string
+  sysfs: string
 }
 
 export interface HassioHardwareInfo {
-  devices: HardwareDevice[];
+  devices: HardwareDevice[]
 }
 
 export const fetchHassioHardwareAudio = async (
@@ -33,35 +33,35 @@ export const fetchHassioHardwareAudio = async (
 ): Promise<HassioHardwareAudioList> => {
   if (atLeastVersion(hass.config.version, 2021, 2, 4)) {
     return hass.callWS({
-      type: "supervisor/api",
+      type: 'supervisor/api',
       endpoint: `/hardware/audio`,
-      method: "get",
-    });
+      method: 'get',
+    })
   }
 
   return hassioApiResultExtractor(
     await hass.callApi<HassioResponse<HassioHardwareAudioList>>(
-      "GET",
-      "hassio/hardware/audio"
+      'GET',
+      'hassio/hardware/audio'
     )
-  );
-};
+  )
+}
 
 export const fetchHassioHardwareInfo = async (
   hass: HomeAssistant
 ): Promise<HassioHardwareInfo> => {
   if (atLeastVersion(hass.config.version, 2021, 2, 4)) {
     return hass.callWS({
-      type: "supervisor/api",
+      type: 'supervisor/api',
       endpoint: `/hardware/info`,
-      method: "get",
-    });
+      method: 'get',
+    })
   }
 
   return hassioApiResultExtractor(
     await hass.callApi<HassioResponse<HassioHardwareInfo>>(
-      "GET",
-      "hassio/hardware/info"
+      'GET',
+      'hassio/hardware/info'
     )
-  );
-};
+  )
+}

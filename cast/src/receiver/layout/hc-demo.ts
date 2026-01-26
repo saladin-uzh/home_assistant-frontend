@@ -1,24 +1,24 @@
-import { html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { mockHistory } from "../../../../demo/src/stubs/history";
-import type { LovelaceConfig } from "../../../../src/data/lovelace/config/types";
-import type { MockHomeAssistant } from "../../../../src/fake_data/provide_hass";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import { HassElement } from "../../../../src/state/hass-element";
-import type { HomeAssistant } from "../../../../src/types";
-import { castDemoEntities } from "../demo/cast-demo-entities";
-import { castDemoLovelace } from "../demo/cast-demo-lovelace";
-import "./hc-lovelace";
+import { html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { mockHistory } from '../../../../demo/src/stubs/history'
+import type { LovelaceConfig } from '../../../../src/data/lovelace/config/types'
+import type { MockHomeAssistant } from '../../../../src/fake_data/provide_hass'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import { HassElement } from '../../../../src/state/hass-element'
+import type { HomeAssistant } from '../../../../src/types'
+import { castDemoEntities } from '../demo/cast-demo-entities'
+import { castDemoLovelace } from '../demo/cast-demo-lovelace'
+import './hc-lovelace'
 
-@customElement("hc-demo")
+@customElement('hc-demo')
 class HcDemo extends HassElement {
-  @property({ attribute: false }) public lovelacePath!: string;
+  @property({ attribute: false }) public lovelacePath!: string
 
-  @state() private _lovelaceConfig?: LovelaceConfig;
+  @state() private _lovelaceConfig?: LovelaceConfig
 
   protected render() {
     if (!this._lovelaceConfig) {
-      return nothing;
+      return nothing
     }
     return html`
       <hc-lovelace
@@ -26,12 +26,12 @@ class HcDemo extends HassElement {
         .lovelaceConfig=${this._lovelaceConfig}
         .viewPath=${this.lovelacePath}
       ></hc-lovelace>
-    `;
+    `
   }
 
   protected firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
-    this._initializeHass();
+    super.firstUpdated(changedProps)
+    this._initializeHass()
   }
 
   private async _initializeHass() {
@@ -39,19 +39,19 @@ class HcDemo extends HassElement {
       // Override updateHass so that the correct hass lifecycle methods are called
       updateHass: (hassUpdate: Partial<HomeAssistant>) =>
         this._updateHass(hassUpdate),
-    };
+    }
 
-    const hass = (this.hass = provideHass(this, initial));
+    const hass = (this.hass = provideHass(this, initial))
 
-    mockHistory(hass);
+    mockHistory(hass)
 
-    hass.addEntities(castDemoEntities());
-    this._lovelaceConfig = castDemoLovelace();
+    hass.addEntities(castDemoEntities())
+    this._lovelaceConfig = castDemoLovelace()
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hc-demo": HcDemo;
+    'hc-demo': HcDemo
   }
 }

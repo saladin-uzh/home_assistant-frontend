@@ -1,31 +1,31 @@
-import { mdiHome } from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators";
-import { applyThemesOnElement } from "../../../../src/common/dom/apply_themes_on_element";
-import { titleCase } from "../../../../src/common/string/title-case";
-import "../../../../src/components/ha-button";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-svg-icon";
-import { mdiHomeAssistant } from "../../../../src/resources/home-assistant-logo-svg";
+import { mdiHome } from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import { applyThemesOnElement } from '../../../../src/common/dom/apply_themes_on_element'
+import { titleCase } from '../../../../src/common/string/title-case'
+import '../../../../src/components/ha-button'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-svg-icon'
+import { mdiHomeAssistant } from '../../../../src/resources/home-assistant-logo-svg'
 
-const appearances = ["accent", "filled", "plain"];
-const variants = ["brand", "danger", "neutral", "warning", "success"];
+const appearances = ['accent', 'filled', 'plain']
+const variants = ['brand', 'danger', 'neutral', 'warning', 'success']
 
-@customElement("demo-components-ha-button")
+@customElement('demo-components-ha-button')
 export class DemoHaButton extends LitElement {
   protected render(): TemplateResult {
     return html`
-      ${["light", "dark"].map(
-        (mode) => html`
+      ${['light', 'dark'].map(
+        mode => html`
           <div class=${mode}>
             <ha-card header="ha-button in ${mode}">
               <div class="card-content">
                 ${variants.map(
-                  (variant) => html`
+                  variant => html`
                     <div>
                       ${appearances.map(
-                        (appearance) => html`
+                        appearance => html`
                           <ha-button
                             .appearance=${appearance}
                             .variant=${variant}
@@ -45,7 +45,7 @@ export class DemoHaButton extends LitElement {
                     </div>
                     <div>
                       ${appearances.map(
-                        (appearance) => html`
+                        appearance => html`
                           <ha-button
                             .appearance=${appearance}
                             .variant=${variant}
@@ -58,7 +58,7 @@ export class DemoHaButton extends LitElement {
                     </div>
                     <div>
                       ${appearances.map(
-                        (appearance) => html`
+                        appearance => html`
                           <ha-button
                             .appearance=${appearance}
                             .variant=${variant}
@@ -80,10 +80,10 @@ export class DemoHaButton extends LitElement {
                   `
                 )}
                 ${variants.map(
-                  (variant) => html`
+                  variant => html`
                     <div>
                       ${appearances.map(
-                        (appearance) => html`
+                        appearance => html`
                           <ha-button
                             .variant=${variant}
                             .appearance=${appearance}
@@ -96,7 +96,7 @@ export class DemoHaButton extends LitElement {
                     </div>
                     <div>
                       ${appearances.map(
-                        (appearance) => html`
+                        appearance => html`
                           <ha-button
                             .variant=${variant}
                             .appearance=${appearance}
@@ -115,24 +115,24 @@ export class DemoHaButton extends LitElement {
           </div>
         `
       )}
-    `;
+    `
   }
 
   firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
+    super.firstUpdated(changedProps)
     applyThemesOnElement(
-      this.shadowRoot!.querySelector(".dark"),
+      this.shadowRoot!.querySelector('.dark'),
       {
-        default_theme: "default",
-        default_dark_theme: "default",
+        default_theme: 'default',
+        default_dark_theme: 'default',
         themes: {},
         darkMode: true,
-        theme: "default",
+        theme: 'default',
       },
       undefined,
       undefined,
       true
-    );
+    )
   }
 
   static styles = css`
@@ -161,11 +161,11 @@ export class DemoHaButton extends LitElement {
       display: flex;
       gap: var(--ha-space-2);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-components-ha-button": DemoHaButton;
+    'demo-components-ha-button': DemoHaButton
   }
 }

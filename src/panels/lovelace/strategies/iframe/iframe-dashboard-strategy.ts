@@ -1,12 +1,12 @@
-import { ReactiveElement } from "lit";
-import { customElement } from "lit/decorators";
-import type { LovelaceConfig } from "../../../../data/lovelace/config/types";
-import type { LovelaceStrategyEditor } from "../types";
-import type { IframeViewStrategyConfig } from "./iframe-view-strategy";
+import { ReactiveElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import type { LovelaceConfig } from '../../../../data/lovelace/config/types'
+import type { LovelaceStrategyEditor } from '../types'
+import type { IframeViewStrategyConfig } from './iframe-view-strategy'
 
-export type IframeDashboardStrategyConfig = IframeViewStrategyConfig;
+export type IframeDashboardStrategyConfig = IframeViewStrategyConfig
 
-@customElement("iframe-dashboard-strategy")
+@customElement('iframe-dashboard-strategy')
 export class IframeDashboardStrategy extends ReactiveElement {
   static async generate(
     config: IframeDashboardStrategyConfig
@@ -17,21 +17,21 @@ export class IframeDashboardStrategy extends ReactiveElement {
           strategy: config,
         },
       ],
-    };
+    }
   }
 
   public static async getConfigElement(): Promise<LovelaceStrategyEditor> {
     await import(
-      "../../editor/dashboard-strategy-editor/hui-iframe-dashboard-strategy-editor"
-    );
-    return document.createElement("hui-iframe-dashboard-strategy-editor");
+      '../../editor/dashboard-strategy-editor/hui-iframe-dashboard-strategy-editor'
+    )
+    return document.createElement('hui-iframe-dashboard-strategy-editor')
   }
 
-  static configRequired = true;
+  static configRequired = true
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "iframe-dashboard-strategy": IframeDashboardStrategy;
+    'iframe-dashboard-strategy': IframeDashboardStrategy
   }
 }

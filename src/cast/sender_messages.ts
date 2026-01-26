@@ -1,21 +1,21 @@
-import type { BaseCastMessage } from "./types";
+import type { BaseCastMessage } from './types'
 
 // Messages to be processed inside the Home Assistant UI
 
 export interface ReceiverStatusMessage extends BaseCastMessage {
-  type: "receiver_status";
-  connected: boolean;
-  showDemo: boolean;
-  hassUrl?: string;
-  hassUUID?: string;
-  lovelacePath?: string | number | null;
-  urlPath?: string | null;
+  type: 'receiver_status'
+  connected: boolean
+  showDemo: boolean
+  hassUrl?: string
+  hassUUID?: string
+  lovelacePath?: string | number | null
+  urlPath?: string | null
 }
 
 export interface ReceiverErrorMessage extends BaseCastMessage {
-  type: "receiver_error";
-  error_code: ReceiverErrorCode;
-  error_message: string;
+  type: 'receiver_error'
+  error_code: ReceiverErrorCode
+  error_message: string
 }
 
 export const enum ReceiverErrorCode {
@@ -29,4 +29,4 @@ export const enum ReceiverErrorCode {
   FETCH_CONFIG_FAILED = 22,
 }
 
-export type SenderMessage = ReceiverStatusMessage;
+export type SenderMessage = ReceiverStatusMessage

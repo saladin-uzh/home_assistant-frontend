@@ -1,38 +1,38 @@
-import type { Connection } from "home-assistant-js-websocket";
+import type { Connection } from 'home-assistant-js-websocket'
 
 export interface CoreFrontendUserData {
-  showAdvanced?: boolean;
-  showEntityIdPicker?: boolean;
-  default_panel?: string;
+  showAdvanced?: boolean
+  showEntityIdPicker?: boolean
+  default_panel?: string
 }
 
 export interface SidebarFrontendUserData {
-  panelOrder?: string[];
-  hiddenPanels?: string[];
+  panelOrder?: string[]
+  hiddenPanels?: string[]
 }
 
 export interface CoreFrontendSystemData {
-  default_panel?: string;
+  default_panel?: string
 }
 
 export interface HomeFrontendSystemData {
-  favorite_entities?: string[];
+  favorite_entities?: string[]
 }
 
 declare global {
   interface FrontendUserData {
-    core: CoreFrontendUserData;
-    sidebar: SidebarFrontendUserData;
+    core: CoreFrontendUserData
+    sidebar: SidebarFrontendUserData
   }
   interface FrontendSystemData {
-    core: CoreFrontendSystemData;
-    home: HomeFrontendSystemData;
+    core: CoreFrontendSystemData
+    home: HomeFrontendSystemData
   }
 }
 
-export type ValidUserDataKey = keyof FrontendUserData;
+export type ValidUserDataKey = keyof FrontendUserData
 
-export type ValidSystemDataKey = keyof FrontendSystemData;
+export type ValidSystemDataKey = keyof FrontendSystemData
 
 export const fetchFrontendUserData = async <
   UserDataKey extends ValidUserDataKey,
@@ -41,13 +41,13 @@ export const fetchFrontendUserData = async <
   key: UserDataKey
 ): Promise<FrontendUserData[UserDataKey] | null> => {
   const result = await conn.sendMessagePromise<{
-    value: FrontendUserData[UserDataKey] | null;
+    value: FrontendUserData[UserDataKey] | null
   }>({
-    type: "frontend/get_user_data",
+    type: 'frontend/get_user_data',
     key,
-  });
-  return result.value;
-};
+  })
+  return result.value
+}
 
 export const saveFrontendUserData = async <
   UserDataKey extends ValidUserDataKey,
@@ -57,10 +57,10 @@ export const saveFrontendUserData = async <
   value: FrontendUserData[UserDataKey]
 ): Promise<void> =>
   conn.sendMessagePromise<undefined>({
-    type: "frontend/set_user_data",
+    type: 'frontend/set_user_data',
     key,
     value,
-  });
+  })
 
 export const subscribeFrontendUserData = <UserDataKey extends ValidUserDataKey>(
   conn: Connection,
@@ -70,10 +70,10 @@ export const subscribeFrontendUserData = <UserDataKey extends ValidUserDataKey>(
   conn.subscribeMessage<{ value: FrontendUserData[UserDataKey] | null }>(
     onChange,
     {
-      type: "frontend/subscribe_user_data",
+      type: 'frontend/subscribe_user_data',
       key: userDataKey,
     }
-  );
+  )
 
 export const fetchFrontendSystemData = async <
   SystemDataKey extends ValidSystemDataKey,
@@ -82,13 +82,13 @@ export const fetchFrontendSystemData = async <
   key: SystemDataKey
 ): Promise<FrontendSystemData[SystemDataKey] | null> => {
   const result = await conn.sendMessagePromise<{
-    value: FrontendSystemData[SystemDataKey] | null;
+    value: FrontendSystemData[SystemDataKey] | null
   }>({
-    type: "frontend/get_system_data",
+    type: 'frontend/get_system_data',
     key,
-  });
-  return result.value;
-};
+  })
+  return result.value
+}
 
 export const saveFrontendSystemData = async <
   SystemDataKey extends ValidSystemDataKey,
@@ -98,10 +98,10 @@ export const saveFrontendSystemData = async <
   value: FrontendSystemData[SystemDataKey]
 ): Promise<void> =>
   conn.sendMessagePromise<undefined>({
-    type: "frontend/set_system_data",
+    type: 'frontend/set_system_data',
     key,
     value,
-  });
+  })
 
 export const subscribeFrontendSystemData = <
   SystemDataKey extends ValidSystemDataKey,
@@ -113,7 +113,7 @@ export const subscribeFrontendSystemData = <
   conn.subscribeMessage<{ value: FrontendSystemData[SystemDataKey] | null }>(
     onChange,
     {
-      type: "frontend/subscribe_system_data",
+      type: 'frontend/subscribe_system_data',
       key: systemDataKey,
     }
-  );
+  )

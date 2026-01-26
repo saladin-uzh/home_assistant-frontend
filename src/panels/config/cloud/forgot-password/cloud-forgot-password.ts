@@ -1,20 +1,20 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "./cloud-forgot-password-card";
-import "../../../../layouts/hass-subpage";
-import { haStyle } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import './cloud-forgot-password-card'
+import '../../../../layouts/hass-subpage'
+import { haStyle } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
 
-@customElement("cloud-forgot-password")
+@customElement('cloud-forgot-password')
 export class CloudForgotPassword extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property() public email?: string;
+  @property() public email?: string
 
-  @state() public _requestInProgress = false;
+  @state() public _requestInProgress = false
 
   protected render(): TemplateResult {
     return html`
@@ -22,7 +22,7 @@ export class CloudForgotPassword extends LitElement {
         .hass=${this.hass}
         .narrow=${this.narrow}
         .header=${this.hass.localize(
-          "ui.panel.config.cloud.forgot_password.title"
+          'ui.panel.config.cloud.forgot_password.title'
         )}
       >
         <div class="content">
@@ -33,7 +33,7 @@ export class CloudForgotPassword extends LitElement {
           ></cloud-forgot-password-card>
         </div>
       </hass-subpage>
-    `;
+    `
   }
 
   static get styles() {
@@ -44,12 +44,12 @@ export class CloudForgotPassword extends LitElement {
           padding-bottom: 24px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "cloud-forgot-password": CloudForgotPassword;
+    'cloud-forgot-password': CloudForgotPassword
   }
 }

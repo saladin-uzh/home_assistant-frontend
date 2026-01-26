@@ -1,61 +1,61 @@
-import type { Panels } from "../types";
+import type { Panels } from '../types'
 
 export const demoPanels: Panels = {
   lovelace: {
-    component_name: "lovelace",
+    component_name: 'lovelace',
     icon: null,
     title: null,
-    config: { mode: "storage" },
-    url_path: "lovelace",
+    config: { mode: 'storage' },
+    url_path: 'lovelace',
   },
-  "dev-state": {
-    component_name: "dev-state",
+  'dev-state': {
+    component_name: 'dev-state',
     icon: null,
     title: null,
     config: null,
-    url_path: "dev-state",
+    url_path: 'dev-state',
   },
-  "dev-event": {
-    component_name: "dev-event",
+  'dev-event': {
+    component_name: 'dev-event',
     icon: null,
     title: null,
     config: null,
-    url_path: "dev-event",
+    url_path: 'dev-event',
   },
-  "dev-template": {
-    component_name: "dev-template",
+  'dev-template': {
+    component_name: 'dev-template',
     icon: null,
     title: null,
     config: null,
-    url_path: "dev-template",
+    url_path: 'dev-template',
   },
   profile: {
-    component_name: "profile",
+    component_name: 'profile',
     icon: null,
     title: null,
     config: null,
-    url_path: "profile",
+    url_path: 'profile',
   },
-  "dev-info": {
-    component_name: "dev-info",
+  'dev-info': {
+    component_name: 'dev-info',
     icon: null,
     title: null,
     config: null,
-    url_path: "dev-info",
+    url_path: 'dev-info',
   },
-  "dev-mqtt": {
-    component_name: "dev-mqtt",
+  'dev-mqtt': {
+    component_name: 'dev-mqtt',
     icon: null,
     title: null,
     config: null,
-    url_path: "dev-mqtt",
+    url_path: 'dev-mqtt',
   },
-  "dev-service": {
-    component_name: "dev-service",
+  'dev-service': {
+    component_name: 'dev-service',
     icon: null,
     title: null,
     config: null,
-    url_path: "dev-service",
+    url_path: 'dev-service',
   },
   // Uncomment when we are ready to stub the history API
   // history: {
@@ -66,18 +66,18 @@ export const demoPanels: Panels = {
   //   url_path: "history",
   // },
   map: {
-    component_name: "lovelace",
-    icon: "mdi:tooltip-account",
-    title: "map",
-    config: { mode: "storage" },
-    url_path: "map",
+    component_name: 'lovelace',
+    icon: 'mdi:tooltip-account',
+    title: 'map',
+    config: { mode: 'storage' },
+    url_path: 'map',
   },
   energy: {
-    component_name: "energy",
-    icon: "mdi:lightning-bolt",
-    title: "energy",
+    component_name: 'energy',
+    icon: 'mdi:lightning-bolt',
+    title: 'energy',
     config: null,
-    url_path: "energy",
+    url_path: 'energy',
   },
   // config: {
   //   component_name: "config",
@@ -86,4 +86,4 @@ export const demoPanels: Panels = {
   //   config: null,
   //   url_path: "config",
   // },
-};
+}

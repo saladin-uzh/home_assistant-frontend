@@ -1,20 +1,20 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../common/dom/fire_event";
-import "../../components/ha-area-picker";
-import { updateDeviceRegistryEntry } from "../../data/device_registry";
-import type { HomeAssistant } from "../../types";
-import { showAlertDialog } from "../generic/show-dialog-box";
-import { AssistantSetupStyles } from "./styles";
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../common/dom/fire_event'
+import '../../components/ha-area-picker'
+import { updateDeviceRegistryEntry } from '../../data/device_registry'
+import type { HomeAssistant } from '../../types'
+import { showAlertDialog } from '../generic/show-dialog-box'
+import { AssistantSetupStyles } from './styles'
 
-@customElement("ha-voice-assistant-setup-step-area")
+@customElement('ha-voice-assistant-setup-step-area')
 export class HaVoiceAssistantSetupStepArea extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public deviceId!: string;
+  @property({ attribute: false }) public deviceId!: string
 
   protected override render() {
-    const device = this.hass.devices[this.deviceId];
+    const device = this.hass.devices[this.deviceId]
 
     return html`<div class="content">
         <img
@@ -23,12 +23,12 @@ export class HaVoiceAssistantSetupStepArea extends LitElement {
         />
         <h1>
           ${this.hass.localize(
-            "ui.panel.config.voice_assistants.satellite_wizard.area.title"
+            'ui.panel.config.voice_assistants.satellite_wizard.area.title'
           )}
         </h1>
         <p class="secondary">
           ${this.hass.localize(
-            "ui.panel.config.voice_assistants.satellite_wizard.area.secondary"
+            'ui.panel.config.voice_assistants.satellite_wizard.area.secondary'
           )}
         </p>
         <ha-area-picker
@@ -38,29 +38,29 @@ export class HaVoiceAssistantSetupStepArea extends LitElement {
       </div>
       <div class="footer">
         <ha-button @click=${this._setArea}
-          >${this.hass.localize("ui.common.next")}</ha-button
+          >${this.hass.localize('ui.common.next')}</ha-button
         >
-      </div>`;
+      </div>`
   }
 
   private async _setArea() {
-    const area = this.shadowRoot!.querySelector("ha-area-picker")!.value;
+    const area = this.shadowRoot!.querySelector('ha-area-picker')!.value
     if (!area) {
       showAlertDialog(this, {
         text: this.hass.localize(
-          "ui.panel.config.voice_assistants.satellite_wizard.area.no_selection"
+          'ui.panel.config.voice_assistants.satellite_wizard.area.no_selection'
         ),
-      });
-      return;
+      })
+      return
     }
     await updateDeviceRegistryEntry(this.hass, this.deviceId, {
       area_id: area,
-    });
-    this._nextStep();
+    })
+    this._nextStep()
   }
 
   private _nextStep() {
-    fireEvent(this, "next-step");
+    fireEvent(this, 'next-step')
   }
 
   static styles = [
@@ -73,11 +73,11 @@ export class HaVoiceAssistantSetupStepArea extends LitElement {
         text-align: initial;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-voice-assistant-setup-step-area": HaVoiceAssistantSetupStepArea;
+    'ha-voice-assistant-setup-step-area': HaVoiceAssistantSetupStepArea
   }
 }

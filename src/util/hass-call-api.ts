@@ -1,39 +1,39 @@
-import type { Auth } from "home-assistant-js-websocket";
-import { fetchWithAuth } from "./fetch-with-auth";
+import type { Auth } from 'home-assistant-js-websocket'
+import { fetchWithAuth } from './fetch-with-auth'
 
 export const handleFetchPromise = async <T>(
   fetchPromise: Promise<Response>
 ): Promise<T> => {
-  let response;
+  let response
 
   try {
-    response = await fetchPromise;
+    response = await fetchPromise
   } catch (_err: any) {
     // eslint-disable-next-line no-throw-literal
     throw {
-      error: "Request error",
+      error: 'Request error',
       status_code: undefined,
       body: undefined,
-    };
+    }
   }
 
-  let body = null;
+  let body = null
 
-  const contentType = response.headers.get("content-type");
+  const contentType = response.headers.get('content-type')
 
-  if (contentType && contentType.includes("application/json")) {
+  if (contentType && contentType.includes('application/json')) {
     try {
-      body = await response.json();
+      body = await response.json()
     } catch (err: any) {
       // eslint-disable-next-line no-throw-literal
       throw {
-        error: "Unable to parse JSON response",
+        error: 'Unable to parse JSON response',
         status_code: err.status,
         body: null,
-      };
+      }
     }
   } else {
-    body = await response.text();
+    body = await response.text()
   }
 
   if (!response.ok) {
@@ -42,11 +42,11 @@ export const handleFetchPromise = async <T>(
       error: `Response error: ${response.status}`,
       status_code: response.status,
       body,
-    };
+    }
   }
 
-  return body as unknown as T;
-};
+  return body as unknown as T
+}
 
 export default async function hassCallApi<T>(
   auth: Auth,
@@ -55,20 +55,20 @@ export default async function hassCallApi<T>(
   parameters?: Record<string, unknown>,
   headers?: Record<string, string>
 ) {
-  const url = `${auth.data.hassUrl}/api/${path}`;
+  const url = `${auth.data.hassUrl}/api/${path}`
 
   const init: RequestInit = {
     method,
     headers: headers || {},
-  };
+  }
 
   if (parameters) {
     // @ts-ignore
-    init.headers["Content-Type"] = "application/json;charset=UTF-8";
-    init.body = JSON.stringify(parameters);
+    init.headers['Content-Type'] = 'application/json;charset=UTF-8'
+    init.body = JSON.stringify(parameters)
   }
 
-  return handleFetchPromise<T>(fetchWithAuth(auth, url, init));
+  return handleFetchPromise<T>(fetchWithAuth(auth, url, init))
 }
 
 export async function hassCallApiRaw(
@@ -79,19 +79,19 @@ export async function hassCallApiRaw(
   headers?: Record<string, string>,
   signal?: AbortSignal
 ) {
-  const url = `${auth.data.hassUrl}/api/${path}`;
+  const url = `${auth.data.hassUrl}/api/${path}`
 
   const init: RequestInit = {
     method,
     headers: headers || {},
     signal: signal,
-  };
+  }
 
   if (parameters) {
     // @ts-ignore
-    init.headers["Content-Type"] = "application/json;charset=UTF-8";
-    init.body = JSON.stringify(parameters);
+    init.headers['Content-Type'] = 'application/json;charset=UTF-8'
+    init.body = JSON.stringify(parameters)
   }
 
-  return fetchWithAuth(auth, url, init);
+  return fetchWithAuth(auth, url, init)
 }

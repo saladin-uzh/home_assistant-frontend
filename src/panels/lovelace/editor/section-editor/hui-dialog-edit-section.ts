@@ -1,116 +1,116 @@
-import type { ActionDetail } from "@material/mwc-list";
+import type { ActionDetail } from '@material/mwc-list'
 import {
   mdiClose,
   mdiDotsVertical,
   mdiFileMoveOutline,
   mdiPlaylistEdit,
-} from "@mdi/js";
-import type { CSSResultGroup, PropertyValues, TemplateResult } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { stopPropagation } from "../../../../common/dom/stop_propagation";
-import "../../../../components/ha-button";
-import "../../../../components/ha-button-menu";
-import "../../../../components/ha-dialog";
-import "../../../../components/ha-dialog-header";
-import "../../../../components/ha-icon-button";
-import "../../../../components/ha-list-item";
-import "../../../../components/ha-tab-group";
-import "../../../../components/ha-tab-group-tab";
-import "../../../../components/ha-yaml-editor";
-import type { HaYamlEditor } from "../../../../components/ha-yaml-editor";
-import type { LovelaceSectionRawConfig } from "../../../../data/lovelace/config/section";
-import type { LovelaceConfig } from "../../../../data/lovelace/config/types";
-import { saveConfig } from "../../../../data/lovelace/config/types";
+} from '@mdi/js'
+import type { CSSResultGroup, PropertyValues, TemplateResult } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { stopPropagation } from '../../../../common/dom/stop_propagation'
+import '../../../../components/ha-button'
+import '../../../../components/ha-button-menu'
+import '../../../../components/ha-dialog'
+import '../../../../components/ha-dialog-header'
+import '../../../../components/ha-icon-button'
+import '../../../../components/ha-list-item'
+import '../../../../components/ha-tab-group'
+import '../../../../components/ha-tab-group-tab'
+import '../../../../components/ha-yaml-editor'
+import type { HaYamlEditor } from '../../../../components/ha-yaml-editor'
+import type { LovelaceSectionRawConfig } from '../../../../data/lovelace/config/section'
+import type { LovelaceConfig } from '../../../../data/lovelace/config/types'
+import { saveConfig } from '../../../../data/lovelace/config/types'
 import {
   isStrategyView,
   type LovelaceViewConfig,
-} from "../../../../data/lovelace/config/view";
-import { showAlertDialog } from "../../../../dialogs/generic/show-dialog-box";
-import type { HassDialog } from "../../../../dialogs/make-dialog-manager";
+} from '../../../../data/lovelace/config/view'
+import { showAlertDialog } from '../../../../dialogs/generic/show-dialog-box'
+import type { HassDialog } from '../../../../dialogs/make-dialog-manager'
 import {
   haStyleDialog,
   haStyleDialogFixedTop,
-} from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import type { Lovelace } from "../../types";
-import { addSection, deleteSection, moveSection } from "../config-util";
+} from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import type { Lovelace } from '../../types'
+import { addSection, deleteSection, moveSection } from '../config-util'
 import {
   findLovelaceContainer,
   updateLovelaceContainer,
-} from "../lovelace-path";
-import { showSelectViewDialog } from "../select-view/show-select-view-dialog";
-import "./hui-section-settings-editor";
-import "./hui-section-visibility-editor";
-import type { EditSectionDialogParams } from "./show-edit-section-dialog";
+} from '../lovelace-path'
+import { showSelectViewDialog } from '../select-view/show-select-view-dialog'
+import './hui-section-settings-editor'
+import './hui-section-visibility-editor'
+import type { EditSectionDialogParams } from './show-edit-section-dialog'
 
-const TABS = ["tab-settings", "tab-visibility"] as const;
+const TABS = ['tab-settings', 'tab-visibility'] as const
 
-@customElement("hui-dialog-edit-section")
+@customElement('hui-dialog-edit-section')
 export class HuiDialogEditSection
   extends LitElement
   implements HassDialog<EditSectionDialogParams>
 {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public lovelace?: Lovelace;
+  @property({ attribute: false }) public lovelace?: Lovelace
 
-  @state() private _params?: EditSectionDialogParams;
+  @state() private _params?: EditSectionDialogParams
 
-  @state() private _config?: LovelaceSectionRawConfig;
+  @state() private _config?: LovelaceSectionRawConfig
 
-  @state() private _viewConfig?: LovelaceViewConfig;
+  @state() private _viewConfig?: LovelaceViewConfig
 
-  @state() private _yamlMode = false;
+  @state() private _yamlMode = false
 
-  @state() private _currTab: (typeof TABS)[number] = TABS[0];
+  @state() private _currTab: (typeof TABS)[number] = TABS[0]
 
-  @query("ha-yaml-editor") private _editor?: HaYamlEditor;
+  @query('ha-yaml-editor') private _editor?: HaYamlEditor
 
   protected updated(changedProperties: PropertyValues) {
-    if (this._yamlMode && changedProperties.has("_yamlMode")) {
+    if (this._yamlMode && changedProperties.has('_yamlMode')) {
       const sectionConfig = {
         ...this._config,
-      };
-      this._editor?.setValue(sectionConfig);
+      }
+      this._editor?.setValue(sectionConfig)
     }
   }
 
   public async showDialog(params: EditSectionDialogParams): Promise<void> {
-    this._params = params;
+    this._params = params
 
-    this.lovelace = params.lovelace;
+    this.lovelace = params.lovelace
 
     this._config = findLovelaceContainer(this._params.lovelaceConfig, [
       this._params.viewIndex,
       this._params.sectionIndex,
-    ]);
+    ])
     this._viewConfig = findLovelaceContainer(this._params.lovelaceConfig, [
       this._params.viewIndex,
-    ]);
+    ])
   }
 
   public closeDialog() {
-    this._params = undefined;
-    this._yamlMode = false;
-    this._config = undefined;
-    this._currTab = TABS[0];
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
-    return true;
+    this._params = undefined
+    this._yamlMode = false
+    this._config = undefined
+    this._currTab = TABS[0]
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
+    return true
   }
 
   protected render() {
     if (!this._params || !this._config) {
-      return nothing;
+      return nothing
     }
 
     const heading = this.hass!.localize(
-      "ui.panel.lovelace.editor.edit_section.header"
-    );
+      'ui.panel.lovelace.editor.edit_section.header'
+    )
 
-    let content: TemplateResult<1> | typeof nothing = nothing;
+    let content: TemplateResult<1> | typeof nothing = nothing
 
     if (this._yamlMode) {
       content = html`
@@ -119,10 +119,10 @@ export class HuiDialogEditSection
           dialogInitialFocus
           @value-changed=${this._viewYamlChanged}
         ></ha-yaml-editor>
-      `;
+      `
     } else {
       switch (this._currTab) {
-        case "tab-settings":
+        case 'tab-settings':
           content = html`
             <hui-section-settings-editor
               .hass=${this.hass}
@@ -131,9 +131,9 @@ export class HuiDialogEditSection
               @value-changed=${this._configChanged}
             >
             </hui-section-settings-editor>
-          `;
-          break;
-        case "tab-visibility":
+          `
+          break
+        case 'tab-visibility':
           content = html`
             <hui-section-visibility-editor
               .hass=${this.hass}
@@ -141,8 +141,8 @@ export class HuiDialogEditSection
               @value-changed=${this._configChanged}
             >
             </hui-section-visibility-editor>
-          `;
-          break;
+          `
+          break
       }
     }
 
@@ -154,14 +154,17 @@ export class HuiDialogEditSection
         @closed=${this._cancel}
         .heading=${heading}
         class=${classMap({
-          "yaml-mode": this._yamlMode,
+          'yaml-mode': this._yamlMode,
         })}
       >
-        <ha-dialog-header show-border slot="heading">
+        <ha-dialog-header
+          show-border
+          slot="heading"
+        >
           <ha-icon-button
             slot="navigationIcon"
             dialogAction="cancel"
-            .label=${this.hass.localize("ui.common.close")}
+            .label=${this.hass.localize('ui.common.close')}
             .path=${mdiClose}
           ></ha-icon-button>
           <span slot="title">${heading}</span>
@@ -175,12 +178,12 @@ export class HuiDialogEditSection
           >
             <ha-icon-button
               slot="trigger"
-              .label=${this.hass!.localize("ui.common.menu")}
+              .label=${this.hass!.localize('ui.common.menu')}
               .path=${mdiDotsVertical}
             ></ha-icon-button>
             <ha-list-item graphic="icon">
               ${this.hass.localize(
-                `ui.panel.lovelace.editor.edit_view.edit_${!this._yamlMode ? "yaml" : "ui"}`
+                `ui.panel.lovelace.editor.edit_view.edit_${!this._yamlMode ? 'yaml' : 'ui'}`
               )}
               <ha-svg-icon
                 slot="graphic"
@@ -189,7 +192,7 @@ export class HuiDialogEditSection
             </ha-list-item>
             <ha-list-item graphic="icon">
               ${this.hass!.localize(
-                "ui.panel.lovelace.editor.edit_view.move_to_view"
+                'ui.panel.lovelace.editor.edit_view.move_to_view'
               )}
               <ha-svg-icon
                 slot="graphic"
@@ -201,14 +204,14 @@ export class HuiDialogEditSection
             ? html`
                 <ha-tab-group @wa-tab-show=${this._handleTabChanged}>
                   ${TABS.map(
-                    (tab) => html`
+                    tab => html`
                       <ha-tab-group-tab
                         slot="nav"
                         .panel=${tab}
                         .active=${this._currTab === tab}
                       >
                         ${this.hass!.localize(
-                          `ui.panel.lovelace.editor.edit_section.${tab.replace("-", "_")}`
+                          `ui.panel.lovelace.editor.edit_section.${tab.replace('-', '_')}`
                         )}
                       </ha-tab-group-tab>
                     `
@@ -223,45 +226,48 @@ export class HuiDialogEditSection
           slot="secondaryAction"
           @click=${this._cancel}
         >
-          ${this.hass!.localize("ui.common.cancel")}
+          ${this.hass!.localize('ui.common.cancel')}
         </ha-button>
 
-        <ha-button slot="primaryAction" @click=${this._save}>
-          ${this.hass!.localize("ui.common.save")}
+        <ha-button
+          slot="primaryAction"
+          @click=${this._save}
+        >
+          ${this.hass!.localize('ui.common.save')}
         </ha-button>
       </ha-dialog>
-    `;
+    `
   }
 
   private _configChanged(ev: CustomEvent): void {
-    ev.stopPropagation();
-    this._config = ev.detail.value;
+    ev.stopPropagation()
+    this._config = ev.detail.value
   }
 
   private _handleTabChanged(ev: CustomEvent): void {
-    const newTab = ev.detail.name;
+    const newTab = ev.detail.name
     if (newTab === this._currTab) {
-      return;
+      return
     }
-    this._currTab = newTab;
+    this._currTab = newTab
   }
 
   private async _handleAction(ev: CustomEvent<ActionDetail>) {
-    ev.stopPropagation();
-    ev.preventDefault();
+    ev.stopPropagation()
+    ev.preventDefault()
     switch (ev.detail.index) {
       case 0:
-        this._yamlMode = !this._yamlMode;
-        break;
+        this._yamlMode = !this._yamlMode
+        break
       case 1:
-        this._openSelectView();
-        break;
+        this._openSelectView()
+        break
     }
   }
 
   private _openSelectView(): void {
     if (!this._params || !this.lovelace) {
-      return;
+      return
     }
 
     showSelectViewDialog(this, {
@@ -269,10 +275,10 @@ export class HuiDialogEditSection
       urlPath: this.lovelace.urlPath,
       allowDashboardChange: true,
       header: this.hass!.localize(
-        "ui.panel.lovelace.editor.move_section.header"
+        'ui.panel.lovelace.editor.move_section.header'
       ),
       viewSelectedCallback: this._moveSectionToView,
-    });
+    })
   }
 
   private _moveSectionToView = async (
@@ -281,31 +287,31 @@ export class HuiDialogEditSection
     viewIndex: number
   ) => {
     if (!this._params || !this.lovelace) {
-      return;
+      return
     }
 
-    const toView = selectedDashConfig.views[viewIndex];
+    const toView = selectedDashConfig.views[viewIndex]
 
     if (isStrategyView(toView)) {
       showAlertDialog(this, {
         title: this.hass!.localize(
-          "ui.panel.lovelace.editor.move_section.error_title"
+          'ui.panel.lovelace.editor.move_section.error_title'
         ),
         text: this.hass!.localize(
-          "ui.panel.lovelace.editor.move_section.error_text_strategy"
+          'ui.panel.lovelace.editor.move_section.error_text_strategy'
         ),
         warning: true,
-      });
-      return;
+      })
+      return
     }
 
-    const fromViewIndex = this._params.viewIndex;
-    const fromSectionIndex = this._params.sectionIndex;
+    const fromViewIndex = this._params.viewIndex
+    const fromSectionIndex = this._params.sectionIndex
 
     // Same dashboard
     if (urlPath === this.lovelace.urlPath) {
-      const oldConfig = this.lovelace.config;
-      const toIndex = toView.sections?.length ?? 0;
+      const oldConfig = this.lovelace.config
+      const toIndex = toView.sections?.length ?? 0
       try {
         await this.lovelace.saveConfig(
           moveSection(
@@ -313,109 +319,109 @@ export class HuiDialogEditSection
             [fromViewIndex, fromSectionIndex],
             [viewIndex, toIndex]
           )
-        );
+        )
         this.lovelace.showToast({
           message: this.hass!.localize(
-            "ui.panel.lovelace.editor.move_section.success"
+            'ui.panel.lovelace.editor.move_section.success'
           ),
           duration: 4000,
           action: {
             action: async () => {
-              await this.lovelace!.saveConfig(oldConfig);
+              await this.lovelace!.saveConfig(oldConfig)
             },
-            text: this.hass!.localize("ui.common.undo"),
+            text: this.hass!.localize('ui.common.undo'),
           },
-        });
+        })
 
-        this.closeDialog();
+        this.closeDialog()
       } catch (err: any) {
         this.lovelace.showToast({
           message: this.hass!.localize(
-            "ui.panel.lovelace.editor.move_section.error"
+            'ui.panel.lovelace.editor.move_section.error'
           ),
-        });
+        })
         // eslint-disable-next-line no-console
-        console.error(err);
+        console.error(err)
       }
-      return;
+      return
     }
 
     // Cross dashboard
-    const oldFromConfig = this.lovelace.config;
-    const oldToConfig = selectedDashConfig;
+    const oldFromConfig = this.lovelace.config
+    const oldToConfig = selectedDashConfig
     try {
       const section = findLovelaceContainer(oldFromConfig, [
         fromViewIndex,
         fromSectionIndex,
-      ]) as LovelaceSectionRawConfig;
+      ]) as LovelaceSectionRawConfig
 
       await saveConfig(
         this.hass!,
         urlPath,
         addSection(oldToConfig, viewIndex, section)
-      );
+      )
 
       await this.lovelace.saveConfig(
         deleteSection(oldFromConfig, fromViewIndex, fromSectionIndex)
-      );
+      )
 
       this.lovelace.showToast({
         message: this.hass!.localize(
-          "ui.panel.lovelace.editor.move_section.success"
+          'ui.panel.lovelace.editor.move_section.success'
         ),
         duration: 4000,
         action: {
           action: async () => {
-            await saveConfig(this.hass!, urlPath, oldToConfig);
-            await this.lovelace!.saveConfig(oldFromConfig);
+            await saveConfig(this.hass!, urlPath, oldToConfig)
+            await this.lovelace!.saveConfig(oldFromConfig)
           },
-          text: this.hass!.localize("ui.common.undo"),
+          text: this.hass!.localize('ui.common.undo'),
         },
-      });
+      })
 
-      this.closeDialog();
+      this.closeDialog()
     } catch (err: any) {
       this.lovelace.showToast({
         message: this.hass!.localize(
-          "ui.panel.lovelace.editor.move_section.error"
+          'ui.panel.lovelace.editor.move_section.error'
         ),
-      });
+      })
       // eslint-disable-next-line no-console
-      console.error(err);
+      console.error(err)
     }
-  };
+  }
 
   private _viewYamlChanged(ev: CustomEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!ev.detail.isValid) {
-      return;
+      return
     }
-    this._config = ev.detail.value;
+    this._config = ev.detail.value
   }
 
   private _ignoreKeydown(ev: KeyboardEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
   }
 
   private _cancel(ev?: Event) {
     if (ev) {
-      ev.stopPropagation();
+      ev.stopPropagation()
     }
-    this.closeDialog();
+    this.closeDialog()
   }
 
   private async _save(): Promise<void> {
     if (!this._params || !this._config) {
-      return;
+      return
     }
     const newConfig = updateLovelaceContainer(
       this._params.lovelaceConfig,
       [this._params.viewIndex, this._params.sectionIndex],
       this._config
-    );
+    )
 
-    this._params.saveConfig(newConfig);
-    this.closeDialog();
+    this._params.saveConfig(newConfig)
+    this.closeDialog()
   }
 
   static get styles(): CSSResultGroup {
@@ -439,12 +445,12 @@ export class HuiDialogEditSection
           }
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-dialog-edit-section": HuiDialogEditSection;
+    'hui-dialog-edit-section': HuiDialogEditSection
   }
 }

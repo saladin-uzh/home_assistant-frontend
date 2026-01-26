@@ -1,18 +1,18 @@
 import type {
   HassEntity,
   HassEntityAttributeBase,
-} from "home-assistant-js-websocket";
-import type { EntityRegistryDisplayEntry } from "../../data/entity_registry";
-import type { FrontendLocaleData } from "../../data/translation";
-import { NumberFormat } from "../../data/translation";
-import { round } from "./round";
+} from 'home-assistant-js-websocket'
+import type { EntityRegistryDisplayEntry } from '../../data/entity_registry'
+import type { FrontendLocaleData } from '../../data/translation'
+import { NumberFormat } from '../../data/translation'
+import { round } from './round'
 
 /**
  * Returns true if the entity is considered numeric based on the attributes it has
  * @param stateObj The entity state object
  */
 export const isNumericState = (stateObj: HassEntity): boolean =>
-  isNumericFromAttributes(stateObj.attributes);
+  isNumericFromAttributes(stateObj.attributes)
 
 export const isNumericFromAttributes = (
   attributes: HassEntityAttributeBase,
@@ -20,26 +20,26 @@ export const isNumericFromAttributes = (
 ): boolean =>
   !!attributes.unit_of_measurement ||
   !!attributes.state_class ||
-  (numericDeviceClasses || []).includes(attributes.device_class || "");
+  (numericDeviceClasses || []).includes(attributes.device_class || '')
 
 export const numberFormatToLocale = (
   localeOptions: FrontendLocaleData
 ): string | string[] | undefined => {
   switch (localeOptions.number_format) {
     case NumberFormat.comma_decimal:
-      return ["en-US", "en"]; // Use United States with fallback to English formatting 1,234,567.89
+      return ['en-US', 'en'] // Use United States with fallback to English formatting 1,234,567.89
     case NumberFormat.decimal_comma:
-      return ["de", "es", "it"]; // Use German with fallback to Spanish then Italian formatting 1.234.567,89
+      return ['de', 'es', 'it'] // Use German with fallback to Spanish then Italian formatting 1.234.567,89
     case NumberFormat.space_comma:
-      return ["fr", "sv", "cs"]; // Use French with fallback to Swedish and Czech formatting 1 234 567,89
+      return ['fr', 'sv', 'cs'] // Use French with fallback to Swedish and Czech formatting 1 234 567,89
     case NumberFormat.quote_decimal:
-      return ["de-CH"]; // Use German (Switzerland) formatting 1'234'567.89
+      return ['de-CH'] // Use German (Switzerland) formatting 1'234'567.89
     case NumberFormat.system:
-      return undefined;
+      return undefined
     default:
-      return localeOptions.language;
+      return localeOptions.language
   }
-};
+}
 
 /**
  * Formats a number based on the user's preference with thousands separator(s) and decimal character for better legibility.
@@ -53,16 +53,14 @@ export const formatNumber = (
   localeOptions?: FrontendLocaleData,
   options?: Intl.NumberFormatOptions
 ): string => {
-  const locale = localeOptions
-    ? numberFormatToLocale(localeOptions)
-    : undefined;
+  const locale = localeOptions ? numberFormatToLocale(localeOptions) : undefined
 
   // Polyfill for Number.isNaN, which is more reliable than the global isNaN()
   Number.isNaN =
     Number.isNaN ||
     function isNaN(input) {
-      return typeof input === "number" && isNaN(input);
-    };
+      return typeof input === 'number' && isNaN(input)
+    }
 
   if (
     localeOptions?.number_format !== NumberFormat.none &&
@@ -71,31 +69,31 @@ export const formatNumber = (
     return new Intl.NumberFormat(
       locale,
       getDefaultFormatOptions(num, options)
-    ).format(Number(num));
+    ).format(Number(num))
   }
 
   if (
     !Number.isNaN(Number(num)) &&
-    num !== "" &&
+    num !== '' &&
     localeOptions?.number_format === NumberFormat.none
   ) {
     // If NumberFormat is none, use en-US format without grouping.
     return new Intl.NumberFormat(
-      "en-US",
+      'en-US',
       getDefaultFormatOptions(num, {
         ...options,
         useGrouping: false,
       })
-    ).format(Number(num));
+    ).format(Number(num))
   }
 
-  if (typeof num === "string") {
-    return num;
+  if (typeof num === 'string') {
+    return num
   }
   return `${round(num, options?.maximumFractionDigits).toString()}${
-    options?.style === "currency" ? ` ${options.currency}` : ""
-  }`;
-};
+    options?.style === 'currency' ? ` ${options.currency}` : ''
+  }`
+}
 
 /**
  * Checks if the current entity state should be formatted as an integer based on the `state` and `step` attribute and returns the appropriate `Intl.NumberFormatOptions` object with `maximumFractionDigits` set
@@ -106,21 +104,21 @@ export const getNumberFormatOptions = (
   entityState?: HassEntity,
   entity?: EntityRegistryDisplayEntry
 ): Intl.NumberFormatOptions | undefined => {
-  const precision = entity?.display_precision;
+  const precision = entity?.display_precision
   if (precision != null) {
     return {
       maximumFractionDigits: precision,
       minimumFractionDigits: precision,
-    };
+    }
   }
   if (
     Number.isInteger(Number(entityState?.attributes?.step)) &&
     Number.isInteger(Number(entityState?.state))
   ) {
-    return { maximumFractionDigits: 0 };
+    return { maximumFractionDigits: 0 }
   }
-  return undefined;
-};
+  return undefined
+}
 
 /**
  * Generates default options for Intl.NumberFormat
@@ -134,10 +132,10 @@ export const getDefaultFormatOptions = (
   const defaultOptions: Intl.NumberFormatOptions = {
     maximumFractionDigits: 2,
     ...options,
-  };
+  }
 
-  if (typeof num !== "string") {
-    return defaultOptions;
+  if (typeof num !== 'string') {
+    return defaultOptions
   }
 
   // Keep decimal trailing zeros if they are present in a string numeric value
@@ -146,10 +144,10 @@ export const getDefaultFormatOptions = (
     (options.minimumFractionDigits === undefined &&
       options.maximumFractionDigits === undefined)
   ) {
-    const digits = num.indexOf(".") > -1 ? num.split(".")[1].length : 0;
-    defaultOptions.minimumFractionDigits = digits;
-    defaultOptions.maximumFractionDigits = digits;
+    const digits = num.indexOf('.') > -1 ? num.split('.')[1].length : 0
+    defaultOptions.minimumFractionDigits = digits
+    defaultOptions.maximumFractionDigits = digits
   }
 
-  return defaultOptions;
-};
+  return defaultOptions
+}

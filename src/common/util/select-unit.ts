@@ -1,20 +1,20 @@
-import { differenceInDays, differenceInWeeks, startOfWeek } from "date-fns";
-import type { FrontendLocaleData } from "../../data/translation";
-import { firstWeekdayIndex } from "../datetime/first_weekday";
+import { differenceInDays, differenceInWeeks, startOfWeek } from 'date-fns'
+import type { FrontendLocaleData } from '../../data/translation'
+import { firstWeekdayIndex } from '../datetime/first_weekday'
 
 export type Unit =
-  | "second"
-  | "minute"
-  | "hour"
-  | "day"
-  | "week"
-  | "month"
-  | "quarter"
-  | "year";
+  | 'second'
+  | 'minute'
+  | 'hour'
+  | 'day'
+  | 'week'
+  | 'month'
+  | 'quarter'
+  | 'year'
 
-const MS_PER_SECOND = 1e3;
-const SECS_PER_MIN = 60;
-const SECS_PER_HOUR = SECS_PER_MIN * 60;
+const MS_PER_SECOND = 1e3
+const SECS_PER_MIN = 60
+const SECS_PER_HOUR = SECS_PER_MIN * 60
 
 // Adapted from https://github.com/formatjs/formatjs/blob/186cef62f980ec66252ee232f438a42d0b51b9f9/packages/intl-utils/src/diff.ts
 export function selectUnit(
@@ -27,96 +27,96 @@ export function selectUnit(
   const resolvedThresholds: Thresholds = {
     ...DEFAULT_THRESHOLDS,
     ...(thresholds || {}),
-  };
+  }
 
-  const secs = (+from - +to) / MS_PER_SECOND;
+  const secs = (+from - +to) / MS_PER_SECOND
   if (Math.abs(secs) < resolvedThresholds.second) {
     return {
       value: Math.round(secs),
-      unit: "second",
-    };
+      unit: 'second',
+    }
   }
 
-  const mins = secs / SECS_PER_MIN;
+  const mins = secs / SECS_PER_MIN
   if (Math.abs(mins) < resolvedThresholds.minute) {
     return {
       value: Math.round(mins),
-      unit: "minute",
-    };
+      unit: 'minute',
+    }
   }
 
-  const hours = secs / SECS_PER_HOUR;
+  const hours = secs / SECS_PER_HOUR
   if (Math.abs(hours) < resolvedThresholds.hour) {
     return {
       value: Math.round(hours),
-      unit: "hour",
-    };
+      unit: 'hour',
+    }
   }
 
-  const fromDate = new Date(from);
-  const toDate = new Date(to);
+  const fromDate = new Date(from)
+  const toDate = new Date(to)
 
   // Set time component to zero, which allows us to compare only the days
-  fromDate.setHours(0, 0, 0, 0);
-  toDate.setHours(0, 0, 0, 0);
+  fromDate.setHours(0, 0, 0, 0)
+  toDate.setHours(0, 0, 0, 0)
 
-  const days = differenceInDays(fromDate, toDate);
+  const days = differenceInDays(fromDate, toDate)
   if (days === 0) {
     return {
       value: Math.round(hours),
-      unit: "hour",
-    };
+      unit: 'hour',
+    }
   }
   if (Math.abs(days) < resolvedThresholds.day) {
     return {
       value: days,
-      unit: "day",
-    };
+      unit: 'day',
+    }
   }
 
-  const firstWeekday = firstWeekdayIndex(locale);
-  const fromWeek = startOfWeek(fromDate, { weekStartsOn: firstWeekday });
-  const toWeek = startOfWeek(toDate, { weekStartsOn: firstWeekday });
+  const firstWeekday = firstWeekdayIndex(locale)
+  const fromWeek = startOfWeek(fromDate, { weekStartsOn: firstWeekday })
+  const toWeek = startOfWeek(toDate, { weekStartsOn: firstWeekday })
 
-  const weeks = differenceInWeeks(fromWeek, toWeek);
+  const weeks = differenceInWeeks(fromWeek, toWeek)
   if (weeks === 0) {
     return {
       value: days,
-      unit: "day",
-    };
+      unit: 'day',
+    }
   }
   if (Math.abs(weeks) < resolvedThresholds.week) {
     return {
       value: weeks,
-      unit: "week",
-    };
+      unit: 'week',
+    }
   }
 
-  const years = fromDate.getFullYear() - toDate.getFullYear();
-  const months = years * 12 + fromDate.getMonth() - toDate.getMonth();
+  const years = fromDate.getFullYear() - toDate.getFullYear()
+  const months = years * 12 + fromDate.getMonth() - toDate.getMonth()
   if (months === 0) {
     return {
       value: weeks,
-      unit: "week",
-    };
+      unit: 'week',
+    }
   }
   if (Math.abs(months) < resolvedThresholds.month || years === 0) {
     return {
       value: months,
-      unit: "month",
-    };
+      unit: 'month',
+    }
   }
 
   return {
     value: Math.round(years),
-    unit: "year",
-  };
+    unit: 'year',
+  }
 }
 
 type Thresholds = Record<
-  "second" | "minute" | "hour" | "day" | "week" | "month",
+  'second' | 'minute' | 'hour' | 'day' | 'week' | 'month',
   number
->;
+>
 
 export const DEFAULT_THRESHOLDS: Thresholds = {
   second: 59, // seconds to minute
@@ -125,4 +125,4 @@ export const DEFAULT_THRESHOLDS: Thresholds = {
   day: 5, // day to week
   week: 4, // week to months
   month: 11, // month to years
-};
+}

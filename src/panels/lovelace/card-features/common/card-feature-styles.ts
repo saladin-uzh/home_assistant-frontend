@@ -1,4 +1,4 @@
-import { css } from "lit";
+import { css } from 'lit'
 
 export const cardFeatureStyles = css`
   ha-control-select-menu {
@@ -47,4 +47,4 @@ export const cardFeatureStyles = css`
     --control-switch-border-radius: var(--feature-border-radius);
     --control-switch-padding: 0px;
   }
-`;
+`

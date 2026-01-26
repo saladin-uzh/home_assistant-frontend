@@ -1,47 +1,45 @@
-import { mdiHelpCircle } from "@mdi/js";
-import { css, html, LitElement, nothing } from "lit";
-import { property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../common/dom/fire_event";
-import { isEmptyEntityDomainFilter } from "../../../common/entity/entity_domain_filter";
-import "../../../components/ha-alert";
-import "../../../components/ha-card";
-import "../../../components/ha-button";
-import "../../../components/ha-settings-row";
-import "../../../components/ha-switch";
-import type { HaSwitch } from "../../../components/ha-switch";
-import "../../../components/ha-textfield";
-import type { HaTextField } from "../../../components/ha-textfield";
-import type { CloudStatusLoggedIn } from "../../../data/cloud";
-import { updateCloudPref } from "../../../data/cloud";
-import type { ExposeEntitySettings } from "../../../data/expose";
+import { mdiHelpCircle } from '@mdi/js'
+import { css, html, LitElement, nothing } from 'lit'
+import { property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../common/dom/fire_event'
+import { isEmptyEntityDomainFilter } from '../../../common/entity/entity_domain_filter'
+import '../../../components/ha-alert'
+import '../../../components/ha-card'
+import '../../../components/ha-button'
+import '../../../components/ha-settings-row'
+import '../../../components/ha-switch'
+import type { HaSwitch } from '../../../components/ha-switch'
+import '../../../components/ha-textfield'
+import type { HaTextField } from '../../../components/ha-textfield'
+import type { CloudStatusLoggedIn } from '../../../data/cloud'
+import { updateCloudPref } from '../../../data/cloud'
+import type { ExposeEntitySettings } from '../../../data/expose'
 import {
   getExposeNewEntities,
   setExposeNewEntities,
-} from "../../../data/expose";
-import type { HomeAssistant } from "../../../types";
-import { brandsUrl } from "../../../util/brands-url";
-import { showSaveSuccessToast } from "../../../util/toast-saved-success";
+} from '../../../data/expose'
+import type { HomeAssistant } from '../../../types'
+import { brandsUrl } from '../../../util/brands-url'
+import { showSaveSuccessToast } from '../../../util/toast-saved-success'
 
 export class CloudGooglePref extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   @property({ attribute: false }) public exposedEntities?: Record<
     string,
     ExposeEntitySettings
-  >;
+  >
 
-  @property({ attribute: false }) public cloudStatus?: CloudStatusLoggedIn;
+  @property({ attribute: false }) public cloudStatus?: CloudStatusLoggedIn
 
-  @state() private _exposeNew?: boolean;
+  @state() private _exposeNew?: boolean
 
   protected willUpdate() {
     if (!this.hasUpdated) {
-      getExposeNewEntities(this.hass, "cloud.google_assistant").then(
-        (value) => {
-          this._exposeNew = value.expose_new;
-        }
-      );
+      getExposeNewEntities(this.hass, 'cloud.google_assistant').then(value => {
+        this._exposeNew = value.expose_new
+      })
     }
   }
 
@@ -49,22 +47,22 @@ export class CloudGooglePref extends LitElement {
     (exposedEntities: Record<string, ExposeEntitySettings>) =>
       Object.entries(exposedEntities).filter(
         ([entityId, expose]) =>
-          expose["cloud.google_assistant"] && entityId in this.hass.states
+          expose['cloud.google_assistant'] && entityId in this.hass.states
       ).length
-  );
+  )
 
   protected render() {
     if (!this.cloudStatus) {
-      return nothing;
+      return nothing
     }
 
-    const google_registered = this.cloudStatus.google_registered;
+    const google_registered = this.cloudStatus.google_registered
     const { google_enabled, google_report_state, google_secure_devices_pin } =
-      this.cloudStatus.prefs;
+      this.cloudStatus.prefs
 
     const manualConfig = !isEmptyEntityDomainFilter(
       this.cloudStatus.google_entities
-    );
+    )
 
     return html`
       <ha-card outlined>
@@ -72,13 +70,13 @@ export class CloudGooglePref extends LitElement {
           <img
             alt=""
             src=${brandsUrl({
-              domain: "google_assistant",
-              type: "icon",
+              domain: 'google_assistant',
+              type: 'icon',
               darkOptimized: this.hass.themes?.darkMode,
             })}
             crossorigin="anonymous"
             referrerpolicy="no-referrer"
-          />${this.hass.localize("ui.panel.config.cloud.account.google.title")}
+          />${this.hass.localize('ui.panel.config.cloud.account.google.title')}
         </h1>
         <div class="header-actions">
           <a
@@ -89,7 +87,7 @@ export class CloudGooglePref extends LitElement {
           >
             <ha-icon-button
               .label=${this.hass.localize(
-                "ui.panel.config.cloud.account.google.link_learn_how_it_works"
+                'ui.panel.config.cloud.account.google.link_learn_how_it_works'
               )}
               .path=${mdiHelpCircle}
             ></ha-icon-button>
@@ -101,26 +99,26 @@ export class CloudGooglePref extends LitElement {
         </div>
         <div class="card-content">
           <p>
-            ${this.hass.localize("ui.panel.config.cloud.account.google.info")}
+            ${this.hass.localize('ui.panel.config.cloud.account.google.info')}
           </p>
           ${manualConfig
             ? html`<ha-alert alert-type="warning">
                 ${this.hass.localize(
-                  "ui.panel.config.cloud.account.google.manual_config"
+                  'ui.panel.config.cloud.account.google.manual_config'
                 )}
               </ha-alert>`
-            : ""}
+            : ''}
           ${!google_enabled
-            ? ""
+            ? ''
             : html`${!google_registered
                   ? html`
                       <ha-alert
                         .title=${this.hass.localize(
-                          "ui.panel.config.cloud.account.google.not_configured_title"
+                          'ui.panel.config.cloud.account.google.not_configured_title'
                         )}
                       >
                         ${this.hass.localize(
-                          "ui.panel.config.cloud.account.google.not_configured_text"
+                          'ui.panel.config.cloud.account.google.not_configured_text'
                         )}
 
                         <ul>
@@ -131,23 +129,23 @@ export class CloudGooglePref extends LitElement {
                               rel="noreferrer"
                             >
                               ${this.hass.localize(
-                                "ui.panel.config.cloud.account.google.config_documentation"
+                                'ui.panel.config.cloud.account.google.config_documentation'
                               )}
                             </a>
                           </li>
                         </ul>
                       </ha-alert>
                     `
-                  : ""}
+                  : ''}
                 <ha-settings-row>
                   <span slot="heading">
                     ${this.hass!.localize(
-                      "ui.panel.config.cloud.account.google.expose_new_entities"
+                      'ui.panel.config.cloud.account.google.expose_new_entities'
                     )}
                   </span>
                   <span slot="description">
                     ${this.hass!.localize(
-                      "ui.panel.config.cloud.account.google.expose_new_entities_info"
+                      'ui.panel.config.cloud.account.google.expose_new_entities_info'
                     )}
                   </span>
                   <ha-switch
@@ -162,33 +160,33 @@ export class CloudGooglePref extends LitElement {
                             <ha-alert
                               alert-type="warning"
                               .title=${this.hass.localize(
-                                "ui.panel.config.cloud.account.google.http_use_ssl_warning_title"
+                                'ui.panel.config.cloud.account.google.http_use_ssl_warning_title'
                               )}
                             >
                               ${this.hass.localize(
-                                "ui.panel.config.cloud.account.google.http_use_ssl_warning_text"
+                                'ui.panel.config.cloud.account.google.http_use_ssl_warning_text'
                               )}
                               <a
                                 href="https://www.nabucasa.com/config/google_assistant/#local-communication"
                                 target="_blank"
                                 rel="noreferrer"
                                 >${this.hass.localize(
-                                  "ui.panel.config.common.learn_more"
+                                  'ui.panel.config.common.learn_more'
                                 )}</a
                               >
                             </ha-alert>
                           `
-                        : ""}
+                        : ''}
 
                       <ha-settings-row>
                         <span slot="heading">
                           ${this.hass!.localize(
-                            "ui.panel.config.cloud.account.google.enable_state_reporting"
+                            'ui.panel.config.cloud.account.google.enable_state_reporting'
                           )}
                         </span>
                         <span slot="description">
                           ${this.hass!.localize(
-                            "ui.panel.config.cloud.account.google.info_state_reporting"
+                            'ui.panel.config.cloud.account.google.info_state_reporting'
                           )}
                         </span>
                         <ha-switch
@@ -200,12 +198,12 @@ export class CloudGooglePref extends LitElement {
                       <ha-settings-row>
                         <span slot="heading">
                           ${this.hass.localize(
-                            "ui.panel.config.cloud.account.google.security_devices"
+                            'ui.panel.config.cloud.account.google.security_devices'
                           )}
                         </span>
                         <span slot="description">
                           ${this.hass.localize(
-                            "ui.panel.config.cloud.account.google.enter_pin_info"
+                            'ui.panel.config.cloud.account.google.enter_pin_info'
                           )}
                         </span>
                       </ha-settings-row>
@@ -213,16 +211,16 @@ export class CloudGooglePref extends LitElement {
                       <ha-textfield
                         id="google_secure_devices_pin"
                         .label=${this.hass.localize(
-                          "ui.panel.config.cloud.account.google.devices_pin"
+                          'ui.panel.config.cloud.account.google.devices_pin'
                         )}
                         .placeholder=${this.hass.localize(
-                          "ui.panel.config.cloud.account.google.enter_pin_hint"
+                          'ui.panel.config.cloud.account.google.enter_pin_hint'
                         )}
-                        .value=${google_secure_devices_pin || ""}
+                        .value=${google_secure_devices_pin || ''}
                         @change=${this._pinChanged}
                       ></ha-textfield>
                     `
-                  : ""}`}
+                  : ''}`}
         </div>
         ${google_enabled
           ? html`<div class="card-actions">
@@ -233,10 +231,10 @@ export class CloudGooglePref extends LitElement {
               >
                 ${manualConfig
                   ? this.hass!.localize(
-                      "ui.panel.config.cloud.account.google.show_entities"
+                      'ui.panel.config.cloud.account.google.show_entities'
                     )
                   : this.hass.localize(
-                      "ui.panel.config.cloud.account.google.exposed_entities",
+                      'ui.panel.config.cloud.account.google.exposed_entities',
                       {
                         number: this.exposedEntities
                           ? this._exposedEntitiesCount(this.exposedEntities)
@@ -247,67 +245,67 @@ export class CloudGooglePref extends LitElement {
             </div>`
           : nothing}
       </ha-card>
-    `;
+    `
   }
 
   private async _exposeNewToggleChanged(ev) {
-    const toggle = ev.target as HaSwitch;
+    const toggle = ev.target as HaSwitch
     if (this._exposeNew === undefined || this._exposeNew === toggle.checked) {
-      return;
+      return
     }
     try {
       await setExposeNewEntities(
         this.hass,
-        "cloud.google_assistant",
+        'cloud.google_assistant',
         toggle.checked
-      );
+      )
     } catch (_err: any) {
-      toggle.checked = !toggle.checked;
+      toggle.checked = !toggle.checked
     }
   }
 
   private async _enabledToggleChanged(ev) {
-    const toggle = ev.target as HaSwitch;
+    const toggle = ev.target as HaSwitch
     try {
-      await updateCloudPref(this.hass, { google_enabled: toggle.checked! });
-      fireEvent(this, "ha-refresh-cloud-status");
+      await updateCloudPref(this.hass, { google_enabled: toggle.checked! })
+      fireEvent(this, 'ha-refresh-cloud-status')
     } catch (_err: any) {
-      toggle.checked = !toggle.checked;
+      toggle.checked = !toggle.checked
     }
   }
 
   private async _reportToggleChanged(ev) {
-    const toggle = ev.target as HaSwitch;
+    const toggle = ev.target as HaSwitch
     try {
       await updateCloudPref(this.hass, {
         google_report_state: toggle.checked!,
-      });
-      fireEvent(this, "ha-refresh-cloud-status");
+      })
+      fireEvent(this, 'ha-refresh-cloud-status')
     } catch (err: any) {
       alert(
-        `Unable to ${toggle.checked ? "enable" : "disable"} report state. ${
+        `Unable to ${toggle.checked ? 'enable' : 'disable'} report state. ${
           err.message
         }`
-      );
-      toggle.checked = !toggle.checked;
+      )
+      toggle.checked = !toggle.checked
     }
   }
 
   private async _pinChanged(ev) {
-    const input = ev.target as HaTextField;
+    const input = ev.target as HaTextField
     try {
       await updateCloudPref(this.hass, {
         [input.id]: input.value || null,
-      });
-      showSaveSuccessToast(this, this.hass);
-      fireEvent(this, "ha-refresh-cloud-status");
+      })
+      showSaveSuccessToast(this, this.hass)
+      fireEvent(this, 'ha-refresh-cloud-status')
     } catch (err: any) {
       alert(
         `${this.hass.localize(
-          "ui.panel.config.cloud.account.google.enter_pin_error"
+          'ui.panel.config.cloud.account.google.enter_pin_error'
         )} ${err.message}`
-      );
-      input.value = this.cloudStatus!.prefs.google_secure_devices_pin || "";
+      )
+      input.value = this.cloudStatus!.prefs.google_secure_devices_pin || ''
     }
   }
 
@@ -359,13 +357,13 @@ export class CloudGooglePref extends LitElement {
       margin-inline-end: 16px;
       margin-inline-start: initial;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "cloud-google-pref": CloudGooglePref;
+    'cloud-google-pref': CloudGooglePref
   }
 }
 
-customElements.define("cloud-google-pref", CloudGooglePref);
+customElements.define('cloud-google-pref', CloudGooglePref)

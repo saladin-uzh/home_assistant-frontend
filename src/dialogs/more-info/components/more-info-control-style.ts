@@ -1,4 +1,4 @@
-import { css } from "lit";
+import { css } from 'lit'
 
 export const moreInfoControlStyle = css`
   :host {
@@ -40,4 +40,4 @@ export const moreInfoControlStyle = css`
   ha-more-info-control-select-container + ha-attributes:not([empty]) {
     margin-top: 16px;
   }
-`;
+`

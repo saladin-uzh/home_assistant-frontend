@@ -1,21 +1,21 @@
-import { html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../common/dom/fire_event";
-import type { UiColorSelector } from "../../data/selector";
-import "../ha-color-picker";
-import type { HomeAssistant } from "../../types";
+import { html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../common/dom/fire_event'
+import type { UiColorSelector } from '../../data/selector'
+import '../ha-color-picker'
+import type { HomeAssistant } from '../../types'
 
-@customElement("ha-selector-ui_color")
+@customElement('ha-selector-ui_color')
 export class HaSelectorUiColor extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: UiColorSelector;
+  @property({ attribute: false }) public selector!: UiColorSelector
 
-  @property() public value?: string;
+  @property() public value?: string
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
   protected render() {
     return html`
@@ -29,17 +29,17 @@ export class HaSelectorUiColor extends LitElement {
         .defaultColor=${this.selector.ui_color?.default_color}
         @value-changed=${this._valueChanged}
       ></ha-color-picker>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent) {
-    ev.stopPropagation();
-    fireEvent(this, "value-changed", { value: ev.detail.value });
+    ev.stopPropagation()
+    fireEvent(this, 'value-changed', { value: ev.detail.value })
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-ui_color": HaSelectorUiColor;
+    'ha-selector-ui_color': HaSelectorUiColor
   }
 }

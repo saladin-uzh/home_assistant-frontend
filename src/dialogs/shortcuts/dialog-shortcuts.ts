@@ -1,176 +1,176 @@
-import { mdiAppleKeyboardCommand } from "@mdi/js";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../common/dom/fire_event";
-import type { LocalizeKeys } from "../../common/translations/localize";
-import "../../components/ha-alert";
-import { createCloseHeading } from "../../components/ha-dialog";
-import "../../components/ha-svg-icon";
-import { haStyleDialog } from "../../resources/styles";
-import type { HomeAssistant } from "../../types";
-import { isMac } from "../../util/is_mac";
+import { mdiAppleKeyboardCommand } from '@mdi/js'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../common/dom/fire_event'
+import type { LocalizeKeys } from '../../common/translations/localize'
+import '../../components/ha-alert'
+import { createCloseHeading } from '../../components/ha-dialog'
+import '../../components/ha-svg-icon'
+import { haStyleDialog } from '../../resources/styles'
+import type { HomeAssistant } from '../../types'
+import { isMac } from '../../util/is_mac'
 
 interface Text {
-  textTranslationKey: LocalizeKeys;
+  textTranslationKey: LocalizeKeys
 }
 
 interface LocalizedShortcut {
-  shortcutTranslationKey: LocalizeKeys;
+  shortcutTranslationKey: LocalizeKeys
 }
 
-type ShortcutString = string | LocalizedShortcut;
+type ShortcutString = string | LocalizedShortcut
 
 interface Shortcut {
-  shortcut: ShortcutString[];
-  descriptionTranslationKey: LocalizeKeys;
+  shortcut: ShortcutString[]
+  descriptionTranslationKey: LocalizeKeys
 }
 
 interface Section {
-  titleTranslationKey: LocalizeKeys;
-  items: (Text | Shortcut)[];
+  titleTranslationKey: LocalizeKeys
+  items: (Text | Shortcut)[]
 }
 
-const CTRL_CMD = "__CTRL_CMD__";
+const CTRL_CMD = '__CTRL_CMD__'
 
 const _SHORTCUTS: Section[] = [
   {
-    titleTranslationKey: "ui.dialogs.shortcuts.searching.title",
+    titleTranslationKey: 'ui.dialogs.shortcuts.searching.title',
     items: [
       {
-        textTranslationKey: "ui.dialogs.shortcuts.searching.on_any_page",
+        textTranslationKey: 'ui.dialogs.shortcuts.searching.on_any_page',
       },
       {
-        shortcut: ["C"],
+        shortcut: ['C'],
         descriptionTranslationKey:
-          "ui.dialogs.shortcuts.searching.search_command",
+          'ui.dialogs.shortcuts.searching.search_command',
       },
       {
-        shortcut: ["E"],
+        shortcut: ['E'],
         descriptionTranslationKey:
-          "ui.dialogs.shortcuts.searching.search_entities",
+          'ui.dialogs.shortcuts.searching.search_entities',
       },
       {
-        shortcut: ["D"],
+        shortcut: ['D'],
         descriptionTranslationKey:
-          "ui.dialogs.shortcuts.searching.search_devices",
+          'ui.dialogs.shortcuts.searching.search_devices',
       },
       {
         textTranslationKey:
-          "ui.dialogs.shortcuts.searching.on_pages_with_tables",
+          'ui.dialogs.shortcuts.searching.on_pages_with_tables',
       },
       {
-        shortcut: [CTRL_CMD, "F"],
+        shortcut: [CTRL_CMD, 'F'],
         descriptionTranslationKey:
-          "ui.dialogs.shortcuts.searching.search_in_table",
+          'ui.dialogs.shortcuts.searching.search_in_table',
       },
     ],
   },
   {
-    titleTranslationKey: "ui.dialogs.shortcuts.assist.title",
+    titleTranslationKey: 'ui.dialogs.shortcuts.assist.title',
     items: [
       {
-        shortcut: ["A"],
-        descriptionTranslationKey: "ui.dialogs.shortcuts.assist.open_assist",
+        shortcut: ['A'],
+        descriptionTranslationKey: 'ui.dialogs.shortcuts.assist.open_assist',
       },
     ],
   },
   {
-    titleTranslationKey: "ui.dialogs.shortcuts.automation_script.title",
+    titleTranslationKey: 'ui.dialogs.shortcuts.automation_script.title',
     items: [
       {
-        shortcut: [CTRL_CMD, "C"],
+        shortcut: [CTRL_CMD, 'C'],
         descriptionTranslationKey:
-          "ui.dialogs.shortcuts.automation_script.copy",
+          'ui.dialogs.shortcuts.automation_script.copy',
       },
       {
-        shortcut: [CTRL_CMD, "X"],
-        descriptionTranslationKey: "ui.dialogs.shortcuts.automation_script.cut",
+        shortcut: [CTRL_CMD, 'X'],
+        descriptionTranslationKey: 'ui.dialogs.shortcuts.automation_script.cut',
       },
       {
         shortcut: [
           CTRL_CMD,
-          { shortcutTranslationKey: "ui.dialogs.shortcuts.keys.del" },
+          { shortcutTranslationKey: 'ui.dialogs.shortcuts.keys.del' },
         ],
         descriptionTranslationKey:
-          "ui.dialogs.shortcuts.automation_script.delete",
+          'ui.dialogs.shortcuts.automation_script.delete',
       },
       {
-        shortcut: [CTRL_CMD, "V"],
+        shortcut: [CTRL_CMD, 'V'],
         descriptionTranslationKey:
-          "ui.dialogs.shortcuts.automation_script.paste",
+          'ui.dialogs.shortcuts.automation_script.paste',
       },
       {
-        shortcut: [CTRL_CMD, "S"],
+        shortcut: [CTRL_CMD, 'S'],
         descriptionTranslationKey:
-          "ui.dialogs.shortcuts.automation_script.save",
+          'ui.dialogs.shortcuts.automation_script.save',
       },
       {
-        shortcut: [CTRL_CMD, "Z"],
+        shortcut: [CTRL_CMD, 'Z'],
         descriptionTranslationKey:
-          "ui.dialogs.shortcuts.automation_script.undo",
+          'ui.dialogs.shortcuts.automation_script.undo',
       },
       {
-        shortcut: [CTRL_CMD, "Y"],
+        shortcut: [CTRL_CMD, 'Y'],
         descriptionTranslationKey:
-          "ui.dialogs.shortcuts.automation_script.redo",
+          'ui.dialogs.shortcuts.automation_script.redo',
       },
     ],
   },
   {
-    titleTranslationKey: "ui.dialogs.shortcuts.charts.title",
+    titleTranslationKey: 'ui.dialogs.shortcuts.charts.title',
     items: [
       {
         shortcut: [
           CTRL_CMD,
-          { shortcutTranslationKey: "ui.dialogs.shortcuts.shortcuts.drag" },
+          { shortcutTranslationKey: 'ui.dialogs.shortcuts.shortcuts.drag' },
         ],
-        descriptionTranslationKey: "ui.dialogs.shortcuts.charts.drag_to_zoom",
+        descriptionTranslationKey: 'ui.dialogs.shortcuts.charts.drag_to_zoom',
       },
       {
         shortcut: [
           CTRL_CMD,
           {
             shortcutTranslationKey:
-              "ui.dialogs.shortcuts.shortcuts.scroll_wheel",
+              'ui.dialogs.shortcuts.shortcuts.scroll_wheel',
           },
         ],
-        descriptionTranslationKey: "ui.dialogs.shortcuts.charts.scroll_to_zoom",
+        descriptionTranslationKey: 'ui.dialogs.shortcuts.charts.scroll_to_zoom',
       },
       {
         shortcut: [
           {
             shortcutTranslationKey:
-              "ui.dialogs.shortcuts.shortcuts.double_click",
+              'ui.dialogs.shortcuts.shortcuts.double_click',
           },
         ],
-        descriptionTranslationKey: "ui.dialogs.shortcuts.charts.double_click",
+        descriptionTranslationKey: 'ui.dialogs.shortcuts.charts.double_click',
       },
     ],
   },
   {
-    titleTranslationKey: "ui.dialogs.shortcuts.other.title",
+    titleTranslationKey: 'ui.dialogs.shortcuts.other.title',
     items: [
       {
-        shortcut: ["M"],
-        descriptionTranslationKey: "ui.dialogs.shortcuts.other.my_link",
+        shortcut: ['M'],
+        descriptionTranslationKey: 'ui.dialogs.shortcuts.other.my_link',
       },
     ],
   },
-];
+]
 
-@customElement("dialog-shortcuts")
+@customElement('dialog-shortcuts')
 class DialogShortcuts extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _opened = false;
+  @state() private _opened = false
 
   public async showDialog(): Promise<void> {
-    this._opened = true;
+    this._opened = true
   }
 
   public async closeDialog(): Promise<void> {
-    this._opened = false;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._opened = false
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   private _renderShortcut(
@@ -180,15 +180,15 @@ class DialogShortcuts extends LitElement {
     return html`
       <div class="shortcut">
         ${shortcutKeys.map(
-          (shortcutKey) =>
+          shortcutKey =>
             html`<span
               >${shortcutKey === CTRL_CMD
                 ? isMac
                   ? html`<ha-svg-icon
                       .path=${mdiAppleKeyboardCommand}
                     ></ha-svg-icon>`
-                  : this.hass.localize("ui.panel.config.automation.editor.ctrl")
-                : typeof shortcutKey === "string"
+                  : this.hass.localize('ui.panel.config.automation.editor.ctrl')
+                : typeof shortcutKey === 'string'
                   ? shortcutKey
                   : this.hass.localize(
                       shortcutKey.shortcutTranslationKey
@@ -197,12 +197,12 @@ class DialogShortcuts extends LitElement {
         )}
         ${this.hass.localize(descriptionKey)}
       </div>
-    `;
+    `
   }
 
   protected render() {
     if (!this._opened) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -213,24 +213,24 @@ class DialogShortcuts extends LitElement {
         defaultAction="ignore"
         .heading=${createCloseHeading(
           this.hass,
-          this.hass.localize("ui.dialogs.shortcuts.title")
+          this.hass.localize('ui.dialogs.shortcuts.title')
         )}
       >
         <div class="content">
           ${_SHORTCUTS.map(
-            (section) => html`
+            section => html`
               <h3>${this.hass.localize(section.titleTranslationKey)}</h3>
               <div class="items">
-                ${section.items.map((item) => {
-                  if ("shortcut" in item) {
+                ${section.items.map(item => {
+                  if ('shortcut' in item) {
                     return this._renderShortcut(
                       (item as Shortcut).shortcut,
                       (item as Shortcut).descriptionTranslationKey
-                    );
+                    )
                   }
                   return html`<p>
                     ${this.hass.localize((item as Text).textTranslationKey)}
-                  </p>`;
+                  </p>`
                 })}
               </div>
             `
@@ -238,16 +238,16 @@ class DialogShortcuts extends LitElement {
         </div>
 
         <ha-alert>
-          ${this.hass.localize("ui.dialogs.shortcuts.enable_shortcuts_hint", {
+          ${this.hass.localize('ui.dialogs.shortcuts.enable_shortcuts_hint', {
             user_profile: html`<a href="/profile/general#shortcuts"
               >${this.hass.localize(
-                "ui.dialogs.shortcuts.enable_shortcuts_hint_user_profile"
+                'ui.dialogs.shortcuts.enable_shortcuts_hint_user_profile'
               )}</a
             >`,
           })}
         </ha-alert>
       </ha-dialog>
-    `;
+    `
   }
 
   static styles = [
@@ -287,11 +287,11 @@ class DialogShortcuts extends LitElement {
         width: 12px;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-shortcuts": DialogShortcuts;
+    'dialog-shortcuts': DialogShortcuts
   }
 }

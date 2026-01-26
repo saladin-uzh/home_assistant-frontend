@@ -1,6 +1,6 @@
-import type { HomeAssistant } from "../../types";
+import type { HomeAssistant } from '../../types'
 
-type ResultCache<T> = Record<string, Promise<T> | undefined>;
+type ResultCache<T> = Record<string, Promise<T> | undefined>
 
 /**
  * Call a function with result caching per entity.
@@ -20,32 +20,32 @@ export const timeCacheEntityPromiseFunc = async <T>(
   entityId: string,
   ...args: any[]
 ): Promise<T> => {
-  let cache: ResultCache<T> | undefined = (hass as any)[cacheKey];
+  let cache: ResultCache<T> | undefined = (hass as any)[cacheKey]
 
   if (!cache) {
-    cache = hass[cacheKey] = {};
+    cache = hass[cacheKey] = {}
   }
 
-  const lastResult = cache[entityId];
+  const lastResult = cache[entityId]
 
   if (lastResult) {
-    return lastResult;
+    return lastResult
   }
 
-  const result = func(hass, entityId, ...args);
-  cache[entityId] = result;
+  const result = func(hass, entityId, ...args)
+  cache[entityId] = result
 
   result.then(
     // When successful, set timer to clear cache
     () =>
       setTimeout(() => {
-        cache![entityId] = undefined;
+        cache![entityId] = undefined
       }, cacheTime),
     // On failure, clear cache right away
     () => {
-      cache![entityId] = undefined;
+      cache![entityId] = undefined
     }
-  );
+  )
 
-  return result;
-};
+  return result
+}

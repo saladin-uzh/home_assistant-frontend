@@ -1,12 +1,12 @@
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { HomeAssistant } from "../../../types";
-import "./hui-card-feature";
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { HomeAssistant } from '../../../types'
+import './hui-card-feature'
 import type {
   LovelaceCardFeatureConfig,
   LovelaceCardFeatureContext,
   LovelaceCardFeaturePosition,
-} from "./types";
+} from './types'
 
 /**
  * Home Assistant tile icon component
@@ -19,26 +19,26 @@ import type {
  * @cssprop --ha-card-features-border-radius - The border radius of the card features. defaults to `var(--ha-border-radius-lg)`.
  *
  */
-@customElement("hui-card-features")
+@customElement('hui-card-features')
 export class HuiCardFeatures extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public context!: LovelaceCardFeatureContext;
+  @property({ attribute: false }) public context!: LovelaceCardFeatureContext
 
-  @property({ attribute: false }) public features?: LovelaceCardFeatureConfig[];
+  @property({ attribute: false }) public features?: LovelaceCardFeatureConfig[]
 
-  @property({ attribute: false }) public color?: string;
+  @property({ attribute: false }) public color?: string
 
   @property({ attribute: false })
-  public position?: LovelaceCardFeaturePosition;
+  public position?: LovelaceCardFeaturePosition
 
   protected render() {
     if (!this.features) {
-      return nothing;
+      return nothing
     }
     return html`
       ${this.features.map(
-        (feature) => html`
+        feature => html`
           <hui-card-feature
             .hass=${this.hass}
             .context=${this.context}
@@ -48,7 +48,7 @@ export class HuiCardFeatures extends LitElement {
           ></hui-card-feature>
         `
       )}
-    `;
+    `
   }
 
   static styles = css`
@@ -70,11 +70,11 @@ export class HuiCardFeatures extends LitElement {
       box-sizing: border-box;
       justify-content: space-evenly;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-card-features": HuiCardFeatures;
+    'hui-card-features': HuiCardFeatures
   }
 }

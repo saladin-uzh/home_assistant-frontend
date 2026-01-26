@@ -1,48 +1,51 @@
-import type { CSSResultGroup } from "lit";
-import { LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { formatNumber } from "../common/number/format_number";
-import { blankBeforeUnit } from "../common/translations/blank_before_unit";
-import type { HomeAssistant } from "../types";
+import type { CSSResultGroup } from 'lit'
+import { LitElement, css, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { formatNumber } from '../common/number/format_number'
+import { blankBeforeUnit } from '../common/translations/blank_before_unit'
+import type { HomeAssistant } from '../types'
 
-@customElement("ha-big-number")
+@customElement('ha-big-number')
 export class HaBigNumber extends LitElement {
-  @property({ type: Number }) public value!: number;
+  @property({ type: Number }) public value!: number
 
-  @property() public unit?: string;
+  @property() public unit?: string
 
-  @property({ attribute: "unit-position" })
-  public unitPosition: "top" | "bottom" = "top";
+  @property({ attribute: 'unit-position' })
+  public unitPosition: 'top' | 'bottom' = 'top'
 
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
   @property({ attribute: false })
-  public formatOptions: Intl.NumberFormatOptions = {};
+  public formatOptions: Intl.NumberFormatOptions = {}
 
   protected render() {
     const formatted = formatNumber(
       this.value,
       this.hass?.locale,
       this.formatOptions
-    );
-    const [integer] = formatted.includes(".")
-      ? formatted.split(".")
-      : formatted.split(",");
+    )
+    const [integer] = formatted.includes('.')
+      ? formatted.split('.')
+      : formatted.split(',')
 
-    const temperatureDecimal = formatted.replace(integer, "");
+    const temperatureDecimal = formatted.replace(integer, '')
 
     const formattedValue = `${this.value}${
       this.unit
         ? `${blankBeforeUnit(this.unit, this.hass?.locale)}${this.unit}`
-        : ""
-    }`;
+        : ''
+    }`
 
-    const unitBottom = this.unitPosition === "bottom";
+    const unitBottom = this.unitPosition === 'bottom'
 
     return html`
       <p class="value">
-        <span aria-hidden="true" class="displayed-value">
+        <span
+          aria-hidden="true"
+          class="displayed-value"
+        >
           <span>${integer}</span>
           <span class="addon ${classMap({ bottom: unitBottom })}">
             <span class="decimal">${temperatureDecimal}</span>
@@ -51,7 +54,7 @@ export class HaBigNumber extends LitElement {
         </span>
         <span class="visually-hidden">${formattedValue}</span>
       </p>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -106,12 +109,12 @@ export class HaBigNumber extends LitElement {
           border: 0;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-big-number": HaBigNumber;
+    'ha-big-number': HaBigNumber
   }
 }

@@ -1,4 +1,4 @@
-import { css } from "lit";
+import { css } from 'lit'
 
 export const energyCardStyles = css`
   ha-card {
@@ -42,4 +42,4 @@ export const energyCardStyles = css`
   ha-icon-button {
     color: var(--secondary-text-color);
   }
-`;
+`

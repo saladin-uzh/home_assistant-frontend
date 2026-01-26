@@ -1,49 +1,48 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import type { HomeAssistant } from "../types";
-import { subscribeLabFeatures } from "../data/labs";
-import { SubscribeMixin } from "../mixins/subscribe-mixin";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import type { HomeAssistant } from '../types'
+import { subscribeLabFeatures } from '../data/labs'
+import { SubscribeMixin } from '../mixins/subscribe-mixin'
 
 interface Snowflake {
-  id: number;
-  left: number;
-  size: number;
-  duration: number;
-  delay: number;
-  blur: number;
+  id: number
+  left: number
+  size: number
+  duration: number
+  delay: number
+  blur: number
 }
 
-@customElement("ha-snowflakes")
+@customElement('ha-snowflakes')
 export class HaSnowflakes extends SubscribeMixin(LitElement) {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @state() private _enabled = false;
+  @state() private _enabled = false
 
-  @state() private _snowflakes: Snowflake[] = [];
+  @state() private _snowflakes: Snowflake[] = []
 
-  private _maxSnowflakes = 50;
+  private _maxSnowflakes = 50
 
   public hassSubscribe() {
     return [
-      subscribeLabFeatures(this.hass!.connection, (features) => {
+      subscribeLabFeatures(this.hass!.connection, features => {
         this._enabled =
           features.find(
-            (f) =>
-              f.domain === "frontend" && f.preview_feature === "winter_mode"
-          )?.enabled ?? false;
+            f => f.domain === 'frontend' && f.preview_feature === 'winter_mode'
+          )?.enabled ?? false
       }),
-    ];
+    ]
   }
 
   private _generateSnowflakes() {
     if (!this._enabled) {
-      this._snowflakes = [];
-      return;
+      this._snowflakes = []
+      return
     }
 
-    const snowflakes: Snowflake[] = [];
+    const snowflakes: Snowflake[] = []
     for (let i = 0; i < this._maxSnowflakes; i++) {
       snowflakes.push({
         id: i,
@@ -52,33 +51,36 @@ export class HaSnowflakes extends SubscribeMixin(LitElement) {
         duration: Math.random() * 8 + 8, // Random duration between 8-16s
         delay: Math.random() * 8, // Random delay between 0-8s
         blur: Math.random() * 1, // Random blur between 0-1px
-      });
+      })
     }
-    this._snowflakes = snowflakes;
+    this._snowflakes = snowflakes
   }
 
   protected willUpdate(changedProps: Map<string, unknown>) {
-    super.willUpdate(changedProps);
-    if (changedProps.has("_enabled")) {
-      this._generateSnowflakes();
+    super.willUpdate(changedProps)
+    if (changedProps.has('_enabled')) {
+      this._generateSnowflakes()
     }
   }
 
   protected render() {
     if (!this._enabled) {
-      return nothing;
+      return nothing
     }
 
-    const isDark = this.hass?.themes.darkMode ?? false;
+    const isDark = this.hass?.themes.darkMode ?? false
 
     return html`
-      <div class="snowflakes ${isDark ? "dark" : "light"}" aria-hidden="true">
+      <div
+        class="snowflakes ${isDark ? 'dark' : 'light'}"
+        aria-hidden="true"
+      >
         ${this._snowflakes.map(
-          (flake) => html`
+          flake => html`
             <div
               class="snowflake ${this.narrow && flake.id >= 30
-                ? "hide-narrow"
-                : ""}"
+                ? 'hide-narrow'
+                : ''}"
               style="
                 left: ${flake.left}%;
                 font-size: ${flake.size}px;
@@ -92,7 +94,7 @@ export class HaSnowflakes extends SubscribeMixin(LitElement) {
           `
         )}
       </div>
-    `;
+    `
   }
 
   static readonly styles = css`
@@ -168,11 +170,11 @@ export class HaSnowflakes extends SubscribeMixin(LitElement) {
         display: none;
       }
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-snowflakes": HaSnowflakes;
+    'ha-snowflakes': HaSnowflakes
   }
 }

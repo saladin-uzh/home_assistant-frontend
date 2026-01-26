@@ -3,95 +3,95 @@ import {
   mdiClose,
   mdiHelpCircleOutline,
   mdiStar,
-} from "@mdi/js";
-import type { CSSResultGroup, PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { storage } from "../../common/decorators/storage";
-import { fireEvent } from "../../common/dom/fire_event";
-import { stopPropagation } from "../../common/dom/stop_propagation";
-import "../../components/ha-alert";
-import "../../components/ha-assist-chat";
-import "../../components/ha-button";
-import "../../components/ha-button-menu";
-import "../../components/ha-dialog";
-import "../../components/ha-dialog-header";
-import "../../components/ha-icon-button";
-import "../../components/ha-list-item";
-import "../../components/ha-spinner";
-import type { AssistPipeline } from "../../data/assist_pipeline";
+} from '@mdi/js'
+import type { CSSResultGroup, PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { storage } from '../../common/decorators/storage'
+import { fireEvent } from '../../common/dom/fire_event'
+import { stopPropagation } from '../../common/dom/stop_propagation'
+import '../../components/ha-alert'
+import '../../components/ha-assist-chat'
+import '../../components/ha-button'
+import '../../components/ha-button-menu'
+import '../../components/ha-dialog'
+import '../../components/ha-dialog-header'
+import '../../components/ha-icon-button'
+import '../../components/ha-list-item'
+import '../../components/ha-spinner'
+import type { AssistPipeline } from '../../data/assist_pipeline'
 import {
   getAssistPipeline,
   listAssistPipelines,
-} from "../../data/assist_pipeline";
-import { haStyleDialog } from "../../resources/styles";
-import type { HomeAssistant } from "../../types";
-import { documentationUrl } from "../../util/documentation-url";
-import type { VoiceCommandDialogParams } from "./show-ha-voice-command-dialog";
+} from '../../data/assist_pipeline'
+import { haStyleDialog } from '../../resources/styles'
+import type { HomeAssistant } from '../../types'
+import { documentationUrl } from '../../util/documentation-url'
+import type { VoiceCommandDialogParams } from './show-ha-voice-command-dialog'
 
-@customElement("ha-voice-command-dialog")
+@customElement('ha-voice-command-dialog')
 export class HaVoiceCommandDialog extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _opened = false;
+  @state() private _opened = false
 
   @state()
   @storage({
-    key: "AssistPipelineId",
+    key: 'AssistPipelineId',
     state: true,
     subscribe: false,
   })
-  private _pipelineId?: string;
+  private _pipelineId?: string
 
-  @state() private _pipeline?: AssistPipeline;
+  @state() private _pipeline?: AssistPipeline
 
-  @state() private _pipelines?: AssistPipeline[];
+  @state() private _pipelines?: AssistPipeline[]
 
-  @state() private _preferredPipeline?: string;
+  @state() private _preferredPipeline?: string
 
-  @state() private _errorLoadAssist?: "not_found" | "unknown";
+  @state() private _errorLoadAssist?: 'not_found' | 'unknown'
 
-  private _startListening = false;
+  private _startListening = false
 
   public async showDialog(
     params: Required<VoiceCommandDialogParams>
   ): Promise<void> {
-    await this._loadPipelines();
-    const pipelinesIds = this._pipelines?.map((pipeline) => pipeline.id) || [];
+    await this._loadPipelines()
+    const pipelinesIds = this._pipelines?.map(pipeline => pipeline.id) || []
     if (
-      params.pipeline_id === "preferred" ||
-      (params.pipeline_id === "last_used" && !this._pipelineId)
+      params.pipeline_id === 'preferred' ||
+      (params.pipeline_id === 'last_used' && !this._pipelineId)
     ) {
-      this._pipelineId = this._preferredPipeline;
-    } else if (!["last_used", "preferred"].includes(params.pipeline_id)) {
-      this._pipelineId = params.pipeline_id;
+      this._pipelineId = this._preferredPipeline
+    } else if (!['last_used', 'preferred'].includes(params.pipeline_id)) {
+      this._pipelineId = params.pipeline_id
     }
 
     // If the pipeline id is not in the list of pipelines, set it to preferred
     if (this._pipelineId && !pipelinesIds.includes(this._pipelineId)) {
-      this._pipelineId = this._preferredPipeline;
+      this._pipelineId = this._preferredPipeline
     }
 
-    this._startListening = params.start_listening;
-    this._opened = true;
+    this._startListening = params.start_listening
+    this._opened = true
   }
 
   public async closeDialog(): Promise<void> {
-    this._opened = false;
-    this._pipelines = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._opened = false
+    this._pipelines = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._opened) {
-      return nothing;
+      return nothing
     }
 
     return html`
       <ha-dialog
         open
         @closed=${this.closeDialog}
-        .heading=${this.hass.localize("ui.dialogs.voice_command.title")}
+        .heading=${this.hass.localize('ui.dialogs.voice_command.title')}
         flexContent
         hideactions
       >
@@ -99,11 +99,11 @@ export class HaVoiceCommandDialog extends LitElement {
           <ha-icon-button
             slot="navigationIcon"
             dialogAction="cancel"
-            .label=${this.hass.localize("ui.common.close")}
+            .label=${this.hass.localize('ui.common.close')}
             .path=${mdiClose}
           ></ha-icon-button>
           <div slot="title">
-            ${this.hass.localize("ui.dialogs.voice_command.title")}
+            ${this.hass.localize('ui.dialogs.voice_command.title')}
             <ha-button-menu
               @opened=${this._loadPipelines}
               @closed=${stopPropagation}
@@ -117,14 +117,17 @@ export class HaVoiceCommandDialog extends LitElement {
                 size="small"
               >
                 ${this._pipeline?.name}
-                <ha-svg-icon slot="end" .path=${mdiChevronDown}></ha-svg-icon>
+                <ha-svg-icon
+                  slot="end"
+                  .path=${mdiChevronDown}
+                ></ha-svg-icon>
               </ha-button>
               ${!this._pipelines
                 ? html`<div class="pipelines-loading">
                     <ha-spinner size="small"></ha-spinner>
                   </div>`
                 : this._pipelines?.map(
-                    (pipeline) =>
+                    pipeline =>
                       html`<ha-list-item
                         ?selected=${pipeline.id === this._pipelineId ||
                         (!this._pipelineId &&
@@ -145,11 +148,14 @@ export class HaVoiceCommandDialog extends LitElement {
                       </ha-list-item>`
                   )}
               ${this.hass.user?.is_admin
-                ? html`<li divider role="separator"></li>
+                ? html`<li
+                      divider
+                      role="separator"
+                    ></li>
                     <a href="/config/voice-assistants/assistants"
                       ><ha-list-item
                         >${this.hass.localize(
-                          "ui.dialogs.voice_command.manage_assistants"
+                          'ui.dialogs.voice_command.manage_assistants'
                         )}</ha-list-item
                       ></a
                     >`
@@ -157,13 +163,13 @@ export class HaVoiceCommandDialog extends LitElement {
             </ha-button-menu>
           </div>
           <a
-            href=${documentationUrl(this.hass, "/docs/assist/")}
+            href=${documentationUrl(this.hass, '/docs/assist/')}
             slot="actionItems"
             target="_blank"
             rel="noopener noreferer"
           >
             <ha-icon-button
-              .label=${this.hass.localize("ui.common.help")}
+              .label=${this.hass.localize('ui.common.help')}
               .path=${mdiHelpCircleOutline}
             ></ha-icon-button>
           </a>
@@ -188,57 +194,57 @@ export class HaVoiceCommandDialog extends LitElement {
                 <ha-spinner size="large"></ha-spinner>
               </div>`}
       </ha-dialog>
-    `;
+    `
   }
 
   protected willUpdate(changedProperties: PropertyValues): void {
     if (
-      changedProperties.has("_pipelineId") ||
-      (changedProperties.has("_opened") &&
+      changedProperties.has('_pipelineId') ||
+      (changedProperties.has('_opened') &&
         this._opened === true &&
         this._pipelineId)
     ) {
-      this._getPipeline();
+      this._getPipeline()
     }
   }
 
   private async _loadPipelines() {
     if (this._pipelines) {
-      return;
+      return
     }
     const { pipelines, preferred_pipeline } = await listAssistPipelines(
       this.hass
-    );
-    this._pipelines = pipelines;
-    this._preferredPipeline = preferred_pipeline || undefined;
+    )
+    this._pipelines = pipelines
+    this._preferredPipeline = preferred_pipeline || undefined
   }
 
   private async _selectPipeline(ev: CustomEvent) {
-    this._pipelineId = (ev.currentTarget as any).pipeline;
-    await this.updateComplete;
+    this._pipelineId = (ev.currentTarget as any).pipeline
+    await this.updateComplete
   }
 
   private async _getPipeline() {
-    this._pipeline = undefined;
-    this._errorLoadAssist = undefined;
-    const pipelineId = this._pipelineId!;
+    this._pipeline = undefined
+    this._errorLoadAssist = undefined
+    const pipelineId = this._pipelineId!
     try {
-      const pipeline = await getAssistPipeline(this.hass, pipelineId);
+      const pipeline = await getAssistPipeline(this.hass, pipelineId)
       // Verify the pipeline is still the same.
       if (pipelineId === this._pipelineId) {
-        this._pipeline = pipeline;
+        this._pipeline = pipeline
       }
     } catch (e: any) {
       if (pipelineId !== this._pipelineId) {
-        return;
+        return
       }
 
-      if (e.code === "not_found") {
-        this._errorLoadAssist = "not_found";
+      if (e.code === 'not_found') {
+        this._errorLoadAssist = 'not_found'
       } else {
-        this._errorLoadAssist = "unknown";
+        this._errorLoadAssist = 'unknown'
         // eslint-disable-next-line no-console
-        console.error(e);
+        console.error(e)
       }
     }
   }
@@ -255,7 +261,7 @@ export class HaVoiceCommandDialog extends LitElement {
         ha-dialog-header a {
           color: var(--primary-text-color);
         }
-        div[slot="title"] {
+        div[slot='title'] {
           display: flex;
           flex-direction: column;
           margin: -4px 0;
@@ -312,12 +318,12 @@ export class HaVoiceCommandDialog extends LitElement {
           min-height: 399px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-voice-command-dialog": HaVoiceCommandDialog;
+    'ha-voice-command-dialog': HaVoiceCommandDialog
   }
 }

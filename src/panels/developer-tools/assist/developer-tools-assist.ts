@@ -1,116 +1,116 @@
-import { mdiDownload, mdiTrashCan } from "@mdi/js";
-import { dump } from "js-yaml";
-import type { CSSResultGroup } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { storage } from "../../../common/decorators/storage";
-import { formatLanguageCode } from "../../../common/language/format_language";
-import "../../../components/ha-alert";
-import "../../../components/ha-button";
-import "../../../components/ha-card";
-import "../../../components/ha-code-editor";
-import "../../../components/ha-language-picker";
-import "../../../components/ha-textarea";
-import type { HaTextArea } from "../../../components/ha-textarea";
-import type { AssistDebugResult } from "../../../data/conversation";
-import { debugAgent, listAgents } from "../../../data/conversation";
-import { SubscribeMixin } from "../../../mixins/subscribe-mixin";
-import { haStyle } from "../../../resources/styles";
-import type { HomeAssistant } from "../../../types";
-import { fileDownload } from "../../../util/file_download";
+import { mdiDownload, mdiTrashCan } from '@mdi/js'
+import { dump } from 'js-yaml'
+import type { CSSResultGroup } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { storage } from '../../../common/decorators/storage'
+import { formatLanguageCode } from '../../../common/language/format_language'
+import '../../../components/ha-alert'
+import '../../../components/ha-button'
+import '../../../components/ha-card'
+import '../../../components/ha-code-editor'
+import '../../../components/ha-language-picker'
+import '../../../components/ha-textarea'
+import type { HaTextArea } from '../../../components/ha-textarea'
+import type { AssistDebugResult } from '../../../data/conversation'
+import { debugAgent, listAgents } from '../../../data/conversation'
+import { SubscribeMixin } from '../../../mixins/subscribe-mixin'
+import { haStyle } from '../../../resources/styles'
+import type { HomeAssistant } from '../../../types'
+import { fileDownload } from '../../../util/file_download'
 
 interface SentenceParsingResult {
-  sentence: string;
-  language: string;
-  result: AssistDebugResult | null;
+  sentence: string
+  language: string
+  result: AssistDebugResult | null
 }
 
-@customElement("developer-tools-assist")
+@customElement('developer-tools-assist')
 class HaPanelDevAssist extends SubscribeMixin(LitElement) {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @state() supportedLanguages?: string[];
+  @state() supportedLanguages?: string[]
 
   @state()
   @storage({
-    key: "assist_debug_language",
+    key: 'assist_debug_language',
     state: true,
     subscribe: false,
-    storage: "localStorage",
+    storage: 'localStorage',
   })
-  _language?: string;
+  _language?: string
 
-  @state() _results: SentenceParsingResult[] = [];
+  @state() _results: SentenceParsingResult[] = []
 
-  @query("#sentences-input") _sentencesInput!: HaTextArea;
+  @query('#sentences-input') _sentencesInput!: HaTextArea
 
-  @state() _validInput = false;
+  @state() _validInput = false
 
   private _languageChanged(ev) {
-    this._language = ev.detail.value;
+    this._language = ev.detail.value
   }
 
   private _handleKeyDown(e: KeyboardEvent) {
-    if (e.code !== "Enter" || e.shiftKey) {
-      return;
+    if (e.code !== 'Enter' || e.shiftKey) {
+      return
     }
-    e.preventDefault();
-    this._parse();
+    e.preventDefault()
+    this._parse()
   }
 
   private _textAreaInput(ev) {
-    const value = ev.target.value;
-    const valid = Boolean(value);
+    const value = ev.target.value
+    const valid = Boolean(value)
     if (valid !== this._validInput) {
-      this._validInput = valid;
+      this._validInput = valid
     }
   }
 
   private async _parse() {
     const sentences = this._sentencesInput.value
-      .split("\n")
-      .filter((a) => a !== "");
-    const { results } = await debugAgent(this.hass, sentences, this._language!);
+      .split('\n')
+      .filter(a => a !== '')
+    const { results } = await debugAgent(this.hass, sentences, this._language!)
 
-    this._sentencesInput.value = "";
+    this._sentencesInput.value = ''
 
-    const newResults: SentenceParsingResult[] = [];
+    const newResults: SentenceParsingResult[] = []
     sentences.forEach((sentence, index) => {
-      const result = results[index];
+      const result = results[index]
 
       newResults.push({
         sentence,
         language: this._language!,
         result,
-      });
-    });
-    this._results = [...newResults, ...this._results];
+      })
+    })
+    this._results = [...newResults, ...this._results]
   }
 
   private async _fetchLanguages() {
-    const { agents } = await listAgents(this.hass);
+    const { agents } = await listAgents(this.hass)
     const assistAgent = agents.find(
-      (agent) => agent.id === "conversation.home_assistant"
-    );
+      agent => agent.id === 'conversation.home_assistant'
+    )
     this.supportedLanguages =
-      assistAgent?.supported_languages === "*"
+      assistAgent?.supported_languages === '*'
         ? undefined
-        : assistAgent?.supported_languages;
+        : assistAgent?.supported_languages
 
     if (
       !this._language &&
       this.supportedLanguages?.includes(this.hass.locale.language)
     ) {
-      this._language = this.hass.locale.language;
+      this._language = this.hass.locale.language
     } else if (!this._language) {
-      this._language = "en";
+      this._language = 'en'
     }
   }
 
   protected firstUpdated(): void {
-    this._fetchLanguages();
+    this._fetchLanguages()
   }
 
   protected render() {
@@ -118,14 +118,14 @@ class HaPanelDevAssist extends SubscribeMixin(LitElement) {
       <div class="content">
         <ha-card
           .header=${this.hass.localize(
-            "ui.panel.developer-tools.tabs.assist.title"
+            'ui.panel.developer-tools.tabs.assist.title'
           )}
           class="form"
         >
           <div class="card-content">
             <p class="description">
               ${this.hass.localize(
-                "ui.panel.developer-tools.tabs.assist.description"
+                'ui.panel.developer-tools.tabs.assist.description'
               )}
             </p>
             ${this.supportedLanguages
@@ -141,7 +141,7 @@ class HaPanelDevAssist extends SubscribeMixin(LitElement) {
             <ha-textarea
               autogrow
               .label=${this.hass.localize(
-                "ui.panel.developer-tools.tabs.assist.sentences"
+                'ui.panel.developer-tools.tabs.assist.sentences'
               )}
               id="sentences-input"
               @input=${this._textAreaInput}
@@ -155,7 +155,7 @@ class HaPanelDevAssist extends SubscribeMixin(LitElement) {
               .disabled=${!this._language || !this._validInput}
             >
               ${this.hass.localize(
-                "ui.panel.developer-tools.tabs.assist.parse_sentences"
+                'ui.panel.developer-tools.tabs.assist.parse_sentences'
               )}
             </ha-button>
           </div>
@@ -169,32 +169,41 @@ class HaPanelDevAssist extends SubscribeMixin(LitElement) {
                   @click=${this._clear}
                   variant="danger"
                 >
-                  <ha-svg-icon slot="start" .path=${mdiTrashCan}></ha-svg-icon>
-                  ${this.hass.localize("ui.common.clear")}
+                  <ha-svg-icon
+                    slot="start"
+                    .path=${mdiTrashCan}
+                  ></ha-svg-icon>
+                  ${this.hass.localize('ui.common.clear')}
                 </ha-button>
-                <ha-button appearance="filled" @click=${this._download}>
-                  <ha-svg-icon slot="start" .path=${mdiDownload}></ha-svg-icon>
+                <ha-button
+                  appearance="filled"
+                  @click=${this._download}
+                >
+                  <ha-svg-icon
+                    slot="start"
+                    .path=${mdiDownload}
+                  ></ha-svg-icon>
                   ${this.hass.localize(
-                    "ui.panel.developer-tools.tabs.assist.download_results"
+                    'ui.panel.developer-tools.tabs.assist.download_results'
                   )}
                 </ha-button>
               </div>
             `
-          : ""}
-        ${this._results.map((r) => {
-          const { sentence, result, language } = r;
-          const matched = result != null;
+          : ''}
+        ${this._results.map(r => {
+          const { sentence, result, language } = r
+          const matched = result != null
 
           return html`
             <ha-card class="result">
               <div class="card-content">
                 <div class="sentence">
                   <p>${sentence}</p>
-                  <p>${matched ? "✅" : "❌"}</p>
+                  <p>${matched ? '✅' : '❌'}</p>
                 </div>
                 <div class="info">
                   ${this.hass.localize(
-                    "ui.panel.developer-tools.tabs.assist.language"
+                    'ui.panel.developer-tools.tabs.assist.language'
                   )}:
                   ${formatLanguageCode(language, this.hass.locale)}
                   (${language})
@@ -211,15 +220,15 @@ class HaPanelDevAssist extends SubscribeMixin(LitElement) {
                     `
                   : html`<ha-alert alert-type="error">
                       ${this.hass.localize(
-                        "ui.panel.developer-tools.tabs.assist.no_match"
+                        'ui.panel.developer-tools.tabs.assist.no_match'
                       )}
                     </ha-alert>`}
               </div>
             </ha-card>
-          `;
+          `
         })}
       </div>
-    `;
+    `
   }
 
   private _download() {
@@ -228,11 +237,11 @@ class HaPanelDevAssist extends SubscribeMixin(LitElement) {
         JSON.stringify({ results: this._results }, null, 2)
       )}`,
       `intent_results.json`
-    );
+    )
   }
 
   private _clear() {
-    this._results = [];
+    this._results = []
   }
 
   static get styles(): CSSResultGroup {
@@ -283,12 +292,12 @@ class HaPanelDevAssist extends SubscribeMixin(LitElement) {
           margin-top: 16px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "developer-tools-assist": HaPanelDevAssist;
+    'developer-tools-assist': HaPanelDevAssist
   }
 }

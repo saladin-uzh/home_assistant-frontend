@@ -1,306 +1,306 @@
-import { DIRECTION_ALL, Manager, Pan, Press, Tap } from "@egjs/hammerjs";
-import type { PropertyValues, TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { ifDefined } from "lit/directives/if-defined";
-import { styleMap } from "lit/directives/style-map";
-import { fireEvent } from "../common/dom/fire_event";
-import { formatNumber } from "../common/number/format_number";
-import { blankBeforeUnit } from "../common/translations/blank_before_unit";
-import type { FrontendLocaleData } from "../data/translation";
+import { DIRECTION_ALL, Manager, Pan, Press, Tap } from '@egjs/hammerjs'
+import type { PropertyValues, TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { ifDefined } from 'lit/directives/if-defined'
+import { styleMap } from 'lit/directives/style-map'
+import { fireEvent } from '../common/dom/fire_event'
+import { formatNumber } from '../common/number/format_number'
+import { blankBeforeUnit } from '../common/translations/blank_before_unit'
+import type { FrontendLocaleData } from '../data/translation'
 
 declare global {
   interface HASSDomEvents {
-    "slider-moved": { value?: number };
+    'slider-moved': { value?: number }
   }
 }
 
 const A11Y_KEY_CODES = new Set([
-  "ArrowRight",
-  "ArrowUp",
-  "ArrowLeft",
-  "ArrowDown",
-  "PageUp",
-  "PageDown",
-  "Home",
-  "End",
-]);
+  'ArrowRight',
+  'ArrowUp',
+  'ArrowLeft',
+  'ArrowDown',
+  'PageUp',
+  'PageDown',
+  'Home',
+  'End',
+])
 
-type TooltipPosition = "top" | "bottom" | "left" | "right";
+type TooltipPosition = 'top' | 'bottom' | 'left' | 'right'
 
-type TooltipMode = "never" | "always" | "interaction";
+type TooltipMode = 'never' | 'always' | 'interaction'
 
-type SliderMode = "start" | "end" | "cursor";
+type SliderMode = 'start' | 'end' | 'cursor'
 
-@customElement("ha-control-slider")
+@customElement('ha-control-slider')
 export class HaControlSlider extends LitElement {
-  @property({ attribute: false }) public locale?: FrontendLocaleData;
+  @property({ attribute: false }) public locale?: FrontendLocaleData
 
   @property({ type: Boolean, reflect: true })
-  public disabled = false;
+  public disabled = false
 
   @property()
-  public mode?: SliderMode = "start";
+  public mode?: SliderMode = 'start'
 
   @property({ type: Boolean, reflect: true })
-  public vertical = false;
+  public vertical = false
 
-  @property({ type: Boolean, attribute: "show-handle" })
-  public showHandle = false;
+  @property({ type: Boolean, attribute: 'show-handle' })
+  public showHandle = false
 
-  @property({ type: Boolean, attribute: "inverted" })
-  public inverted = false;
+  @property({ type: Boolean, attribute: 'inverted' })
+  public inverted = false
 
-  @property({ attribute: "tooltip-position" })
-  public tooltipPosition?: TooltipPosition;
+  @property({ attribute: 'tooltip-position' })
+  public tooltipPosition?: TooltipPosition
 
   @property()
-  public unit?: string;
+  public unit?: string
 
-  @property({ attribute: "tooltip-mode" })
-  public tooltipMode: TooltipMode = "interaction";
+  @property({ attribute: 'tooltip-mode' })
+  public tooltipMode: TooltipMode = 'interaction'
 
-  @property({ attribute: "touch-action" })
-  public touchAction?: string;
-
-  @property({ type: Number })
-  public value?: number;
+  @property({ attribute: 'touch-action' })
+  public touchAction?: string
 
   @property({ type: Number })
-  public step = 1;
+  public value?: number
 
   @property({ type: Number })
-  public min = 0;
+  public step = 1
 
   @property({ type: Number })
-  public max = 100;
+  public min = 0
+
+  @property({ type: Number })
+  public max = 100
 
   @property({ type: String })
-  public label?: string;
+  public label?: string
 
   @state()
-  public pressed = false;
+  public pressed = false
 
   @state()
-  public tooltipVisible = false;
+  public tooltipVisible = false
 
-  private _mc?: HammerManager;
+  private _mc?: HammerManager
 
   valueToPercentage(value: number) {
     const percentage =
-      (this.boundedValue(value) - this.min) / (this.max - this.min);
-    return this.inverted ? 1 - percentage : percentage;
+      (this.boundedValue(value) - this.min) / (this.max - this.min)
+    return this.inverted ? 1 - percentage : percentage
   }
 
   percentageToValue(percentage: number) {
     return (
       (this.max - this.min) * (this.inverted ? 1 - percentage : percentage) +
       this.min
-    );
+    )
   }
 
   steppedValue(value: number) {
-    return Math.round(value / this.step) * this.step;
+    return Math.round(value / this.step) * this.step
   }
 
   boundedValue(value: number) {
-    return Math.min(Math.max(value, this.min), this.max);
+    return Math.min(Math.max(value, this.min), this.max)
   }
 
   protected firstUpdated(changedProperties: PropertyValues): void {
-    super.firstUpdated(changedProperties);
-    this.setupListeners();
+    super.firstUpdated(changedProperties)
+    this.setupListeners()
   }
 
   protected updated(changedProps: PropertyValues) {
-    super.updated(changedProps);
-    if (changedProps.has("value")) {
-      const valuenow = this.steppedValue(this.value ?? 0);
-      this.setAttribute("aria-valuenow", valuenow.toString());
-      this.setAttribute("aria-valuetext", this._formatValue(valuenow));
+    super.updated(changedProps)
+    if (changedProps.has('value')) {
+      const valuenow = this.steppedValue(this.value ?? 0)
+      this.setAttribute('aria-valuenow', valuenow.toString())
+      this.setAttribute('aria-valuetext', this._formatValue(valuenow))
     }
-    if (changedProps.has("min")) {
-      this.setAttribute("aria-valuemin", this.min.toString());
+    if (changedProps.has('min')) {
+      this.setAttribute('aria-valuemin', this.min.toString())
     }
-    if (changedProps.has("max")) {
-      this.setAttribute("aria-valuemax", this.max.toString());
+    if (changedProps.has('max')) {
+      this.setAttribute('aria-valuemax', this.max.toString())
     }
-    if (changedProps.has("vertical")) {
-      const orientation = this.vertical ? "vertical" : "horizontal";
-      this.setAttribute("aria-orientation", orientation);
+    if (changedProps.has('vertical')) {
+      const orientation = this.vertical ? 'vertical' : 'horizontal'
+      this.setAttribute('aria-orientation', orientation)
     }
   }
 
   connectedCallback(): void {
-    super.connectedCallback();
-    this.setupListeners();
+    super.connectedCallback()
+    this.setupListeners()
   }
 
   disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.destroyListeners();
+    super.disconnectedCallback()
+    this.destroyListeners()
   }
 
-  @query("#slider")
-  private slider;
+  @query('#slider')
+  private slider
 
   setupListeners() {
     if (this.slider && !this._mc) {
       this._mc = new Manager(this.slider, {
-        touchAction: this.touchAction ?? (this.vertical ? "pan-x" : "pan-y"),
-      });
+        touchAction: this.touchAction ?? (this.vertical ? 'pan-x' : 'pan-y'),
+      })
       this._mc.add(
         new Pan({
           threshold: 10,
           direction: DIRECTION_ALL,
           enable: true,
         })
-      );
+      )
 
-      this._mc.add(new Tap({ event: "singletap" }));
-      this._mc.add(new Press());
+      this._mc.add(new Tap({ event: 'singletap' }))
+      this._mc.add(new Press())
 
-      let savedValue;
-      this._mc.on("panstart", () => {
-        if (this.disabled) return;
-        this.pressed = true;
-        this._showTooltip();
-        savedValue = this.value;
-      });
-      this._mc.on("pancancel", () => {
-        if (this.disabled) return;
-        this.pressed = false;
-        this._hideTooltip();
-        this.value = savedValue;
-      });
-      this._mc.on("panmove", (e) => {
-        if (this.disabled) return;
-        const percentage = this._getPercentageFromEvent(e);
-        this.value = this.percentageToValue(percentage);
-        const value = this.steppedValue(this.value);
-        fireEvent(this, "slider-moved", { value });
-      });
-      this._mc.on("panend", (e) => {
-        if (this.disabled) return;
-        this.pressed = false;
-        this._hideTooltip();
-        const percentage = this._getPercentageFromEvent(e);
-        this.value = this.steppedValue(this.percentageToValue(percentage));
-        fireEvent(this, "slider-moved", { value: undefined });
-        fireEvent(this, "value-changed", { value: this.value });
-      });
+      let savedValue
+      this._mc.on('panstart', () => {
+        if (this.disabled) return
+        this.pressed = true
+        this._showTooltip()
+        savedValue = this.value
+      })
+      this._mc.on('pancancel', () => {
+        if (this.disabled) return
+        this.pressed = false
+        this._hideTooltip()
+        this.value = savedValue
+      })
+      this._mc.on('panmove', e => {
+        if (this.disabled) return
+        const percentage = this._getPercentageFromEvent(e)
+        this.value = this.percentageToValue(percentage)
+        const value = this.steppedValue(this.value)
+        fireEvent(this, 'slider-moved', { value })
+      })
+      this._mc.on('panend', e => {
+        if (this.disabled) return
+        this.pressed = false
+        this._hideTooltip()
+        const percentage = this._getPercentageFromEvent(e)
+        this.value = this.steppedValue(this.percentageToValue(percentage))
+        fireEvent(this, 'slider-moved', { value: undefined })
+        fireEvent(this, 'value-changed', { value: this.value })
+      })
 
-      this._mc.on("singletap pressup", (e) => {
-        if (this.disabled) return;
-        const percentage = this._getPercentageFromEvent(e);
-        this.value = this.steppedValue(this.percentageToValue(percentage));
-        fireEvent(this, "value-changed", { value: this.value });
-      });
+      this._mc.on('singletap pressup', e => {
+        if (this.disabled) return
+        const percentage = this._getPercentageFromEvent(e)
+        this.value = this.steppedValue(this.percentageToValue(percentage))
+        fireEvent(this, 'value-changed', { value: this.value })
+      })
     }
   }
 
   destroyListeners() {
     if (this._mc) {
-      this._mc.destroy();
-      this._mc = undefined;
+      this._mc.destroy()
+      this._mc = undefined
     }
   }
 
   private get _tenPercentStep() {
-    return Math.max(this.step, (this.max - this.min) / 10);
+    return Math.max(this.step, (this.max - this.min) / 10)
   }
 
   private _showTooltip() {
-    if (this._tooltipTimeout != null) window.clearTimeout(this._tooltipTimeout);
-    this.tooltipVisible = true;
+    if (this._tooltipTimeout != null) window.clearTimeout(this._tooltipTimeout)
+    this.tooltipVisible = true
   }
 
   private _hideTooltip(delay?: number) {
     if (!delay) {
-      this.tooltipVisible = false;
-      return;
+      this.tooltipVisible = false
+      return
     }
     this._tooltipTimeout = window.setTimeout(() => {
-      this.tooltipVisible = false;
-    }, delay);
+      this.tooltipVisible = false
+    }, delay)
   }
 
   private _handleKeyDown(e: KeyboardEvent) {
-    if (!A11Y_KEY_CODES.has(e.code)) return;
-    e.preventDefault();
+    if (!A11Y_KEY_CODES.has(e.code)) return
+    e.preventDefault()
     switch (e.code) {
-      case "ArrowRight":
-      case "ArrowUp":
-        this.value = this.boundedValue((this.value ?? 0) + this.step);
-        break;
-      case "ArrowLeft":
-      case "ArrowDown":
-        this.value = this.boundedValue((this.value ?? 0) - this.step);
-        break;
-      case "PageUp":
+      case 'ArrowRight':
+      case 'ArrowUp':
+        this.value = this.boundedValue((this.value ?? 0) + this.step)
+        break
+      case 'ArrowLeft':
+      case 'ArrowDown':
+        this.value = this.boundedValue((this.value ?? 0) - this.step)
+        break
+      case 'PageUp':
         this.value = this.steppedValue(
           this.boundedValue((this.value ?? 0) + this._tenPercentStep)
-        );
-        break;
-      case "PageDown":
+        )
+        break
+      case 'PageDown':
         this.value = this.steppedValue(
           this.boundedValue((this.value ?? 0) - this._tenPercentStep)
-        );
-        break;
-      case "Home":
-        this.value = this.min;
-        break;
-      case "End":
-        this.value = this.max;
-        break;
+        )
+        break
+      case 'Home':
+        this.value = this.min
+        break
+      case 'End':
+        this.value = this.max
+        break
     }
-    this._showTooltip();
-    fireEvent(this, "slider-moved", { value: this.value });
+    this._showTooltip()
+    fireEvent(this, 'slider-moved', { value: this.value })
   }
 
-  private _tooltipTimeout?: number;
+  private _tooltipTimeout?: number
 
   private _handleKeyUp(e: KeyboardEvent) {
-    if (!A11Y_KEY_CODES.has(e.code)) return;
-    e.preventDefault();
-    this._hideTooltip(500);
-    fireEvent(this, "value-changed", { value: this.value });
+    if (!A11Y_KEY_CODES.has(e.code)) return
+    e.preventDefault()
+    this._hideTooltip(500)
+    fireEvent(this, 'value-changed', { value: this.value })
   }
 
   private _getPercentageFromEvent = (e: HammerInput) => {
     if (this.vertical) {
-      const y = e.center.y;
-      const offset = e.target.getBoundingClientRect().top;
-      const total = e.target.clientHeight;
-      return Math.max(Math.min(1, 1 - (y - offset) / total), 0);
+      const y = e.center.y
+      const offset = e.target.getBoundingClientRect().top
+      const total = e.target.clientHeight
+      return Math.max(Math.min(1, 1 - (y - offset) / total), 0)
     }
-    const x = e.center.x;
-    const offset = e.target.getBoundingClientRect().left;
-    const total = e.target.clientWidth;
-    return Math.max(Math.min(1, (x - offset) / total), 0);
-  };
+    const x = e.center.x
+    const offset = e.target.getBoundingClientRect().left
+    const total = e.target.clientWidth
+    return Math.max(Math.min(1, (x - offset) / total), 0)
+  }
 
   private _formatValue(value: number) {
-    const formattedValue = formatNumber(value, this.locale);
+    const formattedValue = formatNumber(value, this.locale)
 
     const formattedUnit = this.unit
       ? `${blankBeforeUnit(this.unit, this.locale)}${this.unit}`
-      : "";
+      : ''
 
-    return `${formattedValue}${formattedUnit}`;
+    return `${formattedValue}${formattedUnit}`
   }
 
   private _renderTooltip() {
-    if (this.tooltipMode === "never") return nothing;
+    if (this.tooltipMode === 'never') return nothing
 
-    const position = this.tooltipPosition ?? (this.vertical ? "left" : "top");
+    const position = this.tooltipPosition ?? (this.vertical ? 'left' : 'top')
 
     const visible =
-      this.tooltipMode === "always" ||
-      (this.tooltipVisible && this.tooltipMode === "interaction");
+      this.tooltipMode === 'always' ||
+      (this.tooltipVisible && this.tooltipMode === 'interaction')
 
-    const value = this.steppedValue(this.value ?? 0);
+    const value = this.steppedValue(this.value ?? 0)
 
     return html`
       <span
@@ -308,24 +308,24 @@ export class HaControlSlider extends LitElement {
         class="tooltip ${classMap({
           visible,
           [position]: true,
-          [this.mode ?? "start"]: true,
-          "show-handle": this.showHandle,
+          [this.mode ?? 'start']: true,
+          'show-handle': this.showHandle,
         })}"
       >
         ${this._formatValue(value)}
       </span>
-    `;
+    `
   }
 
   protected render(): TemplateResult {
-    const valuenow = this.steppedValue(this.value ?? 0);
+    const valuenow = this.steppedValue(this.value ?? 0)
     return html`
       <div
         class="container${classMap({
           pressed: this.pressed,
         })}"
         style=${styleMap({
-          "--value": `${this.valueToPercentage(this.value ?? 0)}`,
+          '--value': `${this.valueToPercentage(this.value ?? 0)}`,
         })}
       >
         <div
@@ -342,18 +342,18 @@ export class HaControlSlider extends LitElement {
           aria-valuemax=${ifDefined(
             this.max != null ? this.max.toString() : undefined
           )}
-          aria-orientation=${this.vertical ? "vertical" : "horizontal"}
+          aria-orientation=${this.vertical ? 'vertical' : 'horizontal'}
           @keydown=${this._handleKeyDown}
           @keyup=${this._handleKeyUp}
         >
           <div class="slider-track-background"></div>
           <slot name="background"></slot>
-          ${this.mode === "cursor"
+          ${this.mode === 'cursor'
             ? this.value != null
               ? html`
                   <div
                     class=${classMap({
-                      "slider-track-cursor": true,
+                      'slider-track-cursor': true,
                     })}
                   ></div>
                 `
@@ -361,16 +361,16 @@ export class HaControlSlider extends LitElement {
             : html`
                 <div
                   class=${classMap({
-                    "slider-track-bar": true,
-                    [this.mode ?? "start"]: true,
-                    "show-handle": this.showHandle,
+                    'slider-track-bar': true,
+                    [this.mode ?? 'start']: true,
+                    'show-handle': this.showHandle,
                   })}
                 ></div>
               `}
         </div>
         ${this._renderTooltip()}
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -498,7 +498,7 @@ export class HaControlSlider extends LitElement {
       background: var(--control-slider-background);
       opacity: var(--control-slider-background-opacity);
     }
-    ::slotted([slot="background"]) {
+    ::slotted([slot='background']) {
       position: absolute;
       top: 0;
       left: 0;
@@ -521,7 +521,7 @@ export class HaControlSlider extends LitElement {
     }
     .slider .slider-track-bar::after {
       display: block;
-      content: "";
+      content: '';
       position: absolute;
       margin: auto;
       border-radius: var(--handle-size);
@@ -591,7 +591,7 @@ export class HaControlSlider extends LitElement {
 
     .slider .slider-track-cursor:after {
       display: block;
-      content: "";
+      content: '';
       background-color: var(--secondary-text-color);
       position: absolute;
       top: 0;
@@ -646,11 +646,11 @@ export class HaControlSlider extends LitElement {
     :host(:disabled) .slider {
       cursor: not-allowed;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-control-slider": HaControlSlider;
+    'ha-control-slider': HaControlSlider
   }
 }

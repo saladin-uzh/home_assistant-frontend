@@ -1,38 +1,38 @@
-import { mdiClose } from "@mdi/js";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query } from "lit/decorators";
-import { ensureArray } from "../../../../../common/array/ensure-array";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import "../../../../../components/ha-textfield";
-import type { HaTextField } from "../../../../../components/ha-textfield";
-import "../../../../../components/ha-icon-button";
-import type { ConversationTrigger } from "../../../../../data/automation";
-import { showConfirmationDialog } from "../../../../../dialogs/generic/show-dialog-box";
-import type { HomeAssistant } from "../../../../../types";
-import type { TriggerElement } from "../ha-automation-trigger-row";
+import { mdiClose } from '@mdi/js'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import { ensureArray } from '../../../../../common/array/ensure-array'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import '../../../../../components/ha-textfield'
+import type { HaTextField } from '../../../../../components/ha-textfield'
+import '../../../../../components/ha-icon-button'
+import type { ConversationTrigger } from '../../../../../data/automation'
+import { showConfirmationDialog } from '../../../../../dialogs/generic/show-dialog-box'
+import type { HomeAssistant } from '../../../../../types'
+import type { TriggerElement } from '../ha-automation-trigger-row'
 
-const PATTERN = "^[^.。,，?¿？؟!！;；:：]+$";
+const PATTERN = '^[^.。,，?¿？؟!！;；:：]+$'
 
-@customElement("ha-automation-trigger-conversation")
+@customElement('ha-automation-trigger-conversation')
 export class HaConversationTrigger
   extends LitElement
   implements TriggerElement
 {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public trigger!: ConversationTrigger;
+  @property({ attribute: false }) public trigger!: ConversationTrigger
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @query("#option_input", true) private _optionInput?: HaTextField;
+  @query('#option_input', true) private _optionInput?: HaTextField
 
   public static get defaultConfig(): ConversationTrigger {
-    return { trigger: "conversation", command: "" };
+    return { trigger: 'conversation', command: '' }
   }
 
   protected render() {
-    const { command } = this.trigger;
-    const commands = command ? ensureArray(command) : [];
+    const { command } = this.trigger
+    const commands = command ? ensureArray(command) : []
 
     return html`${commands.length
         ? commands.map(
@@ -43,7 +43,7 @@ export class HaConversationTrigger
                 .index=${index}
                 .value=${option}
                 .validationMessage=${this.hass.localize(
-                  "ui.panel.config.automation.editor.triggers.type.conversation.no_punctuation"
+                  'ui.panel.config.automation.editor.triggers.type.conversation.no_punctuation'
                 )}
                 autoValidate
                 validateOnInitialRender
@@ -63,32 +63,32 @@ export class HaConversationTrigger
         class="flex-auto"
         id="option_input"
         .label=${this.hass.localize(
-          "ui.panel.config.automation.editor.triggers.type.conversation.add_sentence"
+          'ui.panel.config.automation.editor.triggers.type.conversation.add_sentence'
         )}
         .validationMessage=${this.hass.localize(
-          "ui.panel.config.automation.editor.triggers.type.conversation.no_punctuation"
+          'ui.panel.config.automation.editor.triggers.type.conversation.no_punctuation'
         )}
         autoValidate
         pattern=${PATTERN}
         @keydown=${this._handleKeyAdd}
         @change=${this._addOption}
-      ></ha-textfield>`;
+      ></ha-textfield>`
   }
 
   private _handleKeyAdd(ev: KeyboardEvent) {
-    ev.stopPropagation();
-    if (ev.key !== "Enter") {
-      return;
+    ev.stopPropagation()
+    if (ev.key !== 'Enter') {
+      return
     }
-    this._addOption();
+    this._addOption()
   }
 
   private _addOption() {
-    const input = this._optionInput;
+    const input = this._optionInput
     if (!input?.value) {
-      return;
+      return
     }
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: {
         ...this.trigger,
         command: this.trigger.command.length
@@ -100,48 +100,48 @@ export class HaConversationTrigger
             ]
           : input.value,
       },
-    });
-    input.value = "";
+    })
+    input.value = ''
   }
 
   private async _updateOption(ev: Event) {
-    const index = (ev.target as any).index;
+    const index = (ev.target as any).index
     const command = [
       ...(Array.isArray(this.trigger.command)
         ? this.trigger.command
         : [this.trigger.command]),
-    ];
-    command.splice(index, 1, (ev.target as HaTextField).value);
-    fireEvent(this, "value-changed", {
+    ]
+    command.splice(index, 1, (ev.target as HaTextField).value)
+    fireEvent(this, 'value-changed', {
       value: { ...this.trigger, command },
-    });
+    })
   }
 
   private async _removeOption(ev: Event) {
-    const index = (ev.target as any).parentElement.index;
+    const index = (ev.target as any).parentElement.index
     if (
       !(await showConfirmationDialog(this, {
         title: this.hass.localize(
-          "ui.panel.config.automation.editor.triggers.type.conversation.delete"
+          'ui.panel.config.automation.editor.triggers.type.conversation.delete'
         ),
         text: this.hass.localize(
-          "ui.panel.config.automation.editor.triggers.type.conversation.confirm_delete"
+          'ui.panel.config.automation.editor.triggers.type.conversation.confirm_delete'
         ),
         destructive: true,
       }))
     ) {
-      return;
+      return
     }
-    let command: string[] | string;
+    let command: string[] | string
     if (!Array.isArray(this.trigger.command)) {
-      command = "";
+      command = ''
     } else {
-      command = [...this.trigger.command];
-      command.splice(index, 1);
+      command = [...this.trigger.command]
+      command.splice(index, 1)
     }
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: { ...this.trigger, command },
-    });
+    })
   }
 
   static styles = css`
@@ -177,11 +177,11 @@ export class HaConversationTrigger
       margin-top: 8px;
       margin-bottom: 8px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-trigger-conversation": HaConversationTrigger;
+    'ha-automation-trigger-conversation': HaConversationTrigger
   }
 }

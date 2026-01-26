@@ -1,36 +1,36 @@
-import { mdiDotsVertical } from "@mdi/js";
-import "@thomasloven/round-slider";
-import type { PropertyValues } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { styleMap } from "lit/directives/style-map";
-import { applyThemesOnElement } from "../../../common/dom/apply_themes_on_element";
-import { fireEvent } from "../../../common/dom/fire_event";
-import { stateColorBrightness } from "../../../common/entity/state_color";
-import "../../../components/ha-card";
-import "../../../components/ha-icon-button";
-import "../../../components/ha-state-icon";
-import { UNAVAILABLE, isUnavailableState } from "../../../data/entity";
-import type { LightEntity } from "../../../data/light";
-import { lightSupportsBrightness } from "../../../data/light";
-import type { ActionHandlerEvent } from "../../../data/lovelace/action_handler";
-import type { HomeAssistant } from "../../../types";
-import { actionHandler } from "../common/directives/action-handler-directive";
-import { computeLovelaceEntityName } from "../common/entity/compute-lovelace-entity-name";
-import { findEntities } from "../common/find-entities";
-import { handleAction } from "../common/handle-action";
-import { hasAction } from "../common/has-action";
-import { hasConfigOrEntityChanged } from "../common/has-changed";
-import { createEntityNotFoundWarning } from "../components/hui-warning";
-import type { LovelaceCard, LovelaceCardEditor } from "../types";
-import type { LightCardConfig } from "./types";
+import { mdiDotsVertical } from '@mdi/js'
+import '@thomasloven/round-slider'
+import type { PropertyValues } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { styleMap } from 'lit/directives/style-map'
+import { applyThemesOnElement } from '../../../common/dom/apply_themes_on_element'
+import { fireEvent } from '../../../common/dom/fire_event'
+import { stateColorBrightness } from '../../../common/entity/state_color'
+import '../../../components/ha-card'
+import '../../../components/ha-icon-button'
+import '../../../components/ha-state-icon'
+import { UNAVAILABLE, isUnavailableState } from '../../../data/entity'
+import type { LightEntity } from '../../../data/light'
+import { lightSupportsBrightness } from '../../../data/light'
+import type { ActionHandlerEvent } from '../../../data/lovelace/action_handler'
+import type { HomeAssistant } from '../../../types'
+import { actionHandler } from '../common/directives/action-handler-directive'
+import { computeLovelaceEntityName } from '../common/entity/compute-lovelace-entity-name'
+import { findEntities } from '../common/find-entities'
+import { handleAction } from '../common/handle-action'
+import { hasAction } from '../common/has-action'
+import { hasConfigOrEntityChanged } from '../common/has-changed'
+import { createEntityNotFoundWarning } from '../components/hui-warning'
+import type { LovelaceCard, LovelaceCardEditor } from '../types'
+import type { LightCardConfig } from './types'
 
-@customElement("hui-light-card")
+@customElement('hui-light-card')
 export class HuiLightCard extends LitElement implements LovelaceCard {
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import("../editor/config-elements/hui-light-card-editor");
-    return document.createElement("hui-light-card-editor");
+    await import('../editor/config-elements/hui-light-card-editor')
+    return document.createElement('hui-light-card-editor')
   }
 
   public static getStubConfig(
@@ -38,72 +38,72 @@ export class HuiLightCard extends LitElement implements LovelaceCard {
     entities: string[],
     entitiesFallback: string[]
   ): LightCardConfig {
-    const includeDomains = ["light"];
-    const maxEntities = 1;
+    const includeDomains = ['light']
+    const maxEntities = 1
     const foundEntities = findEntities(
       hass,
       maxEntities,
       entities,
       entitiesFallback,
       includeDomains
-    );
+    )
 
-    return { type: "light", entity: foundEntities[0] || "" };
+    return { type: 'light', entity: foundEntities[0] || '' }
   }
 
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: LightCardConfig;
+  @state() private _config?: LightCardConfig
 
-  private _brightnessTimout?: number;
+  private _brightnessTimout?: number
 
   public getCardSize(): number {
-    return 5;
+    return 5
   }
 
   public setConfig(config: LightCardConfig): void {
-    if (!config.entity || config.entity.split(".")[0] !== "light") {
-      throw new Error("Specify an entity from within the light domain");
+    if (!config.entity || config.entity.split('.')[0] !== 'light') {
+      throw new Error('Specify an entity from within the light domain')
     }
 
     this._config = {
-      tap_action: { action: "toggle" },
-      hold_action: { action: "more-info" },
+      tap_action: { action: 'toggle' },
+      hold_action: { action: 'more-info' },
       ...config,
-    };
+    }
   }
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
-    const stateObj = this.hass.states[this._config!.entity] as LightEntity;
+    const stateObj = this.hass.states[this._config!.entity] as LightEntity
 
     if (!stateObj) {
       return html`
         <hui-warning .hass=${this.hass}>
           ${createEntityNotFoundWarning(this.hass, this._config.entity)}
         </hui-warning>
-      `;
+      `
     }
 
     const brightness = Math.round(
       ((stateObj.attributes.brightness || 0) / 255) * 100
-    );
+    )
 
     const name = computeLovelaceEntityName(
       this.hass,
       stateObj,
       this._config.name
-    );
+    )
 
     return html`
       <ha-card>
         <ha-icon-button
           class="more-info"
           .label=${this.hass!.localize(
-            "ui.panel.lovelace.cards.show_more_info"
+            'ui.panel.lovelace.cards.show_more_info'
           )}
           .path=${mdiDotsVertical}
           @click=${this._handleMoreInfo}
@@ -123,15 +123,15 @@ export class HuiLightCard extends LitElement implements LovelaceCard {
                 @value-changed=${this._setBrightness}
                 style=${styleMap({
                   visibility: lightSupportsBrightness(stateObj)
-                    ? "visible"
-                    : "hidden",
+                    ? 'visible'
+                    : 'hidden',
                 })}
               ></round-slider>
               <ha-icon-button
                 class="light-button ${classMap({
-                  "slider-center": lightSupportsBrightness(stateObj),
-                  "state-on": stateObj.state === "on",
-                  "state-unavailable": stateObj.state === UNAVAILABLE,
+                  'slider-center': lightSupportsBrightness(stateObj),
+                  'state-on': stateObj.state === 'on',
+                  'state-unavailable': stateObj.state === UNAVAILABLE,
                 })}"
                 .disabled=${isUnavailableState(stateObj.state)}
                 style=${styleMap({
@@ -154,7 +154,10 @@ export class HuiLightCard extends LitElement implements LovelaceCard {
             </div>
           </div>
 
-          <div id="info" .title=${name}>
+          <div
+            id="info"
+            .title=${name}
+          >
             ${isUnavailableState(stateObj.state)
               ? html` <div>${this.hass.formatEntityState(stateObj)}</div> `
               : html` <div class="brightness">%</div> `}
@@ -162,29 +165,27 @@ export class HuiLightCard extends LitElement implements LovelaceCard {
           </div>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    return hasConfigOrEntityChanged(this, changedProps);
+    return hasConfigOrEntityChanged(this, changedProps)
   }
 
   protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
+    super.updated(changedProps)
     if (!this._config || !this.hass) {
-      return;
+      return
     }
 
-    const stateObj = this.hass!.states[this._config!.entity];
+    const stateObj = this.hass!.states[this._config!.entity]
 
     if (!stateObj) {
-      return;
+      return
     }
 
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
-    const oldConfig = changedProps.get("_config") as
-      | LightCardConfig
-      | undefined;
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined
+    const oldConfig = changedProps.get('_config') as LightCardConfig | undefined
 
     if (
       !oldHass ||
@@ -192,63 +193,63 @@ export class HuiLightCard extends LitElement implements LovelaceCard {
       oldHass.themes !== this.hass.themes ||
       oldConfig.theme !== this._config.theme
     ) {
-      applyThemesOnElement(this, this.hass.themes, this._config.theme);
+      applyThemesOnElement(this, this.hass.themes, this._config.theme)
     }
   }
 
   private _dragEvent(e: any): void {
-    this.shadowRoot!.querySelector(".brightness")!.innerHTML =
-      `${e.detail.value} %`;
-    this._showBrightness();
-    this._hideBrightness();
+    this.shadowRoot!.querySelector('.brightness')!.innerHTML =
+      `${e.detail.value} %`
+    this._showBrightness()
+    this._hideBrightness()
   }
 
   private _showBrightness(): void {
-    clearTimeout(this._brightnessTimout);
-    this.shadowRoot!.querySelector(".brightness")!.classList.add(
-      "show_brightness"
-    );
+    clearTimeout(this._brightnessTimout)
+    this.shadowRoot!.querySelector('.brightness')!.classList.add(
+      'show_brightness'
+    )
   }
 
   private _hideBrightness(): void {
     this._brightnessTimout = window.setTimeout(() => {
-      this.shadowRoot!.querySelector(".brightness")!.classList.remove(
-        "show_brightness"
-      );
-    }, 500);
+      this.shadowRoot!.querySelector('.brightness')!.classList.remove(
+        'show_brightness'
+      )
+    }, 500)
   }
 
   private _setBrightness(e: any): void {
-    this.hass!.callService("light", "turn_on", {
+    this.hass!.callService('light', 'turn_on', {
       entity_id: this._config!.entity,
       brightness_pct: e.detail.value,
-    });
+    })
   }
 
   private _computeBrightness(stateObj: LightEntity): string {
-    if (stateObj.state === "off" || !stateObj.attributes.brightness) {
-      return "";
+    if (stateObj.state === 'off' || !stateObj.attributes.brightness) {
+      return ''
     }
-    return stateColorBrightness(stateObj);
+    return stateColorBrightness(stateObj)
   }
 
   private _computeColor(stateObj: LightEntity): string {
-    if (stateObj.state === "off") {
-      return "";
+    if (stateObj.state === 'off') {
+      return ''
     }
     return stateObj.attributes.rgb_color
-      ? `rgb(${stateObj.attributes.rgb_color.join(",")})`
-      : "";
+      ? `rgb(${stateObj.attributes.rgb_color.join(',')})`
+      : ''
   }
 
   private _handleAction(ev: ActionHandlerEvent) {
-    handleAction(this, this.hass!, this._config!, ev.detail.action!);
+    handleAction(this, this.hass!, this._config!, ev.detail.action!)
   }
 
   private _handleMoreInfo() {
-    fireEvent(this, "hass-more-info", {
+    fireEvent(this, 'hass-more-info', {
       entityId: this._config!.entity,
-    });
+    })
   }
 
   static styles = css`
@@ -344,11 +345,11 @@ export class HuiLightCard extends LitElement implements LovelaceCard {
     .show_brightness {
       opacity: 1;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-light-card": HuiLightCard;
+    'hui-light-card': HuiLightCard
   }
 }

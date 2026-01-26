@@ -1,28 +1,32 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../common/dom/fire_event";
-import type { HomeAssistant } from "../../types";
-import "../ha-formfield";
-import "../ha-switch";
-import "../ha-input-helper-text";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../common/dom/fire_event'
+import type { HomeAssistant } from '../../types'
+import '../ha-formfield'
+import '../ha-switch'
+import '../ha-input-helper-text'
 
-@customElement("ha-selector-boolean")
+@customElement('ha-selector-boolean')
 export class HaBooleanSelector extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public value = false;
+  @property({ type: Boolean }) public value = false
 
-  @property() public placeholder?: any;
+  @property() public placeholder?: any
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
   protected render() {
     return html`
-      <ha-formfield alignEnd spaceBetween .label=${this.label}>
+      <ha-formfield
+        alignEnd
+        spaceBetween
+        .label=${this.label}
+      >
         <ha-switch
           .checked=${this.value ?? this.placeholder === true}
           @change=${this._handleChange}
@@ -35,15 +39,15 @@ export class HaBooleanSelector extends LitElement {
             : nothing}
         </span>
       </ha-formfield>
-    `;
+    `
   }
 
   private _handleChange(ev) {
-    const value = ev.target.checked;
+    const value = ev.target.checked
     if (this.value === value) {
-      return;
+      return
     }
-    fireEvent(this, "value-changed", { value });
+    fireEvent(this, 'value-changed', { value })
   }
 
   static styles = css`
@@ -67,11 +71,11 @@ export class HaBooleanSelector extends LitElement {
         var(--ha-font-weight-normal)
       );
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-boolean": HaBooleanSelector;
+    'ha-selector-boolean': HaBooleanSelector
   }
 }

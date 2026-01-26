@@ -1,110 +1,110 @@
-import { mdiPlayBox, mdiPlus } from "@mdi/js";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { fireEvent } from "../../common/dom/fire_event";
-import { supportsFeature } from "../../common/entity/supports-feature";
-import { getSignedPath } from "../../data/auth";
-import type { MediaPickedEvent } from "../../data/media-player";
+import { mdiPlayBox, mdiPlus } from '@mdi/js'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { fireEvent } from '../../common/dom/fire_event'
+import { supportsFeature } from '../../common/entity/supports-feature'
+import { getSignedPath } from '../../data/auth'
+import type { MediaPickedEvent } from '../../data/media-player'
 import {
   MediaClassBrowserSettings,
   MediaPlayerEntityFeature,
-} from "../../data/media-player";
-import type { MediaSelector, MediaSelectorValue } from "../../data/selector";
-import type { HomeAssistant } from "../../types";
-import { brandsUrl, extractDomainFromBrandUrl } from "../../util/brands-url";
-import "../ha-alert";
-import "../ha-form/ha-form";
-import type { SchemaUnion } from "../ha-form/types";
-import { showMediaBrowserDialog } from "../media-player/show-media-browser-dialog";
-import { ensureArray } from "../../common/array/ensure-array";
-import "../ha-picture-upload";
+} from '../../data/media-player'
+import type { MediaSelector, MediaSelectorValue } from '../../data/selector'
+import type { HomeAssistant } from '../../types'
+import { brandsUrl, extractDomainFromBrandUrl } from '../../util/brands-url'
+import '../ha-alert'
+import '../ha-form/ha-form'
+import type { SchemaUnion } from '../ha-form/types'
+import { showMediaBrowserDialog } from '../media-player/show-media-browser-dialog'
+import { ensureArray } from '../../common/array/ensure-array'
+import '../ha-picture-upload'
 
 const MANUAL_SCHEMA = [
-  { name: "media_content_id", required: false, selector: { text: {} } },
-  { name: "media_content_type", required: false, selector: { text: {} } },
-] as const;
+  { name: 'media_content_id', required: false, selector: { text: {} } },
+  { name: 'media_content_type', required: false, selector: { text: {} } },
+] as const
 
-const INCLUDE_DOMAINS = ["media_player"];
+const INCLUDE_DOMAINS = ['media_player']
 
-const EMPTY_FORM = {};
+const EMPTY_FORM = {}
 
-@customElement("ha-selector-media")
+@customElement('ha-selector-media')
 export class HaMediaSelector extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: MediaSelector;
+  @property({ attribute: false }) public selector!: MediaSelector
 
-  @property({ attribute: false }) public value?: MediaSelectorValue;
+  @property({ attribute: false }) public value?: MediaSelectorValue
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean, reflect: true }) public disabled = false;
+  @property({ type: Boolean, reflect: true }) public disabled = false
 
-  @property({ type: Boolean, reflect: true }) public required = true;
+  @property({ type: Boolean, reflect: true }) public required = true
 
   @property({ attribute: false }) public context?: {
-    filter_entity?: string | string[];
-  };
+    filter_entity?: string | string[]
+  }
 
-  @state() private _thumbnailUrl?: string | null;
+  @state() private _thumbnailUrl?: string | null
 
-  private _contextEntities: string[] | undefined;
+  private _contextEntities: string[] | undefined
 
   private get _hasAccept(): boolean {
-    return !!this.selector?.media?.accept?.length;
+    return !!this.selector?.media?.accept?.length
   }
 
   willUpdate(changedProps: PropertyValues<this>) {
-    if (changedProps.has("context")) {
+    if (changedProps.has('context')) {
       if (!this._hasAccept) {
-        this._contextEntities = ensureArray(this.context?.filter_entity);
+        this._contextEntities = ensureArray(this.context?.filter_entity)
       }
     }
 
-    if (changedProps.has("value")) {
-      const thumbnail = this.value?.metadata?.thumbnail;
-      const oldThumbnail = (changedProps.get("value") as this["value"])
-        ?.metadata?.thumbnail;
+    if (changedProps.has('value')) {
+      const thumbnail = this.value?.metadata?.thumbnail
+      const oldThumbnail = (changedProps.get('value') as this['value'])
+        ?.metadata?.thumbnail
       if (thumbnail === oldThumbnail) {
-        return;
+        return
       }
-      if (thumbnail && thumbnail.startsWith("/")) {
-        this._thumbnailUrl = undefined;
+      if (thumbnail && thumbnail.startsWith('/')) {
+        this._thumbnailUrl = undefined
         // Thumbnails served by local API require authentication
-        getSignedPath(this.hass, thumbnail).then((signedPath) => {
-          this._thumbnailUrl = signedPath.path;
-        });
+        getSignedPath(this.hass, thumbnail).then(signedPath => {
+          this._thumbnailUrl = signedPath.path
+        })
       } else if (
         thumbnail &&
-        thumbnail.startsWith("https://brands.home-assistant.io")
+        thumbnail.startsWith('https://brands.home-assistant.io')
       ) {
         // The backend is not aware of the theme used by the users,
         // so we rewrite the URL to show a proper icon
         this._thumbnailUrl = brandsUrl({
           domain: extractDomainFromBrandUrl(thumbnail),
-          type: "icon",
+          type: 'icon',
           useFallback: true,
           darkOptimized: this.hass.themes?.darkMode,
-        });
+        })
       } else {
-        this._thumbnailUrl = thumbnail;
+        this._thumbnailUrl = thumbnail
       }
     }
   }
 
   protected render() {
-    const entityId = this._getActiveEntityId();
+    const entityId = this._getActiveEntityId()
 
-    const stateObj = entityId ? this.hass.states[entityId] : undefined;
+    const stateObj = entityId ? this.hass.states[entityId] : undefined
 
     const supportsBrowse =
       !entityId ||
       (stateObj &&
-        supportsFeature(stateObj, MediaPlayerEntityFeature.BROWSE_MEDIA));
+        supportsFeature(stateObj, MediaPlayerEntityFeature.BROWSE_MEDIA))
 
     if (this.selector.media?.image_upload && !this.value) {
       return html`${this.label ? html`<label>${this.label}</label>` : nothing}
@@ -115,7 +115,7 @@ export class HaMediaSelector extends LitElement {
           select-media
           full-media
           @media-picked=${this._pictureUploadMediaPicked}
-        ></ha-picture-upload>`;
+        ></ha-picture-upload>`
     }
 
     return html`
@@ -128,7 +128,7 @@ export class HaMediaSelector extends LitElement {
               .value=${entityId}
               .label=${this.label ||
               this.hass.localize(
-                "ui.components.selectors.media.pick_media_player"
+                'ui.components.selectors.media.pick_media_player'
               )}
               .disabled=${this.disabled}
               .helper=${this.helper}
@@ -145,7 +145,7 @@ export class HaMediaSelector extends LitElement {
             ${this.label ? html`<label>${this.label}</label>` : nothing}
             <ha-alert>
               ${this.hass.localize(
-                "ui.components.selectors.media.browse_not_supported"
+                'ui.components.selectors.media.browse_not_supported'
               )}
             </ha-alert>
             <ha-form
@@ -162,13 +162,13 @@ export class HaMediaSelector extends LitElement {
               tabindex="0"
               role="button"
               aria-label=${!this.value?.media_content_id
-                ? this.hass.localize("ui.components.selectors.media.pick_media")
+                ? this.hass.localize('ui.components.selectors.media.pick_media')
                 : this.value.metadata?.title || this.value.media_content_id}
               @click=${this._pickMedia}
               @keydown=${this._handleKeyDown}
               class=${this.disabled || (!entityId && !this._hasAccept)
-                ? "disabled"
-                : ""}
+                ? 'disabled'
+                : ''}
             >
               <div class="content-container">
                 <div class="thumbnail">
@@ -176,16 +176,16 @@ export class HaMediaSelector extends LitElement {
                     ? html`
                         <div
                           class="${classMap({
-                            "centered-image":
+                            'centered-image':
                               !!this.value.metadata.media_class &&
-                              ["app", "directory"].includes(
+                              ['app', 'directory'].includes(
                                 this.value.metadata.media_class
                               ),
                           })}
                           image"
                           style=${this._thumbnailUrl
                             ? `background-image: url(${this._thumbnailUrl});`
-                            : ""}
+                            : ''}
                         ></div>
                       `
                     : html`
@@ -197,7 +197,7 @@ export class HaMediaSelector extends LitElement {
                               : this.value?.metadata?.media_class
                                 ? MediaClassBrowserSettings[
                                     this.value.metadata.media_class ===
-                                    "directory"
+                                    'directory'
                                       ? this.value.metadata
                                           .children_media_class ||
                                         this.value.metadata.media_class
@@ -211,7 +211,7 @@ export class HaMediaSelector extends LitElement {
                 <div class="title">
                   ${!this.value?.media_content_id
                     ? this.hass.localize(
-                        "ui.components.selectors.media.pick_media"
+                        'ui.components.selectors.media.pick_media'
                       )
                     : this.value.metadata?.title || this.value.media_content_id}
                 </div>
@@ -226,50 +226,50 @@ export class HaMediaSelector extends LitElement {
                     @click=${this._clearValue}
                   >
                     ${this.hass.localize(
-                      "ui.components.picture-upload.clear_picture"
+                      'ui.components.picture-upload.clear_picture'
                     )}
                   </ha-button>
                 </div>`
               : nothing}`}
-    `;
+    `
   }
 
   private _computeLabelCallback = (
     schema: SchemaUnion<typeof MANUAL_SCHEMA>
   ): string =>
-    this.hass.localize(`ui.components.selectors.media.${schema.name}`);
+    this.hass.localize(`ui.components.selectors.media.${schema.name}`)
 
   private _computeHelperCallback = (
     schema: SchemaUnion<typeof MANUAL_SCHEMA>
   ): string =>
-    this.hass.localize(`ui.components.selectors.media.${schema.name}_detail`);
+    this.hass.localize(`ui.components.selectors.media.${schema.name}_detail`)
 
   private _entityChanged(ev: CustomEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!this._hasAccept && this.context?.filter_entity) {
-      fireEvent(this, "value-changed", {
+      fireEvent(this, 'value-changed', {
         value: {
-          media_content_id: "",
-          media_content_type: "",
+          media_content_id: '',
+          media_content_type: '',
           metadata: {
             browse_entity_id: ev.detail.value,
           },
         },
-      });
+      })
     } else {
-      fireEvent(this, "value-changed", {
+      fireEvent(this, 'value-changed', {
         value: {
           entity_id: ev.detail.value,
-          media_content_id: "",
-          media_content_type: "",
+          media_content_id: '',
+          media_content_type: '',
         },
-      });
+      })
     }
   }
 
   private _pickMedia() {
     showMediaBrowserDialog(this, {
-      action: "pick",
+      action: 'pick',
       entityId: this._getActiveEntityId(),
       navigateIds: this.value?.metadata?.navigateIds,
       accept: this.selector.media?.accept,
@@ -278,7 +278,7 @@ export class HaMediaSelector extends LitElement {
       hideContentType: this.selector.media?.hide_content_type,
       contentIdHelper: this.selector.media?.content_id_helper,
       mediaPickedCallback: (pickedMedia: MediaPickedEvent) => {
-        fireEvent(this, "value-changed", {
+        fireEvent(this, 'value-changed', {
           value: {
             ...this.value,
             media_content_id: pickedMedia.item.media_content_id,
@@ -288,7 +288,7 @@ export class HaMediaSelector extends LitElement {
               thumbnail: pickedMedia.item.thumbnail,
               media_class: pickedMedia.item.media_class,
               children_media_class: pickedMedia.item.children_media_class,
-              navigateIds: pickedMedia.navigateIds?.map((id) => ({
+              navigateIds: pickedMedia.navigateIds?.map(id => ({
                 media_content_type: id.media_content_type,
                 media_content_id: id.media_content_id,
               })),
@@ -297,30 +297,30 @@ export class HaMediaSelector extends LitElement {
                 : {}),
             },
           },
-        });
+        })
       },
-    });
+    })
   }
 
   private _getActiveEntityId(): string | undefined {
-    const metaId = this.value?.metadata?.browse_entity_id;
+    const metaId = this.value?.metadata?.browse_entity_id
     return (
       this.value?.entity_id ||
       (metaId && this._contextEntities?.includes(metaId) && metaId) ||
       this._contextEntities?.[0]
-    );
+    )
   }
 
   private _handleKeyDown(ev: KeyboardEvent) {
-    if (ev.key === "Enter" || ev.key === " ") {
-      ev.preventDefault();
-      this._pickMedia();
+    if (ev.key === 'Enter' || ev.key === ' ') {
+      ev.preventDefault()
+      this._pickMedia()
     }
   }
 
   private _pictureUploadMediaPicked(ev) {
-    const pickedMedia = ev.detail as MediaPickedEvent;
-    fireEvent(this, "value-changed", {
+    const pickedMedia = ev.detail as MediaPickedEvent
+    fireEvent(this, 'value-changed', {
       value: {
         ...this.value,
         media_content_id: pickedMedia.item.media_content_id,
@@ -330,17 +330,17 @@ export class HaMediaSelector extends LitElement {
           thumbnail: pickedMedia.item.thumbnail,
           media_class: pickedMedia.item.media_class,
           children_media_class: pickedMedia.item.children_media_class,
-          navigateIds: pickedMedia.navigateIds?.map((id) => ({
+          navigateIds: pickedMedia.navigateIds?.map(id => ({
             media_content_type: id.media_content_type,
             media_content_id: id.media_content_id,
           })),
         },
       },
-    });
+    })
   }
 
   private _clearValue() {
-    fireEvent(this, "value-changed", { value: undefined });
+    fireEvent(this, 'value-changed', { value: undefined })
   }
 
   static styles = css`
@@ -422,11 +422,11 @@ export class HaMediaSelector extends LitElement {
       width: 100%;
       height: 100%;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-media": HaMediaSelector;
+    'ha-selector-media': HaMediaSelector
   }
 }

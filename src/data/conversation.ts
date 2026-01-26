@@ -1,81 +1,78 @@
-import { ensureArray } from "../common/array/ensure-array";
-import type { HomeAssistant } from "../types";
+import { ensureArray } from '../common/array/ensure-array'
+import type { HomeAssistant } from '../types'
 
 export const enum ConversationEntityFeature {
   CONTROL = 1,
 }
 
 interface IntentTarget {
-  type: "area" | "device" | "entity" | "domain" | "device_class" | "custom";
-  name: string;
-  id: string | null;
+  type: 'area' | 'device' | 'entity' | 'domain' | 'device_class' | 'custom'
+  name: string
+  id: string | null
 }
 
 interface IntentResultBase {
-  language: string;
-  speech: Record<"plain" | "ssml", { extra_data: any; speech: string }> | null;
+  language: string
+  speech: Record<'plain' | 'ssml', { extra_data: any; speech: string }> | null
 }
 
 interface IntentResultActionDone extends IntentResultBase {
-  response_type: "action_done";
+  response_type: 'action_done'
   data: {
-    targets: IntentTarget[];
-    success: IntentTarget[];
-    failed: IntentTarget[];
-  };
+    targets: IntentTarget[]
+    success: IntentTarget[]
+    failed: IntentTarget[]
+  }
 }
 
 interface IntentResultQueryAnswer extends IntentResultBase {
-  response_type: "query_answer";
+  response_type: 'query_answer'
   data: {
-    targets: IntentTarget[];
-    success: IntentTarget[];
-    failed: IntentTarget[];
-  };
+    targets: IntentTarget[]
+    success: IntentTarget[]
+    failed: IntentTarget[]
+  }
 }
 
 interface IntentResultError extends IntentResultBase {
-  response_type: "error";
+  response_type: 'error'
   data: {
     code:
-      | "no_intent_match"
-      | "no_valid_targets"
-      | "failed_to_handle"
-      | "unknown";
-  };
+      | 'no_intent_match'
+      | 'no_valid_targets'
+      | 'failed_to_handle'
+      | 'unknown'
+  }
 }
 
 export interface ConversationResult {
-  conversation_id: string | null;
-  response:
-    | IntentResultActionDone
-    | IntentResultQueryAnswer
-    | IntentResultError;
-  continue_conversation: boolean;
+  conversation_id: string | null
+  response: IntentResultActionDone | IntentResultQueryAnswer | IntentResultError
+  continue_conversation: boolean
 }
 
 export interface Agent {
-  id: string;
-  name: string;
-  supported_languages: "*" | string[];
+  id: string
+  name: string
+  supported_languages: '*' | string[]
 }
 
 export interface AssistDebugResult {
   intent: {
-    name: string;
-  };
+    name: string
+  }
   entities: Record<
     string,
     {
-      name: string;
-      value: string;
-      text: string;
+      name: string
+      value: string
+      text: string
     }
-  >;
+  >
 }
 
 export interface AssistDebugResponse {
-  results: (AssistDebugResult | null)[];
+  results: (AssistDebugResult | null)[]
 }
 
 export const processConversationInput = (
@@ -86,11 +83,11 @@ export const processConversationInput = (
   language: string
 ): Promise<ConversationResult> =>
   hass.callWS({
-    type: "conversation/process",
+    type: 'conversation/process',
     text,
     conversation_id,
     language,
-  });
+  })
 
 export const listAgents = (
   hass: HomeAssistant,
@@ -98,19 +95,19 @@ export const listAgents = (
   country?: string
 ): Promise<{ agents: Agent[] }> =>
   hass.callWS({
-    type: "conversation/agent/list",
+    type: 'conversation/agent/list',
     language,
     country,
-  });
+  })
 
 export const prepareConversation = (
   hass: HomeAssistant,
   language?: string
 ): Promise<void> =>
   hass.callWS({
-    type: "conversation/prepare",
+    type: 'conversation/prepare',
     language,
-  });
+  })
 
 export const debugAgent = (
   hass: HomeAssistant,
@@ -119,19 +116,19 @@ export const debugAgent = (
   device_id?: string
 ): Promise<AssistDebugResponse> =>
   hass.callWS({
-    type: "conversation/agent/homeassistant/debug",
+    type: 'conversation/agent/homeassistant/debug',
     sentences: ensureArray(sentences),
     language,
     device_id,
-  });
+  })
 
 export interface LanguageScore {
-  cloud: number;
-  focused_local: number;
-  full_local: number;
+  cloud: number
+  focused_local: number
+  full_local: number
 }
 
-export type LanguageScores = Record<string, LanguageScore>;
+export type LanguageScores = Record<string, LanguageScore>
 
 export const getLanguageScores = (
   hass: HomeAssistant,
@@ -139,7 +136,7 @@ export const getLanguageScores = (
   country?: string
 ): Promise<{ languages: LanguageScores; preferred_language: string | null }> =>
   hass.callWS({
-    type: "conversation/agent/homeassistant/language_scores",
+    type: 'conversation/agent/homeassistant/language_scores',
     language,
     country,
-  });
+  })

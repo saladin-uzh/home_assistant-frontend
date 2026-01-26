@@ -1,57 +1,53 @@
-import {
-  mdiMicrophoneMessage,
-  mdiRayEndArrow,
-  mdiRayStartArrow,
-} from "@mdi/js";
-import { LitElement, css, html } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { repeat } from "lit/directives/repeat";
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
-import { formatDateTimeWithSeconds } from "../../../../common/datetime/format_date_time";
+import { mdiMicrophoneMessage, mdiRayEndArrow, mdiRayStartArrow } from '@mdi/js'
+import { LitElement, css, html } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { repeat } from 'lit/directives/repeat'
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
+import { formatDateTimeWithSeconds } from '../../../../common/datetime/format_date_time'
 import type {
   PipelineRunEvent,
   AssistRunListing,
-} from "../../../../data/assist_pipeline";
+} from '../../../../data/assist_pipeline'
 import {
   getAssistPipelineRun,
   listAssistPipelineRuns,
-} from "../../../../data/assist_pipeline";
-import { showAlertDialog } from "../../../../dialogs/generic/show-dialog-box";
-import "../../../../layouts/hass-subpage";
-import { haStyle } from "../../../../resources/styles";
-import type { HomeAssistant, Route } from "../../../../types";
-import "./assist-render-pipeline-events";
-import type { ChatLog } from "../../../../data/chat_log";
-import { subscribeChatLog } from "../../../../data/chat_log";
+} from '../../../../data/assist_pipeline'
+import { showAlertDialog } from '../../../../dialogs/generic/show-dialog-box'
+import '../../../../layouts/hass-subpage'
+import { haStyle } from '../../../../resources/styles'
+import type { HomeAssistant, Route } from '../../../../types'
+import './assist-render-pipeline-events'
+import type { ChatLog } from '../../../../data/chat_log'
+import { subscribeChatLog } from '../../../../data/chat_log'
 
-@customElement("assist-pipeline-debug")
+@customElement('assist-pipeline-debug')
 export class AssistPipelineDebug extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ attribute: false }) public route!: Route;
+  @property({ attribute: false }) public route!: Route
 
-  @property({ attribute: false }) public pipelineId!: string;
+  @property({ attribute: false }) public pipelineId!: string
 
-  @state() private _runId?: string;
+  @state() private _runId?: string
 
-  @state() private _runs?: AssistRunListing[];
+  @state() private _runs?: AssistRunListing[]
 
-  @state() private _events?: PipelineRunEvent[];
+  @state() private _events?: PipelineRunEvent[]
 
-  @state() private _chatLog?: ChatLog;
+  @state() private _chatLog?: ChatLog
 
-  private _unsubRefreshEventsID?: number;
+  private _unsubRefreshEventsID?: number
 
-  private _unsubChatLogUpdates?: Promise<UnsubscribeFunc>;
+  private _unsubChatLogUpdates?: Promise<UnsubscribeFunc>
 
   protected render() {
     return html`<hass-subpage
       .narrow=${this.narrow}
       .hass=${this.hass}
       .header=${this.hass.localize(
-        "ui.panel.config.voice_assistants.debug.header"
+        'ui.panel.config.voice_assistants.debug.header'
       )}
     >
       <a
@@ -60,7 +56,7 @@ export class AssistPipelineDebug extends LitElement {
         ><ha-icon-button
           .path=${mdiMicrophoneMessage}
           .label=${this.hass.localize(
-            "ui.panel.config.voice_assistants.debug.start_debug_run"
+            'ui.panel.config.voice_assistants.debug.start_debug_run'
           )}
         ></ha-icon-button
       ></a>
@@ -71,16 +67,19 @@ export class AssistPipelineDebug extends LitElement {
                 .disabled=${this._runs[this._runs.length - 1]
                   .pipeline_run_id === this._runId}
                 .label=${this.hass.localize(
-                  "ui.panel.config.voice_assistants.debug.older_run"
+                  'ui.panel.config.voice_assistants.debug.older_run'
                 )}
                 @click=${this._pickOlderRun}
                 .path=${mdiRayEndArrow}
               ></ha-icon-button>
-              <select .value=${this._runId} @change=${this._pickRun}>
+              <select
+                .value=${this._runId}
+                @change=${this._pickRun}
+              >
                 ${repeat(
                   this._runs,
-                  (run) => run.pipeline_run_id,
-                  (run) =>
+                  run => run.pipeline_run_id,
+                  run =>
                     html`<option value=${run.pipeline_run_id}>
                       ${formatDateTimeWithSeconds(
                         new Date(run.timestamp),
@@ -93,21 +92,21 @@ export class AssistPipelineDebug extends LitElement {
               <ha-icon-button
                 .disabled=${this._runs[0].pipeline_run_id === this._runId}
                 .label=${this.hass.localize(
-                  "ui.panel.config.voice_assistants.debug.newer_run"
+                  'ui.panel.config.voice_assistants.debug.newer_run'
                 )}
                 @click=${this._pickNewerRun}
                 .path=${mdiRayStartArrow}
               ></ha-icon-button>
             `
-          : ""}
+          : ''}
       </div>
       ${this._runs?.length === 0
         ? html`<div class="container">
             ${this.hass.localize(
-              "ui.panel.config.voice_assistants.debug.no_runs_found"
+              'ui.panel.config.voice_assistants.debug.no_runs_found'
             )}
           </div>`
-        : ""}
+        : ''}
       <div class="content">
         ${this._events
           ? html`<assist-render-pipeline-events
@@ -115,139 +114,139 @@ export class AssistPipelineDebug extends LitElement {
               .events=${this._events}
               .chatLog=${this._chatLog}
             ></assist-render-pipeline-events>`
-          : ""}
+          : ''}
       </div>
-    </hass-subpage>`;
+    </hass-subpage>`
   }
 
   protected willUpdate(changedProperties) {
-    let clearRefresh = false;
+    let clearRefresh = false
 
-    if (changedProperties.has("pipelineId")) {
-      this._fetchRuns();
-      clearRefresh = true;
+    if (changedProperties.has('pipelineId')) {
+      this._fetchRuns()
+      clearRefresh = true
     }
-    if (changedProperties.has("_runId")) {
+    if (changedProperties.has('_runId')) {
       if (this._unsubChatLogUpdates) {
-        this._unsubChatLogUpdates.then((unsub) => unsub());
-        this._unsubChatLogUpdates = undefined;
+        this._unsubChatLogUpdates.then(unsub => unsub())
+        this._unsubChatLogUpdates = undefined
       }
-      this._fetchEvents();
-      clearRefresh = true;
+      this._fetchEvents()
+      clearRefresh = true
     }
     if (clearRefresh && this._unsubRefreshEventsID) {
-      clearTimeout(this._unsubRefreshEventsID);
-      this._unsubRefreshEventsID = undefined;
+      clearTimeout(this._unsubRefreshEventsID)
+      this._unsubRefreshEventsID = undefined
     }
   }
 
   public disconnectedCallback(): void {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
     if (this._unsubRefreshEventsID) {
-      clearTimeout(this._unsubRefreshEventsID);
-      this._unsubRefreshEventsID = undefined;
+      clearTimeout(this._unsubRefreshEventsID)
+      this._unsubRefreshEventsID = undefined
     }
     if (this._unsubChatLogUpdates) {
-      this._unsubChatLogUpdates.then((unsub) => unsub());
-      this._unsubChatLogUpdates = undefined;
+      this._unsubChatLogUpdates.then(unsub => unsub())
+      this._unsubChatLogUpdates = undefined
     }
   }
 
   private async _fetchRuns() {
     if (!this.pipelineId) {
-      this._runs = undefined;
-      return;
+      this._runs = undefined
+      return
     }
     try {
       this._runs = (
         await listAssistPipelineRuns(this.hass, this.pipelineId)
-      ).pipeline_runs.reverse();
+      ).pipeline_runs.reverse()
     } catch (e: any) {
       showAlertDialog(this, {
         title: this.hass.localize(
-          "ui.panel.config.voice_assistants.debug.error.fetch_runs"
+          'ui.panel.config.voice_assistants.debug.error.fetch_runs'
         ),
         text: e.message,
-      });
-      return;
+      })
+      return
     }
     if (!this._runs.length) {
-      return;
+      return
     }
     if (
       !this._runId ||
-      !this._runs.find((run) => run.pipeline_run_id === this._runId)
+      !this._runs.find(run => run.pipeline_run_id === this._runId)
     ) {
-      this._runId = this._runs[0].pipeline_run_id;
-      this._fetchEvents();
+      this._runId = this._runs[0].pipeline_run_id
+      this._fetchEvents()
     }
   }
 
   private async _fetchEvents() {
     if (!this._runId) {
-      this._events = undefined;
-      return;
+      this._events = undefined
+      return
     }
     try {
       this._events = (
         await getAssistPipelineRun(this.hass, this.pipelineId, this._runId)
-      ).events;
+      ).events
     } catch (e: any) {
       showAlertDialog(this, {
         title: this.hass.localize(
-          "ui.panel.config.voice_assistants.debug.error.fetch_events"
+          'ui.panel.config.voice_assistants.debug.error.fetch_events'
         ),
         text: e.message,
-      });
-      return;
+      })
+      return
     }
     if (!this._events!.length) {
-      return;
+      return
     }
-    if (!this._unsubChatLogUpdates && this._events[0].type === "run-start") {
+    if (!this._unsubChatLogUpdates && this._events[0].type === 'run-start') {
       this._unsubChatLogUpdates = subscribeChatLog(
         this.hass,
         this._events[0].data.conversation_id,
-        (chatLog) => {
+        chatLog => {
           if (chatLog) {
-            this._chatLog = chatLog;
+            this._chatLog = chatLog
           } else {
-            this._unsubChatLogUpdates?.then((unsub) => unsub());
-            this._unsubChatLogUpdates = undefined;
+            this._unsubChatLogUpdates?.then(unsub => unsub())
+            this._unsubChatLogUpdates = undefined
           }
         }
-      );
+      )
       this._unsubChatLogUpdates.catch(() => {
-        this._unsubChatLogUpdates = undefined;
-      });
+        this._unsubChatLogUpdates = undefined
+      })
     }
     if (
       // If the last event is not a finish run event, the run is still ongoing.
       // Refresh events automatically.
-      !["run-end", "error"].includes(this._events[this._events.length - 1].type)
+      !['run-end', 'error'].includes(this._events[this._events.length - 1].type)
     ) {
       this._unsubRefreshEventsID = window.setTimeout(() => {
-        this._fetchEvents();
-      }, 2000);
+        this._fetchEvents()
+      }, 2000)
     }
   }
 
   private _pickOlderRun() {
     const curIndex = this._runs!.findIndex(
-      (run) => run.pipeline_run_id === this._runId
-    );
-    this._runId = this._runs![curIndex + 1].pipeline_run_id;
+      run => run.pipeline_run_id === this._runId
+    )
+    this._runId = this._runs![curIndex + 1].pipeline_run_id
   }
 
   private _pickNewerRun() {
     const curIndex = this._runs!.findIndex(
-      (run) => run.pipeline_run_id === this._runId
-    );
-    this._runId = this._runs![curIndex - 1].pipeline_run_id;
+      run => run.pipeline_run_id === this._runId
+    )
+    this._runId = this._runs![curIndex - 1].pipeline_run_id
   }
 
   private _pickRun(ev) {
-    this._runId = ev.target.value;
+    this._runId = ev.target.value
   }
 
   static styles = [
@@ -276,11 +275,11 @@ export class AssistPipelineDebug extends LitElement {
         padding-top: 16px;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "assist-pipeline-debug": AssistPipelineDebug;
+    'assist-pipeline-debug': AssistPipelineDebug
   }
 }

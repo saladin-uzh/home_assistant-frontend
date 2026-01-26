@@ -6,9 +6,9 @@ export function computeCssVariable(
       .reverse()
       .reduce<
         string | undefined
-      >((str, variable) => `var(${variable}${str ? `, ${str}` : ""})`, undefined);
+      >((str, variable) => `var(${variable}${str ? `, ${str}` : ''})`, undefined)
   }
-  return `var(${props})`;
+  return `var(${props})`
 }
 
 export function computeCssValue(
@@ -17,14 +17,14 @@ export function computeCssValue(
 ): string | undefined {
   if (Array.isArray(prop)) {
     for (const property of prop) {
-      const value = computeCssValue(property, computedStyles);
-      if (value) return value;
+      const value = computeCssValue(property, computedStyles)
+      if (value) return value
     }
-    return undefined;
+    return undefined
   }
 
-  if (!prop.endsWith("-color")) {
-    return undefined;
+  if (!prop.endsWith('-color')) {
+    return undefined
   }
-  return computedStyles.getPropertyValue(prop).trim() || undefined;
+  return computedStyles.getPropertyValue(prop).trim() || undefined
 }

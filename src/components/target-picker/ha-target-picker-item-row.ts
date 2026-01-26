@@ -1,33 +1,27 @@
-import { consume } from "@lit/context";
-import {
-  mdiClose,
-  mdiDevices,
-  mdiHome,
-  mdiLabel,
-  mdiTextureBox,
-} from "@mdi/js";
-import type { HassEntity } from "home-assistant-js-websocket";
-import { css, html, LitElement, nothing, type PropertyValues } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../common/dom/fire_event";
-import { computeAreaName } from "../../common/entity/compute_area_name";
+import { consume } from '@lit/context'
+import { mdiClose, mdiDevices, mdiHome, mdiLabel, mdiTextureBox } from '@mdi/js'
+import type { HassEntity } from 'home-assistant-js-websocket'
+import { css, html, LitElement, nothing, type PropertyValues } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../common/dom/fire_event'
+import { computeAreaName } from '../../common/entity/compute_area_name'
 import {
   computeDeviceName,
   computeDeviceNameDisplay,
-} from "../../common/entity/compute_device_name";
-import { computeDomain } from "../../common/entity/compute_domain";
-import { computeEntityName } from "../../common/entity/compute_entity_name";
-import { getEntityContext } from "../../common/entity/context/get_entity_context";
-import { computeRTL } from "../../common/util/compute_rtl";
-import type { AreaRegistryEntry } from "../../data/area_registry";
-import { getConfigEntry } from "../../data/config_entries";
-import { labelsContext } from "../../data/context";
-import type { DeviceRegistryEntry } from "../../data/device_registry";
-import type { HaEntityPickerEntityFilterFunc } from "../../data/entity";
-import type { FloorRegistryEntry } from "../../data/floor_registry";
-import { domainToName } from "../../data/integration";
-import type { LabelRegistryEntry } from "../../data/label_registry";
+} from '../../common/entity/compute_device_name'
+import { computeDomain } from '../../common/entity/compute_domain'
+import { computeEntityName } from '../../common/entity/compute_entity_name'
+import { getEntityContext } from '../../common/entity/context/get_entity_context'
+import { computeRTL } from '../../common/util/compute_rtl'
+import type { AreaRegistryEntry } from '../../data/area_registry'
+import { getConfigEntry } from '../../data/config_entries'
+import { labelsContext } from '../../data/context'
+import type { DeviceRegistryEntry } from '../../data/device_registry'
+import type { HaEntityPickerEntityFilterFunc } from '../../data/entity'
+import type { FloorRegistryEntry } from '../../data/floor_registry'
+import { domainToName } from '../../data/integration'
+import type { LabelRegistryEntry } from '../../data/label_registry'
 import {
   areaMeetsFilter,
   deviceMeetsFilter,
@@ -36,104 +30,110 @@ import {
   type ExtractFromTargetResult,
   type ExtractFromTargetResultReferenced,
   type TargetType,
-} from "../../data/target";
-import { buttonLinkStyle } from "../../resources/styles";
-import type { HomeAssistant } from "../../types";
-import { brandsUrl } from "../../util/brands-url";
-import type { HaDevicePickerDeviceFilterFunc } from "../device/ha-device-picker";
-import { floorDefaultIconPath } from "../ha-floor-icon";
-import "../ha-icon-button";
-import "../ha-md-list";
-import type { HaMdList } from "../ha-md-list";
-import "../ha-md-list-item";
-import type { HaMdListItem } from "../ha-md-list-item";
-import "../ha-state-icon";
-import "../ha-svg-icon";
-import { showTargetDetailsDialog } from "./dialog/show-dialog-target-details";
+} from '../../data/target'
+import { buttonLinkStyle } from '../../resources/styles'
+import type { HomeAssistant } from '../../types'
+import { brandsUrl } from '../../util/brands-url'
+import type { HaDevicePickerDeviceFilterFunc } from '../device/ha-device-picker'
+import { floorDefaultIconPath } from '../ha-floor-icon'
+import '../ha-icon-button'
+import '../ha-md-list'
+import type { HaMdList } from '../ha-md-list'
+import '../ha-md-list-item'
+import type { HaMdListItem } from '../ha-md-list-item'
+import '../ha-state-icon'
+import '../ha-svg-icon'
+import { showTargetDetailsDialog } from './dialog/show-dialog-target-details'
 
-@customElement("ha-target-picker-item-row")
+@customElement('ha-target-picker-item-row')
 export class HaTargetPickerItemRow extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ reflect: true }) public type!: TargetType;
+  @property({ reflect: true }) public type!: TargetType
 
-  @property({ attribute: "item-id" }) public itemId!: string;
+  @property({ attribute: 'item-id' }) public itemId!: string
 
-  @property({ type: Boolean }) public expand = false;
+  @property({ type: Boolean }) public expand = false
 
-  @property({ type: Boolean, attribute: "sub-entry", reflect: true })
-  public subEntry = false;
+  @property({ type: Boolean, attribute: 'sub-entry', reflect: true })
+  public subEntry = false
 
-  @property({ type: Boolean, attribute: "hide-context" })
-  public hideContext = false;
-
-  @property({ attribute: false })
-  public parentEntries?: ExtractFromTargetResultReferenced;
+  @property({ type: Boolean, attribute: 'hide-context' })
+  public hideContext = false
 
   @property({ attribute: false })
-  public deviceFilter?: HaDevicePickerDeviceFilterFunc;
+  public parentEntries?: ExtractFromTargetResultReferenced
 
   @property({ attribute: false })
-  public entityFilter?: HaEntityPickerEntityFilterFunc;
+  public deviceFilter?: HaDevicePickerDeviceFilterFunc
+
+  @property({ attribute: false })
+  public entityFilter?: HaEntityPickerEntityFilterFunc
 
   /**
    * Show only targets with entities from specific domains.
    * @type {Array}
    * @attr include-domains
    */
-  @property({ type: Array, attribute: "include-domains" })
-  public includeDomains?: string[];
+  @property({ type: Array, attribute: 'include-domains' })
+  public includeDomains?: string[]
 
   /**
    * Show only targets with entities of these device classes.
    * @type {Array}
    * @attr include-device-classes
    */
-  @property({ type: Array, attribute: "include-device-classes" })
-  public includeDeviceClasses?: string[];
+  @property({ type: Array, attribute: 'include-device-classes' })
+  public includeDeviceClasses?: string[]
 
-  @state() private _iconImg?: string;
+  @state() private _iconImg?: string
 
-  @state() private _domainName?: string;
+  @state() private _domainName?: string
 
-  @state() private _entries?: ExtractFromTargetResult;
+  @state() private _entries?: ExtractFromTargetResult
 
   @state()
   @consume({ context: labelsContext, subscribe: true })
-  _labelRegistry!: LabelRegistryEntry[];
+  _labelRegistry!: LabelRegistryEntry[]
 
-  @query("ha-md-list-item") public item?: HaMdListItem;
+  @query('ha-md-list-item') public item?: HaMdListItem
 
-  @query("ha-md-list") public list?: HaMdList;
+  @query('ha-md-list') public list?: HaMdList
 
-  @query("ha-target-picker-item-row") public itemRow?: HaTargetPickerItemRow;
+  @query('ha-target-picker-item-row') public itemRow?: HaTargetPickerItemRow
 
   protected willUpdate(changedProps: PropertyValues) {
-    if (!this.subEntry && changedProps.has("itemId")) {
-      this._updateItemData();
+    if (!this.subEntry && changedProps.has('itemId')) {
+      this._updateItemData()
     }
   }
 
   protected render() {
     const { name, context, iconPath, fallbackIconPath, stateObject, notFound } =
-      this._itemData(this.type, this.itemId);
+      this._itemData(this.type, this.itemId)
 
-    const showEntities = this.type !== "entity" && !notFound;
+    const showEntities = this.type !== 'entity' && !notFound
 
-    const entries = this.parentEntries || this._entries;
+    const entries = this.parentEntries || this._entries
 
     // Don't show sub entries that have no entities
     if (
       this.subEntry &&
-      this.type !== "entity" &&
+      this.type !== 'entity' &&
       (!entries || entries.referenced_entities.length === 0)
     ) {
-      return nothing;
+      return nothing
     }
 
     return html`
-      <ha-md-list-item type="text" class=${notFound ? "error" : ""}>
-        <div class="icon" slot="start">
+      <ha-md-list-item
+        type="text"
+        class=${notFound ? 'error' : ''}
+      >
+        <div
+          class="icon"
+          slot="start"
+        >
           ${this.subEntry
             ? html`
                 <div class="horizontal-line-wrapper">
@@ -145,14 +145,14 @@ export class HaTargetPickerItemRow extends LitElement {
             ? html`<ha-icon .icon=${iconPath}></ha-icon>`
             : this._iconImg
               ? html`<img
-                  alt=${this._domainName || ""}
+                  alt=${this._domainName || ''}
                   crossorigin="anonymous"
                   referrerpolicy="no-referrer"
                   src=${this._iconImg}
                 />`
               : fallbackIconPath
                 ? html`<ha-svg-icon .path=${fallbackIconPath}></ha-svg-icon>`
-                : this.type === "entity"
+                : this.type === 'entity'
                   ? html`
                       <ha-state-icon
                         .hass=${this.hass}
@@ -178,19 +178,27 @@ export class HaTargetPickerItemRow extends LitElement {
             >`
           : nothing}
         ${this._domainName && this.subEntry
-          ? html`<span slot="supporting-text" class="domain"
+          ? html`<span
+              slot="supporting-text"
+              class="domain"
               >${this._domainName}</span
             >`
           : nothing}
         ${!this.subEntry && entries && showEntities
           ? html`
-              <div slot="end" class="summary">
+              <div
+                slot="end"
+                class="summary"
+              >
                 ${showEntities &&
                 !this.expand &&
                 entries?.referenced_entities.length
-                  ? html`<button class="main link" @click=${this._openDetails}>
+                  ? html`<button
+                      class="main link"
+                      @click=${this._openDetails}
+                    >
                       ${this.hass.localize(
-                        "ui.components.target-picker.entities_count",
+                        'ui.components.target-picker.entities_count',
                         {
                           count: entries?.referenced_entities.length,
                         }
@@ -199,7 +207,7 @@ export class HaTargetPickerItemRow extends LitElement {
                   : showEntities
                     ? html`<span class="main">
                         ${this.hass.localize(
-                          "ui.components.target-picker.entities_count",
+                          'ui.components.target-picker.entities_count',
                           {
                             count: entries?.referenced_entities.length,
                           }
@@ -222,120 +230,119 @@ export class HaTargetPickerItemRow extends LitElement {
       ${this.expand && entries && entries.referenced_entities
         ? this._renderEntries()
         : nothing}
-    `;
+    `
   }
 
   private _renderEntries() {
-    const entries = this.parentEntries || this._entries;
+    const entries = this.parentEntries || this._entries
 
     let nextType: TargetType =
-      this.type === "floor"
-        ? "area"
-        : this.type === "area"
-          ? "device"
-          : "entity";
+      this.type === 'floor'
+        ? 'area'
+        : this.type === 'area'
+          ? 'device'
+          : 'entity'
 
-    if (this.type === "label") {
+    if (this.type === 'label') {
       if (entries?.referenced_areas.length) {
-        nextType = "area";
+        nextType = 'area'
       } else if (entries?.referenced_devices.length) {
-        nextType = "device";
+        nextType = 'device'
       }
     }
 
     const rows1 =
-      (nextType === "area"
+      (nextType === 'area'
         ? entries?.referenced_areas
-        : nextType === "device" && this.type !== "label"
+        : nextType === 'device' && this.type !== 'label'
           ? entries?.referenced_devices
-          : this.type !== "label"
+          : this.type !== 'label'
             ? entries?.referenced_entities
-            : []) || [];
+            : []) || []
 
-    const devicesInAreas = [] as string[];
+    const devicesInAreas = [] as string[]
 
     const rows1Entries =
-      nextType === "entity"
+      nextType === 'entity'
         ? undefined
-        : rows1.map((rowItem) => {
+        : rows1.map(rowItem => {
             const nextEntries = {
               referenced_areas: [] as string[],
               referenced_devices: [] as string[],
               referenced_entities: [] as string[],
-            };
+            }
 
-            if (nextType === "area") {
+            if (nextType === 'area') {
               nextEntries.referenced_devices =
                 entries?.referenced_devices.filter(
-                  (device_id) =>
+                  device_id =>
                     this.hass.devices?.[device_id]?.area_id === rowItem &&
                     entries?.referenced_entities.some(
-                      (entity_id) =>
+                      entity_id =>
                         this.hass.entities?.[entity_id]?.device_id === device_id
                     )
-                ) || ([] as string[]);
+                ) || ([] as string[])
 
-              devicesInAreas.push(...nextEntries.referenced_devices);
+              devicesInAreas.push(...nextEntries.referenced_devices)
 
               nextEntries.referenced_entities =
-                entries?.referenced_entities.filter((entity_id) => {
-                  const entity = this.hass.entities[entity_id];
+                entries?.referenced_entities.filter(entity_id => {
+                  const entity = this.hass.entities[entity_id]
                   return (
                     entity.area_id === rowItem ||
                     !entity.device_id ||
                     nextEntries.referenced_devices.includes(entity.device_id)
-                  );
-                }) || ([] as string[]);
+                  )
+                }) || ([] as string[])
 
-              return nextEntries;
+              return nextEntries
             }
 
             nextEntries.referenced_entities =
               entries?.referenced_entities.filter(
-                (entity_id) =>
+                entity_id =>
                   this.hass.entities?.[entity_id]?.device_id === rowItem
-              ) || ([] as string[]);
+              ) || ([] as string[])
 
-            return nextEntries;
-          });
+            return nextEntries
+          })
 
     const entityRows =
-      this.type === "label" && entries
-        ? entries.referenced_entities.filter((entity_id) => {
-            const entity = this.hass.entities[entity_id];
+      this.type === 'label' && entries
+        ? entries.referenced_entities.filter(entity_id => {
+            const entity = this.hass.entities[entity_id]
             return (
               entity.labels.includes(this.itemId) &&
-              !entries.referenced_devices.includes(entity.device_id || "")
-            );
-          })
-        : nextType === "device" && entries
-          ? entries.referenced_entities.filter(
-              (entity_id) =>
-                this.hass.entities[entity_id].area_id === this.itemId
+              !entries.referenced_devices.includes(entity.device_id || '')
             )
-          : [];
+          })
+        : nextType === 'device' && entries
+          ? entries.referenced_entities.filter(
+              entity_id => this.hass.entities[entity_id].area_id === this.itemId
+            )
+          : []
 
     const deviceRows =
-      this.type === "label" && entries
+      this.type === 'label' && entries
         ? entries.referenced_devices.filter(
-            (device_id) =>
+            device_id =>
               !devicesInAreas.includes(device_id) &&
               this.hass.devices[device_id].labels.includes(this.itemId)
           )
-        : [];
+        : []
 
     const deviceRowsEntries =
       deviceRows.length === 0
         ? undefined
-        : deviceRows.map((device_id) => ({
+        : deviceRows.map(device_id => ({
             referenced_areas: [] as string[],
             referenced_devices: [] as string[],
             referenced_entities:
               entries?.referenced_entities.filter(
-                (entity_id) =>
+                entity_id =>
                   this.hass.entities?.[entity_id]?.device_id === device_id
               ) || ([] as string[]),
-          }));
+          }))
 
     return html`
       <div class="entries-tree">
@@ -351,7 +358,7 @@ export class HaTargetPickerItemRow extends LitElement {
                 .type=${nextType}
                 .itemId=${itemId}
                 .parentEntries=${rows1Entries?.[index]}
-                .hideContext=${this.hideContext || this.type !== "label"}
+                .hideContext=${this.hideContext || this.type !== 'label'}
                 expand
               ></ha-target-picker-item-row>
             `
@@ -364,75 +371,73 @@ export class HaTargetPickerItemRow extends LitElement {
                 type="device"
                 .itemId=${itemId}
                 .parentEntries=${deviceRowsEntries?.[index]}
-                .hideContext=${this.hideContext || this.type !== "label"}
+                .hideContext=${this.hideContext || this.type !== 'label'}
                 expand
               ></ha-target-picker-item-row>
             `
           )}
           ${entityRows.map(
-            (itemId) => html`
+            itemId => html`
               <ha-target-picker-item-row
                 sub-entry
                 .hass=${this.hass}
                 type="entity"
                 .itemId=${itemId}
-                .hideContext=${this.hideContext || this.type !== "label"}
+                .hideContext=${this.hideContext || this.type !== 'label'}
               ></ha-target-picker-item-row>
             `
           )}
         </ha-md-list>
       </div>
-    `;
+    `
   }
 
   private async _updateItemData() {
-    if (this.type === "entity") {
-      this._entries = undefined;
-      return;
+    if (this.type === 'entity') {
+      this._entries = undefined
+      return
     }
     try {
       const entries = await extractFromTarget(this.hass, {
         [`${this.type}_id`]: [this.itemId],
-      });
+      })
 
-      const hiddenAreaIds: string[] = [];
-      if (this.type === "floor" || this.type === "label") {
-        entries.referenced_areas = entries.referenced_areas.filter(
-          (area_id) => {
-            const area = this.hass.areas[area_id];
-            if (
-              (this.type === "floor" || area.labels.includes(this.itemId)) &&
-              areaMeetsFilter(
-                area,
-                this.hass.devices,
-                this.hass.entities,
-                this.deviceFilter,
-                this.includeDomains,
-                this.includeDeviceClasses,
-                this.hass.states,
-                this.entityFilter
-              )
-            ) {
-              return true;
-            }
-
-            hiddenAreaIds.push(area_id);
-            return false;
+      const hiddenAreaIds: string[] = []
+      if (this.type === 'floor' || this.type === 'label') {
+        entries.referenced_areas = entries.referenced_areas.filter(area_id => {
+          const area = this.hass.areas[area_id]
+          if (
+            (this.type === 'floor' || area.labels.includes(this.itemId)) &&
+            areaMeetsFilter(
+              area,
+              this.hass.devices,
+              this.hass.entities,
+              this.deviceFilter,
+              this.includeDomains,
+              this.includeDeviceClasses,
+              this.hass.states,
+              this.entityFilter
+            )
+          ) {
+            return true
           }
-        );
+
+          hiddenAreaIds.push(area_id)
+          return false
+        })
       }
 
-      const hiddenDeviceIds: string[] = [];
+      const hiddenDeviceIds: string[] = []
       if (
-        this.type === "floor" ||
-        this.type === "area" ||
-        this.type === "label"
+        this.type === 'floor' ||
+        this.type === 'area' ||
+        this.type === 'label'
       ) {
         entries.referenced_devices = entries.referenced_devices.filter(
-          (device_id) => {
-            const device = this.hass.devices[device_id];
+          device_id => {
+            const device = this.hass.devices[device_id]
             if (
-              !hiddenAreaIds.includes(device.area_id || "") &&
+              !hiddenAreaIds.includes(device.area_id || '') &&
               deviceMeetsFilter(
                 device,
                 this.hass.entities,
@@ -443,74 +448,74 @@ export class HaTargetPickerItemRow extends LitElement {
                 this.entityFilter
               )
             ) {
-              return true;
+              return true
             }
 
-            hiddenDeviceIds.push(device_id);
-            return false;
+            hiddenDeviceIds.push(device_id)
+            return false
           }
-        );
+        )
       }
 
       entries.referenced_entities = entries.referenced_entities.filter(
-        (entity_id) => {
-          const entity = this.hass.entities[entity_id];
-          if (hiddenDeviceIds.includes(entity.device_id || "")) {
-            return false;
+        entity_id => {
+          const entity = this.hass.entities[entity_id]
+          if (hiddenDeviceIds.includes(entity.device_id || '')) {
+            return false
           }
           if (
-            (this.type === "area" && entity.area_id === this.itemId) ||
-            (this.type === "floor" &&
+            (this.type === 'area' && entity.area_id === this.itemId) ||
+            (this.type === 'floor' &&
               entity.area_id &&
               entries.referenced_areas.includes(entity.area_id)) ||
-            (this.type === "label" && entity.labels.includes(this.itemId)) ||
-            entries.referenced_devices.includes(entity.device_id || "")
+            (this.type === 'label' && entity.labels.includes(this.itemId)) ||
+            entries.referenced_devices.includes(entity.device_id || '')
           ) {
             return entityRegMeetsFilter(
               entity,
-              this.type === "label",
+              this.type === 'label',
               this.includeDomains,
               this.includeDeviceClasses,
               this.hass.states,
               this.entityFilter
-            );
+            )
           }
-          return false;
+          return false
         }
-      );
+      )
 
-      this._entries = entries;
+      this._entries = entries
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.error("Failed to extract target", e);
+      console.error('Failed to extract target', e)
     }
   }
 
   private _itemData = memoizeOne((type: TargetType, item: string) => {
-    if (type === "floor") {
-      const floor: FloorRegistryEntry | undefined = this.hass.floors?.[item];
+    if (type === 'floor') {
+      const floor: FloorRegistryEntry | undefined = this.hass.floors?.[item]
       return {
         name: floor?.name || item,
         iconPath: floor?.icon,
         fallbackIconPath: floor ? floorDefaultIconPath(floor) : mdiHome,
         notFound: !floor,
-      };
+      }
     }
-    if (type === "area") {
-      const area: AreaRegistryEntry | undefined = this.hass.areas?.[item];
+    if (type === 'area') {
+      const area: AreaRegistryEntry | undefined = this.hass.areas?.[item]
       return {
         name: area?.name || item,
         context: area?.floor_id && this.hass.floors?.[area.floor_id]?.name,
         iconPath: area?.icon,
         fallbackIconPath: mdiTextureBox,
         notFound: !area,
-      };
+      }
     }
-    if (type === "device") {
-      const device: DeviceRegistryEntry | undefined = this.hass.devices?.[item];
+    if (type === 'device') {
+      const device: DeviceRegistryEntry | undefined = this.hass.devices?.[item]
 
       if (device?.primary_config_entry) {
-        this._getDeviceDomain(device.primary_config_entry);
+        this._getDeviceDomain(device.primary_config_entry)
       }
 
       return {
@@ -518,15 +523,15 @@ export class HaTargetPickerItemRow extends LitElement {
         context: device?.area_id && this.hass.areas?.[device.area_id]?.name,
         fallbackIconPath: mdiDevices,
         notFound: !device,
-      };
+      }
     }
-    if (type === "entity") {
-      this._setDomainName(computeDomain(item));
+    if (type === 'entity') {
+      this._setDomainName(computeDomain(item))
 
-      const stateObject: HassEntity | undefined = this.hass.states[item];
+      const stateObject: HassEntity | undefined = this.hass.states[item]
       const entityName = stateObject
         ? computeEntityName(stateObject, this.hass.entities, this.hass.devices)
-        : item;
+        : item
       const { area, device } = stateObject
         ? getEntityContext(
             stateObject,
@@ -535,55 +540,55 @@ export class HaTargetPickerItemRow extends LitElement {
             this.hass.areas,
             this.hass.floors
           )
-        : { area: undefined, device: undefined };
-      const deviceName = device ? computeDeviceName(device) : undefined;
-      const areaName = area ? computeAreaName(area) : undefined;
+        : { area: undefined, device: undefined }
+      const deviceName = device ? computeDeviceName(device) : undefined
+      const areaName = area ? computeAreaName(area) : undefined
       const context = [areaName, entityName ? deviceName : undefined]
         .filter(Boolean)
-        .join(computeRTL(this.hass) ? " ◂ " : " ▸ ");
+        .join(computeRTL(this.hass) ? ' ◂ ' : ' ▸ ')
       return {
         name: entityName || deviceName || item,
         context,
         stateObject,
-        notFound: !stateObject && item !== "all" && item !== "none",
-      };
+        notFound: !stateObject && item !== 'all' && item !== 'none',
+      }
     }
 
     // type label
     const label: LabelRegistryEntry | undefined = this._labelRegistry.find(
-      (lab) => lab.label_id === item
-    );
+      lab => lab.label_id === item
+    )
     return {
       name: label?.name || item,
       iconPath: label?.icon,
       fallbackIconPath: mdiLabel,
       notFound: !label,
-    };
-  });
+    }
+  })
 
   private _setDomainName(domain: string) {
-    this._domainName = domainToName(this.hass.localize, domain);
+    this._domainName = domainToName(this.hass.localize, domain)
   }
 
   private _removeItem(ev) {
-    ev.stopPropagation();
-    fireEvent(this, "remove-target-item", {
+    ev.stopPropagation()
+    fireEvent(this, 'remove-target-item', {
       type: this.type,
       id: this.itemId,
-    });
+    })
   }
 
   private async _getDeviceDomain(configEntryId: string) {
     try {
-      const data = await getConfigEntry(this.hass, configEntryId);
-      const domain = data.config_entry.domain;
+      const data = await getConfigEntry(this.hass, configEntryId)
+      const domain = data.config_entry.domain
       this._iconImg = brandsUrl({
         domain: domain,
-        type: "icon",
+        type: 'icon',
         darkOptimized: this.hass.themes?.darkMode,
-      });
+      })
 
-      this._setDomainName(domain);
+      this._setDomainName(domain)
     } catch {
       // failed to load config entry -> ignore
     }
@@ -598,7 +603,7 @@ export class HaTargetPickerItemRow extends LitElement {
       entityFilter: this.entityFilter,
       includeDomains: this.includeDomains,
       includeDeviceClasses: this.includeDeviceClasses,
-    });
+    })
   }
 
   static styles = [
@@ -622,7 +627,7 @@ export class HaTargetPickerItemRow extends LitElement {
         background: var(--ha-color-fill-warning-quiet-resting);
       }
 
-      .error [slot="supporting-text"] {
+      .error [slot='supporting-text'] {
         color: var(--ha-color-on-warning-normal);
       }
 
@@ -715,11 +720,11 @@ export class HaTargetPickerItemRow extends LitElement {
         font-family: var(--ha-font-family-code);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-target-picker-item-row": HaTargetPickerItemRow;
+    'ha-target-picker-item-row': HaTargetPickerItemRow
   }
 }

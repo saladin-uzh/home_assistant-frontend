@@ -1,32 +1,32 @@
-import { mdiChevronLeft, mdiClose, mdiMenuDown } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../common/dom/fire_event";
-import { computeDomain } from "../../common/entity/compute_domain";
-import { formatLanguageCode } from "../../common/language/format_language";
-import "../../components/chips/ha-assist-chip";
-import "../../components/ha-dialog";
-import { getLanguageOptions } from "../../components/ha-language-picker";
-import "../../components/ha-md-button-menu";
-import type { AssistSatelliteConfiguration } from "../../data/assist_satellite";
-import { fetchAssistSatelliteConfiguration } from "../../data/assist_satellite";
-import { getLanguageScores } from "../../data/conversation";
-import { UNAVAILABLE } from "../../data/entity";
-import type { EntityRegistryDisplayEntry } from "../../data/entity_registry";
-import { haStyleDialog } from "../../resources/styles";
-import type { HomeAssistant } from "../../types";
-import type { VoiceAssistantSetupDialogParams } from "./show-voice-assistant-setup-dialog";
-import "./voice-assistant-setup-step-area";
-import "./voice-assistant-setup-step-change-wake-word";
-import "./voice-assistant-setup-step-check";
-import "./voice-assistant-setup-step-cloud";
-import "./voice-assistant-setup-step-local";
-import "./voice-assistant-setup-step-pipeline";
-import "./voice-assistant-setup-step-success";
-import "./voice-assistant-setup-step-update";
-import "./voice-assistant-setup-step-wake-word";
+import { mdiChevronLeft, mdiClose, mdiMenuDown } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../common/dom/fire_event'
+import { computeDomain } from '../../common/entity/compute_domain'
+import { formatLanguageCode } from '../../common/language/format_language'
+import '../../components/chips/ha-assist-chip'
+import '../../components/ha-dialog'
+import { getLanguageOptions } from '../../components/ha-language-picker'
+import '../../components/ha-md-button-menu'
+import type { AssistSatelliteConfiguration } from '../../data/assist_satellite'
+import { fetchAssistSatelliteConfiguration } from '../../data/assist_satellite'
+import { getLanguageScores } from '../../data/conversation'
+import { UNAVAILABLE } from '../../data/entity'
+import type { EntityRegistryDisplayEntry } from '../../data/entity_registry'
+import { haStyleDialog } from '../../resources/styles'
+import type { HomeAssistant } from '../../types'
+import type { VoiceAssistantSetupDialogParams } from './show-voice-assistant-setup-dialog'
+import './voice-assistant-setup-step-area'
+import './voice-assistant-setup-step-change-wake-word'
+import './voice-assistant-setup-step-check'
+import './voice-assistant-setup-step-cloud'
+import './voice-assistant-setup-step-local'
+import './voice-assistant-setup-step-pipeline'
+import './voice-assistant-setup-step-success'
+import './voice-assistant-setup-step-update'
+import './voice-assistant-setup-step-wake-word'
 
 export const enum STEP {
   INIT,
@@ -41,101 +41,100 @@ export const enum STEP {
   CHANGE_WAKEWORD,
 }
 
-@customElement("ha-voice-assistant-setup-dialog")
+@customElement('ha-voice-assistant-setup-dialog')
 export class HaVoiceAssistantSetupDialog extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _params?: VoiceAssistantSetupDialogParams;
+  @state() private _params?: VoiceAssistantSetupDialogParams
 
-  @state() private _step: STEP = STEP.INIT;
+  @state() private _step: STEP = STEP.INIT
 
-  @state() private _assistConfiguration?: AssistSatelliteConfiguration;
+  @state() private _assistConfiguration?: AssistSatelliteConfiguration
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
-  @state() private _language?: string;
+  @state() private _language?: string
 
-  @state() private _languages: string[] = [];
+  @state() private _languages: string[] = []
 
-  @state() private _localOption?: string;
+  @state() private _localOption?: string
 
-  private _previousSteps: STEP[] = [];
+  private _previousSteps: STEP[] = []
 
-  private _nextStep?: STEP;
+  private _nextStep?: STEP
 
   public async showDialog(
     params: VoiceAssistantSetupDialogParams
   ): Promise<void> {
-    this._params = params;
+    this._params = params
 
-    await this._fetchAssistConfiguration();
+    await this._fetchAssistConfiguration()
 
-    this._step = STEP.UPDATE;
+    this._step = STEP.UPDATE
   }
 
   public async closeDialog(): Promise<void> {
-    this.renderRoot.querySelector("ha-dialog")?.close();
+    this.renderRoot.querySelector('ha-dialog')?.close()
   }
 
   protected willUpdate(changedProps) {
-    if (changedProps.has("_step") && this._step === STEP.PIPELINE) {
-      this._getLanguages();
+    if (changedProps.has('_step') && this._step === STEP.PIPELINE) {
+      this._getLanguages()
     }
   }
 
   private _dialogClosed() {
-    this._params = undefined;
-    this._assistConfiguration = undefined;
-    this._previousSteps = [];
-    this._nextStep = undefined;
-    this._step = STEP.INIT;
-    this._language = undefined;
-    this._languages = [];
-    this._localOption = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    this._assistConfiguration = undefined
+    this._previousSteps = []
+    this._nextStep = undefined
+    this._step = STEP.INIT
+    this._language = undefined
+    this._languages = []
+    this._localOption = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   private _deviceEntities = memoizeOne(
     (
       deviceId: string,
-      entities: HomeAssistant["entities"]
+      entities: HomeAssistant['entities']
     ): EntityRegistryDisplayEntry[] =>
-      Object.values(entities).filter((entity) => entity.device_id === deviceId)
-  );
+      Object.values(entities).filter(entity => entity.device_id === deviceId)
+  )
 
   private _findDomainEntityId = memoizeOne(
     (
       deviceId: string,
-      entities: HomeAssistant["entities"],
+      entities: HomeAssistant['entities'],
       domain: string
     ): string | undefined => {
-      const deviceEntities = this._deviceEntities(deviceId, entities);
-      return deviceEntities.find(
-        (ent) => computeDomain(ent.entity_id) === domain
-      )?.entity_id;
+      const deviceEntities = this._deviceEntities(deviceId, entities)
+      return deviceEntities.find(ent => computeDomain(ent.entity_id) === domain)
+        ?.entity_id
     }
-  );
+  )
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
 
     const assistSatelliteEntityId = this._findDomainEntityId(
       this._params.deviceId,
       this.hass.entities,
-      "assist_satellite"
-    );
+      'assist_satellite'
+    )
 
     const assistEntityState = assistSatelliteEntityId
       ? this.hass.states[assistSatelliteEntityId]
-      : undefined;
+      : undefined
 
     return html`
       <ha-dialog
         open
         @closed=${this._dialogClosed}
-        .heading=${"Voice Satellite setup"}
+        .heading=${'Voice Satellite setup'}
         hideActions
         escapeKeyAction
         scrimClickAction
@@ -146,14 +145,14 @@ export class HaVoiceAssistantSetupDialog extends LitElement {
             : this._previousSteps.length
               ? html`<ha-icon-button
                   slot="navigationIcon"
-                  .label=${this.hass.localize("ui.common.back") ?? "Back"}
+                  .label=${this.hass.localize('ui.common.back') ?? 'Back'}
                   .path=${mdiChevronLeft}
                   @click=${this._goToPreviousStep}
                 ></ha-icon-button>`
               : this._step !== STEP.UPDATE
                 ? html`<ha-icon-button
                     slot="navigationIcon"
-                    .label=${this.hass.localize("ui.common.close") ?? "Close"}
+                    .label=${this.hass.localize('ui.common.close') ?? 'Close'}
                     .path=${mdiClose}
                     @click=${this.closeDialog}
                   ></ha-icon-button>`
@@ -164,7 +163,7 @@ export class HaVoiceAssistantSetupDialog extends LitElement {
                 class="skip-btn"
                 slot="actionItems"
                 >${this.hass.localize(
-                  "ui.panel.config.voice_assistants.satellite_wizard.skip"
+                  'ui.panel.config.voice_assistants.satellite_wizard.skip'
                 )}</ha-button
               >`
             : this._step === STEP.PIPELINE
@@ -191,7 +190,7 @@ export class HaVoiceAssistantSetupDialog extends LitElement {
                       false,
                       this.hass.locale
                     ).map(
-                      (lang) =>
+                      lang =>
                         html`<ha-md-menu-item
                           .value=${lang.id}
                           @click=${this._handlePickLanguage}
@@ -216,7 +215,7 @@ export class HaVoiceAssistantSetupDialog extends LitElement {
                 .updateEntityId=${this._findDomainEntityId(
                   this._params.deviceId,
                   this.hass.entities,
-                  "update"
+                  'update'
                 )}
               ></ha-voice-assistant-setup-step-update>`
             : this._error
@@ -224,7 +223,7 @@ export class HaVoiceAssistantSetupDialog extends LitElement {
               : assistEntityState?.state === UNAVAILABLE
                 ? html`<ha-alert alert-type="error"
                     >${this.hass.localize(
-                      "ui.panel.config.voice_assistants.satellite_wizard.not_available"
+                      'ui.panel.config.voice_assistants.satellite_wizard.not_available'
                     )}</ha-alert
                   >`
                 : this._step === STEP.CHECK
@@ -289,28 +288,28 @@ export class HaVoiceAssistantSetupDialog extends LitElement {
                                 : nothing}
         </div>
       </ha-dialog>
-    `;
+    `
   }
 
   private async _getLanguages() {
     if (this._languages.length) {
-      return;
+      return
     }
 
-    const scores = await getLanguageScores(this.hass);
+    const scores = await getLanguageScores(this.hass)
 
     this._languages = Object.entries(scores.languages)
       .filter(
         ([_lang, score]) =>
           score.cloud > 0 || score.full_local > 0 || score.focused_local > 0
       )
-      .map(([lang, _score]) => lang);
+      .map(([lang, _score]) => lang)
 
     this._language =
       scores.preferred_language &&
       this._languages.includes(scores.preferred_language)
         ? scores.preferred_language
-        : undefined;
+        : undefined
   }
 
   private async _fetchAssistConfiguration() {
@@ -320,54 +319,54 @@ export class HaVoiceAssistantSetupDialog extends LitElement {
         this._findDomainEntityId(
           this._params!.deviceId,
           this.hass.entities,
-          "assist_satellite"
+          'assist_satellite'
         )!
-      );
+      )
     } catch (err: any) {
-      this._error = err.message;
+      this._error = err.message
     }
   }
 
   private _handlePickLanguage(ev) {
-    if (ev.type === "keydown" && ev.key !== "Enter" && ev.key !== " ") return;
+    if (ev.type === 'keydown' && ev.key !== 'Enter' && ev.key !== ' ') return
 
-    this._language = ev.target.value;
+    this._language = ev.target.value
   }
 
   private _languageChanged(ev: CustomEvent) {
     if (!ev.detail.value) {
-      return;
+      return
     }
-    this._language = ev.detail.value;
+    this._language = ev.detail.value
   }
 
   private _goToPreviousStep() {
     if (!this._previousSteps.length) {
-      return;
+      return
     }
-    this._step = this._previousSteps.pop()!;
+    this._step = this._previousSteps.pop()!
   }
 
   private _goToNextStep(ev?: CustomEvent) {
     if (ev?.detail?.updateConfig) {
-      this._fetchAssistConfiguration();
+      this._fetchAssistConfiguration()
     }
     if (ev?.detail?.nextStep) {
-      this._nextStep = ev.detail.nextStep;
+      this._nextStep = ev.detail.nextStep
     }
     if (!ev?.detail?.noPrevious) {
-      this._previousSteps.push(this._step);
+      this._previousSteps.push(this._step)
     }
     if (ev?.detail?.step) {
-      this._step = ev.detail.step;
+      this._step = ev.detail.step
       if (ev.detail.step === STEP.LOCAL) {
-        this._localOption = ev.detail.option;
+        this._localOption = ev.detail.option
       }
     } else if (this._nextStep) {
-      this._step = this._nextStep;
-      this._nextStep = undefined;
+      this._step = this._nextStep
+      this._nextStep = undefined
     } else {
-      this._step += 1;
+      this._step += 1
     }
   }
 
@@ -410,26 +409,26 @@ export class HaVoiceAssistantSetupDialog extends LitElement {
           margin-inline-start: initial;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-voice-assistant-setup-dialog": HaVoiceAssistantSetupDialog;
+    'ha-voice-assistant-setup-dialog': HaVoiceAssistantSetupDialog
   }
 
   interface HASSDomEvents {
-    "next-step":
+    'next-step':
       | {
-          step?: STEP;
-          updateConfig?: boolean;
-          noPrevious?: boolean;
-          nextStep?: STEP;
-          option?: string;
+          step?: STEP
+          updateConfig?: boolean
+          noPrevious?: boolean
+          nextStep?: STEP
+          option?: string
         }
-      | undefined;
-    "prev-step": undefined;
-    "language-changed": { value: string };
+      | undefined
+    'prev-step': undefined
+    'language-changed': { value: string }
   }
 }

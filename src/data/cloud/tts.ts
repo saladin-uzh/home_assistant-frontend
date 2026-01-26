@@ -1,4 +1,4 @@
-import type { HomeAssistant } from "../../types";
+import type { HomeAssistant } from '../../types'
 
 export interface CloudTTSInfo {
   languages: [
@@ -8,26 +8,26 @@ export interface CloudTTSInfo {
     string,
     // voice name
     string,
-  ][];
+  ][]
 }
 
 export const getCloudTTSInfo = (hass: HomeAssistant) =>
-  hass.callWS<CloudTTSInfo>({ type: "cloud/tts/info" });
+  hass.callWS<CloudTTSInfo>({ type: 'cloud/tts/info' })
 
 export const getCloudTtsLanguages = (info?: CloudTTSInfo) => {
-  const languages: string[] = [];
+  const languages: string[] = []
 
   if (!info) {
-    return languages;
+    return languages
   }
 
-  const seen = new Set<string>();
+  const seen = new Set<string>()
   for (const [lang] of info.languages) {
     if (seen.has(lang)) {
-      continue;
+      continue
     }
-    seen.add(lang);
-    languages.push(lang);
+    seen.add(lang)
+    languages.push(lang)
   }
-  return languages;
-};
+  return languages
+}

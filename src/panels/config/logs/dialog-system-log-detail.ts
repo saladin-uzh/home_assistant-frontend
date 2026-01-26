@@ -1,87 +1,92 @@
-import { mdiClose, mdiContentCopy } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { property, state } from "lit/decorators";
-import { fireEvent } from "../../../common/dom/fire_event";
-import { copyToClipboard } from "../../../common/util/copy-clipboard";
-import "../../../components/ha-alert";
-import "../../../components/ha-dialog";
-import "../../../components/ha-dialog-header";
-import "../../../components/ha-icon-button";
-import "../../../components/ha-svg-icon";
-import type { IntegrationManifest } from "../../../data/integration";
+import { mdiClose, mdiContentCopy } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { property, state } from 'lit/decorators'
+import { fireEvent } from '../../../common/dom/fire_event'
+import { copyToClipboard } from '../../../common/util/copy-clipboard'
+import '../../../components/ha-alert'
+import '../../../components/ha-dialog'
+import '../../../components/ha-dialog-header'
+import '../../../components/ha-icon-button'
+import '../../../components/ha-svg-icon'
+import type { IntegrationManifest } from '../../../data/integration'
 import {
   domainToName,
   fetchIntegrationManifest,
   integrationIssuesUrl,
-} from "../../../data/integration";
+} from '../../../data/integration'
 import {
   getLoggedErrorIntegration,
   isCustomIntegrationError,
-} from "../../../data/system_log";
-import { haStyleDialog } from "../../../resources/styles";
-import type { HomeAssistant } from "../../../types";
-import { documentationUrl } from "../../../util/documentation-url";
-import { showToast } from "../../../util/toast";
-import type { SystemLogDetailDialogParams } from "./show-dialog-system-log-detail";
-import { formatSystemLogTime } from "./util";
+} from '../../../data/system_log'
+import { haStyleDialog } from '../../../resources/styles'
+import type { HomeAssistant } from '../../../types'
+import { documentationUrl } from '../../../util/documentation-url'
+import { showToast } from '../../../util/toast'
+import type { SystemLogDetailDialogParams } from './show-dialog-system-log-detail'
+import { formatSystemLogTime } from './util'
 
 class DialogSystemLogDetail extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _params?: SystemLogDetailDialogParams;
+  @state() private _params?: SystemLogDetailDialogParams
 
-  @state() private _manifest?: IntegrationManifest;
+  @state() private _manifest?: IntegrationManifest
 
   public async showDialog(params: SystemLogDetailDialogParams): Promise<void> {
-    this._params = params;
-    this._manifest = undefined;
-    await this.updateComplete;
+    this._params = params
+    this._manifest = undefined
+    await this.updateComplete
   }
 
   public closeDialog() {
-    this._params = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected updated(changedProps) {
-    super.updated(changedProps);
-    if (!changedProps.has("_params") || !this._params) {
-      return;
+    super.updated(changedProps)
+    if (!changedProps.has('_params') || !this._params) {
+      return
     }
-    const integration = getLoggedErrorIntegration(this._params.item);
+    const integration = getLoggedErrorIntegration(this._params.item)
     if (integration) {
-      this._fetchManifest(integration);
+      this._fetchManifest(integration)
     }
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
-    const item = this._params.item;
+    const item = this._params.item
 
-    const integration = getLoggedErrorIntegration(item);
+    const integration = getLoggedErrorIntegration(item)
 
     const showDocumentation =
       this._manifest &&
       (this._manifest.is_built_in ||
         // Custom components with our official docs should not link to our docs
-        !this._manifest.documentation.includes("://www.home-assistant.io"));
+        !this._manifest.documentation.includes('://www.home-assistant.io'))
 
-    const title = this.hass.localize("ui.panel.config.logs.details", {
+    const title = this.hass.localize('ui.panel.config.logs.details', {
       level: html`<span class=${item.level}
         >${this.hass.localize(`ui.panel.config.logs.level.${item.level}`)}</span
       >`,
-    });
+    })
 
     return html`
-      <ha-dialog open @closed=${this.closeDialog} hideActions .heading=${title}>
+      <ha-dialog
+        open
+        @closed=${this.closeDialog}
+        hideActions
+        .heading=${title}
+      >
         <ha-dialog-header slot="heading">
           <ha-icon-button
             slot="navigationIcon"
             dialogAction="cancel"
-            .label=${this.hass.localize("ui.common.close")}
+            .label=${this.hass.localize('ui.common.close')}
             .path=${mdiClose}
           ></ha-icon-button>
           <span slot="title">${title}</span>
@@ -89,34 +94,38 @@ class DialogSystemLogDetail extends LitElement {
             id="copy"
             @click=${this._copyLog}
             slot="actionItems"
-            .label=${this.hass.localize("ui.panel.config.logs.copy")}
+            .label=${this.hass.localize('ui.panel.config.logs.copy')}
             .path=${mdiContentCopy}
           ></ha-icon-button>
         </ha-dialog-header>
         ${this.isCustomIntegration
           ? html`<ha-alert alert-type="warning">
               ${this.hass.localize(
-                "ui.panel.config.logs.error_from_custom_integration"
+                'ui.panel.config.logs.error_from_custom_integration'
               )}
             </ha-alert>`
-          : ""}
-        <div class="contents" tabindex="-1" dialogInitialFocus>
+          : ''}
+        <div
+          class="contents"
+          tabindex="-1"
+          dialogInitialFocus
+        >
           <p>
-            ${this.hass.localize("ui.panel.config.logs.detail.logger")}:
+            ${this.hass.localize('ui.panel.config.logs.detail.logger')}:
             ${item.name}<br />
-            ${this.hass.localize("ui.panel.config.logs.detail.source")}:
-            ${item.source.join(":")}
+            ${this.hass.localize('ui.panel.config.logs.detail.source')}:
+            ${item.source.join(':')}
             ${integration
               ? html`
                   <br />
                   ${this.hass.localize(
-                    "ui.panel.config.logs.detail.integration"
+                    'ui.panel.config.logs.detail.integration'
                   )}:
                   ${domainToName(this.hass.localize, integration)}
                   ${!this._manifest ||
                   // Can happen with custom integrations
                   !showDocumentation
-                    ? ""
+                    ? ''
                     : html`
                         (<a
                           href=${this._manifest.is_built_in
@@ -128,7 +137,7 @@ class DialogSystemLogDetail extends LitElement {
                           target="_blank"
                           rel="noreferrer"
                           >${this.hass.localize(
-                            "ui.panel.config.logs.detail.documentation"
+                            'ui.panel.config.logs.detail.documentation'
                           )}</a
                         >${this._manifest.is_built_in ||
                         this._manifest.issue_tracker
@@ -141,18 +150,18 @@ class DialogSystemLogDetail extends LitElement {
                                 target="_blank"
                                 rel="noreferrer"
                                 >${this.hass.localize(
-                                  "ui.panel.config.logs.detail.issues"
+                                  'ui.panel.config.logs.detail.issues'
                                 )}</a
                               >`
-                          : ""})
+                          : ''})
                       `}
                 `
-              : ""}
+              : ''}
             <br />
             ${item.count > 0
               ? html`
                   ${this.hass.localize(
-                    "ui.panel.config.logs.detail.first_occurred"
+                    'ui.panel.config.logs.detail.first_occurred'
                   )}:
                   ${formatSystemLogTime(
                     item.first_occurred,
@@ -160,14 +169,14 @@ class DialogSystemLogDetail extends LitElement {
                     this.hass!.config
                   )}
                   (${this.hass.localize(
-                    "ui.panel.config.logs.detail.number_of_occurrences",
+                    'ui.panel.config.logs.detail.number_of_occurrences',
                     {
                       count: item.count,
                     }
                   )}) <br />
                 `
-              : ""}
-            ${this.hass.localize("ui.panel.config.logs.detail.last_logged")}:
+              : ''}
+            ${this.hass.localize('ui.panel.config.logs.detail.last_logged')}:
             ${formatSystemLogTime(
               item.timestamp,
               this.hass!.locale,
@@ -177,25 +186,25 @@ class DialogSystemLogDetail extends LitElement {
           ${item.message.length > 1
             ? html`
                 <ul>
-                  ${item.message.map((msg) => html` <li>${msg}</li> `)}
+                  ${item.message.map(msg => html` <li>${msg}</li> `)}
                 </ul>
               `
             : item.message[0]}
           ${item.exception ? html` <pre>${item.exception}</pre> ` : nothing}
         </div>
       </ha-dialog>
-    `;
+    `
   }
 
   private get isCustomIntegration(): boolean {
     return this._manifest
       ? !this._manifest.is_built_in
-      : isCustomIntegrationError(this._params!.item);
+      : isCustomIntegrationError(this._params!.item)
   }
 
   private async _fetchManifest(integration: string) {
     try {
-      this._manifest = await fetchIntegrationManifest(this.hass, integration);
+      this._manifest = await fetchIntegrationManifest(this.hass, integration)
     } catch (_err: any) {
       // Ignore if loading manifest fails. Probably bad JSON in manifest
     }
@@ -203,24 +212,24 @@ class DialogSystemLogDetail extends LitElement {
 
   private async _copyLog(): Promise<void> {
     const copyElement = this.shadowRoot?.querySelector(
-      ".contents"
-    ) as HTMLElement;
+      '.contents'
+    ) as HTMLElement
 
-    let text = copyElement.innerText;
+    let text = copyElement.innerText
 
     if (this.isCustomIntegration) {
       text =
         this.hass.localize(
-          "ui.panel.config.logs.error_from_custom_integration"
+          'ui.panel.config.logs.error_from_custom_integration'
         ) +
-        "\n\n" +
-        text;
+        '\n\n' +
+        text
     }
 
-    await copyToClipboard(text);
+    await copyToClipboard(text)
     showToast(this, {
-      message: this.hass.localize("ui.common.copied_clipboard"),
-    });
+      message: this.hass.localize('ui.common.copied_clipboard'),
+    })
   }
 
   static get styles(): CSSResultGroup {
@@ -263,14 +272,14 @@ class DialogSystemLogDetail extends LitElement {
           }
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-system-log-detail": DialogSystemLogDetail;
+    'dialog-system-log-detail': DialogSystemLogDetail
   }
 }
 
-customElements.define("dialog-system-log-detail", DialogSystemLogDetail);
+customElements.define('dialog-system-log-detail', DialogSystemLogDetail)

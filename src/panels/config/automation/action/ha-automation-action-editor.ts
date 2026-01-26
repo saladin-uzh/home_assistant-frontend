@@ -1,54 +1,54 @@
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, query } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { dynamicElement } from "../../../../common/dom/dynamic-element-directive";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-yaml-editor";
-import type { HaYamlEditor } from "../../../../components/ha-yaml-editor";
-import { COLLAPSIBLE_ACTION_ELEMENTS } from "../../../../data/action";
-import { migrateAutomationAction, type Action } from "../../../../data/script";
-import type { HomeAssistant } from "../../../../types";
-import "../ha-automation-editor-warning";
-import { editorStyles, indentStyle } from "../styles";
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { dynamicElement } from '../../../../common/dom/dynamic-element-directive'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-yaml-editor'
+import type { HaYamlEditor } from '../../../../components/ha-yaml-editor'
+import { COLLAPSIBLE_ACTION_ELEMENTS } from '../../../../data/action'
+import { migrateAutomationAction, type Action } from '../../../../data/script'
+import type { HomeAssistant } from '../../../../types'
+import '../ha-automation-editor-warning'
+import { editorStyles, indentStyle } from '../styles'
 import {
   getAutomationActionType,
   type ActionElement,
-} from "./ha-automation-action-row";
+} from './ha-automation-action-row'
 
-@customElement("ha-automation-action-editor")
+@customElement('ha-automation-action-editor')
 export default class HaAutomationActionEditor extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) action!: Action;
+  @property({ attribute: false }) action!: Action
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ attribute: false }) public yamlMode = false;
+  @property({ attribute: false }) public yamlMode = false
 
-  @property({ type: Boolean }) public indent = false;
+  @property({ type: Boolean }) public indent = false
 
-  @property({ type: Boolean, reflect: true }) public selected = false;
+  @property({ type: Boolean, reflect: true }) public selected = false
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ type: Boolean, attribute: "sidebar" }) public inSidebar = false;
+  @property({ type: Boolean, attribute: 'sidebar' }) public inSidebar = false
 
-  @property({ type: Boolean, attribute: "supported" }) public uiSupported =
-    false;
+  @property({ type: Boolean, attribute: 'supported' }) public uiSupported =
+    false
 
-  @query("ha-yaml-editor") public yamlEditor?: HaYamlEditor;
+  @query('ha-yaml-editor') public yamlEditor?: HaYamlEditor
 
-  @query(COLLAPSIBLE_ACTION_ELEMENTS.join(", "))
-  private _collapsibleElement?: ActionElement;
+  @query(COLLAPSIBLE_ACTION_ELEMENTS.join(', '))
+  private _collapsibleElement?: ActionElement
 
   protected render() {
-    const yamlMode = this.yamlMode || !this.uiSupported;
-    const type = getAutomationActionType(this.action);
+    const yamlMode = this.yamlMode || !this.uiSupported
+    const type = getAutomationActionType(this.action)
 
     return html`
       <div
         class=${classMap({
-          "card-content": true,
+          'card-content': true,
           disabled:
             !this.indent &&
             (this.disabled ||
@@ -64,7 +64,7 @@ export default class HaAutomationActionEditor extends LitElement {
                 ? html`
                     <ha-automation-editor-warning
                       .alertTitle=${this.hass.localize(
-                        "ui.panel.config.automation.editor.actions.unsupported_action"
+                        'ui.panel.config.automation.editor.actions.unsupported_action'
                       )}
                       .localize=${this.hass.localize}
                     ></ha-automation-editor-warning>
@@ -91,41 +91,41 @@ export default class HaAutomationActionEditor extends LitElement {
               </div>
             `}
       </div>
-    `;
+    `
   }
 
   private _onYamlChange(ev: CustomEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!ev.detail.isValid) {
-      return;
+      return
     }
-    fireEvent(this, this.inSidebar ? "yaml-changed" : "value-changed", {
+    fireEvent(this, this.inSidebar ? 'yaml-changed' : 'value-changed', {
       value: migrateAutomationAction(ev.detail.value),
-    });
+    })
   }
 
   private _onUiChanged(ev: CustomEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     const value = {
       ...(this.action.alias ? { alias: this.action.alias } : {}),
       ...ev.detail.value,
-    };
-    fireEvent(this, "value-changed", { value });
+    }
+    fireEvent(this, 'value-changed', { value })
   }
 
   public expandAll() {
-    this._collapsibleElement?.expandAll?.();
+    this._collapsibleElement?.expandAll?.()
   }
 
   public collapseAll() {
-    this._collapsibleElement?.collapseAll?.();
+    this._collapsibleElement?.collapseAll?.()
   }
 
-  static styles = [editorStyles, indentStyle];
+  static styles = [editorStyles, indentStyle]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-action-editor": HaAutomationActionEditor;
+    'ha-automation-action-editor': HaAutomationActionEditor
   }
 }

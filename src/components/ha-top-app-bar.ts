@@ -1,9 +1,9 @@
-import { TopAppBarBase } from "@material/mwc-top-app-bar/mwc-top-app-bar-base";
-import { styles } from "@material/mwc-top-app-bar/mwc-top-app-bar.css";
-import { css } from "lit";
-import { customElement } from "lit/decorators";
+import { TopAppBarBase } from '@material/mwc-top-app-bar/mwc-top-app-bar-base'
+import { styles } from '@material/mwc-top-app-bar/mwc-top-app-bar.css'
+import { css } from 'lit'
+import { customElement } from 'lit/decorators'
 
-@customElement("ha-top-app-bar")
+@customElement('ha-top-app-bar')
 export class HaTopAppBar extends TopAppBarBase {
   static override styles = [
     styles,
@@ -27,11 +27,11 @@ export class HaTopAppBar extends TopAppBarBase {
         padding-right: var(--safe-area-inset-right);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-top-app-bar": HaTopAppBar;
+    'ha-top-app-bar': HaTopAppBar
   }
 }

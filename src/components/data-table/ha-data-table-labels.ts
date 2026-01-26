@@ -1,29 +1,29 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { repeat } from "lit/directives/repeat";
-import type { LabelRegistryEntry } from "../../data/label_registry";
-import { computeCssColor } from "../../common/color/compute-color";
-import { fireEvent } from "../../common/dom/fire_event";
-import "../ha-label";
-import { stringCompare } from "../../common/string/compare";
-import "../chips/ha-chip-set";
-import "../ha-button-menu";
-import "../ha-icon";
-import "../ha-list-item";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { repeat } from 'lit/directives/repeat'
+import type { LabelRegistryEntry } from '../../data/label_registry'
+import { computeCssColor } from '../../common/color/compute-color'
+import { fireEvent } from '../../common/dom/fire_event'
+import '../ha-label'
+import { stringCompare } from '../../common/string/compare'
+import '../chips/ha-chip-set'
+import '../ha-button-menu'
+import '../ha-icon'
+import '../ha-list-item'
 
-@customElement("ha-data-table-labels")
+@customElement('ha-data-table-labels')
 class HaDataTableLabels extends LitElement {
-  @property({ attribute: false }) public labels!: LabelRegistryEntry[];
+  @property({ attribute: false }) public labels!: LabelRegistryEntry[]
 
   protected render(): TemplateResult {
-    const labels = this.labels.sort((a, b) => stringCompare(a.name, b.name));
+    const labels = this.labels.sort((a, b) => stringCompare(a.name, b.name))
     return html`
       <ha-chip-set>
         ${repeat(
           labels.slice(0, 2),
-          (label) => label.label_id,
-          (label) => this._renderLabel(label, true)
+          label => label.label_id,
+          label => this._renderLabel(label, true)
         )}
         ${labels.length > 2
           ? html`<ha-button-menu
@@ -33,14 +33,21 @@ class HaDataTableLabels extends LitElement {
               @click=${this._handleIconOverflowMenuOpened}
               @closed=${this._handleIconOverflowMenuClosed}
             >
-              <ha-label slot="trigger" class="plus" dense>
+              <ha-label
+                slot="trigger"
+                class="plus"
+                dense
+              >
                 +${labels.length - 2}
               </ha-label>
               ${repeat(
                 labels.slice(2),
-                (label) => label.label_id,
-                (label) => html`
-                  <ha-list-item @click=${this._labelClicked} .item=${label}>
+                label => label.label_id,
+                label => html`
+                  <ha-list-item
+                    @click=${this._labelClicked}
+                    .item=${label}
+                  >
                     ${this._renderLabel(label, false)}
                   </ha-list-item>
                 `
@@ -48,11 +55,11 @@ class HaDataTableLabels extends LitElement {
             </ha-button-menu>`
           : nothing}
       </ha-chip-set>
-    `;
+    `
   }
 
   private _renderLabel(label: LabelRegistryEntry, clickAction: boolean) {
-    const color = label?.color ? computeCssColor(label.color) : undefined;
+    const color = label?.color ? computeCssColor(label.color) : undefined
     return html`
       <ha-label
         dense
@@ -61,41 +68,44 @@ class HaDataTableLabels extends LitElement {
         .item=${label}
         @click=${clickAction ? this._labelClicked : undefined}
         @keydown=${clickAction ? this._labelClicked : undefined}
-        style=${color ? `--color: ${color}` : ""}
+        style=${color ? `--color: ${color}` : ''}
         .description=${label.description}
       >
         ${label?.icon
-          ? html`<ha-icon slot="icon" .icon=${label.icon}></ha-icon>`
+          ? html`<ha-icon
+              slot="icon"
+              .icon=${label.icon}
+            ></ha-icon>`
           : nothing}
         ${label.name}
       </ha-label>
-    `;
+    `
   }
 
   private _labelClicked(ev) {
-    ev.stopPropagation();
-    if (ev.type === "keydown" && ev.key !== "Enter" && ev.key !== " ") {
-      return;
+    ev.stopPropagation()
+    if (ev.type === 'keydown' && ev.key !== 'Enter' && ev.key !== ' ') {
+      return
     }
-    const label = (ev.currentTarget as any).item as LabelRegistryEntry;
-    fireEvent(this, "label-clicked", { label });
+    const label = (ev.currentTarget as any).item as LabelRegistryEntry
+    fireEvent(this, 'label-clicked', { label })
   }
 
   protected _handleIconOverflowMenuOpened(e) {
-    e.stopPropagation();
+    e.stopPropagation()
     // If this component is used inside a data table, the z-index of the row
     // needs to be increased. Otherwise the ha-button-menu would be displayed
     // underneath the next row in the table.
-    const row = this.closest(".mdc-data-table__row") as HTMLDivElement | null;
+    const row = this.closest('.mdc-data-table__row') as HTMLDivElement | null
     if (row) {
-      row.style.zIndex = "1";
+      row.style.zIndex = '1'
     }
   }
 
   protected _handleIconOverflowMenuClosed() {
-    const row = this.closest(".mdc-data-table__row") as HTMLDivElement | null;
+    const row = this.closest('.mdc-data-table__row') as HTMLDivElement | null
     if (row) {
-      row.style.zIndex = "";
+      row.style.zIndex = ''
     }
   }
 
@@ -121,14 +131,14 @@ class HaDataTableLabels extends LitElement {
       --ha-label-background-color: transparent;
       border: 1px solid var(--divider-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-data-table-labels": HaDataTableLabels;
+    'ha-data-table-labels': HaDataTableLabels
   }
   interface HASSDomEvents {
-    "label-clicked": { label: LabelRegistryEntry };
+    'label-clicked': { label: LabelRegistryEntry }
   }
 }

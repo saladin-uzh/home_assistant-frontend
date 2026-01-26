@@ -6,7 +6,7 @@ on:
       - published
 
 env:
-  PYTHON_VERSION: "3.13"
+  PYTHON_VERSION: '3.13'
   NODE_OPTIONS: --max_old_space_size=6144
 
 # Set default workflow permissions
@@ -36,7 +36,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
-          node-version-file: ".nvmrc"
+          node-version-file: '.nvmrc'
           cache: yarn
 
       - name: Install dependencies
@@ -81,7 +81,7 @@ jobs:
           tag: musllinux_1_2
           arch: amd64
           wheels-key: ${{ secrets.WHEELS_KEY }}
-          requirements: "requirements.txt"
+          requirements: 'requirements.txt'
 
   release-landing-page:
     name: Release landing-page frontend
@@ -95,7 +95,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
-          node-version-file: ".nvmrc"
+          node-version-file: '.nvmrc'
           cache: yarn
       - name: Install dependencies
         run: yarn install
@@ -124,7 +124,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
-          node-version-file: ".nvmrc"
+          node-version-file: '.nvmrc'
           cache: yarn
       - name: Install dependencies
         run: yarn install

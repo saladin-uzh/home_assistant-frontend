@@ -1,40 +1,40 @@
-import { customElement, property, state } from "lit/decorators";
-import { html, LitElement, type PropertyValues } from "lit";
-import memoizeOne from "memoize-one";
+import { customElement, property, state } from 'lit/decorators'
+import { html, LitElement, type PropertyValues } from 'lit'
+import memoizeOne from 'memoize-one'
 
-import type { HomeAssistant } from "../../../../../../types";
-import type { LocalizeFunc } from "../../../../../../common/translations/localize";
-import type { HaFormSchema } from "../../../../../../components/ha-form/types";
-import { fireEvent } from "../../../../../../common/dom/fire_event";
-import { Protocols } from "../../../../../../data/zwave_js";
-import type { ZWaveJSAddNodeSmartStartOptions } from "./data";
+import type { HomeAssistant } from '../../../../../../types'
+import type { LocalizeFunc } from '../../../../../../common/translations/localize'
+import type { HaFormSchema } from '../../../../../../components/ha-form/types'
+import { fireEvent } from '../../../../../../common/dom/fire_event'
+import { Protocols } from '../../../../../../data/zwave_js'
+import type { ZWaveJSAddNodeSmartStartOptions } from './data'
 
-import "../../../../../../components/ha-form/ha-form";
+import '../../../../../../components/ha-form/ha-form'
 
-@customElement("zwave-js-add-node-configure-device")
+@customElement('zwave-js-add-node-configure-device')
 export class ZWaveJsAddNodeConfigureDevice extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: "device-name" }) public deviceName = "";
+  @property({ attribute: 'device-name' }) public deviceName = ''
 
-  @property({ type: Boolean, attribute: "lr-supported" })
-  public longRangeSupported = false;
+  @property({ type: Boolean, attribute: 'lr-supported' })
+  public longRangeSupported = false
 
-  @state() private _options?: ZWaveJSAddNodeSmartStartOptions;
+  @state() private _options?: ZWaveJSAddNodeSmartStartOptions
 
   protected willUpdate(changedProps: PropertyValues): void {
-    super.willUpdate(changedProps);
+    super.willUpdate(changedProps)
 
     if (!this.hasUpdated) {
       this._options = {
         name: this.deviceName,
-      };
-
-      if (this.longRangeSupported) {
-        this._options.network_type = Protocols.ZWaveLongRange.toString();
       }
 
-      fireEvent(this, "value-changed", { value: this._options });
+      if (this.longRangeSupported) {
+        this._options.network_type = Protocols.ZWaveLongRange.toString()
+      }
+
+      fireEvent(this, 'value-changed', { value: this._options })
     }
   }
 
@@ -48,103 +48,103 @@ export class ZWaveJsAddNodeConfigureDevice extends LitElement {
         .computeLabel=${this._computeLabel}
       >
       </ha-form>
-    `;
+    `
   }
 
   private _getSchema = memoizeOne(
     (localize: LocalizeFunc, longRangeSupported: boolean): HaFormSchema[] => {
       const schema: HaFormSchema[] = [
         {
-          name: "name",
+          name: 'name',
           required: true,
           default: this.deviceName,
-          type: "string",
+          type: 'string',
           autofocus: true,
         },
         {
-          name: "area",
+          name: 'area',
           selector: {
             area: {},
           },
         },
-      ];
+      ]
 
       if (longRangeSupported) {
         schema.push({
-          name: "network_type",
+          name: 'network_type',
           required: true,
           selector: {
             select: {
               box_max_columns: 1,
-              mode: "box",
+              mode: 'box',
               options: [
                 {
                   value: Protocols.ZWaveLongRange.toString(),
-                  label: "Long Range", // brand name and we should not translate that
+                  label: 'Long Range', // brand name and we should not translate that
                   description: localize(
-                    "ui.panel.config.zwave_js.add_node.configure_device.long_range_description"
+                    'ui.panel.config.zwave_js.add_node.configure_device.long_range_description'
                   ),
                   image: {
-                    src: "/static/images/z-wave-add-node/long-range.svg",
+                    src: '/static/images/z-wave-add-node/long-range.svg',
                     src_dark:
-                      "/static/images/z-wave-add-node/long-range_dark.svg",
+                      '/static/images/z-wave-add-node/long-range_dark.svg',
                     flip_rtl: true,
                   },
                 },
                 {
                   value: Protocols.ZWave.toString(),
                   label: localize(
-                    "ui.panel.config.zwave_js.add_node.configure_device.mesh_label"
+                    'ui.panel.config.zwave_js.add_node.configure_device.mesh_label'
                   ),
                   description: localize(
-                    "ui.panel.config.zwave_js.add_node.configure_device.mesh_description"
+                    'ui.panel.config.zwave_js.add_node.configure_device.mesh_description'
                   ),
                   image: {
-                    src: "/static/images/z-wave-add-node/mesh.svg",
-                    src_dark: "/static/images/z-wave-add-node/mesh_dark.svg",
+                    src: '/static/images/z-wave-add-node/mesh.svg',
+                    src_dark: '/static/images/z-wave-add-node/mesh_dark.svg',
                     flip_rtl: true,
                   },
                 },
               ],
             },
           },
-        });
+        })
       }
-      return schema;
+      return schema
     }
-  );
+  )
 
   private _computeLabel = (schema: HaFormSchema): string | undefined => {
-    if (schema.name === "network_type") {
+    if (schema.name === 'network_type') {
       return this.hass.localize(
-        "ui.panel.config.zwave_js.add_node.configure_device.choose_network_type"
-      );
+        'ui.panel.config.zwave_js.add_node.configure_device.choose_network_type'
+      )
     }
-    if (schema.name === "name") {
+    if (schema.name === 'name') {
       return this.hass.localize(
-        "ui.panel.config.zwave_js.add_node.configure_device.device_name"
-      );
+        'ui.panel.config.zwave_js.add_node.configure_device.device_name'
+      )
     }
-    if (schema.name === "area") {
+    if (schema.name === 'area') {
       return this.hass.localize(
-        "ui.panel.config.zwave_js.add_node.configure_device.device_area"
-      );
+        'ui.panel.config.zwave_js.add_node.configure_device.device_area'
+      )
     }
-    return undefined;
-  };
+    return undefined
+  }
 
   private _setOptions(event: any) {
     this._options = {
       ...this._options!,
       ...event.detail.value,
-    };
+    }
 
-    fireEvent(this, "value-changed", { value: this._options });
+    fireEvent(this, 'value-changed', { value: this._options })
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "zwave-js-add-node-configure-device": ZWaveJsAddNodeConfigureDevice;
+    'zwave-js-add-node-configure-device': ZWaveJsAddNodeConfigureDevice
   }
 }

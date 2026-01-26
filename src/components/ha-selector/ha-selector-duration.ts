@@ -1,25 +1,25 @@
-import { html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { DurationSelector } from "../../data/selector";
-import type { HomeAssistant } from "../../types";
-import type { HaDurationData } from "../ha-duration-input";
-import "../ha-duration-input";
+import { html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { DurationSelector } from '../../data/selector'
+import type { HomeAssistant } from '../../types'
+import type { HaDurationData } from '../ha-duration-input'
+import '../ha-duration-input'
 
-@customElement("ha-selector-duration")
+@customElement('ha-selector-duration')
 export class HaTimeDuration extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: DurationSelector;
+  @property({ attribute: false }) public selector!: DurationSelector
 
-  @property({ attribute: false }) public value?: HaDurationData;
+  @property({ attribute: false }) public value?: HaDurationData
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = true;
+  @property({ type: Boolean }) public required = true
 
   protected render() {
     return html`
@@ -32,12 +32,12 @@ export class HaTimeDuration extends LitElement {
         .enableDay=${this.selector.duration?.enable_day}
         .enableMillisecond=${this.selector.duration?.enable_millisecond}
       ></ha-duration-input>
-    `;
+    `
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-duration": HaTimeDuration;
+    'ha-selector-duration': HaTimeDuration
   }
 }

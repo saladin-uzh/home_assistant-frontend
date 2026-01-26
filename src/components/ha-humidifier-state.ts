@@ -1,18 +1,18 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { isUnavailableState, OFF } from "../data/entity";
-import type { HumidifierEntity } from "../data/humidifier";
-import type { HomeAssistant } from "../types";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { isUnavailableState, OFF } from '../data/entity'
+import type { HumidifierEntity } from '../data/humidifier'
+import type { HomeAssistant } from '../types'
 
-@customElement("ha-humidifier-state")
+@customElement('ha-humidifier-state')
 class HaHumidifierState extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj!: HumidifierEntity;
+  @property({ attribute: false }) public stateObj!: HumidifierEntity
 
   protected render(): TemplateResult {
-    const currentStatus = this._computeCurrentStatus();
+    const currentStatus = this._computeCurrentStatus()
 
     return html`<div class="target">
         ${!isUnavailableState(this.stateObj.state)
@@ -22,9 +22,9 @@ class HaHumidifierState extends LitElement {
                   ? html`-
                     ${this.hass.formatEntityAttributeValue(
                       this.stateObj,
-                      "mode"
+                      'mode'
                     )}`
-                  : ""}
+                  : ''}
               </span>
               <div class="unit">${this._computeTarget()}</div>`
           : this._localizeState()}
@@ -32,58 +32,58 @@ class HaHumidifierState extends LitElement {
 
       ${currentStatus && !isUnavailableState(this.stateObj.state)
         ? html`<div class="current">
-            ${this.hass.localize("ui.card.climate.currently")}:
+            ${this.hass.localize('ui.card.climate.currently')}:
             <div class="unit">${currentStatus}</div>
           </div>`
-        : ""}`;
+        : ''}`
   }
 
   private _computeCurrentStatus(): string | undefined {
     if (!this.hass || !this.stateObj) {
-      return undefined;
+      return undefined
     }
 
     if (this.stateObj.attributes.current_humidity != null) {
       return `${this.hass.formatEntityAttributeValue(
         this.stateObj,
-        "current_humidity"
-      )}`;
+        'current_humidity'
+      )}`
     }
 
-    return undefined;
+    return undefined
   }
 
   private _computeTarget(): string {
     if (!this.hass || !this.stateObj) {
-      return "";
+      return ''
     }
 
     if (this.stateObj.attributes.humidity != null) {
       return `${this.hass.formatEntityAttributeValue(
         this.stateObj,
-        "humidity"
-      )}`;
+        'humidity'
+      )}`
     }
 
-    return "";
+    return ''
   }
 
   private _localizeState(): string {
     if (isUnavailableState(this.stateObj.state)) {
-      return this.hass.localize(`state.default.${this.stateObj.state}`);
+      return this.hass.localize(`state.default.${this.stateObj.state}`)
     }
 
-    const stateString = this.hass.formatEntityState(this.stateObj);
+    const stateString = this.hass.formatEntityState(this.stateObj)
 
     if (this.stateObj.attributes.action && this.stateObj.state !== OFF) {
       const actionString = this.hass.formatEntityAttributeValue(
         this.stateObj,
-        "action"
-      );
-      return `${actionString} (${stateString})`;
+        'action'
+      )
+      return `${actionString} (${stateString})`
     }
 
-    return stateString;
+    return stateString
   }
 
   static styles = css`
@@ -110,11 +110,11 @@ class HaHumidifierState extends LitElement {
       display: inline-block;
       direction: ltr;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-humidifier-state": HaHumidifierState;
+    'ha-humidifier-state': HaHumidifierState
   }
 }

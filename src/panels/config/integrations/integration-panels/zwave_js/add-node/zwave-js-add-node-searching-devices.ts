@@ -1,44 +1,44 @@
-import "@home-assistant/webawesome/dist/components/animation/animation";
-import { mdiRestart } from "@mdi/js";
+import '@home-assistant/webawesome/dist/components/animation/animation'
+import { mdiRestart } from '@mdi/js'
 
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../../../../../common/dom/fire_event";
-import { InclusionStrategy } from "../../../../../../data/zwave_js";
-import type { HomeAssistant } from "../../../../../../types";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../../../../../common/dom/fire_event'
+import { InclusionStrategy } from '../../../../../../data/zwave_js'
+import type { HomeAssistant } from '../../../../../../types'
 
-import "../../../../../../components/ha-alert";
-import "../../../../../../components/ha-button";
-import "../../../../../../components/ha-spinner";
-import { WakeLockMixin } from "../../../../../../mixins/wakelock-mixin";
+import '../../../../../../components/ha-alert'
+import '../../../../../../components/ha-button'
+import '../../../../../../components/ha-spinner'
+import { WakeLockMixin } from '../../../../../../mixins/wakelock-mixin'
 
-@customElement("zwave-js-add-node-searching-devices")
+@customElement('zwave-js-add-node-searching-devices')
 export class ZWaveJsAddNodeSearchingDevices extends WakeLockMixin(LitElement) {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean, attribute: "smart-start" })
-  public smartStart = false;
+  @property({ type: Boolean, attribute: 'smart-start' })
+  public smartStart = false
 
-  @property({ type: Boolean, attribute: "show-security-options" })
-  public showSecurityOptions = false;
+  @property({ type: Boolean, attribute: 'show-security-options' })
+  public showSecurityOptions = false
 
-  @property({ type: Boolean, attribute: "show-add-another-device" })
-  public showAddAnotherDevice = false;
+  @property({ type: Boolean, attribute: 'show-add-another-device' })
+  public showAddAnotherDevice = false
 
-  @property({ attribute: false }) public inclusionStrategy?: InclusionStrategy;
+  @property({ attribute: false }) public inclusionStrategy?: InclusionStrategy
 
   render() {
-    let inclusionStrategyTranslationKey = "";
+    let inclusionStrategyTranslationKey = ''
     if (this.inclusionStrategy !== undefined) {
       switch (this.inclusionStrategy) {
         case InclusionStrategy.Security_S0:
-          inclusionStrategyTranslationKey = "s0";
-          break;
+          inclusionStrategyTranslationKey = 's0'
+          break
         case InclusionStrategy.Insecure:
-          inclusionStrategyTranslationKey = "insecure";
-          break;
+          inclusionStrategyTranslationKey = 'insecure'
+          break
         default:
-          inclusionStrategyTranslationKey = "default";
+          inclusionStrategyTranslationKey = 'default'
       }
     }
 
@@ -48,43 +48,51 @@ export class ZWaveJsAddNodeSearchingDevices extends WakeLockMixin(LitElement) {
           <div class="spinner">
             <ha-spinner></ha-spinner>
           </div>
-          <wa-animation name="pulse" easing="linear" .duration=${2000} play>
+          <wa-animation
+            name="pulse"
+            easing="linear"
+            .duration=${2000}
+            play
+          >
             <div class="circle"></div>
           </wa-animation>
         </div>
         ${this.smartStart
           ? html`<ha-alert
                 .title=${this.hass.localize(
-                  "ui.panel.config.zwave_js.add_node.specific_device.turn_on_device"
+                  'ui.panel.config.zwave_js.add_node.specific_device.turn_on_device'
                 )}
               >
-                <ha-svg-icon slot="icon" .path=${mdiRestart}></ha-svg-icon>
+                <ha-svg-icon
+                  slot="icon"
+                  .path=${mdiRestart}
+                ></ha-svg-icon>
                 ${this.hass.localize(
-                  "ui.panel.config.zwave_js.add_node.specific_device.turn_on_device_description"
+                  'ui.panel.config.zwave_js.add_node.specific_device.turn_on_device_description'
                 )}
               </ha-alert>
               <p class="note">
                 ${this.hass.localize(
-                  "ui.panel.config.zwave_js.add_node.specific_device.close_description"
+                  'ui.panel.config.zwave_js.add_node.specific_device.close_description'
                 )}
               </p>`
           : html`
               <p>
                 ${this.hass.localize(
-                  "ui.panel.config.zwave_js.add_node.follow_device_instructions"
+                  'ui.panel.config.zwave_js.add_node.follow_device_instructions'
                 )}
               </p>
             `}
         ${this.showSecurityOptions && !inclusionStrategyTranslationKey
           ? html`<ha-button @click=${this._handleSecurityOptions}>
               ${this.hass.localize(
-                "ui.panel.config.zwave_js.add_node.security_options"
+                'ui.panel.config.zwave_js.add_node.security_options'
               )}
             </ha-button>`
           : inclusionStrategyTranslationKey
             ? html`<span class="note">
                 ${this.hass.localize(
-                  "ui.panel.config.zwave_js.add_node.select_strategy.inclusion_strategy",
+                  'ui.panel.config.zwave_js.add_node.select_strategy.inclusion_strategy',
                   {
                     strategy: this.hass.localize(
                       `ui.panel.config.zwave_js.add_node.select_strategy.${inclusionStrategyTranslationKey}_label`
@@ -96,20 +104,20 @@ export class ZWaveJsAddNodeSearchingDevices extends WakeLockMixin(LitElement) {
         ${this.showAddAnotherDevice
           ? html`<ha-button @click=${this._handleAddAnotherDevice}>
               ${this.hass.localize(
-                "ui.panel.config.zwave_js.add_node.specific_device.add_another_z_wave_device"
+                'ui.panel.config.zwave_js.add_node.specific_device.add_another_z_wave_device'
               )}
             </ha-button>`
           : nothing}
       </div>
-    `;
+    `
   }
 
   private _handleSecurityOptions() {
-    fireEvent(this, "show-z-wave-security-options");
+    fireEvent(this, 'show-z-wave-security-options')
   }
 
   private _handleAddAnotherDevice() {
-    fireEvent(this, "add-another-z-wave-device");
+    fireEvent(this, 'add-another-z-wave-device')
   }
 
   static styles = css`
@@ -150,16 +158,16 @@ export class ZWaveJsAddNodeSearchingDevices extends WakeLockMixin(LitElement) {
       height: 100%;
       --ha-spinner-divider-color: var(--light-primary-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "zwave-js-add-node-searching-devices": ZWaveJsAddNodeSearchingDevices;
+    'zwave-js-add-node-searching-devices': ZWaveJsAddNodeSearchingDevices
   }
 
   interface HASSDomEvents {
-    "show-z-wave-security-options": undefined;
-    "add-another-z-wave-device": undefined;
+    'show-z-wave-security-options': undefined
+    'add-another-z-wave-device': undefined
   }
 }

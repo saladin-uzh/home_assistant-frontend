@@ -1,45 +1,45 @@
-import { format, startOfToday, startOfTomorrow } from "date-fns";
+import { format, startOfToday, startOfTomorrow } from 'date-fns'
 import type {
   EnergyInfo,
   EnergyPreferences,
   EnergySolarForecasts,
   FossilEnergyConsumption,
-} from "../../../src/data/energy";
-import type { MockHomeAssistant } from "../../../src/fake_data/provide_hass";
+} from '../../../src/data/energy'
+import type { MockHomeAssistant } from '../../../src/fake_data/provide_hass'
 
 export const mockEnergy = (hass: MockHomeAssistant) => {
   hass.mockWS(
-    "energy/get_prefs",
+    'energy/get_prefs',
     (): EnergyPreferences => ({
       energy_sources: [
         {
-          type: "grid",
+          type: 'grid',
           flow_from: [
             {
-              stat_energy_from: "sensor.energy_consumption_tarif_1",
-              stat_cost: "sensor.energy_consumption_tarif_1_cost",
+              stat_energy_from: 'sensor.energy_consumption_tarif_1',
+              stat_cost: 'sensor.energy_consumption_tarif_1_cost',
               entity_energy_price: null,
               number_energy_price: null,
             },
             {
-              stat_energy_from: "sensor.energy_consumption_tarif_2",
-              stat_cost: "sensor.energy_consumption_tarif_2_cost",
+              stat_energy_from: 'sensor.energy_consumption_tarif_2',
+              stat_cost: 'sensor.energy_consumption_tarif_2_cost',
               entity_energy_price: null,
               number_energy_price: null,
             },
           ],
           flow_to: [
             {
-              stat_energy_to: "sensor.energy_production_tarif_1",
+              stat_energy_to: 'sensor.energy_production_tarif_1',
               stat_compensation:
-                "sensor.energy_production_tarif_1_compensation",
+                'sensor.energy_production_tarif_1_compensation',
               entity_energy_price: null,
               number_energy_price: null,
             },
             {
-              stat_energy_to: "sensor.energy_production_tarif_2",
+              stat_energy_to: 'sensor.energy_production_tarif_2',
               stat_compensation:
-                "sensor.energy_production_tarif_2_compensation",
+                'sensor.energy_production_tarif_2_compensation',
               entity_energy_price: null,
               number_energy_price: null,
             },
@@ -47,9 +47,9 @@ export const mockEnergy = (hass: MockHomeAssistant) => {
           cost_adjustment_day: 0,
         },
         {
-          type: "solar",
-          stat_energy_from: "sensor.solar_production",
-          config_entry_solar_forecast: ["solar_forecast"],
+          type: 'solar',
+          stat_energy_from: 'sensor.solar_production',
+          config_entry_solar_forecast: ['solar_forecast'],
         },
         /*         {
           type: "battery",
@@ -57,50 +57,50 @@ export const mockEnergy = (hass: MockHomeAssistant) => {
           stat_energy_to: "sensor.battery_input",
         }, */
         {
-          type: "gas",
-          stat_energy_from: "sensor.energy_gas",
-          stat_cost: "sensor.energy_gas_cost",
+          type: 'gas',
+          stat_energy_from: 'sensor.energy_gas',
+          stat_cost: 'sensor.energy_gas_cost',
           entity_energy_price: null,
           number_energy_price: null,
         },
       ],
       device_consumption: [
         {
-          stat_consumption: "sensor.energy_car",
+          stat_consumption: 'sensor.energy_car',
         },
         {
-          stat_consumption: "sensor.energy_ac",
+          stat_consumption: 'sensor.energy_ac',
         },
         {
-          stat_consumption: "sensor.energy_washing_machine",
+          stat_consumption: 'sensor.energy_washing_machine',
         },
         {
-          stat_consumption: "sensor.energy_dryer",
+          stat_consumption: 'sensor.energy_dryer',
         },
         {
-          stat_consumption: "sensor.energy_heat_pump",
+          stat_consumption: 'sensor.energy_heat_pump',
         },
         {
-          stat_consumption: "sensor.energy_boiler",
+          stat_consumption: 'sensor.energy_boiler',
         },
       ],
       device_consumption_water: [],
     })
-  );
+  )
   hass.mockWS(
-    "energy/info",
+    'energy/info',
     (): EnergyInfo => ({ cost_sensors: {}, solar_forecast_domains: [] })
-  );
+  )
   hass.mockWS(
-    "energy/fossil_energy_consumption",
+    'energy/fossil_energy_consumption',
     ({ period }): FossilEnergyConsumption => ({
-      start: period === "month" ? 250 : period === "day" ? 10 : 2,
+      start: period === 'month' ? 250 : period === 'day' ? 10 : 2,
     })
-  );
-  const todayString = format(startOfToday(), "yyyy-MM-dd");
-  const tomorrowString = format(startOfTomorrow(), "yyyy-MM-dd");
+  )
+  const todayString = format(startOfToday(), 'yyyy-MM-dd')
+  const tomorrowString = format(startOfTomorrow(), 'yyyy-MM-dd')
   hass.mockWS(
-    "energy/solar_forecast",
+    'energy/solar_forecast',
     (): EnergySolarForecasts => ({
       solar_forecast: {
         wh_hours: {
@@ -145,5 +145,5 @@ export const mockEnergy = (hass: MockHomeAssistant) => {
         },
       },
     })
-  );
-};
+  )
+}

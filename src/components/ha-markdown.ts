@@ -5,37 +5,37 @@ import {
   nothing,
   type ReactiveElement,
   type CSSResultGroup,
-} from "lit";
-import { customElement, property, query } from "lit/decorators";
-import "./ha-markdown-element";
+} from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import './ha-markdown-element'
 
-@customElement("ha-markdown")
+@customElement('ha-markdown')
 export class HaMarkdown extends LitElement {
-  @property() public content?;
+  @property() public content?
 
-  @property({ attribute: "allow-svg", type: Boolean }) public allowSvg = false;
+  @property({ attribute: 'allow-svg', type: Boolean }) public allowSvg = false
 
-  @property({ attribute: "allow-data-url", type: Boolean })
-  public allowDataUrl = false;
+  @property({ attribute: 'allow-data-url', type: Boolean })
+  public allowDataUrl = false
 
-  @property({ type: Boolean }) public breaks = false;
+  @property({ type: Boolean }) public breaks = false
 
-  @property({ type: Boolean, attribute: "lazy-images" }) public lazyImages =
-    false;
+  @property({ type: Boolean, attribute: 'lazy-images' }) public lazyImages =
+    false
 
-  @property({ type: Boolean }) public cache = false;
+  @property({ type: Boolean }) public cache = false
 
-  @query("ha-markdown-element") private _markdownElement!: ReactiveElement;
+  @query('ha-markdown-element') private _markdownElement!: ReactiveElement
 
   protected async getUpdateComplete() {
-    const result = await super.getUpdateComplete();
-    await this._markdownElement.updateComplete;
-    return result;
+    const result = await super.getUpdateComplete()
+    await this._markdownElement.updateComplete
+    return result
   }
 
   protected render() {
     if (!this.content) {
-      return nothing;
+      return nothing
     }
 
     return html`<ha-markdown-element
@@ -45,7 +45,7 @@ export class HaMarkdown extends LitElement {
       .breaks=${this.breaks}
       .lazyImages=${this.lazyImages}
       .cache=${this.cache}
-    ></ha-markdown-element>`;
+    ></ha-markdown-element>`
   }
 
   static styles = css`
@@ -91,9 +91,9 @@ export class HaMarkdown extends LitElement {
       padding-inline-start: 1rem;
     }
     li {
-      &:has(input[type="checkbox"]) {
+      &:has(input[type='checkbox']) {
         list-style: none;
-        & > input[type="checkbox"] {
+        & > input[type='checkbox'] {
           margin-left: 0;
         }
       }
@@ -159,11 +159,11 @@ export class HaMarkdown extends LitElement {
       margin-inline: 0;
       padding-inline: 1em;
     }
-  ` as CSSResultGroup;
+  ` as CSSResultGroup
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-markdown": HaMarkdown;
+    'ha-markdown': HaMarkdown
   }
 }

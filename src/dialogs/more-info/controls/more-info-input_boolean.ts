@@ -1,23 +1,23 @@
-import { mdiPower, mdiPowerOff } from "@mdi/js";
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { CSSResultGroup } from "lit";
-import { LitElement, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../components/ha-attributes";
-import "../../../state-control/ha-state-control-toggle";
-import type { HomeAssistant } from "../../../types";
-import "../components/ha-more-info-state-header";
-import { moreInfoControlStyle } from "../components/more-info-control-style";
+import { mdiPower, mdiPowerOff } from '@mdi/js'
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { CSSResultGroup } from 'lit'
+import { LitElement, html, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../components/ha-attributes'
+import '../../../state-control/ha-state-control-toggle'
+import type { HomeAssistant } from '../../../types'
+import '../components/ha-more-info-state-header'
+import { moreInfoControlStyle } from '../components/more-info-control-style'
 
-@customElement("more-info-input_boolean")
+@customElement('more-info-input_boolean')
 class MoreInfoInputBoolean extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj?: HassEntity;
+  @property({ attribute: false }) public stateObj?: HassEntity
 
   protected render() {
     if (!this.hass || !this.stateObj) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -37,16 +37,16 @@ class MoreInfoInputBoolean extends LitElement {
         .hass=${this.hass}
         .stateObj=${this.stateObj}
       ></ha-attributes>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
-    return moreInfoControlStyle;
+    return moreInfoControlStyle
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "more-info-input_boolean": MoreInfoInputBoolean;
+    'more-info-input_boolean': MoreInfoInputBoolean
   }
 }

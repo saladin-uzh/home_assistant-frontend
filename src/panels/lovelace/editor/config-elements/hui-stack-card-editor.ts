@@ -5,12 +5,12 @@ import {
   mdiDelete,
   mdiListBoxOutline,
   mdiPlus,
-} from "@mdi/js";
-import deepClone from "deep-clone-simple";
-import type { CSSResultGroup } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { keyed } from "lit/directives/keyed";
+} from '@mdi/js'
+import deepClone from 'deep-clone-simple'
+import type { CSSResultGroup } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { keyed } from 'lit/directives/keyed'
 import {
   any,
   array,
@@ -19,31 +19,31 @@ import {
   object,
   optional,
   string,
-} from "superstruct";
-import { storage } from "../../../../common/decorators/storage";
-import type { HASSDomEvent } from "../../../../common/dom/fire_event";
-import { fireEvent } from "../../../../common/dom/fire_event";
+} from 'superstruct'
+import { storage } from '../../../../common/decorators/storage'
+import type { HASSDomEvent } from '../../../../common/dom/fire_event'
+import { fireEvent } from '../../../../common/dom/fire_event'
 import type {
   HaFormSchema,
   SchemaUnion,
-} from "../../../../components/ha-form/types";
-import "../../../../components/ha-icon-button";
-import "../../../../components/ha-icon-button-arrow-next";
-import "../../../../components/ha-icon-button-arrow-prev";
-import "../../../../components/ha-tab-group";
-import "../../../../components/ha-tab-group-tab";
-import type { LovelaceCardConfig } from "../../../../data/lovelace/config/card";
-import type { LovelaceConfig } from "../../../../data/lovelace/config/types";
-import type { HomeAssistant } from "../../../../types";
-import type { StackCardConfig } from "../../cards/types";
-import type { LovelaceCardEditor } from "../../types";
-import "../card-editor/hui-card-element-editor";
-import type { HuiCardElementEditor } from "../card-editor/hui-card-element-editor";
-import "../card-editor/hui-card-picker";
-import type { ConfigChangedEvent } from "../hui-element-editor";
-import { baseLovelaceCardConfig } from "../structs/base-card-struct";
-import type { GUIModeChangedEvent } from "../types";
-import { configElementStyle } from "./config-elements-style";
+} from '../../../../components/ha-form/types'
+import '../../../../components/ha-icon-button'
+import '../../../../components/ha-icon-button-arrow-next'
+import '../../../../components/ha-icon-button-arrow-prev'
+import '../../../../components/ha-tab-group'
+import '../../../../components/ha-tab-group-tab'
+import type { LovelaceCardConfig } from '../../../../data/lovelace/config/card'
+import type { LovelaceConfig } from '../../../../data/lovelace/config/types'
+import type { HomeAssistant } from '../../../../types'
+import type { StackCardConfig } from '../../cards/types'
+import type { LovelaceCardEditor } from '../../types'
+import '../card-editor/hui-card-element-editor'
+import type { HuiCardElementEditor } from '../card-editor/hui-card-element-editor'
+import '../card-editor/hui-card-picker'
+import type { ConfigChangedEvent } from '../hui-element-editor'
+import { baseLovelaceCardConfig } from '../structs/base-card-struct'
+import type { GUIModeChangedEvent } from '../types'
+import { configElementStyle } from './config-elements-style'
 
 const cardConfigStruct = assign(
   baseLovelaceCardConfig,
@@ -51,68 +51,68 @@ const cardConfigStruct = assign(
     cards: array(any()),
     title: optional(string()),
   })
-);
+)
 
 const SCHEMA = [
   {
-    name: "title",
+    name: 'title',
     selector: { text: {} },
   },
-] as const;
+] as const
 
-@customElement("hui-stack-card-editor")
+@customElement('hui-stack-card-editor')
 export class HuiStackCardEditor
   extends LitElement
   implements LovelaceCardEditor
 {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ attribute: false }) public lovelace?: LovelaceConfig;
+  @property({ attribute: false }) public lovelace?: LovelaceConfig
 
   @storage({
-    key: "dashboardCardClipboard",
+    key: 'dashboardCardClipboard',
     state: false,
     subscribe: false,
-    storage: "sessionStorage",
+    storage: 'sessionStorage',
   })
-  protected _clipboard?: LovelaceCardConfig;
+  protected _clipboard?: LovelaceCardConfig
 
-  @state() protected _config?: StackCardConfig;
+  @state() protected _config?: StackCardConfig
 
-  @state() protected _selectedCard = 0;
+  @state() protected _selectedCard = 0
 
-  @state() protected _GUImode = true;
+  @state() protected _GUImode = true
 
-  @state() protected _guiModeAvailable? = true;
+  @state() protected _guiModeAvailable? = true
 
-  protected _keys = new Map<string, string>();
+  protected _keys = new Map<string, string>()
 
-  protected _schema: readonly HaFormSchema[] = SCHEMA;
+  protected _schema: readonly HaFormSchema[] = SCHEMA
 
-  @query("hui-card-element-editor")
-  protected _cardEditorEl?: HuiCardElementEditor;
+  @query('hui-card-element-editor')
+  protected _cardEditorEl?: HuiCardElementEditor
 
   public setConfig(config: Readonly<StackCardConfig>): void {
-    assert(config, cardConfigStruct);
-    this._config = config;
+    assert(config, cardConfigStruct)
+    this._config = config
   }
 
   public focusYamlEditor() {
-    this._cardEditorEl?.focusYamlEditor();
+    this._cardEditorEl?.focusYamlEditor()
   }
 
   protected formData(): object {
-    return this._config!;
+    return this._config!
   }
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
-    const selected = this._selectedCard!;
-    const numcards = this._config.cards.length;
+    const selected = this._selectedCard!
+    const numcards = this._config.cards.length
 
-    const isGuiMode = !this._cardEditorEl || this._GUImode;
+    const isGuiMode = !this._cardEditorEl || this._GUImode
 
     return html`
       <ha-form
@@ -152,8 +152,8 @@ export class HuiStackCardEditor
                     .disabled=${!this._guiModeAvailable}
                     .label=${this.hass!.localize(
                       isGuiMode
-                        ? "ui.panel.lovelace.editor.edit_card.show_code_editor"
-                        : "ui.panel.lovelace.editor.edit_card.show_visual_editor"
+                        ? 'ui.panel.lovelace.editor.edit_card.show_code_editor'
+                        : 'ui.panel.lovelace.editor.edit_card.show_visual_editor'
                     )}
                     .path=${isGuiMode ? mdiCodeBraces : mdiListBoxOutline}
                   ></ha-icon-button>
@@ -161,7 +161,7 @@ export class HuiStackCardEditor
                   <ha-icon-button-arrow-prev
                     .disabled=${selected === 0}
                     .label=${this.hass!.localize(
-                      "ui.panel.lovelace.editor.edit_card.move_before"
+                      'ui.panel.lovelace.editor.edit_card.move_before'
                     )}
                     @click=${this._handleMove}
                     .move=${-1}
@@ -169,7 +169,7 @@ export class HuiStackCardEditor
 
                   <ha-icon-button-arrow-next
                     .label=${this.hass!.localize(
-                      "ui.panel.lovelace.editor.edit_card.move_after"
+                      'ui.panel.lovelace.editor.edit_card.move_after'
                     )}
                     .disabled=${selected === numcards - 1}
                     @click=${this._handleMove}
@@ -178,7 +178,7 @@ export class HuiStackCardEditor
 
                   <ha-icon-button
                     .label=${this.hass!.localize(
-                      "ui.panel.lovelace.editor.edit_card.copy"
+                      'ui.panel.lovelace.editor.edit_card.copy'
                     )}
                     .path=${mdiContentCopy}
                     @click=${this._handleCopyCard}
@@ -186,7 +186,7 @@ export class HuiStackCardEditor
 
                   <ha-icon-button
                     .label=${this.hass!.localize(
-                      "ui.panel.lovelace.editor.edit_card.cut"
+                      'ui.panel.lovelace.editor.edit_card.cut'
                     )}
                     .path=${mdiContentCut}
                     @click=${this._handleCutCard}
@@ -194,7 +194,7 @@ export class HuiStackCardEditor
 
                   <ha-icon-button
                     .label=${this.hass!.localize(
-                      "ui.panel.lovelace.editor.edit_card.delete"
+                      'ui.panel.lovelace.editor.edit_card.delete'
                     )}
                     .path=${mdiDelete}
                     @click=${this._handleDeleteCard}
@@ -220,114 +220,114 @@ export class HuiStackCardEditor
               `}
         </div>
       </div>
-    `;
+    `
   }
 
   private _getKey(cards: LovelaceCardConfig[], index: number): string {
-    const key = `${index}-${cards.length}`;
+    const key = `${index}-${cards.length}`
     if (!this._keys.has(key)) {
-      this._keys.set(key, Math.random().toString());
+      this._keys.set(key, Math.random().toString())
     }
 
-    return this._keys.get(key)!;
+    return this._keys.get(key)!
   }
 
   protected async _handleAddCard() {
-    this._selectedCard = this._config!.cards.length;
+    this._selectedCard = this._config!.cards.length
   }
 
   protected _handleSelectedCard(ev) {
-    this._GUImode = true;
-    this._guiModeAvailable = true;
-    this._selectedCard = parseInt(ev.detail.name, 10);
+    this._GUImode = true
+    this._guiModeAvailable = true
+    this._selectedCard = parseInt(ev.detail.name, 10)
   }
 
   protected _handleConfigChanged(ev: HASSDomEvent<ConfigChangedEvent>) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!this._config) {
-      return;
+      return
     }
-    const cards = [...this._config.cards];
-    const newCard = ev.detail.config as LovelaceCardConfig;
-    cards[this._selectedCard] = newCard;
-    this._config = { ...this._config, cards };
-    this._guiModeAvailable = ev.detail.guiModeAvailable;
-    fireEvent(this, "config-changed", { config: this._config });
+    const cards = [...this._config.cards]
+    const newCard = ev.detail.config as LovelaceCardConfig
+    cards[this._selectedCard] = newCard
+    this._config = { ...this._config, cards }
+    this._guiModeAvailable = ev.detail.guiModeAvailable
+    fireEvent(this, 'config-changed', { config: this._config })
   }
 
   protected _handleCardPicked(ev) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!this._config) {
-      return;
+      return
     }
-    const config = ev.detail.config;
-    const cards = [...this._config.cards, config];
-    this._config = { ...this._config, cards };
-    this._keys.clear();
-    fireEvent(this, "config-changed", { config: this._config });
+    const config = ev.detail.config
+    const cards = [...this._config.cards, config]
+    this._config = { ...this._config, cards }
+    this._keys.clear()
+    fireEvent(this, 'config-changed', { config: this._config })
   }
 
   protected _handleCopyCard() {
     if (!this._config) {
-      return;
+      return
     }
-    this._clipboard = deepClone(this._config.cards[this._selectedCard]);
+    this._clipboard = deepClone(this._config.cards[this._selectedCard])
   }
 
   protected _handleCutCard() {
-    this._handleCopyCard();
-    this._handleDeleteCard();
+    this._handleCopyCard()
+    this._handleDeleteCard()
   }
 
   protected _handleDeleteCard() {
     if (!this._config) {
-      return;
+      return
     }
-    const cards = [...this._config.cards];
-    cards.splice(this._selectedCard, 1);
-    this._config = { ...this._config, cards };
-    this._selectedCard = Math.max(0, this._selectedCard - 1);
-    this._keys.clear();
-    fireEvent(this, "config-changed", { config: this._config });
+    const cards = [...this._config.cards]
+    cards.splice(this._selectedCard, 1)
+    this._config = { ...this._config, cards }
+    this._selectedCard = Math.max(0, this._selectedCard - 1)
+    this._keys.clear()
+    fireEvent(this, 'config-changed', { config: this._config })
   }
 
   protected _handleMove(ev: Event) {
     if (!this._config) {
-      return;
+      return
     }
-    const move = (ev.currentTarget as any).move;
-    const source = this._selectedCard;
-    const target = source + move;
-    const cards = [...this._config.cards];
-    const card = cards.splice(this._selectedCard, 1)[0];
-    cards.splice(target, 0, card);
+    const move = (ev.currentTarget as any).move
+    const source = this._selectedCard
+    const target = source + move
+    const cards = [...this._config.cards]
+    const card = cards.splice(this._selectedCard, 1)[0]
+    cards.splice(target, 0, card)
     this._config = {
       ...this._config,
       cards,
-    };
-    this._selectedCard = target;
-    this._keys.clear();
-    fireEvent(this, "config-changed", { config: this._config });
+    }
+    this._selectedCard = target
+    this._keys.clear()
+    fireEvent(this, 'config-changed', { config: this._config })
   }
 
   protected _handleGUIModeChanged(ev: HASSDomEvent<GUIModeChangedEvent>): void {
-    ev.stopPropagation();
-    this._GUImode = ev.detail.guiMode;
-    this._guiModeAvailable = ev.detail.guiModeAvailable;
+    ev.stopPropagation()
+    this._GUImode = ev.detail.guiMode
+    this._guiModeAvailable = ev.detail.guiModeAvailable
   }
 
   protected _toggleMode(): void {
-    this._cardEditorEl?.toggleMode();
+    this._cardEditorEl?.toggleMode()
   }
 
   protected _valueChanged(ev: CustomEvent): void {
-    fireEvent(this, "config-changed", { config: ev.detail.value });
+    fireEvent(this, 'config-changed', { config: ev.detail.value })
   }
 
   protected _computeLabelCallback = (schema: SchemaUnion<typeof SCHEMA>) =>
     this.hass!.localize(
       `ui.panel.lovelace.editor.card.${this._config!.type}.${schema.name}`
-    );
+    )
 
   static get styles(): CSSResultGroup {
     return [
@@ -366,12 +366,12 @@ export class HuiStackCardEditor
           margin-inline-start: initial;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-stack-card-editor": HuiStackCardEditor;
+    'hui-stack-card-editor': HuiStackCardEditor
   }
 }

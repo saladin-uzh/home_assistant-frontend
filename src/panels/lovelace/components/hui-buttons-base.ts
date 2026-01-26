@@ -1,37 +1,37 @@
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, state, property } from "lit/decorators";
-import { computeStateName } from "../../../common/entity/compute_state_name";
-import "../../../components/entity/state-badge";
-import type { ActionHandlerEvent } from "../../../data/lovelace/action_handler";
-import type { HomeAssistant } from "../../../types";
-import type { EntitiesCardEntityConfig } from "../cards/types";
-import { computeTooltip } from "../common/compute-tooltip";
-import { actionHandler } from "../common/directives/action-handler-directive";
-import { handleAction } from "../common/handle-action";
-import { hasAction } from "../common/has-action";
-import "../../../components/chips/ha-assist-chip";
-import "../../../components/chips/ha-chip-set";
-import { haStyleScrollbar } from "../../../resources/styles";
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, state, property } from 'lit/decorators'
+import { computeStateName } from '../../../common/entity/compute_state_name'
+import '../../../components/entity/state-badge'
+import type { ActionHandlerEvent } from '../../../data/lovelace/action_handler'
+import type { HomeAssistant } from '../../../types'
+import type { EntitiesCardEntityConfig } from '../cards/types'
+import { computeTooltip } from '../common/compute-tooltip'
+import { actionHandler } from '../common/directives/action-handler-directive'
+import { handleAction } from '../common/handle-action'
+import { hasAction } from '../common/has-action'
+import '../../../components/chips/ha-assist-chip'
+import '../../../components/chips/ha-chip-set'
+import { haStyleScrollbar } from '../../../resources/styles'
 
-@customElement("hui-buttons-base")
+@customElement('hui-buttons-base')
 export class HuiButtonsBase extends LitElement {
-  @state() public hass!: HomeAssistant;
+  @state() public hass!: HomeAssistant
 
   @property({ attribute: false })
-  public configEntities?: EntitiesCardEntityConfig[];
+  public configEntities?: EntitiesCardEntityConfig[]
 
   protected render(): TemplateResult {
     return html`
       <ha-chip-set class="ha-scrollbar">
-        ${(this.configEntities || []).map((entityConf) => {
-          const stateObj = this.hass.states[entityConf.entity];
+        ${(this.configEntities || []).map(entityConf => {
+          const stateObj = this.hass.states[entityConf.entity]
 
           const name =
             (entityConf.show_name && stateObj) ||
             (entityConf.name && entityConf.show_name !== false)
               ? entityConf.name || computeStateName(stateObj)
-              : "";
+              : ''
 
           return html`
             <ha-assist-chip
@@ -57,17 +57,17 @@ export class HuiButtonsBase extends LitElement {
                       slot="icon"
                     ></state-badge>
                   `
-                : ""}
+                : ''}
             </ha-assist-chip>
-          `;
+          `
         })}
       </ha-chip-set>
-    `;
+    `
   }
 
   private _handleAction(ev: ActionHandlerEvent) {
-    const config = (ev.currentTarget as any).config as EntitiesCardEntityConfig;
-    handleAction(this, this.hass, config, ev.detail.action!);
+    const config = (ev.currentTarget as any).config as EntitiesCardEntityConfig
+    handleAction(this, this.hass, config, ev.detail.action!)
   }
 
   static get styles(): CSSResultGroup {
@@ -99,12 +99,12 @@ export class HuiButtonsBase extends LitElement {
           }
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-buttons-base": HuiButtonsBase;
+    'hui-buttons-base': HuiButtonsBase
   }
 }

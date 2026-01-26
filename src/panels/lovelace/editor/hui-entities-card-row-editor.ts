@@ -1,61 +1,64 @@
-import { mdiClose, mdiDragHorizontalVariant, mdiPencil } from "@mdi/js";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { repeat } from "lit/directives/repeat";
-import { fireEvent } from "../../../common/dom/fire_event";
-import "../../../components/entity/ha-entity-picker";
-import type { HaEntityPicker } from "../../../components/entity/ha-entity-picker";
-import "../../../components/ha-icon-button";
-import "../../../components/ha-sortable";
-import "../../../components/ha-svg-icon";
-import type { HomeAssistant } from "../../../types";
-import type { EntityConfig, LovelaceRowConfig } from "../entity-rows/types";
+import { mdiClose, mdiDragHorizontalVariant, mdiPencil } from '@mdi/js'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { repeat } from 'lit/directives/repeat'
+import { fireEvent } from '../../../common/dom/fire_event'
+import '../../../components/entity/ha-entity-picker'
+import type { HaEntityPicker } from '../../../components/entity/ha-entity-picker'
+import '../../../components/ha-icon-button'
+import '../../../components/ha-sortable'
+import '../../../components/ha-svg-icon'
+import type { HomeAssistant } from '../../../types'
+import type { EntityConfig, LovelaceRowConfig } from '../entity-rows/types'
 
 declare global {
   interface HASSDomEvents {
-    "entities-changed": {
-      entities: LovelaceRowConfig[];
-    };
+    'entities-changed': {
+      entities: LovelaceRowConfig[]
+    }
   }
 }
 
-@customElement("hui-entities-card-row-editor")
+@customElement('hui-entities-card-row-editor')
 export class HuiEntitiesCardRowEditor extends LitElement {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ attribute: false }) public entities?: LovelaceRowConfig[];
+  @property({ attribute: false }) public entities?: LovelaceRowConfig[]
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  private _entityKeys = new WeakMap<LovelaceRowConfig, string>();
+  private _entityKeys = new WeakMap<LovelaceRowConfig, string>()
 
   private _getKey(action: LovelaceRowConfig) {
     if (!this._entityKeys.has(action)) {
-      this._entityKeys.set(action, Math.random().toString());
+      this._entityKeys.set(action, Math.random().toString())
     }
 
-    return this._entityKeys.get(action)!;
+    return this._entityKeys.get(action)!
   }
 
   protected render() {
     if (!this.entities || !this.hass) {
-      return nothing;
+      return nothing
     }
 
     return html`
       <h3>
         ${this.label ||
         `${this.hass!.localize(
-          "ui.panel.lovelace.editor.card.generic.entities"
+          'ui.panel.lovelace.editor.card.generic.entities'
         )} (${this.hass!.localize(
-          "ui.panel.lovelace.editor.card.config.required"
+          'ui.panel.lovelace.editor.card.config.required'
         )})`}
       </h3>
-      <ha-sortable handle-selector=".handle" @item-moved=${this._rowMoved}>
+      <ha-sortable
+        handle-selector=".handle"
+        @item-moved=${this._rowMoved}
+      >
         <div class="entities">
           ${repeat(
             this.entities,
-            (entityConf) => this._getKey(entityConf),
+            entityConf => this._getKey(entityConf),
             (entityConf, index) => html`
               <div class="entity">
                 <div class="handle">
@@ -72,7 +75,7 @@ export class HuiEntitiesCardRowEditor extends LitElement {
                           </span>
                           <span class="secondary"
                             >${this.hass!.localize(
-                              "ui.panel.lovelace.editor.card.entities.edit_special_row"
+                              'ui.panel.lovelace.editor.card.entities.edit_special_row'
                             )}</span
                           >
                         </div>
@@ -90,7 +93,7 @@ export class HuiEntitiesCardRowEditor extends LitElement {
                     `}
                 <ha-icon-button
                   .label=${this.hass!.localize(
-                    "ui.components.entity.entity-picker.clear"
+                    'ui.components.entity.entity-picker.clear'
                   )}
                   .path=${mdiClose}
                   class="remove-icon"
@@ -99,7 +102,7 @@ export class HuiEntitiesCardRowEditor extends LitElement {
                 ></ha-icon-button>
                 <ha-icon-button
                   .label=${this.hass!.localize(
-                    "ui.components.entity.entity-picker.edit"
+                    'ui.components.entity.entity-picker.edit'
                   )}
                   .path=${mdiPencil}
                   class="edit-icon"
@@ -117,67 +120,67 @@ export class HuiEntitiesCardRowEditor extends LitElement {
         @value-changed=${this._addEntity}
         add-button
       ></ha-entity-picker>
-    `;
+    `
   }
 
   private async _addEntity(ev: CustomEvent): Promise<void> {
-    const value = ev.detail.value;
-    if (value === "") {
-      return;
+    const value = ev.detail.value
+    if (value === '') {
+      return
     }
     const newConfigEntities = this.entities!.concat({
       entity: value as string,
-    });
-    (ev.target as HaEntityPicker).value = "";
-    fireEvent(this, "entities-changed", { entities: newConfigEntities });
+    })
+    ;(ev.target as HaEntityPicker).value = ''
+    fireEvent(this, 'entities-changed', { entities: newConfigEntities })
   }
 
   private _rowMoved(ev: CustomEvent): void {
-    ev.stopPropagation();
-    const { oldIndex, newIndex } = ev.detail;
+    ev.stopPropagation()
+    const { oldIndex, newIndex } = ev.detail
 
-    const newEntities = this.entities!.concat();
+    const newEntities = this.entities!.concat()
 
-    newEntities.splice(newIndex, 0, newEntities.splice(oldIndex, 1)[0]);
+    newEntities.splice(newIndex, 0, newEntities.splice(oldIndex, 1)[0])
 
-    fireEvent(this, "entities-changed", { entities: newEntities });
+    fireEvent(this, 'entities-changed', { entities: newEntities })
   }
 
   private _removeRow(ev: CustomEvent): void {
-    const index = (ev.currentTarget as any).index;
-    const newConfigEntities = this.entities!.concat();
+    const index = (ev.currentTarget as any).index
+    const newConfigEntities = this.entities!.concat()
 
-    newConfigEntities.splice(index, 1);
+    newConfigEntities.splice(index, 1)
 
-    fireEvent(this, "entities-changed", { entities: newConfigEntities });
+    fireEvent(this, 'entities-changed', { entities: newConfigEntities })
   }
 
   private _valueChanged(ev: CustomEvent): void {
-    const value = ev.detail.value;
-    const index = (ev.target as any).index;
-    const newConfigEntities = this.entities!.concat();
+    const value = ev.detail.value
+    const index = (ev.target as any).index
+    const newConfigEntities = this.entities!.concat()
 
-    if (value === "" || value === undefined) {
-      newConfigEntities.splice(index, 1);
+    if (value === '' || value === undefined) {
+      newConfigEntities.splice(index, 1)
     } else {
       newConfigEntities[index] = {
         ...newConfigEntities[index],
         entity: value!,
-      };
+      }
     }
 
-    fireEvent(this, "entities-changed", { entities: newConfigEntities });
+    fireEvent(this, 'entities-changed', { entities: newConfigEntities })
   }
 
   private _editRow(ev: CustomEvent): void {
-    const index = (ev.currentTarget as any).index;
-    fireEvent(this, "edit-detail-element", {
+    const index = (ev.currentTarget as any).index
+    fireEvent(this, 'edit-detail-element', {
       subElementConfig: {
         index,
-        type: "row",
+        type: 'row',
         elementConfig: this.entities![index],
       },
-    });
+    })
   }
 
   static styles = css`
@@ -238,11 +241,11 @@ export class HuiEntitiesCardRowEditor extends LitElement {
       font-size: var(--ha-font-size-s);
       color: var(--secondary-text-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-entities-card-row-editor": HuiEntitiesCardRowEditor;
+    'hui-entities-card-row-editor': HuiEntitiesCardRowEditor
   }
 }

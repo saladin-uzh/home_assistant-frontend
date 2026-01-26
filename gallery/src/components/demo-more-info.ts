@@ -1,23 +1,23 @@
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../src/components/ha-card";
-import "../../../src/dialogs/more-info/more-info-content";
-import "../../../src/state-summary/state-card-content";
-import "../ha-demo-options";
-import type { HomeAssistant } from "../../../src/types";
-import { computeShowNewMoreInfo } from "../../../src/dialogs/more-info/const";
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../src/components/ha-card'
+import '../../../src/dialogs/more-info/more-info-content'
+import '../../../src/state-summary/state-card-content'
+import '../ha-demo-options'
+import type { HomeAssistant } from '../../../src/types'
+import { computeShowNewMoreInfo } from '../../../src/dialogs/more-info/const'
 
-@customElement("demo-more-info")
+@customElement('demo-more-info')
 class DemoMoreInfo extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public entityId!: string;
+  @property({ attribute: false }) public entityId!: string
 
-  @property({ attribute: "show-config", type: Boolean })
-  public showConfig = false;
+  @property({ attribute: 'show-config', type: Boolean })
+  public showConfig = false
 
   render() {
-    const state = this._getState(this.entityId, this.hass.states);
+    const state = this._getState(this.entityId, this.hass.states)
     return html`
       <div class="root">
         <div id="card">
@@ -36,25 +36,25 @@ class DemoMoreInfo extends LitElement {
             ></more-info-content>
           </ha-card>
         </div>
-        ${this.showConfig ? html`<pre>${this._jsonEntity(state)}</pre>` : ""}
+        ${this.showConfig ? html`<pre>${this._jsonEntity(state)}</pre>` : ''}
       </div>
-    `;
+    `
   }
 
   private _getState(entityId, states) {
-    return states[entityId];
+    return states[entityId]
   }
 
   private _jsonEntity(stateObj) {
     // We are caching some things on stateObj
     // (it sucks, we will remove in the future)
-    const tmp = {};
-    Object.keys(stateObj).forEach((key) => {
-      if (key[0] !== "_") {
-        tmp[key] = stateObj[key];
+    const tmp = {}
+    Object.keys(stateObj).forEach(key => {
+      if (key[0] !== '_') {
+        tmp[key] = stateObj[key]
       }
-    });
-    return JSON.stringify(tmp, null, 2);
+    })
+    return JSON.stringify(tmp, null, 2)
   }
 
   static styles = css`
@@ -87,11 +87,11 @@ class DemoMoreInfo extends LitElement {
         margin: 16px 0;
       }
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-more-info": DemoMoreInfo;
+    'demo-more-info': DemoMoreInfo
   }
 }

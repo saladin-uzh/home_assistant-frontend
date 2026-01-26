@@ -1,38 +1,38 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import type { FormatEntityStateFunc } from "../../../../common/translations/entity-state";
-import "../../../../components/ha-form/ha-form";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import type { FormatEntityStateFunc } from '../../../../common/translations/entity-state'
+import '../../../../components/ha-form/ha-form'
 import type {
   HaFormSchema,
   SchemaUnion,
-} from "../../../../components/ha-form/types";
-import type { HomeAssistant } from "../../../../types";
+} from '../../../../components/ha-form/types'
+import type { HomeAssistant } from '../../../../types'
 import type {
   LovelaceCardFeatureContext,
   SelectOptionsCardFeatureConfig,
-} from "../../card-features/types";
-import type { LovelaceCardFeatureEditor } from "../../types";
+} from '../../card-features/types'
+import type { LovelaceCardFeatureEditor } from '../../types'
 
 type SelectOptionsCardFeatureData = SelectOptionsCardFeatureConfig & {
-  customize_options: boolean;
-};
+  customize_options: boolean
+}
 
-@customElement("hui-select-options-card-feature-editor")
+@customElement('hui-select-options-card-feature-editor')
 export class HuiSelectOptionsCardFeatureEditor
   extends LitElement
   implements LovelaceCardFeatureEditor
 {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ attribute: false }) public context?: LovelaceCardFeatureContext;
+  @property({ attribute: false }) public context?: LovelaceCardFeatureContext
 
-  @state() private _config?: SelectOptionsCardFeatureConfig;
+  @state() private _config?: SelectOptionsCardFeatureConfig
 
   public setConfig(config: SelectOptionsCardFeatureConfig): void {
-    this._config = config;
+    this._config = config
   }
 
   private _schema = memoizeOne(
@@ -43,7 +43,7 @@ export class HuiSelectOptionsCardFeatureEditor
     ) =>
       [
         {
-          name: "customize_options",
+          name: 'customize_options',
           selector: {
             boolean: {},
           },
@@ -51,13 +51,13 @@ export class HuiSelectOptionsCardFeatureEditor
         ...(customizeOptions
           ? ([
               {
-                name: "options",
+                name: 'options',
                 selector: {
                   select: {
                     multiple: true,
                     reorder: true,
                     options:
-                      stateObj?.attributes.options?.map((option) => ({
+                      stateObj?.attributes.options?.map(option => ({
                         value: option,
                         label: formatEntityState(stateObj, option),
                       })) || [],
@@ -67,27 +67,27 @@ export class HuiSelectOptionsCardFeatureEditor
             ] as const satisfies readonly HaFormSchema[])
           : []),
       ] as const satisfies readonly HaFormSchema[]
-  );
+  )
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
     const stateObj = this.context?.entity_id
       ? this.hass.states[this.context?.entity_id]
-      : undefined;
+      : undefined
 
     const data: SelectOptionsCardFeatureData = {
       ...this._config,
       customize_options: this._config.options !== undefined,
-    };
+    }
 
     const schema = this._schema(
       this.hass.formatEntityState,
       stateObj,
       data.customize_options
-    );
+    )
 
     return html`
       <ha-form
@@ -97,44 +97,44 @@ export class HuiSelectOptionsCardFeatureEditor
         .computeLabel=${this._computeLabelCallback}
         @value-changed=${this._valueChanged}
       ></ha-form>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent): void {
     const { customize_options, ...config } = ev.detail
-      .value as SelectOptionsCardFeatureData;
+      .value as SelectOptionsCardFeatureData
 
     const stateObj = this.context?.entity_id
       ? this.hass!.states[this.context?.entity_id]
-      : undefined;
+      : undefined
 
     if (customize_options && !config.options) {
-      config.options = stateObj?.attributes.options || [];
+      config.options = stateObj?.attributes.options || []
     }
     if (!customize_options && config.options) {
-      delete config.options;
+      delete config.options
     }
 
-    fireEvent(this, "config-changed", { config: config });
+    fireEvent(this, 'config-changed', { config: config })
   }
 
   private _computeLabelCallback = (
     schema: SchemaUnion<ReturnType<typeof this._schema>>
   ) => {
     switch (schema.name) {
-      case "options":
-      case "customize_options":
+      case 'options':
+      case 'customize_options':
         return this.hass!.localize(
           `ui.panel.lovelace.editor.features.types.select-options.${schema.name}`
-        );
+        )
       default:
-        return "";
+        return ''
     }
-  };
+  }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-select-options-card-feature-editor": HuiSelectOptionsCardFeatureEditor;
+    'hui-select-options-card-feature-editor': HuiSelectOptionsCardFeatureEditor
   }
 }

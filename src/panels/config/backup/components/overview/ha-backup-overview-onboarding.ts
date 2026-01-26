@@ -1,27 +1,27 @@
-import { mdiInformationOutline } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import "../../../../../components/ha-button";
-import "../../../../../components/ha-card";
-import "../../../../../components/ha-svg-icon";
-import { haStyle } from "../../../../../resources/styles";
-import type { HomeAssistant } from "../../../../../types";
+import { mdiInformationOutline } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import '../../../../../components/ha-button'
+import '../../../../../components/ha-card'
+import '../../../../../components/ha-svg-icon'
+import { haStyle } from '../../../../../resources/styles'
+import type { HomeAssistant } from '../../../../../types'
 
 declare global {
   // for fire event
   interface HASSDomEvents {
-    "button-click": undefined;
+    'button-click': undefined
   }
 }
 
-@customElement("ha-backup-overview-onboarding")
+@customElement('ha-backup-overview-onboarding')
 class HaBackupOverviewBackups extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   private async _setup() {
-    fireEvent(this, "button-click");
+    fireEvent(this, 'button-click')
   }
 
   render() {
@@ -32,25 +32,25 @@ class HaBackupOverviewBackups extends LitElement {
             <ha-svg-icon .path=${mdiInformationOutline}></ha-svg-icon>
           </div>
           ${this.hass.localize(
-            "ui.panel.config.backup.overview.onboarding.title"
+            'ui.panel.config.backup.overview.onboarding.title'
           )}
         </div>
         <div class="card-content">
           <p>
             ${this.hass.localize(
-              "ui.panel.config.backup.overview.onboarding.description"
+              'ui.panel.config.backup.overview.onboarding.description'
             )}
           </p>
         </div>
         <div class="card-actions">
           <ha-button @click=${this._setup}
             >${this.hass.localize(
-              "ui.panel.config.backup.overview.onboarding.setup"
+              'ui.panel.config.backup.overview.onboarding.setup'
             )}</ha-button
           >
         </div>
       </ha-card>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -75,7 +75,7 @@ class HaBackupOverviewBackups extends LitElement {
         }
         .icon::before {
           display: block;
-          content: "";
+          content: '';
           position: absolute;
           inset: 0;
           background-color: var(--primary-color);
@@ -95,12 +95,12 @@ class HaBackupOverviewBackups extends LitElement {
           border-top: none;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-backup-overview-onboarding": HaBackupOverviewBackups;
+    'ha-backup-overview-onboarding': HaBackupOverviewBackups
   }
 }

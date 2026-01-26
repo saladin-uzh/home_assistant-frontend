@@ -1,33 +1,33 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../common/dom/fire_event";
-import type { HomeAssistant } from "../../types";
-import "../ha-button";
-import "../ha-card";
-import "../ha-form/ha-form";
-import type { SchemaUnion } from "../ha-form/types";
-import type { MediaPlayerItemId } from "./ha-media-player-browse";
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../common/dom/fire_event'
+import type { HomeAssistant } from '../../types'
+import '../ha-button'
+import '../ha-card'
+import '../ha-form/ha-form'
+import type { SchemaUnion } from '../ha-form/types'
+import type { MediaPlayerItemId } from './ha-media-player-browse'
 
 export interface ManualMediaPickedEvent {
-  item: MediaPlayerItemId;
+  item: MediaPlayerItemId
 }
 
-@customElement("ha-browse-media-manual")
+@customElement('ha-browse-media-manual')
 class BrowseMediaManual extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public item!: MediaPlayerItemId;
+  @property({ attribute: false }) public item!: MediaPlayerItemId
 
-  @property({ attribute: false }) public hideContentType = false;
+  @property({ attribute: false }) public hideContentType = false
 
-  @property({ attribute: false }) public contentIdHelper?: string;
+  @property({ attribute: false }) public contentIdHelper?: string
 
   private _schema = memoizeOne(
     (hideContentType: boolean) =>
       [
         {
-          name: "media_content_id",
+          name: 'media_content_id',
           required: true,
           selector: {
             text: {},
@@ -37,7 +37,7 @@ class BrowseMediaManual extends LitElement {
           ? []
           : [
               {
-                name: "media_content_type",
+                name: 'media_content_type',
                 required: false,
                 selector: {
                   text: {},
@@ -45,7 +45,7 @@ class BrowseMediaManual extends LitElement {
               },
             ]),
       ] as const
-  );
+  )
 
   protected render() {
     return html`
@@ -62,58 +62,56 @@ class BrowseMediaManual extends LitElement {
         </div>
         <div class="card-actions">
           <ha-button @click=${this._mediaPicked}>
-            ${this.hass.localize("ui.common.submit")}
+            ${this.hass.localize('ui.common.submit')}
           </ha-button>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent) {
-    const value = { ...ev.detail.value };
+    const value = { ...ev.detail.value }
 
-    this.item = value;
+    this.item = value
   }
 
   private _computeLabel = (
     entry: SchemaUnion<ReturnType<typeof this._schema>>
   ): string => {
     switch (entry.name) {
-      case "media_content_id":
-      case "media_content_type":
-        return this.hass.localize(
-          `ui.components.selectors.media.${entry.name}`
-        );
+      case 'media_content_id':
+      case 'media_content_type':
+        return this.hass.localize(`ui.components.selectors.media.${entry.name}`)
     }
-    return entry.name;
-  };
+    return entry.name
+  }
 
   private _computeHelper = (
     entry: SchemaUnion<ReturnType<typeof this._schema>>
   ): string => {
     switch (entry.name) {
-      case "media_content_id":
+      case 'media_content_id':
         return (
           this.contentIdHelper ||
           this.hass.localize(
             `ui.components.selectors.media.${entry.name}_detail`
           )
-        );
-      case "media_content_type":
+        )
+      case 'media_content_type':
         return this.hass.localize(
           `ui.components.selectors.media.${entry.name}_detail`
-        );
+        )
     }
-    return "";
-  };
+    return ''
+  }
 
   private _mediaPicked() {
-    fireEvent(this, "manual-media-picked", {
+    fireEvent(this, 'manual-media-picked', {
       item: {
-        media_content_id: this.item.media_content_id || "",
-        media_content_type: this.item.media_content_type || "",
+        media_content_id: this.item.media_content_id || '',
+        media_content_type: this.item.media_content_type || '',
       },
-    });
+    })
   }
 
   static override styles = css`
@@ -128,15 +126,15 @@ class BrowseMediaManual extends LitElement {
       display: flex;
       justify-content: flex-end;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-browse-media-manual": BrowseMediaManual;
+    'ha-browse-media-manual': BrowseMediaManual
   }
 
   interface HASSDomEvents {
-    "manual-media-picked": ManualMediaPickedEvent;
+    'manual-media-picked': ManualMediaPickedEvent
   }
 }

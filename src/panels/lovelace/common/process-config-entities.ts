@@ -1,10 +1,10 @@
 // Parse array of entity objects from config
-import { isValidEntityId } from "../../../common/entity/valid_entity_id";
-import type { EntityConfig, LovelaceRowConfig } from "../entity-rows/types";
+import { isValidEntityId } from '../../../common/entity/valid_entity_id'
+import type { EntityConfig, LovelaceRowConfig } from '../entity-rows/types'
 
 interface BaseEntityConfig {
-  type: string;
-  entity: string;
+  type: string
+  entity: string
 }
 export const processConfigEntities = <
   T extends BaseEntityConfig | LovelaceRowConfig,
@@ -13,29 +13,29 @@ export const processConfigEntities = <
   checkEntityId = true
 ): T[] => {
   if (!entities || !Array.isArray(entities)) {
-    throw new Error("Entities need to be an array");
+    throw new Error('Entities need to be an array')
   }
 
   return entities.map((entityConf, index): T => {
     if (
-      typeof entityConf === "object" &&
+      typeof entityConf === 'object' &&
       !Array.isArray(entityConf) &&
       entityConf.type
     ) {
-      return entityConf;
+      return entityConf
     }
 
-    let config: T;
+    let config: T
 
-    if (typeof entityConf === "string") {
-      config = { entity: entityConf } as T;
-    } else if (typeof entityConf === "object" && !Array.isArray(entityConf)) {
-      if (!("entity" in entityConf)) {
-        throw new Error(`Object at position ${index} is missing entity field`);
+    if (typeof entityConf === 'string') {
+      config = { entity: entityConf } as T
+    } else if (typeof entityConf === 'object' && !Array.isArray(entityConf)) {
+      if (!('entity' in entityConf)) {
+        throw new Error(`Object at position ${index} is missing entity field`)
       }
-      config = entityConf as T;
+      config = entityConf as T
     } else {
-      throw new Error(`Invalid entity ID at position ${index}`);
+      throw new Error(`Invalid entity ID at position ${index}`)
     }
 
     if (checkEntityId && !isValidEntityId((config as EntityConfig).entity!)) {
@@ -43,9 +43,9 @@ export const processConfigEntities = <
         `Invalid entity ID at position ${index}: ${
           (config as EntityConfig).entity
         }`
-      );
+      )
     }
 
-    return config;
-  });
-};
+    return config
+  })
+}

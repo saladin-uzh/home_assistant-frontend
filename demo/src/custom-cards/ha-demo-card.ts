@@ -1,35 +1,32 @@
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { until } from "lit/directives/until";
-import { fireEvent } from "../../../src/common/dom/fire_event";
-import "../../../src/components/ha-card";
-import "../../../src/components/ha-button";
-import "../../../src/components/ha-spinner";
-import type { LovelaceCardConfig } from "../../../src/data/lovelace/config/card";
-import type { MockHomeAssistant } from "../../../src/fake_data/provide_hass";
-import type {
-  Lovelace,
-  LovelaceCard,
-} from "../../../src/panels/lovelace/types";
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { until } from 'lit/directives/until'
+import { fireEvent } from '../../../src/common/dom/fire_event'
+import '../../../src/components/ha-card'
+import '../../../src/components/ha-button'
+import '../../../src/components/ha-spinner'
+import type { LovelaceCardConfig } from '../../../src/data/lovelace/config/card'
+import type { MockHomeAssistant } from '../../../src/fake_data/provide_hass'
+import type { Lovelace, LovelaceCard } from '../../../src/panels/lovelace/types'
 import {
   demoConfigs,
   selectedDemoConfig,
   selectedDemoConfigIndex,
-} from "../configs/demo-configs";
+} from '../configs/demo-configs'
 
-@customElement("ha-demo-card")
+@customElement('ha-demo-card')
 export class HADemoCard extends LitElement implements LovelaceCard {
-  @property({ attribute: false }) public lovelace?: Lovelace;
+  @property({ attribute: false }) public lovelace?: Lovelace
 
-  @property({ attribute: false }) public hass!: MockHomeAssistant;
+  @property({ attribute: false }) public hass!: MockHomeAssistant
 
-  @state() private _switching = false;
+  @state() private _switching = false
 
-  private _hidden = window.localStorage.getItem("hide_demo_card");
+  private _hidden = window.localStorage.getItem('hide_demo_card')
 
   public getCardSize() {
-    return this._hidden ? 0 : 2;
+    return this._hidden ? 0 : 2
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -37,7 +34,7 @@ export class HADemoCard extends LitElement implements LovelaceCard {
 
   protected render() {
     if (this._hidden) {
-      return nothing;
+      return nothing
     }
     return html`
       <ha-card>
@@ -47,14 +44,17 @@ export class HADemoCard extends LitElement implements LovelaceCard {
               ? html`<ha-spinner></ha-spinner>`
               : until(
                   selectedDemoConfig.then(
-                    (conf) => html`
+                    conf => html`
                       ${conf.name}
                       <small>
                         ${this.hass.localize(
-                          "ui.panel.page-demo.cards.demo.demo_by",
+                          'ui.panel.page-demo.cards.demo.demo_by',
                           {
                             name: html`
-                              <a target="_blank" href=${conf.authorUrl}>
+                              <a
+                                target="_blank"
+                                href=${conf.authorUrl}
+                              >
                                 ${conf.authorName}
                               </a>
                             `,
@@ -63,27 +63,30 @@ export class HADemoCard extends LitElement implements LovelaceCard {
                       </small>
                     `
                   ),
-                  ""
+                  ''
                 )}
           </div>
 
-          <ha-button @click=${this._nextConfig} .disabled=${this._switching}>
-            ${this.hass.localize("ui.panel.page-demo.cards.demo.next_demo")}
+          <ha-button
+            @click=${this._nextConfig}
+            .disabled=${this._switching}
+          >
+            ${this.hass.localize('ui.panel.page-demo.cards.demo.next_demo')}
           </ha-button>
         </div>
         <div class="content">
           <p class="small-hidden">
-            ${this.hass.localize("ui.panel.page-demo.cards.demo.introduction")}
+            ${this.hass.localize('ui.panel.page-demo.cards.demo.introduction')}
           </p>
           ${until(
-            selectedDemoConfig.then((conf) => {
-              if (typeof conf.description === "function") {
-                return conf.description(this.hass.localize);
+            selectedDemoConfig.then(conf => {
+              if (typeof conf.description === 'function') {
+                return conf.description(this.hass.localize)
               }
               if (conf.description) {
-                return html`<p>${conf.description}</p>`;
+                return html`<p>${conf.description}</p>`
               }
-              return nothing;
+              return nothing
             }),
             nothing
           )}
@@ -95,17 +98,17 @@ export class HADemoCard extends LitElement implements LovelaceCard {
             href="https://www.home-assistant.io"
             target="_blank"
           >
-            ${this.hass.localize("ui.panel.page-demo.cards.demo.learn_more")}
+            ${this.hass.localize('ui.panel.page-demo.cards.demo.learn_more')}
           </ha-button>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   protected firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
+    super.firstUpdated(changedProps)
     if (this._hidden) {
-      this.style.display = "none";
+      this.style.display = 'none'
     }
   }
 
@@ -114,12 +117,12 @@ export class HADemoCard extends LitElement implements LovelaceCard {
       selectedDemoConfigIndex < demoConfigs.length - 1
         ? selectedDemoConfigIndex + 1
         : 0
-    );
+    )
   }
 
   private async _updateConfig(index: number) {
-    this._switching = true;
-    fireEvent(this, "set-demo-config" as any, { index });
+    this._switching = true
+    fireEvent(this, 'set-demo-config' as any, { index })
   }
 
   static get styles(): CSSResultGroup {
@@ -170,12 +173,12 @@ export class HADemoCard extends LitElement implements LovelaceCard {
           }
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-demo-card": HADemoCard;
+    'ha-demo-card': HADemoCard
   }
 }

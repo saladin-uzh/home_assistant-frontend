@@ -1,45 +1,45 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, state } from "lit/decorators";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-control-circular-slider";
-import "../../../../src/components/ha-slider";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, state } from 'lit/decorators'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-control-circular-slider'
+import '../../../../src/components/ha-slider'
 
-@customElement("demo-components-ha-control-circular-slider")
+@customElement('demo-components-ha-control-circular-slider')
 export class DemoHaCircularSlider extends LitElement {
   @state()
-  private current = 22;
+  private current = 22
 
   @state()
-  private low = 19;
+  private low = 19
 
   @state()
-  private high = 25;
+  private high = 25
 
   @state()
-  private changingLow?: number;
+  private changingLow?: number
 
   @state()
-  private changingHigh?: number;
+  private changingHigh?: number
 
   private _lowChanged(ev) {
-    this.low = ev.detail.value;
+    this.low = ev.detail.value
   }
 
   private _lowChanging(ev) {
-    this.changingLow = ev.detail.value;
+    this.changingLow = ev.detail.value
   }
 
   private _highChanged(ev) {
-    this.high = ev.detail.value;
+    this.high = ev.detail.value
   }
 
   private _highChanging(ev) {
-    this.changingHigh = ev.detail.value;
+    this.changingHigh = ev.detail.value
   }
 
   private _currentChanged(ev) {
-    this.current = ev.currentTarget.value;
+    this.current = ev.currentTarget.value
   }
 
   protected render(): TemplateResult {
@@ -76,7 +76,7 @@ export class DemoHaCircularSlider extends LitElement {
             Low: ${this.low} °C
             <br />
             Changing:
-            ${this.changingLow != null ? `${this.changingLow} °C` : "-"}
+            ${this.changingLow != null ? `${this.changingLow} °C` : '-'}
           </div>
         </div>
       </ha-card>
@@ -97,7 +97,7 @@ export class DemoHaCircularSlider extends LitElement {
             High: ${this.high} °C
             <br />
             Changing:
-            ${this.changingHigh != null ? `${this.changingHigh} °C` : "-"}
+            ${this.changingHigh != null ? `${this.changingHigh} °C` : '-'}
           </div>
         </div>
       </ha-card>
@@ -121,16 +121,16 @@ export class DemoHaCircularSlider extends LitElement {
             Low value: ${this.low} °C
             <br />
             Low changing:
-            ${this.changingLow != null ? `${this.changingLow} °C` : "-"}
+            ${this.changingLow != null ? `${this.changingLow} °C` : '-'}
             <br />
             High value: ${this.high} °C
             <br />
             High changing:
-            ${this.changingHigh != null ? `${this.changingHigh} °C` : "-"}
+            ${this.changingHigh != null ? `${this.changingHigh} °C` : '-'}
           </div>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -163,11 +163,11 @@ export class DemoHaCircularSlider extends LitElement {
       flex-direction: row;
       align-items: center;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-components-ha-control-circular-slider": DemoHaCircularSlider;
+    'demo-components-ha-control-circular-slider': DemoHaCircularSlider
   }
 }

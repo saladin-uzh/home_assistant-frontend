@@ -1,10 +1,10 @@
 import type {
   HassEntityAttributeBase,
   HassEntityBase,
-} from "home-assistant-js-websocket";
-import { UNAVAILABLE } from "./entity";
-import { stateActive } from "../common/entity/state_active";
-import type { HomeAssistant } from "../types";
+} from 'home-assistant-js-websocket'
+import { UNAVAILABLE } from './entity'
+import { stateActive } from '../common/entity/state_active'
+import type { HomeAssistant } from '../types'
 
 export const enum ValveEntityFeature {
   OPEN = 1,
@@ -18,9 +18,9 @@ export function isFullyOpen(stateObj: ValveEntity) {
     stateObj.attributes.current_position !== undefined &&
     stateObj.attributes.current_position !== null
   ) {
-    return stateObj.attributes.current_position === 100;
+    return stateObj.attributes.current_position === 100
   }
-  return stateObj.state === "open";
+  return stateObj.state === 'open'
 }
 
 export function isFullyClosed(stateObj: ValveEntity) {
@@ -28,46 +28,46 @@ export function isFullyClosed(stateObj: ValveEntity) {
     stateObj.attributes.current_position !== undefined &&
     stateObj.attributes.current_position !== null
   ) {
-    return stateObj.attributes.current_position === 0;
+    return stateObj.attributes.current_position === 0
   }
-  return stateObj.state === "closed";
+  return stateObj.state === 'closed'
 }
 
 export function isOpening(stateObj: ValveEntity) {
-  return stateObj.state === "opening";
+  return stateObj.state === 'opening'
 }
 
 export function isClosing(stateObj: ValveEntity) {
-  return stateObj.state === "closing";
+  return stateObj.state === 'closing'
 }
 
 export function canOpen(stateObj: ValveEntity) {
   if (stateObj.state === UNAVAILABLE) {
-    return false;
+    return false
   }
-  const assumedState = stateObj.attributes.assumed_state === true;
-  return assumedState || (!isFullyOpen(stateObj) && !isOpening(stateObj));
+  const assumedState = stateObj.attributes.assumed_state === true
+  return assumedState || (!isFullyOpen(stateObj) && !isOpening(stateObj))
 }
 
 export function canClose(stateObj: ValveEntity): boolean {
   if (stateObj.state === UNAVAILABLE) {
-    return false;
+    return false
   }
-  const assumedState = stateObj.attributes.assumed_state === true;
-  return assumedState || (!isFullyClosed(stateObj) && !isClosing(stateObj));
+  const assumedState = stateObj.attributes.assumed_state === true
+  return assumedState || (!isFullyClosed(stateObj) && !isClosing(stateObj))
 }
 
 export function canStop(stateObj: ValveEntity): boolean {
-  return stateObj.state !== UNAVAILABLE;
+  return stateObj.state !== UNAVAILABLE
 }
 
 interface ValveEntityAttributes extends HassEntityAttributeBase {
-  current_position?: number;
-  position?: number;
+  current_position?: number
+  position?: number
 }
 
 export interface ValveEntity extends HassEntityBase {
-  attributes: ValveEntityAttributes;
+  attributes: ValveEntityAttributes
 }
 
 export function computeValvePositionStateDisplay(
@@ -77,15 +77,15 @@ export function computeValvePositionStateDisplay(
 ) {
   const statePosition = stateActive(stateObj)
     ? stateObj.attributes.current_position
-    : undefined;
+    : undefined
 
-  const currentPosition = position ?? statePosition;
+  const currentPosition = position ?? statePosition
 
   return currentPosition && currentPosition !== 100
     ? hass.formatEntityAttributeValue(
         stateObj,
-        "current_position",
+        'current_position',
         Math.round(currentPosition)
       )
-    : "";
+    : ''
 }

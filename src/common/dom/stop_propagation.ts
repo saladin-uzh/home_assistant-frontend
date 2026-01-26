@@ -1,1 +1,1 @@
-export const stopPropagation = (ev) => ev.stopPropagation();
+export const stopPropagation = ev => ev.stopPropagation()

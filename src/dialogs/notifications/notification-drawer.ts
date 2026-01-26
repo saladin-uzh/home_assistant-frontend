@@ -1,94 +1,94 @@
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
-import { LitElement, html, css, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { fireEvent } from "../../common/dom/fire_event";
-import { computeDomain } from "../../common/entity/compute_domain";
-import "../../components/ha-icon-button-prev";
-import type { PersistentNotification } from "../../data/persistent_notification";
-import { subscribeNotifications } from "../../data/persistent_notification";
-import type { HomeAssistant } from "../../types";
-import "./notification-item";
-import "../../components/ha-header-bar";
-import "../../components/ha-button";
-import "../../components/ha-drawer";
-import type { HaDrawer } from "../../components/ha-drawer";
-import { computeRTLDirection } from "../../common/util/compute_rtl";
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
+import { LitElement, html, css, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { fireEvent } from '../../common/dom/fire_event'
+import { computeDomain } from '../../common/entity/compute_domain'
+import '../../components/ha-icon-button-prev'
+import type { PersistentNotification } from '../../data/persistent_notification'
+import { subscribeNotifications } from '../../data/persistent_notification'
+import type { HomeAssistant } from '../../types'
+import './notification-item'
+import '../../components/ha-header-bar'
+import '../../components/ha-button'
+import '../../components/ha-drawer'
+import type { HaDrawer } from '../../components/ha-drawer'
+import { computeRTLDirection } from '../../common/util/compute_rtl'
 
-@customElement("notification-drawer")
+@customElement('notification-drawer')
 export class HuiNotificationDrawer extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _notifications: PersistentNotification[] = [];
+  @state() private _notifications: PersistentNotification[] = []
 
-  @state() private _open = false;
+  @state() private _open = false
 
-  @query("ha-drawer") private _drawer?: HaDrawer;
+  @query('ha-drawer') private _drawer?: HaDrawer
 
-  private _unsubNotifications?: UnsubscribeFunc;
+  private _unsubNotifications?: UnsubscribeFunc
 
   connectedCallback() {
-    super.connectedCallback();
-    window.addEventListener("location-changed", this.closeDialog);
+    super.connectedCallback()
+    window.addEventListener('location-changed', this.closeDialog)
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback();
-    window.removeEventListener("location-changed", this.closeDialog);
+    super.disconnectedCallback()
+    window.removeEventListener('location-changed', this.closeDialog)
   }
 
   showDialog({ narrow }) {
     this._unsubNotifications = subscribeNotifications(
       this.hass.connection,
-      (notifications) => {
+      notifications => {
         if (this._notifications.length && !notifications.length) {
-          this.closeDialog();
-          return;
+          this.closeDialog()
+          return
         }
-        this._notifications = notifications;
+        this._notifications = notifications
       }
-    );
+    )
     this.style.setProperty(
-      "--mdc-drawer-width",
-      `min(100vw, calc(${narrow ? window.innerWidth + "px" : "500px"} + var(--safe-area-inset-left, 0px)))`
-    );
-    this._open = true;
+      '--mdc-drawer-width',
+      `min(100vw, calc(${narrow ? window.innerWidth + 'px' : '500px'} + var(--safe-area-inset-left, 0px)))`
+    )
+    this._open = true
   }
 
   closeDialog = () => {
     if (this._drawer) {
-      this._drawer.open = false;
+      this._drawer.open = false
     }
     if (this._unsubNotifications) {
-      this._unsubNotifications();
-      this._unsubNotifications = undefined;
+      this._unsubNotifications()
+      this._unsubNotifications = undefined
     }
-    this._notifications = [];
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
-  };
+    this._notifications = []
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
+  }
 
   protected render() {
     if (!this._open) {
-      return nothing;
+      return nothing
     }
     const configuratorEntities = Object.keys(this.hass.states)
-      .filter((entityId) => computeDomain(entityId) === "configurator")
-      .map((entityId) => this.hass.states[entityId]);
+      .filter(entityId => computeDomain(entityId) === 'configurator')
+      .map(entityId => this.hass.states[entityId])
 
     // @ts-ignore
-    const notifications = this._notifications.concat(configuratorEntities);
+    const notifications = this._notifications.concat(configuratorEntities)
 
     notifications.sort((n1, n2) => {
-      const d1 = new Date(n1.created_at);
-      const d2 = new Date(n2.created_at);
+      const d1 = new Date(n1.created_at)
+      const d2 = new Date(n2.created_at)
 
       if (d1 < d2) {
-        return 1;
+        return 1
       }
       if (d1 > d2) {
-        return -1;
+        return -1
       }
-      return 0;
-    });
+      return 0
+    })
 
     return html`
       <ha-drawer
@@ -99,20 +99,20 @@ export class HuiNotificationDrawer extends LitElement {
       >
         <ha-header-bar>
           <div slot="title">
-            ${this.hass.localize("ui.notification_drawer.title")}
+            ${this.hass.localize('ui.notification_drawer.title')}
           </div>
           <ha-icon-button-prev
             slot="actionItems"
             .hass=${this.hass}
             @click=${this.closeDialog}
-            .label=${this.hass.localize("ui.notification_drawer.close")}
+            .label=${this.hass.localize('ui.notification_drawer.close')}
           >
           </ha-icon-button-prev>
         </ha-header-bar>
         <div class="notifications">
           ${notifications.length
             ? html`${notifications.map(
-                (notification) =>
+                notification =>
                   html`<div class="notification">
                     <notification-item
                       .hass=${this.hass}
@@ -122,30 +122,33 @@ export class HuiNotificationDrawer extends LitElement {
               )}
               ${this._notifications.length > 1
                 ? html`<div class="notification-actions">
-                    <ha-button appearance="filled" @click=${this._dismissAll}>
+                    <ha-button
+                      appearance="filled"
+                      @click=${this._dismissAll}
+                    >
                       ${this.hass.localize(
-                        "ui.notification_drawer.dismiss_all"
+                        'ui.notification_drawer.dismiss_all'
                       )}
                     </ha-button>
                   </div>`
-                : ""}`
+                : ''}`
             : html` <div class="empty">
-                ${this.hass.localize("ui.notification_drawer.empty")}
+                ${this.hass.localize('ui.notification_drawer.empty')}
                 <div></div>
               </div>`}
         </div>
       </ha-drawer>
-    `;
+    `
   }
 
   private _dialogClosed(ev: Event) {
-    ev.stopPropagation();
-    this._open = false;
+    ev.stopPropagation()
+    this._open = false
   }
 
   private _dismissAll() {
-    this.hass.callService("persistent_notification", "dismiss_all");
-    this.closeDialog();
+    this.hass.callService('persistent_notification', 'dismiss_all')
+    this.closeDialog()
   }
 
   static styles = css`
@@ -199,11 +202,11 @@ export class HuiNotificationDrawer extends LitElement {
       padding: 16px;
       text-align: center;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "notification-drawer": HuiNotificationDrawer;
+    'notification-drawer': HuiNotificationDrawer
   }
 }

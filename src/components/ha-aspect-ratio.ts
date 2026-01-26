@@ -1,35 +1,33 @@
-import { css, html, LitElement, type PropertyValues } from "lit";
-import { customElement, property } from "lit/decorators";
-import { styleMap } from "lit/directives/style-map";
-import parseAspectRatio from "../common/util/parse-aspect-ratio";
+import { css, html, LitElement, type PropertyValues } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { styleMap } from 'lit/directives/style-map'
+import parseAspectRatio from '../common/util/parse-aspect-ratio'
 
-const DEFAULT_ASPECT_RATIO = "16:9";
+const DEFAULT_ASPECT_RATIO = '16:9'
 
-@customElement("ha-aspect-ratio")
+@customElement('ha-aspect-ratio')
 export class HaAspectRatio extends LitElement {
-  @property({ type: String, attribute: "aspect-ratio" })
-  public aspectRatio?: string;
+  @property({ type: String, attribute: 'aspect-ratio' })
+  public aspectRatio?: string
 
   private _ratio: {
-    w: number;
-    h: number;
-  } | null = null;
+    w: number
+    h: number
+  } | null = null
 
   public willUpdate(changedProps: PropertyValues) {
-    if (changedProps.has("aspect_ratio") || this._ratio === null) {
-      this._ratio = this.aspectRatio
-        ? parseAspectRatio(this.aspectRatio)
-        : null;
+    if (changedProps.has('aspect_ratio') || this._ratio === null) {
+      this._ratio = this.aspectRatio ? parseAspectRatio(this.aspectRatio) : null
 
       if (this._ratio === null || this._ratio.w <= 0 || this._ratio.h <= 0) {
-        this._ratio = parseAspectRatio(DEFAULT_ASPECT_RATIO);
+        this._ratio = parseAspectRatio(DEFAULT_ASPECT_RATIO)
       }
     }
   }
 
   protected render(): unknown {
     if (!this.aspectRatio) {
-      return html`<slot></slot>`;
+      return html`<slot></slot>`
     }
     return html`
       <div
@@ -40,7 +38,7 @@ export class HaAspectRatio extends LitElement {
       >
         <slot></slot>
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -51,11 +49,11 @@ export class HaAspectRatio extends LitElement {
       width: 100%;
       height: 100%;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-aspect-ratio": HaAspectRatio;
+    'ha-aspect-ratio': HaAspectRatio
   }
 }

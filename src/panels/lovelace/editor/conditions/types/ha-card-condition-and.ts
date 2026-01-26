@@ -1,35 +1,35 @@
-import { html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { any, array, assert, literal, object, optional } from "superstruct";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import "../../../../../components/ha-form/ha-form";
-import type { HomeAssistant } from "../../../../../types";
+import { html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { any, array, assert, literal, object, optional } from 'superstruct'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import '../../../../../components/ha-form/ha-form'
+import type { HomeAssistant } from '../../../../../types'
 import type {
   AndCondition,
   Condition,
   StateCondition,
-} from "../../../common/validate-condition";
-import "../ha-card-conditions-editor";
+} from '../../../common/validate-condition'
+import '../ha-card-conditions-editor'
 
 const andConditionStruct = object({
-  condition: literal("and"),
+  condition: literal('and'),
   conditions: optional(array(any())),
-});
+})
 
-@customElement("ha-card-condition-and")
+@customElement('ha-card-condition-and')
 export class HaCardConditionNumericAnd extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public condition!: AndCondition;
+  @property({ attribute: false }) public condition!: AndCondition
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
   public static get defaultConfig(): AndCondition {
-    return { condition: "and", conditions: [] };
+    return { condition: 'and', conditions: [] }
   }
 
   protected static validateUIConfig(condition: StateCondition) {
-    return assert(condition, andConditionStruct);
+    return assert(condition, andConditionStruct)
   }
 
   protected render() {
@@ -41,22 +41,22 @@ export class HaCardConditionNumericAnd extends LitElement {
         @value-changed=${this._valueChanged}
       >
       </ha-card-conditions-editor>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent): void {
-    ev.stopPropagation();
-    const conditions = ev.detail.value as Condition[];
+    ev.stopPropagation()
+    const conditions = ev.detail.value as Condition[]
     const condition = {
       ...this.condition,
       conditions,
-    };
-    fireEvent(this, "value-changed", { value: condition });
+    }
+    fireEvent(this, 'value-changed', { value: condition })
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-card-condition-and": HaCardConditionNumericAnd;
+    'ha-card-condition-and': HaCardConditionNumericAnd
   }
 }

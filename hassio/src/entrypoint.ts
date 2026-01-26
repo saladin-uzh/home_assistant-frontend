@@ -2,12 +2,12 @@ import {
   haFontFamilyBody,
   haFontSmoothing,
   haMozOsxFontSmoothing,
-} from "../../src/resources/theme/typography.globals";
-import "./hassio-main";
+} from '../../src/resources/theme/typography.globals'
+import './hassio-main'
 
-import("../../src/resources/append-ha-style");
+import('../../src/resources/append-ha-style')
 
-const styleEl = document.createElement("style");
+const styleEl = document.createElement('style')
 styleEl.textContent = `
 body {
   font-family: ${haFontFamilyBody};
@@ -24,5 +24,5 @@ body {
     color: #e1e1e1;
   }
 }
-`;
-document.head.appendChild(styleEl);
+`
+document.head.appendChild(styleEl)

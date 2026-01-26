@@ -1,46 +1,46 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../common/dom/fire_event";
-import type { HomeAssistant } from "../../../types";
-import { documentationUrl } from "../../../util/documentation-url";
-import type { YamlIntegrationDialogParams } from "./show-add-integration-dialog";
-import "../../../components/ha-dialog";
-import "../../../components/ha-button";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../common/dom/fire_event'
+import type { HomeAssistant } from '../../../types'
+import { documentationUrl } from '../../../util/documentation-url'
+import type { YamlIntegrationDialogParams } from './show-add-integration-dialog'
+import '../../../components/ha-dialog'
+import '../../../components/ha-button'
 
-@customElement("dialog-yaml-integration")
+@customElement('dialog-yaml-integration')
 export class DialogYamlIntegration extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _params?: YamlIntegrationDialogParams;
+  @state() private _params?: YamlIntegrationDialogParams
 
   public showDialog(params: YamlIntegrationDialogParams): void {
-    this._params = params;
+    this._params = params
   }
 
   public closeDialog() {
-    this._params = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
-    const manifest = this._params.manifest;
+    const manifest = this._params.manifest
     const docLink = manifest.is_built_in
       ? documentationUrl(this.hass, `/integrations/${manifest.domain}`)
-      : manifest.documentation;
+      : manifest.documentation
     return html`
       <ha-dialog
         open
         @closed=${this.closeDialog}
         .heading=${this.hass.localize(
-          "ui.panel.config.integrations.config_flow.yaml_only_title"
+          'ui.panel.config.integrations.config_flow.yaml_only_title'
         )}
       >
         <p>
           ${this.hass.localize(
-            "ui.panel.config.integrations.config_flow.yaml_only"
+            'ui.panel.config.integrations.config_flow.yaml_only'
           )}
         </p>
         <ha-button
@@ -48,7 +48,7 @@ export class DialogYamlIntegration extends LitElement {
           @click=${this.closeDialog}
           slot="primaryAction"
         >
-          ${this.hass.localize("ui.common.cancel")}
+          ${this.hass.localize('ui.common.cancel')}
         </ha-button>
         ${docLink
           ? html`<ha-button
@@ -61,14 +61,17 @@ export class DialogYamlIntegration extends LitElement {
               dialogInitialFocus
             >
               ${this.hass.localize(
-                "ui.panel.config.integrations.config_flow.open_documentation"
+                'ui.panel.config.integrations.config_flow.open_documentation'
               )}
             </ha-button>`
-          : html`<ha-button @click=${this.closeDialog} dialogInitialFocus>
-              ${this.hass.localize("ui.common.ok")}
+          : html`<ha-button
+              @click=${this.closeDialog}
+              dialogInitialFocus
+            >
+              ${this.hass.localize('ui.common.ok')}
             </ha-button>`}
       </ha-dialog>
-    `;
+    `
   }
 
   static styles = css`
@@ -88,11 +91,11 @@ export class DialogYamlIntegration extends LitElement {
         --mdc-dialog-min-width: 400px;
       }
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-yaml-integration": DialogYamlIntegration;
+    'dialog-yaml-integration': DialogYamlIntegration
   }
 }

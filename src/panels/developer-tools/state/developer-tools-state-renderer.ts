@@ -1,89 +1,86 @@
-import {
-  mdiClipboardTextMultipleOutline,
-  mdiInformationOutline,
-} from "@mdi/js";
-import type { HassEntity } from "home-assistant-js-websocket";
-import { dump } from "js-yaml";
-import type { CSSResultGroup, PropertyValues, TemplateResult } from "lit";
-import type { RenderItemFunction } from "@lit-labs/virtualizer/virtualize";
-import { css, html, LitElement, nothing } from "lit";
-import { classMap } from "lit/directives/class-map";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../../common/dom/fire_event";
-import { loadVirtualizer } from "../../../resources/virtualizer";
-import { copyToClipboard } from "../../../common/util/copy-clipboard";
-import "../../../components/ha-checkbox";
-import "../../../components/ha-svg-icon";
-import type { HomeAssistant } from "../../../types";
-import { showToast } from "../../../util/toast";
-import { haStyle } from "../../../resources/styles";
+import { mdiClipboardTextMultipleOutline, mdiInformationOutline } from '@mdi/js'
+import type { HassEntity } from 'home-assistant-js-websocket'
+import { dump } from 'js-yaml'
+import type { CSSResultGroup, PropertyValues, TemplateResult } from 'lit'
+import type { RenderItemFunction } from '@lit-labs/virtualizer/virtualize'
+import { css, html, LitElement, nothing } from 'lit'
+import { classMap } from 'lit/directives/class-map'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../../common/dom/fire_event'
+import { loadVirtualizer } from '../../../resources/virtualizer'
+import { copyToClipboard } from '../../../common/util/copy-clipboard'
+import '../../../components/ha-checkbox'
+import '../../../components/ha-svg-icon'
+import type { HomeAssistant } from '../../../types'
+import { showToast } from '../../../util/toast'
+import { haStyle } from '../../../resources/styles'
 
-@customElement("developer-tools-state-renderer")
+@customElement('developer-tools-state-renderer')
 class HaPanelDevStateRenderer extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public entities: HassEntity[] = [];
+  @property({ attribute: false }) public entities: HassEntity[] = []
 
-  @property({ type: Boolean, attribute: "narrow" })
-  public narrow = false;
+  @property({ type: Boolean, attribute: 'narrow' })
+  public narrow = false
 
-  @property({ type: Boolean, attribute: "virtualize", reflect: true })
-  public virtualize = true;
+  @property({ type: Boolean, attribute: 'virtualize', reflect: true })
+  public virtualize = true
 
   @property({ type: Boolean, attribute: false })
-  public showAttributes = true;
+  public showAttributes = true
 
   protected willUpdate(changedProps: PropertyValues<this>) {
-    super.willUpdate(changedProps);
+    super.willUpdate(changedProps)
     if (
       (!this.hasUpdated && this.virtualize) ||
-      (changedProps.has("virtualize") && this.virtualize)
+      (changedProps.has('virtualize') && this.virtualize)
     ) {
-      loadVirtualizer();
+      loadVirtualizer()
     }
   }
 
   protected shouldUpdate(changedProps: PropertyValues<this>) {
-    super.shouldUpdate(changedProps);
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
+    super.shouldUpdate(changedProps)
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined
     const languageChanged =
-      oldHass === undefined || oldHass.locale !== this.hass.locale;
+      oldHass === undefined || oldHass.locale !== this.hass.locale
 
     return (
-      changedProps.has("entities") ||
-      changedProps.has("narrow") ||
-      changedProps.has("virtualize") ||
-      changedProps.has("showAttributes") ||
+      changedProps.has('entities') ||
+      changedProps.has('narrow') ||
+      changedProps.has('virtualize') ||
+      changedProps.has('showAttributes') ||
       languageChanged
-    );
+    )
   }
 
   protected render() {
-    const showAttributes = !this.narrow && this.showAttributes;
+    const showAttributes = !this.narrow && this.showAttributes
     return html`
         <div
-          class=${classMap({ entities: true, "hide-attributes": !showAttributes })}
+          class=${classMap({ entities: true, 'hide-attributes': !showAttributes })}
           role="table"
         >
           <div class="row" role="row" aria-rowindex="1">
             <div class="header" role="columnheader">
               <span class="padded">
                 ${this.hass.localize(
-                  "ui.panel.developer-tools.tabs.states.entity"
+                  'ui.panel.developer-tools.tabs.states.entity'
                 )}
               </span>
             </div>
             <div class="header" role="columnheader">
               <span class="padded">
                 ${this.hass.localize(
-                  "ui.panel.developer-tools.tabs.states.state"
+                  'ui.panel.developer-tools.tabs.states.state'
                 )}
               </span>
             </div>
             <div class="header" role="columnheader">
               <span class="padded">
                 ${this.hass.localize(
-                  "ui.panel.developer-tools.tabs.states.attributes"
+                  'ui.panel.developer-tools.tabs.states.attributes'
                 )}
               </span>
             </div>
@@ -101,11 +98,19 @@ class HaPanelDevStateRenderer extends LitElement {
           </div>
           ${
             this.entities.length === 0
-              ? html` <div class="row" role="row" aria-rowindex="3">
-                  <div class="cell" role="cell" aria-colspan="3">
+              ? html` <div
+                  class="row"
+                  role="row"
+                  aria-rowindex="3"
+                >
+                  <div
+                    class="cell"
+                    role="cell"
+                    aria-colspan="3"
+                  >
                     <span class="padded">
                       ${this.hass.localize(
-                        "ui.panel.developer-tools.tabs.states.no_entities"
+                        'ui.panel.developer-tools.tabs.states.no_entities'
                       )}
                     </span>
                   </div>
@@ -124,7 +129,7 @@ class HaPanelDevStateRenderer extends LitElement {
               )
         }
         </div>
-    `;
+    `
   }
 
   private _renderStateItem: RenderItemFunction<HassEntity> = (
@@ -132,7 +137,7 @@ class HaPanelDevStateRenderer extends LitElement {
     index: number
   ): TemplateResult | any => {
     if (!item || index === undefined) {
-      return nothing;
+      return nothing
     }
     return html`
       <div
@@ -144,7 +149,10 @@ class HaPanelDevStateRenderer extends LitElement {
         role="row"
         aria-rowindex=${index + 3}
       >
-        <div class="cell" role="cell">
+        <div
+          class="cell"
+          role="cell"
+        >
           <span class="padded">
             <div class="id-name-container">
               <div class="id-name-row">
@@ -152,14 +160,17 @@ class HaPanelDevStateRenderer extends LitElement {
                   @click=${this._copyEntity}
                   .entity=${item}
                   alt=${this.hass.localize(
-                    "ui.panel.developer-tools.tabs.states.copy_id"
+                    'ui.panel.developer-tools.tabs.states.copy_id'
                   )}
                   title=${this.hass.localize(
-                    "ui.panel.developer-tools.tabs.states.copy_id"
+                    'ui.panel.developer-tools.tabs.states.copy_id'
                   )}
                   .path=${mdiClipboardTextMultipleOutline}
                 ></ha-svg-icon>
-                <a href="#" .entity=${item} @click=${this._entitySelected}
+                <a
+                  href="#"
+                  .entity=${item}
+                  @click=${this._entitySelected}
                   >${item.entity_id}</a
                 >
               </div>
@@ -168,10 +179,10 @@ class HaPanelDevStateRenderer extends LitElement {
                   @click=${this._entityMoreInfo}
                   .entity=${item}
                   alt=${this.hass.localize(
-                    "ui.panel.developer-tools.tabs.states.more_info"
+                    'ui.panel.developer-tools.tabs.states.more_info'
                   )}
                   title=${this.hass.localize(
-                    "ui.panel.developer-tools.tabs.states.more_info"
+                    'ui.panel.developer-tools.tabs.states.more_info'
                   )}
                   .path=${mdiInformationOutline}
                 ></ha-svg-icon>
@@ -182,60 +193,65 @@ class HaPanelDevStateRenderer extends LitElement {
             </div>
           </span>
         </div>
-        <div class="cell" role="cell">
+        <div
+          class="cell"
+          role="cell"
+        >
           <span class="padded">${item.state}</span>
         </div>
-        <div class="cell" role="cell">
+        <div
+          class="cell"
+          role="cell"
+        >
           <span class="padded">${this._attributeString(item)}</span>
         </div>
       </div>
-    `;
-  };
+    `
+  }
 
   private _formatAttributeValue(value) {
     if (
-      (Array.isArray(value) && value.some((val) => val instanceof Object)) ||
+      (Array.isArray(value) && value.some(val => val instanceof Object)) ||
       (!Array.isArray(value) && value instanceof Object)
     ) {
-      return `\n${dump(value)}`;
+      return `\n${dump(value)}`
     }
-    return Array.isArray(value) ? value.join(", ") : value;
+    return Array.isArray(value) ? value.join(', ') : value
   }
 
   private _attributeString(entity) {
-    const output = "";
+    const output = ''
 
     if (entity && entity.attributes) {
       return Object.keys(entity.attributes).map(
-        (key) =>
-          `${key}: ${this._formatAttributeValue(entity.attributes[key])}\n`
-      );
+        key => `${key}: ${this._formatAttributeValue(entity.attributes[key])}\n`
+      )
     }
 
-    return output;
+    return output
   }
 
-  private _copyEntity = async (ev) => {
-    ev.preventDefault();
-    const entity = (ev.currentTarget! as any).entity;
-    await copyToClipboard(entity.entity_id);
+  private _copyEntity = async ev => {
+    ev.preventDefault()
+    const entity = (ev.currentTarget! as any).entity
+    await copyToClipboard(entity.entity_id)
     showToast(this, {
-      message: this.hass.localize("ui.common.copied_clipboard"),
-    });
-  };
+      message: this.hass.localize('ui.common.copied_clipboard'),
+    })
+  }
 
   private _entityMoreInfo(ev) {
-    ev.preventDefault();
-    const entity = (ev.currentTarget! as any).entity;
-    fireEvent(this, "hass-more-info", { entityId: entity.entity_id });
+    ev.preventDefault()
+    const entity = (ev.currentTarget! as any).entity
+    fireEvent(this, 'hass-more-info', { entityId: entity.entity_id })
   }
 
   private _entitySelected(ev) {
-    ev.preventDefault();
-    const entity = (ev.currentTarget! as any).entity;
-    fireEvent(this, "states-tool-entity-selected", {
+    ev.preventDefault()
+    const entity = (ev.currentTarget! as any).entity
+    fireEvent(this, 'states-tool-entity-selected', {
       entity: entity,
-    });
+    })
   }
 
   static get styles(): CSSResultGroup {
@@ -350,18 +366,18 @@ class HaPanelDevStateRenderer extends LitElement {
           align-items: center;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "developer-tools-state-renderer": HaPanelDevStateRenderer;
+    'developer-tools-state-renderer': HaPanelDevStateRenderer
   }
 
   interface HASSDomEvents {
-    "states-tool-entity-selected": {
-      entity: Partial<HassEntity>;
-    };
+    'states-tool-entity-selected': {
+      entity: Partial<HassEntity>
+    }
   }
 }

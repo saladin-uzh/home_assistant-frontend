@@ -1,52 +1,51 @@
-import { SelectBase } from "@material/mwc-select/mwc-select-base";
-import { mdiMenuDown } from "@mdi/js";
-import type { PropertyValues } from "lit";
-import { css, html, nothing } from "lit";
-import { customElement, property, query } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { ifDefined } from "lit/directives/if-defined";
-import { debounce } from "../common/util/debounce";
-import { nextRender } from "../common/util/render-status";
-import "./ha-icon";
-import type { HaIcon } from "./ha-icon";
-import "./ha-ripple";
-import "./ha-svg-icon";
-import type { HaSvgIcon } from "./ha-svg-icon";
-import "./ha-menu";
+import { SelectBase } from '@material/mwc-select/mwc-select-base'
+import { mdiMenuDown } from '@mdi/js'
+import type { PropertyValues } from 'lit'
+import { css, html, nothing } from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { ifDefined } from 'lit/directives/if-defined'
+import { debounce } from '../common/util/debounce'
+import { nextRender } from '../common/util/render-status'
+import './ha-icon'
+import type { HaIcon } from './ha-icon'
+import './ha-ripple'
+import './ha-svg-icon'
+import type { HaSvgIcon } from './ha-svg-icon'
+import './ha-menu'
 
-@customElement("ha-control-select-menu")
+@customElement('ha-control-select-menu')
 export class HaControlSelectMenu extends SelectBase {
-  @query(".select") protected mdcRoot!: HTMLElement;
+  @query('.select') protected mdcRoot!: HTMLElement
 
-  @query(".select-anchor") protected anchorElement!: HTMLDivElement | null;
+  @query('.select-anchor') protected anchorElement!: HTMLDivElement | null
 
-  @property({ type: Boolean, attribute: "show-arrow" })
-  public showArrow = false;
+  @property({ type: Boolean, attribute: 'show-arrow' })
+  public showArrow = false
 
-  @property({ type: Boolean, attribute: "hide-label" })
-  public hideLabel = false;
+  @property({ type: Boolean, attribute: 'hide-label' })
+  public hideLabel = false
 
-  @property() public options;
+  @property() public options
 
   protected updated(changedProps: PropertyValues) {
-    super.updated(changedProps);
-    if (changedProps.get("options")) {
-      this.layoutOptions();
-      this.selectByValue(this.value);
+    super.updated(changedProps)
+    if (changedProps.get('options')) {
+      this.layoutOptions()
+      this.selectByValue(this.value)
     }
   }
 
   public override render() {
     const classes = {
-      "select-disabled": this.disabled,
-      "select-required": this.required,
-      "select-invalid": !this.isUiValid,
-      "select-no-value": !this.selectedText,
-    };
+      'select-disabled': this.disabled,
+      'select-required': this.required,
+      'select-invalid': !this.isUiValid,
+      'select-no-value': !this.selectedText,
+    }
 
-    const labelledby = this.label && !this.hideLabel ? "label" : undefined;
-    const labelAttribute =
-      this.label && this.hideLabel ? this.label : undefined;
+    const labelledby = this.label && !this.hideLabel ? 'label' : undefined
+    const labelAttribute = this.label && this.hideLabel ? this.label : undefined
 
     return html`
       <div class="select ${classMap(classes)}">
@@ -79,7 +78,12 @@ export class HaControlSelectMenu extends SelectBase {
           <div class="content">
             ${this.hideLabel
               ? nothing
-              : html`<p id="label" class="label">${this.label}</p>`}
+              : html`<p
+                  id="label"
+                  class="label"
+                >
+                  ${this.label}
+                </p>`}
             ${this.selectedText
               ? html`<p class="value">${this.selectedText}</p>`
               : nothing}
@@ -89,11 +93,11 @@ export class HaControlSelectMenu extends SelectBase {
         </div>
         ${this.renderMenu()}
       </div>
-    `;
+    `
   }
 
   protected override renderMenu() {
-    const classes = this.getMenuClasses();
+    const classes = this.getMenuClasses()
     return html`<ha-menu
       innerRole="listbox"
       wrapFocus
@@ -110,61 +114,61 @@ export class HaControlSelectMenu extends SelectBase {
       @keydown=${this.handleTypeahead}
     >
       ${this.renderMenuContent()}
-    </ha-menu>`;
+    </ha-menu>`
   }
 
   private _renderArrow() {
-    if (!this.showArrow) return nothing;
+    if (!this.showArrow) return nothing
 
     return html`
       <div class="icon">
         <ha-svg-icon .path=${mdiMenuDown}></ha-svg-icon>
       </div>
-    `;
+    `
   }
 
   private _renderIcon() {
-    const index = this.mdcFoundation?.getSelectedIndex();
-    const items = this.menuElement?.items ?? [];
-    const item = index != null ? items[index] : undefined;
-    const defaultIcon = this.querySelector("[slot='icon']");
+    const index = this.mdcFoundation?.getSelectedIndex()
+    const items = this.menuElement?.items ?? []
+    const item = index != null ? items[index] : undefined
+    const defaultIcon = this.querySelector("[slot='icon']")
     const icon = (item?.querySelector("[slot='graphic']") ?? null) as
       | HaSvgIcon
       | HaIcon
-      | null;
+      | null
 
     if (!defaultIcon && !icon) {
-      return null;
+      return null
     }
 
     return html`
       <div class="icon">
-        ${icon && icon.localName === "ha-svg-icon" && "path" in icon
+        ${icon && icon.localName === 'ha-svg-icon' && 'path' in icon
           ? html`<ha-svg-icon .path=${icon.path}></ha-svg-icon>`
-          : icon && icon.localName === "ha-icon" && "icon" in icon
+          : icon && icon.localName === 'ha-icon' && 'icon' in icon
             ? html`<ha-icon .path=${icon.icon}></ha-icon>`
             : html`<slot name="icon"></slot>`}
       </div>
-    `;
+    `
   }
 
   connectedCallback() {
-    super.connectedCallback();
-    window.addEventListener("translations-updated", this._translationsUpdated);
+    super.connectedCallback()
+    window.addEventListener('translations-updated', this._translationsUpdated)
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
     window.removeEventListener(
-      "translations-updated",
+      'translations-updated',
       this._translationsUpdated
-    );
+    )
   }
 
   private _translationsUpdated = debounce(async () => {
-    await nextRender();
-    this.layoutOptions();
-  }, 500);
+    await nextRender()
+    this.layoutOptions()
+  }, 500)
 
   static override styles = [
     css`
@@ -245,7 +249,7 @@ export class HaControlSelectMenu extends SelectBase {
       }
 
       .select-anchor::before {
-        content: "";
+        content: '';
         position: absolute;
         top: 0;
         left: 0;
@@ -263,11 +267,11 @@ export class HaControlSelectMenu extends SelectBase {
         color: var(--disabled-color);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-control-select-menu": HaControlSelectMenu;
+    'ha-control-select-menu': HaControlSelectMenu
   }
 }

@@ -1,54 +1,54 @@
-import type { CSSResultGroup, PropertyValues } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state, query } from "lit/decorators";
-import type { HASSDomEvent } from "../../../../../common/dom/fire_event";
-import { navigate } from "../../../../../common/navigate";
-import type { SelectionChangedEvent } from "../../../../../components/data-table/ha-data-table";
-import "../../../../../components/ha-button";
-import type { ZHADeviceEndpoint, ZHAGroup } from "../../../../../data/zha";
-import { addGroup, fetchGroupableDevices } from "../../../../../data/zha";
-import "../../../../../layouts/hass-subpage";
-import type { HomeAssistant } from "../../../../../types";
-import "../../../ha-config-section";
-import "../../../../../components/ha-textfield";
-import "./zha-device-endpoint-data-table";
-import type { ZHADeviceEndpointDataTable } from "./zha-device-endpoint-data-table";
+import type { CSSResultGroup, PropertyValues } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state, query } from 'lit/decorators'
+import type { HASSDomEvent } from '../../../../../common/dom/fire_event'
+import { navigate } from '../../../../../common/navigate'
+import type { SelectionChangedEvent } from '../../../../../components/data-table/ha-data-table'
+import '../../../../../components/ha-button'
+import type { ZHADeviceEndpoint, ZHAGroup } from '../../../../../data/zha'
+import { addGroup, fetchGroupableDevices } from '../../../../../data/zha'
+import '../../../../../layouts/hass-subpage'
+import type { HomeAssistant } from '../../../../../types'
+import '../../../ha-config-section'
+import '../../../../../components/ha-textfield'
+import './zha-device-endpoint-data-table'
+import type { ZHADeviceEndpointDataTable } from './zha-device-endpoint-data-table'
 
-@customElement("zha-add-group-page")
+@customElement('zha-add-group-page')
 export class ZHAAddGroupPage extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
   @property({ attribute: false, type: Array })
-  public deviceEndpoints: ZHADeviceEndpoint[] = [];
+  public deviceEndpoints: ZHADeviceEndpoint[] = []
 
-  @state() private _processingAdd = false;
+  @state() private _processingAdd = false
 
-  @state() private _groupName = "";
+  @state() private _groupName = ''
 
-  @state() private _groupId?: string;
+  @state() private _groupId?: string
 
-  @query("zha-device-endpoint-data-table", true)
-  private _zhaDevicesDataTable!: ZHADeviceEndpointDataTable;
+  @query('zha-device-endpoint-data-table', true)
+  private _zhaDevicesDataTable!: ZHADeviceEndpointDataTable
 
-  private _firstUpdatedCalled = false;
+  private _firstUpdatedCalled = false
 
-  private _selectedDevicesToAdd: string[] = [];
+  private _selectedDevicesToAdd: string[] = []
 
   public connectedCallback(): void {
-    super.connectedCallback();
+    super.connectedCallback()
     if (this.hass && this._firstUpdatedCalled) {
-      this._fetchData();
+      this._fetchData()
     }
   }
 
   protected firstUpdated(changedProperties: PropertyValues): void {
-    super.firstUpdated(changedProperties);
+    super.firstUpdated(changedProperties)
     if (this.hass) {
-      this._fetchData();
+      this._fetchData()
     }
-    this._firstUpdatedCalled = true;
+    this._firstUpdatedCalled = true
   }
 
   protected render() {
@@ -56,12 +56,12 @@ export class ZHAAddGroupPage extends LitElement {
       <hass-subpage
         .hass=${this.hass}
         .narrow=${this.narrow}
-        .header=${this.hass.localize("ui.panel.config.zha.groups.create_group")}
+        .header=${this.hass.localize('ui.panel.config.zha.groups.create_group')}
       >
         <ha-config-section .isWide=${!this.narrow}>
           <p slot="introduction">
             ${this.hass.localize(
-              "ui.panel.config.zha.groups.create_group_details"
+              'ui.panel.config.zha.groups.create_group_details'
             )}
           </p>
           <ha-textfield
@@ -69,7 +69,7 @@ export class ZHAAddGroupPage extends LitElement {
             .value=${this._groupName}
             @change=${this._handleNameChange}
             .placeholder=${this.hass!.localize(
-              "ui.panel.config.zha.groups.group_name_placeholder"
+              'ui.panel.config.zha.groups.group_name_placeholder'
             )}
           ></ha-textfield>
 
@@ -78,12 +78,12 @@ export class ZHAAddGroupPage extends LitElement {
             .value=${this._groupId}
             @change=${this._handleGroupIdChange}
             .placeholder=${this.hass!.localize(
-              "ui.panel.config.zha.groups.group_id_placeholder"
+              'ui.panel.config.zha.groups.group_id_placeholder'
             )}
           ></ha-textfield>
 
           <div class="header">
-            ${this.hass.localize("ui.panel.config.zha.groups.add_members")}
+            ${this.hass.localize('ui.panel.config.zha.groups.add_members')}
           </div>
 
           <zha-device-endpoint-data-table
@@ -98,60 +98,60 @@ export class ZHAAddGroupPage extends LitElement {
           <div class="buttons">
             <ha-button
               .disabled=${!this._groupName ||
-              this._groupName === "" ||
+              this._groupName === '' ||
               this._processingAdd}
               @click=${this._createGroup}
               class="button"
               .loading=${this._processingAdd}
             >
               ${this.hass!.localize(
-                "ui.panel.config.zha.groups.create"
+                'ui.panel.config.zha.groups.create'
               )}</ha-button
             >
           </div>
         </ha-config-section>
       </hass-subpage>
-    `;
+    `
   }
 
   private async _fetchData() {
-    this.deviceEndpoints = await fetchGroupableDevices(this.hass!);
+    this.deviceEndpoints = await fetchGroupableDevices(this.hass!)
   }
 
   private _handleAddSelectionChanged(
     ev: HASSDomEvent<SelectionChangedEvent>
   ): void {
-    this._selectedDevicesToAdd = ev.detail.value;
+    this._selectedDevicesToAdd = ev.detail.value
   }
 
   private async _createGroup(): Promise<void> {
-    this._processingAdd = true;
-    const members = this._selectedDevicesToAdd.map((member) => {
-      const memberParts = member.split("_");
-      return { ieee: memberParts[0], endpoint_id: memberParts[1] };
-    });
+    this._processingAdd = true
+    const members = this._selectedDevicesToAdd.map(member => {
+      const memberParts = member.split('_')
+      return { ieee: memberParts[0], endpoint_id: memberParts[1] }
+    })
     const groupId = this._groupId
       ? parseInt(this._groupId as string, 10)
-      : undefined;
+      : undefined
     const group: ZHAGroup = await addGroup(
       this.hass,
       this._groupName,
       groupId,
       members
-    );
-    this._selectedDevicesToAdd = [];
-    this._processingAdd = false;
-    this._groupName = "";
-    this._zhaDevicesDataTable.clearSelection();
-    navigate(`/config/zha/group/${group.group_id}`, { replace: true });
+    )
+    this._selectedDevicesToAdd = []
+    this._processingAdd = false
+    this._groupName = ''
+    this._zhaDevicesDataTable.clearSelection()
+    navigate(`/config/zha/group/${group.group_id}`, { replace: true })
   }
 
   private _handleGroupIdChange(event) {
-    this._groupId = event.target.value;
+    this._groupId = event.target.value
   }
 
   private _handleNameChange(event) {
-    this._groupName = event.target.value || "";
+    this._groupName = event.target.value || ''
   }
 
   static get styles(): CSSResultGroup {
@@ -182,12 +182,12 @@ export class ZHAAddGroupPage extends LitElement {
           --mdc-theme-primary: var(--error-color);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "zha-add-group-page": ZHAAddGroupPage;
+    'zha-add-group-page': ZHAAddGroupPage
   }
 }

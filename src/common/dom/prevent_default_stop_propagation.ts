@@ -1,4 +1,4 @@
-export const preventDefaultStopPropagation = (ev) => {
-  ev.preventDefault();
-  ev.stopPropagation();
-};
+export const preventDefaultStopPropagation = ev => {
+  ev.preventDefault()
+  ev.stopPropagation()
+}

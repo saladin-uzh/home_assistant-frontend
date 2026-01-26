@@ -1,23 +1,23 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../../components/ha-alert";
-import type { EnergyValidationIssue } from "../../../../data/energy";
-import { documentationUrl } from "../../../../util/documentation-url";
-import type { HomeAssistant } from "../../../../types";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../../components/ha-alert'
+import type { EnergyValidationIssue } from '../../../../data/energy'
+import { documentationUrl } from '../../../../util/documentation-url'
+import type { HomeAssistant } from '../../../../types'
 
-@customElement("ha-energy-validation-result")
+@customElement('ha-energy-validation-result')
 class EnergyValidationMessage extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public issues!: EnergyValidationIssue[];
+  @property({ attribute: false }) public issues!: EnergyValidationIssue[]
 
   public render() {
     if (this.issues.length === 0) {
-      return nothing;
+      return nothing
     }
 
     return this.issues.map(
-      (issue) => html`
+      issue => html`
         <ha-alert
           alert-type="warning"
           .title=${this.hass.localize(
@@ -28,26 +28,26 @@ class EnergyValidationMessage extends LitElement {
             `component.energy.issues.${issue.type}.description`,
             issue.translation_placeholders
           )}
-          ${issue.type === "recorder_untracked"
+          ${issue.type === 'recorder_untracked'
             ? html`(<a
                   href=${documentationUrl(
                     this.hass,
-                    "/integrations/recorder#configure-filter"
+                    '/integrations/recorder#configure-filter'
                   )}
                   target="_blank"
                   rel="noopener noreferrer"
-                  >${this.hass.localize("ui.panel.config.common.learn_more")}</a
+                  >${this.hass.localize('ui.panel.config.common.learn_more')}</a
                 >)`
-            : ""}
+            : ''}
           <ul>
             ${issue.affected_entities.map(
               ([entity, value]) =>
-                html`<li>${entity}${value ? html` (${value})` : ""}</li>`
+                html`<li>${entity}${value ? html` (${value})` : ''}</li>`
             )}
           </ul>
         </ha-alert>
       `
-    );
+    )
   }
 
   static styles = css`
@@ -60,11 +60,11 @@ class EnergyValidationMessage extends LitElement {
     a {
       color: var(--primary-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-energy-validation-result": EnergyValidationMessage;
+    'ha-energy-validation-result': EnergyValidationMessage
   }
 }

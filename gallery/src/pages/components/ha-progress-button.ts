@@ -1,18 +1,18 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators";
-import { applyThemesOnElement } from "../../../../src/common/dom/apply_themes_on_element";
-import "../../../../src/components/buttons/ha-progress-button";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-svg-icon";
-import { mdiHomeAssistant } from "../../../../src/resources/home-assistant-logo-svg";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import { applyThemesOnElement } from '../../../../src/common/dom/apply_themes_on_element'
+import '../../../../src/components/buttons/ha-progress-button'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-svg-icon'
+import { mdiHomeAssistant } from '../../../../src/resources/home-assistant-logo-svg'
 
-@customElement("demo-components-ha-progress-button")
+@customElement('demo-components-ha-progress-button')
 export class DemoHaProgressButton extends LitElement {
   protected render(): TemplateResult {
     return html`
-      ${["light", "dark"].map(
-        (mode) => html`
+      ${['light', 'dark'].map(
+        mode => html`
           <div class=${mode}>
             <ha-card header="ha-progress-button in ${mode}">
               <div class="card-content">
@@ -22,7 +22,10 @@ export class DemoHaProgressButton extends LitElement {
                 <ha-progress-button @click=${this._clickedFail}>
                   Fail
                 </ha-progress-button>
-                <ha-progress-button size="small" @click=${this._clickedSuccess}>
+                <ha-progress-button
+                  size="small"
+                  @click=${this._clickedSuccess}
+                >
                   small
                 </ha-progress-button>
                 <ha-progress-button
@@ -51,10 +54,16 @@ export class DemoHaProgressButton extends LitElement {
                 >
                   With Icon
                 </ha-progress-button>
-                <ha-progress-button progress @click=${this._clickedSuccess}>
+                <ha-progress-button
+                  progress
+                  @click=${this._clickedSuccess}
+                >
                   progress
                 </ha-progress-button>
-                <ha-progress-button disabled @click=${this._clickedSuccess}>
+                <ha-progress-button
+                  disabled
+                  @click=${this._clickedSuccess}
+                >
                   disabled
                 </ha-progress-button>
               </div>
@@ -62,45 +71,45 @@ export class DemoHaProgressButton extends LitElement {
           </div>
         `
       )}
-    `;
+    `
   }
 
   firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
+    super.firstUpdated(changedProps)
     applyThemesOnElement(
-      this.shadowRoot!.querySelector(".dark"),
+      this.shadowRoot!.querySelector('.dark'),
       {
-        default_theme: "default",
-        default_dark_theme: "default",
+        default_theme: 'default',
+        default_dark_theme: 'default',
         themes: {},
         darkMode: true,
-        theme: "default",
+        theme: 'default',
       },
       undefined,
       undefined,
       true
-    );
+    )
   }
 
   private async _clickedSuccess(ev: CustomEvent): Promise<void> {
-    console.log("Clicked success");
-    const button = ev.currentTarget as any;
-    button.progress = true;
+    console.log('Clicked success')
+    const button = ev.currentTarget as any
+    button.progress = true
 
     setTimeout(() => {
-      button.actionSuccess();
-      button.progress = false;
-    }, 1000);
+      button.actionSuccess()
+      button.progress = false
+    }, 1000)
   }
 
   private async _clickedFail(ev: CustomEvent): Promise<void> {
-    const button = ev.currentTarget as any;
-    button.progress = true;
+    const button = ev.currentTarget as any
+    button.progress = true
 
     setTimeout(() => {
-      button.actionError();
-      button.progress = false;
-    }, 1000);
+      button.actionError()
+      button.progress = false
+    }, 1000)
   }
 
   static styles = css`
@@ -129,11 +138,11 @@ export class DemoHaProgressButton extends LitElement {
       display: flex;
       gap: var(--ha-space-2);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-components-ha-progress-button": DemoHaProgressButton;
+    'demo-components-ha-progress-button': DemoHaProgressButton
   }
 }

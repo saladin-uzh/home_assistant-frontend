@@ -1,75 +1,75 @@
-import { mdiClose } from "@mdi/js";
-import type { HassEntity, UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { PropertyValues } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { styleMap } from "lit/directives/style-map";
-import { applyThemesOnElement } from "../../../common/dom/apply_themes_on_element";
-import { fireEvent } from "../../../common/dom/fire_event";
-import { stateColorCss } from "../../../common/entity/state_color";
-import { supportsFeature } from "../../../common/entity/supports-feature";
-import "../../../components/chips/ha-assist-chip";
-import "../../../components/ha-button";
-import "../../../components/ha-card";
-import "../../../components/ha-state-icon";
-import "../../../components/ha-textfield";
-import type { HaTextField } from "../../../components/ha-textfield";
-import type { AlarmMode } from "../../../data/alarm_control_panel";
+import { mdiClose } from '@mdi/js'
+import type { HassEntity, UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { PropertyValues } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { styleMap } from 'lit/directives/style-map'
+import { applyThemesOnElement } from '../../../common/dom/apply_themes_on_element'
+import { fireEvent } from '../../../common/dom/fire_event'
+import { stateColorCss } from '../../../common/entity/state_color'
+import { supportsFeature } from '../../../common/entity/supports-feature'
+import '../../../components/chips/ha-assist-chip'
+import '../../../components/ha-button'
+import '../../../components/ha-card'
+import '../../../components/ha-state-icon'
+import '../../../components/ha-textfield'
+import type { HaTextField } from '../../../components/ha-textfield'
+import type { AlarmMode } from '../../../data/alarm_control_panel'
 import {
   ALARM_MODES,
   FORMAT_NUMBER,
   callAlarmAction,
-} from "../../../data/alarm_control_panel";
-import { UNAVAILABLE } from "../../../data/entity";
-import type { ExtEntityRegistryEntry } from "../../../data/entity_registry";
+} from '../../../data/alarm_control_panel'
+import { UNAVAILABLE } from '../../../data/entity'
+import type { ExtEntityRegistryEntry } from '../../../data/entity_registry'
 import {
   getExtendedEntityRegistryEntry,
   subscribeEntityRegistry,
-} from "../../../data/entity_registry";
-import type { HomeAssistant } from "../../../types";
-import { computeLovelaceEntityName } from "../common/entity/compute-lovelace-entity-name";
-import { findEntities } from "../common/find-entities";
-import { createEntityNotFoundWarning } from "../components/hui-warning";
-import type { LovelaceCard } from "../types";
-import type { AlarmPanelCardConfig, AlarmPanelCardConfigState } from "./types";
+} from '../../../data/entity_registry'
+import type { HomeAssistant } from '../../../types'
+import { computeLovelaceEntityName } from '../common/entity/compute-lovelace-entity-name'
+import { findEntities } from '../common/find-entities'
+import { createEntityNotFoundWarning } from '../components/hui-warning'
+import type { LovelaceCard } from '../types'
+import type { AlarmPanelCardConfig, AlarmPanelCardConfigState } from './types'
 
-const BUTTONS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "clear", "0", ""];
+const BUTTONS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'clear', '0', '']
 
 export const DEFAULT_STATES = [
-  "arm_home",
-  "arm_away",
-] as AlarmPanelCardConfigState[];
+  'arm_home',
+  'arm_away',
+] as AlarmPanelCardConfigState[]
 
 export const ALARM_MODE_STATE_MAP: Record<
   AlarmPanelCardConfigState,
   AlarmMode
 > = {
-  arm_home: "armed_home",
-  arm_away: "armed_away",
-  arm_night: "armed_night",
-  arm_vacation: "armed_vacation",
-  arm_custom_bypass: "armed_custom_bypass",
-};
+  arm_home: 'armed_home',
+  arm_away: 'armed_away',
+  arm_night: 'armed_night',
+  arm_vacation: 'armed_vacation',
+  arm_custom_bypass: 'armed_custom_bypass',
+}
 
 export const filterSupportedAlarmStates = (
   stateObj: HassEntity | undefined,
   states: AlarmPanelCardConfigState[]
 ): AlarmPanelCardConfigState[] =>
   states.filter(
-    (s) =>
+    s =>
       stateObj &&
       supportsFeature(
         stateObj,
         ALARM_MODES[ALARM_MODE_STATE_MAP[s]].feature || 0
       )
-  );
+  )
 
-@customElement("hui-alarm-panel-card")
+@customElement('hui-alarm-panel-card')
 class HuiAlarmPanelCard extends LitElement implements LovelaceCard {
   public static async getConfigElement() {
-    await import("../editor/config-elements/hui-alarm-panel-card-editor");
-    return document.createElement("hui-alarm-panel-card-editor");
+    await import('../editor/config-elements/hui-alarm-panel-card-editor')
+    return document.createElement('hui-alarm-panel-card-editor')
   }
 
   public static getStubConfig(
@@ -77,80 +77,80 @@ class HuiAlarmPanelCard extends LitElement implements LovelaceCard {
     entities: string[],
     entitiesFallback: string[]
   ): AlarmPanelCardConfig {
-    const includeDomains = ["alarm_control_panel"];
-    const maxEntities = 1;
+    const includeDomains = ['alarm_control_panel']
+    const maxEntities = 1
     const foundEntities = findEntities(
       hass,
       maxEntities,
       entities,
       entitiesFallback,
       includeDomains
-    );
+    )
 
-    const entity = foundEntities[0] || "";
-    const stateObj = hass.states[entity];
+    const entity = foundEntities[0] || ''
+    const stateObj = hass.states[entity]
 
     return {
-      type: "alarm-panel",
+      type: 'alarm-panel',
       states: filterSupportedAlarmStates(stateObj, DEFAULT_STATES),
       entity,
-    };
+    }
   }
 
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: AlarmPanelCardConfig;
+  @state() private _config?: AlarmPanelCardConfig
 
-  @state() private _entry?: ExtEntityRegistryEntry | null;
+  @state() private _entry?: ExtEntityRegistryEntry | null
 
-  @state() private _value?: string;
+  @state() private _value?: string
 
-  private _unsubEntityRegistry?: UnsubscribeFunc;
+  private _unsubEntityRegistry?: UnsubscribeFunc
 
   public connectedCallback() {
-    super.connectedCallback();
-    this._subscribeEntityEntry();
+    super.connectedCallback()
+    this._subscribeEntityEntry()
   }
 
   public disconnectedCallback() {
-    super.disconnectedCallback();
-    this._unsubscribeEntityRegistry();
+    super.disconnectedCallback()
+    this._unsubscribeEntityRegistry()
   }
 
   public async getCardSize(): Promise<number> {
     if (!this._config || !this.hass) {
-      return 10;
+      return 10
     }
 
-    const stateObj = this.hass.states[this._config.entity];
+    const stateObj = this.hass.states[this._config.entity]
 
     return !stateObj || stateObj.attributes.code_format !== FORMAT_NUMBER
       ? 4
-      : 10;
+      : 10
   }
 
   public setConfig(config: AlarmPanelCardConfig): void {
     if (
       !config ||
       !config.entity ||
-      config.entity.split(".")[0] !== "alarm_control_panel"
+      config.entity.split('.')[0] !== 'alarm_control_panel'
     ) {
-      throw new Error("Invalid configuration");
+      throw new Error('Invalid configuration')
     }
 
-    this._config = { ...config };
-    this._subscribeEntityEntry();
+    this._config = { ...config }
+    this._subscribeEntityEntry()
   }
 
   protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
+    super.updated(changedProps)
     if (!this._config || !this.hass) {
-      return;
+      return
     }
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
-    const oldConfig = changedProps.get("_config") as
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined
+    const oldConfig = changedProps.get('_config') as
       | AlarmPanelCardConfig
-      | undefined;
+      | undefined
 
     if (
       !oldHass ||
@@ -158,86 +158,84 @@ class HuiAlarmPanelCard extends LitElement implements LovelaceCard {
       oldHass.themes !== this.hass.themes ||
       oldConfig.theme !== this._config.theme
     ) {
-      applyThemesOnElement(this, this.hass.themes, this._config.theme);
+      applyThemesOnElement(this, this.hass.themes, this._config.theme)
     }
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    if (changedProps.has("_config")) {
-      return true;
+    if (changedProps.has('_config')) {
+      return true
     }
 
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined
 
     if (
       !oldHass ||
       oldHass.themes !== this.hass!.themes ||
       oldHass.locale !== this.hass!.locale
     ) {
-      return true;
+      return true
     }
     return (
       oldHass.states[this._config!.entity] !==
       this.hass!.states[this._config!.entity]
-    );
+    )
   }
 
   private async _unsubscribeEntityRegistry() {
     if (this._unsubEntityRegistry) {
-      this._unsubEntityRegistry();
-      this._unsubEntityRegistry = undefined;
+      this._unsubEntityRegistry()
+      this._unsubEntityRegistry = undefined
     }
   }
 
   private async _subscribeEntityEntry() {
     if (!this._config?.entity) {
-      return;
+      return
     }
     try {
       this._unsubEntityRegistry = subscribeEntityRegistry(
         this.hass!.connection,
-        async (entries) => {
-          if (
-            entries.some((entry) => entry.entity_id === this._config!.entity)
-          ) {
+        async entries => {
+          if (entries.some(entry => entry.entity_id === this._config!.entity)) {
             this._entry = await getExtendedEntityRegistryEntry(
               this.hass!,
               this._config!.entity
-            );
+            )
           }
         }
-      );
+      )
     } catch (_e) {
-      this._entry = null;
+      this._entry = null
     }
   }
 
   protected render() {
     if (!this._config || !this.hass) {
-      return nothing;
+      return nothing
     }
-    const stateObj = this.hass.states[this._config.entity];
+    const stateObj = this.hass.states[this._config.entity]
     const states =
       this._config.states ||
-      filterSupportedAlarmStates(stateObj, DEFAULT_STATES);
+      filterSupportedAlarmStates(stateObj, DEFAULT_STATES)
 
     if (!stateObj) {
       return html`
         <hui-warning .hass=${this.hass}>
           ${createEntityNotFoundWarning(this.hass, this._config.entity)}
         </hui-warning>
-      `;
+      `
     }
 
-    const stateLabel = this._stateDisplay(stateObj.state);
+    const stateLabel = this._stateDisplay(stateObj.state)
 
-    const defaultCode = this._entry?.options?.alarm_control_panel?.default_code;
+    const defaultCode = this._entry?.options?.alarm_control_panel?.default_code
 
     const name = computeLovelaceEntityName(
       this.hass,
       stateObj,
       this._config.name
-    );
+    )
 
     return html`
       <ha-card>
@@ -246,7 +244,7 @@ class HuiAlarmPanelCard extends LitElement implements LovelaceCard {
           <ha-assist-chip
             filled
             style=${styleMap({
-              "--alarm-state-color": stateColorCss(stateObj),
+              '--alarm-state-color': stateColorCss(stateObj),
             })}
             class=${classMap({ [stateObj.state]: true })}
             @click=${this._handleMoreInfo}
@@ -259,18 +257,21 @@ class HuiAlarmPanelCard extends LitElement implements LovelaceCard {
             ></ha-state-icon>
           </ha-assist-chip>
         </h1>
-        <div id="armActions" class="actions">
-          ${(stateObj.state === "disarmed"
+        <div
+          id="armActions"
+          class="actions"
+        >
+          ${(stateObj.state === 'disarmed'
             ? states
-            : (["disarm"] as const)
+            : (['disarm'] as const)
           ).map(
-            (stateAction) => html`
+            stateAction => html`
               <ha-button
                 .action=${stateAction}
                 @click=${this._handleActionClick}
                 appearance="filled"
                 size="small"
-                variant=${stateAction === "disarm" ? "danger" : "brand"}
+                variant=${stateAction === 'disarm' ? 'danger' : 'brand'}
               >
                 ${this._actionDisplay(stateAction)}
               </ha-button>
@@ -281,30 +282,30 @@ class HuiAlarmPanelCard extends LitElement implements LovelaceCard {
           ? nothing
           : html`
               <ha-textfield
-                .value=${this._value || ""}
+                .value=${this._value || ''}
                 @input=${this._handleInput}
-                .label=${this.hass.localize("ui.card.alarm_control_panel.code")}
+                .label=${this.hass.localize('ui.card.alarm_control_panel.code')}
                 type="password"
                 .inputMode=${stateObj.attributes.code_format === FORMAT_NUMBER
-                  ? "numeric"
-                  : "text"}
+                  ? 'numeric'
+                  : 'text'}
               ></ha-textfield>
             `}
         ${stateObj.attributes.code_format !== FORMAT_NUMBER || defaultCode
           ? nothing
           : html`
               <div class="keypad">
-                ${BUTTONS.map((value) =>
-                  value === ""
+                ${BUTTONS.map(value =>
+                  value === ''
                     ? html`<span></span>`
-                    : value === "clear"
+                    : value === 'clear'
                       ? html`
                           <ha-control-button
                             @click=${this._handlePadClick}
                             class="clear"
                             .value=${value}
                             .disabled=${!this._value}
-                            .label=${this.hass!.localize("ui.common.clear")}
+                            .label=${this.hass!.localize('ui.common.clear')}
                           >
                             <ha-svg-icon path=${mdiClose}></ha-svg-icon>
                           </ha-control-button>
@@ -322,30 +323,30 @@ class HuiAlarmPanelCard extends LitElement implements LovelaceCard {
               </div>
             `}
       </ha-card>
-    `;
+    `
   }
 
   private _actionDisplay(
-    entityState: NonNullable<AlarmPanelCardConfig["states"]>[number]
+    entityState: NonNullable<AlarmPanelCardConfig['states']>[number]
   ): string {
-    return this.hass!.localize(`ui.card.alarm_control_panel.${entityState}`);
+    return this.hass!.localize(`ui.card.alarm_control_panel.${entityState}`)
   }
 
   private _stateDisplay(entityState: string): string {
     return entityState === UNAVAILABLE
-      ? this.hass!.localize("state.default.unavailable")
+      ? this.hass!.localize('state.default.unavailable')
       : this.hass!.localize(
           `component.alarm_control_panel.entity_component._.state.${entityState}`
-        ) || entityState;
+        ) || entityState
   }
 
   private _handleInput(e: Event): void {
-    this._value = (e.currentTarget as HaTextField).value;
+    this._value = (e.currentTarget as HaTextField).value
   }
 
   private _handlePadClick(e: MouseEvent): void {
-    const val = (e.currentTarget! as any).value;
-    this._value = val === "clear" ? "" : (this._value || "") + val;
+    const val = (e.currentTarget! as any).value
+    this._value = val === 'clear' ? '' : (this._value || '') + val
   }
 
   private _handleActionClick(e: MouseEvent): void {
@@ -354,14 +355,14 @@ class HuiAlarmPanelCard extends LitElement implements LovelaceCard {
       this._config!.entity,
       (e.currentTarget! as any).action,
       this._value || undefined
-    );
-    this._value = undefined;
+    )
+    this._value = undefined
   }
 
   private _handleMoreInfo() {
-    fireEvent(this, "hass-more-info", {
+    fireEvent(this, 'hass-more-info', {
       entityId: this._config!.entity,
-    });
+    })
   }
 
   static styles = css`
@@ -458,11 +459,11 @@ class HuiAlarmPanelCard extends LitElement implements LovelaceCard {
     .actions ha-button {
       margin: 0 4px 4px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-alarm-panel-card": HuiAlarmPanelCard;
+    'hui-alarm-panel-card': HuiAlarmPanelCard
   }
 }

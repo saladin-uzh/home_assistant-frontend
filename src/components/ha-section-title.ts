@@ -1,10 +1,10 @@
-import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators";
+import { css, html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
 
-@customElement("ha-section-title")
+@customElement('ha-section-title')
 class HaSectionTitle extends LitElement {
   protected render() {
-    return html`<slot></slot>`;
+    return html`<slot></slot>`
   }
 
   static styles = css`
@@ -18,11 +18,11 @@ class HaSectionTitle extends LitElement {
       align-items: center;
       box-sizing: border-box;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-section-title": HaSectionTitle;
+    'ha-section-title': HaSectionTitle
   }
 }

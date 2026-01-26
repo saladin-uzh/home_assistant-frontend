@@ -1,85 +1,85 @@
 /* eslint-disable max-classes-per-file */
-import { noChange } from "lit";
-import type { AttributePart, DirectiveParameters } from "lit/directive";
-import { directive, Directive } from "lit/directive";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { deepEqual } from "../../../../common/util/deep-equal";
+import { noChange } from 'lit'
+import type { AttributePart, DirectiveParameters } from 'lit/directive'
+import { directive, Directive } from 'lit/directive'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { deepEqual } from '../../../../common/util/deep-equal'
 import type {
   ActionHandlerDetail,
   ActionHandlerOptions,
-} from "../../../../data/lovelace/action_handler";
-import { isTouch } from "../../../../util/is_touch";
+} from '../../../../data/lovelace/action_handler'
+import { isTouch } from '../../../../util/is_touch'
 
 interface ActionHandlerType extends HTMLElement {
-  holdTime: number;
-  bind(element: Element, options?: ActionHandlerOptions): void;
+  holdTime: number
+  bind(element: Element, options?: ActionHandlerOptions): void
 }
 interface ActionHandlerElement extends HTMLElement {
   actionHandler?: {
-    options: ActionHandlerOptions;
-    start?: (ev: Event) => void;
-    end?: (ev: Event) => void;
-    handleKeyDown?: (ev: KeyboardEvent) => void;
-  };
+    options: ActionHandlerOptions
+    start?: (ev: Event) => void
+    end?: (ev: Event) => void
+    handleKeyDown?: (ev: KeyboardEvent) => void
+  }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "action-handler": ActionHandler;
+    'action-handler': ActionHandler
   }
   interface HASSDomEvents {
-    action: ActionHandlerDetail;
+    action: ActionHandlerDetail
   }
 }
 
 class ActionHandler extends HTMLElement implements ActionHandlerType {
-  public holdTime = 500;
+  public holdTime = 500
 
-  protected timer?: number;
+  protected timer?: number
 
-  protected held = false;
+  protected held = false
 
-  private cancelled = false;
+  private cancelled = false
 
-  private dblClickTimeout?: number;
+  private dblClickTimeout?: number
 
   public connectedCallback() {
     Object.assign(this.style, {
-      position: "fixed",
-      width: isTouch ? "100px" : "50px",
-      height: isTouch ? "100px" : "50px",
-      transform: "translate(-50%, -50%) scale(0)",
-      pointerEvents: "none",
-      zIndex: "999",
-      background: "var(--primary-color)",
+      position: 'fixed',
+      width: isTouch ? '100px' : '50px',
+      height: isTouch ? '100px' : '50px',
+      transform: 'translate(-50%, -50%) scale(0)',
+      pointerEvents: 'none',
+      zIndex: '999',
+      background: 'var(--primary-color)',
       display: null,
-      opacity: "0.2",
-      borderRadius: "50%",
-      transition: "transform 180ms ease-in-out",
-    });
+      opacity: '0.2',
+      borderRadius: '50%',
+      transition: 'transform 180ms ease-in-out',
+    })
 
-    [
-      "touchcancel",
-      "mouseout",
-      "mouseup",
-      "touchmove",
-      "mousewheel",
-      "wheel",
-      "scroll",
-    ].forEach((ev) => {
+    ;[
+      'touchcancel',
+      'mouseout',
+      'mouseup',
+      'touchmove',
+      'mousewheel',
+      'wheel',
+      'scroll',
+    ].forEach(ev => {
       document.addEventListener(
         ev,
         () => {
-          this.cancelled = true;
+          this.cancelled = true
           if (this.timer) {
-            this._stopAnimation();
-            clearTimeout(this.timer);
-            this.timer = undefined;
+            this._stopAnimation()
+            clearTimeout(this.timer)
+            this.timer = undefined
           }
         },
         { passive: true }
-      );
-    });
+      )
+    })
   }
 
   public bind(
@@ -90,175 +90,175 @@ class ActionHandler extends HTMLElement implements ActionHandlerType {
       element.actionHandler &&
       deepEqual(options, element.actionHandler.options)
     ) {
-      return;
+      return
     }
 
     if (element.actionHandler) {
-      element.removeEventListener("touchstart", element.actionHandler.start!);
-      element.removeEventListener("touchend", element.actionHandler.end!);
-      element.removeEventListener("touchcancel", element.actionHandler.end!);
+      element.removeEventListener('touchstart', element.actionHandler.start!)
+      element.removeEventListener('touchend', element.actionHandler.end!)
+      element.removeEventListener('touchcancel', element.actionHandler.end!)
 
-      element.removeEventListener("mousedown", element.actionHandler.start!);
-      element.removeEventListener("click", element.actionHandler.end!);
+      element.removeEventListener('mousedown', element.actionHandler.start!)
+      element.removeEventListener('click', element.actionHandler.end!)
 
       element.removeEventListener(
-        "keydown",
+        'keydown',
         element.actionHandler.handleKeyDown!
-      );
+      )
     } else {
-      element.addEventListener("contextmenu", (ev: Event) => {
-        const e = ev || window.event;
+      element.addEventListener('contextmenu', (ev: Event) => {
+        const e = ev || window.event
         if (e.preventDefault) {
-          e.preventDefault();
+          e.preventDefault()
         }
         if (e.stopPropagation) {
-          e.stopPropagation();
+          e.stopPropagation()
         }
-        e.cancelBubble = true;
-        e.returnValue = false;
-        return false;
-      });
+        e.cancelBubble = true
+        e.returnValue = false
+        return false
+      })
     }
 
-    element.actionHandler = { options };
+    element.actionHandler = { options }
 
     if (options.disabled) {
-      return;
+      return
     }
 
     element.actionHandler.start = (ev: Event) => {
-      this.cancelled = false;
-      let x;
-      let y;
+      this.cancelled = false
+      let x
+      let y
       if ((ev as TouchEvent).touches) {
-        x = (ev as TouchEvent).touches[0].clientX;
-        y = (ev as TouchEvent).touches[0].clientY;
+        x = (ev as TouchEvent).touches[0].clientX
+        y = (ev as TouchEvent).touches[0].clientY
       } else {
-        x = (ev as MouseEvent).clientX;
-        y = (ev as MouseEvent).clientY;
+        x = (ev as MouseEvent).clientX
+        y = (ev as MouseEvent).clientY
       }
 
       if (options.hasHold) {
-        this.held = false;
+        this.held = false
         this.timer = window.setTimeout(() => {
-          this._startAnimation(x, y);
-          this.held = true;
-        }, this.holdTime);
+          this._startAnimation(x, y)
+          this.held = true
+        }, this.holdTime)
       }
-    };
+    }
 
     element.actionHandler.end = (ev: Event) => {
       // Don't respond when moved or scrolled while touch
       if (
-        ev.type === "touchcancel" ||
-        (ev.type === "touchend" && this.cancelled)
+        ev.type === 'touchcancel' ||
+        (ev.type === 'touchend' && this.cancelled)
       ) {
-        return;
+        return
       }
-      const target = ev.target as HTMLElement;
+      const target = ev.target as HTMLElement
       // Prevent mouse event if touch event
       if (ev.cancelable) {
-        ev.preventDefault();
+        ev.preventDefault()
       }
       if (options.hasHold) {
-        clearTimeout(this.timer);
-        this._stopAnimation();
-        this.timer = undefined;
+        clearTimeout(this.timer)
+        this._stopAnimation()
+        this.timer = undefined
       }
       if (options.hasHold && this.held) {
-        fireEvent(target, "action", { action: "hold" });
+        fireEvent(target, 'action', { action: 'hold' })
       } else if (options.hasDoubleClick) {
         if (
-          (ev.type === "click" && (ev as MouseEvent).detail < 2) ||
+          (ev.type === 'click' && (ev as MouseEvent).detail < 2) ||
           !this.dblClickTimeout
         ) {
           this.dblClickTimeout = window.setTimeout(() => {
-            this.dblClickTimeout = undefined;
+            this.dblClickTimeout = undefined
             if (options.hasTap !== false) {
-              fireEvent(target, "action", { action: "tap" });
+              fireEvent(target, 'action', { action: 'tap' })
             }
-          }, 250);
+          }, 250)
         } else {
-          clearTimeout(this.dblClickTimeout);
-          this.dblClickTimeout = undefined;
-          fireEvent(target, "action", { action: "double_tap" });
+          clearTimeout(this.dblClickTimeout)
+          this.dblClickTimeout = undefined
+          fireEvent(target, 'action', { action: 'double_tap' })
         }
       } else if (options.hasTap !== false) {
-        fireEvent(target, "action", { action: "tap" });
+        fireEvent(target, 'action', { action: 'tap' })
       }
-    };
+    }
 
     element.actionHandler.handleKeyDown = (ev: KeyboardEvent) => {
-      if (!["Enter", " "].includes(ev.key)) {
-        return;
+      if (!['Enter', ' '].includes(ev.key)) {
+        return
       }
-      (ev.currentTarget as ActionHandlerElement).actionHandler!.end!(ev);
-    };
+      ;(ev.currentTarget as ActionHandlerElement).actionHandler!.end!(ev)
+    }
 
-    element.addEventListener("touchstart", element.actionHandler.start, {
+    element.addEventListener('touchstart', element.actionHandler.start, {
       passive: true,
-    });
-    element.addEventListener("touchend", element.actionHandler.end);
-    element.addEventListener("touchcancel", element.actionHandler.end);
+    })
+    element.addEventListener('touchend', element.actionHandler.end)
+    element.addEventListener('touchcancel', element.actionHandler.end)
 
-    element.addEventListener("mousedown", element.actionHandler.start, {
+    element.addEventListener('mousedown', element.actionHandler.start, {
       passive: true,
-    });
-    element.addEventListener("click", element.actionHandler.end);
+    })
+    element.addEventListener('click', element.actionHandler.end)
 
-    element.addEventListener("keydown", element.actionHandler.handleKeyDown);
+    element.addEventListener('keydown', element.actionHandler.handleKeyDown)
   }
 
   private _startAnimation(x: number, y: number) {
     Object.assign(this.style, {
       left: `${x}px`,
       top: `${y}px`,
-      transform: "translate(-50%, -50%) scale(1)",
-    });
+      transform: 'translate(-50%, -50%) scale(1)',
+    })
   }
 
   private _stopAnimation() {
     Object.assign(this.style, {
       left: null,
       top: null,
-      transform: "translate(-50%, -50%) scale(0)",
-    });
+      transform: 'translate(-50%, -50%) scale(0)',
+    })
   }
 }
 
-customElements.define("action-handler", ActionHandler);
+customElements.define('action-handler', ActionHandler)
 
 const getActionHandler = (): ActionHandlerType => {
-  const body = document.body;
-  if (body.querySelector("action-handler")) {
-    return body.querySelector("action-handler") as ActionHandlerType;
+  const body = document.body
+  if (body.querySelector('action-handler')) {
+    return body.querySelector('action-handler') as ActionHandlerType
   }
 
-  const actionhandler = document.createElement("action-handler");
-  body.appendChild(actionhandler);
+  const actionhandler = document.createElement('action-handler')
+  body.appendChild(actionhandler)
 
-  return actionhandler as ActionHandlerType;
-};
+  return actionhandler as ActionHandlerType
+}
 
 export const actionHandlerBind = (
   element: ActionHandlerElement,
   options?: ActionHandlerOptions
 ) => {
-  const actionhandler: ActionHandlerType = getActionHandler();
+  const actionhandler: ActionHandlerType = getActionHandler()
   if (!actionhandler) {
-    return;
+    return
   }
-  actionhandler.bind(element, options);
-};
+  actionhandler.bind(element, options)
+}
 
 export const actionHandler = directive(
   class extends Directive {
     update(part: AttributePart, [options]: DirectiveParameters<this>) {
-      actionHandlerBind(part.element as ActionHandlerElement, options);
-      return noChange;
+      actionHandlerBind(part.element as ActionHandlerElement, options)
+      return noChange
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     render(_options?: ActionHandlerOptions) {}
   }
-);
+)

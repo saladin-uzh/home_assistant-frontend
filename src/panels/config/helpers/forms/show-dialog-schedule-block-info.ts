@@ -1,27 +1,27 @@
-import { fireEvent } from "../../../../common/dom/fire_event";
+import { fireEvent } from '../../../../common/dom/fire_event'
 
 export interface ScheduleBlockInfo {
-  from: string;
-  to: string;
-  data?: Record<string, any>;
+  from: string
+  to: string
+  data?: Record<string, any>
 }
 
 export interface ScheduleBlockInfoDialogParams {
-  block: ScheduleBlockInfo;
-  updateBlock?: (update: ScheduleBlockInfo) => void;
-  deleteBlock?: () => void;
+  block: ScheduleBlockInfo
+  updateBlock?: (update: ScheduleBlockInfo) => void
+  deleteBlock?: () => void
 }
 
 export const loadScheduleBlockInfoDialog = () =>
-  import("./dialog-schedule-block-info");
+  import('./dialog-schedule-block-info')
 
 export const showScheduleBlockInfoDialog = (
   element: HTMLElement,
   params: ScheduleBlockInfoDialogParams
 ): void => {
-  fireEvent(element, "show-dialog", {
-    dialogTag: "dialog-schedule-block-info",
+  fireEvent(element, 'show-dialog', {
+    dialogTag: 'dialog-schedule-block-info',
     dialogImport: loadScheduleBlockInfoDialog,
     dialogParams: params,
-  });
-};
+  })
+}

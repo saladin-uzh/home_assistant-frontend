@@ -1,158 +1,158 @@
-import { mdiPower } from "@mdi/js";
-import type { SeriesOption } from "echarts/types/dist/shared";
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { isComponentLoaded } from "../../../common/config/is_component_loaded";
-import { round } from "../../../common/number/round";
-import { blankBeforePercent } from "../../../common/translations/blank_before_percent";
-import "../../../components/chart/ha-chart-base";
-import "../../../components/ha-alert";
-import "../../../components/ha-button";
-import "../../../components/ha-card";
-import "../../../components/ha-icon-button";
-import "../../../components/ha-icon-next";
-import "../../../components/ha-md-list-item";
-import "../../../components/ha-settings-row";
-import type { ConfigEntry } from "../../../data/config_entries";
-import { subscribeConfigEntries } from "../../../data/config_entries";
+import { mdiPower } from '@mdi/js'
+import type { SeriesOption } from 'echarts/types/dist/shared'
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { isComponentLoaded } from '../../../common/config/is_component_loaded'
+import { round } from '../../../common/number/round'
+import { blankBeforePercent } from '../../../common/translations/blank_before_percent'
+import '../../../components/chart/ha-chart-base'
+import '../../../components/ha-alert'
+import '../../../components/ha-button'
+import '../../../components/ha-card'
+import '../../../components/ha-icon-button'
+import '../../../components/ha-icon-next'
+import '../../../components/ha-md-list-item'
+import '../../../components/ha-settings-row'
+import type { ConfigEntry } from '../../../data/config_entries'
+import { subscribeConfigEntries } from '../../../data/config_entries'
 import type {
   HardwareInfo,
   SystemStatusStreamMessage,
-} from "../../../data/hardware";
-import { BOARD_NAMES } from "../../../data/hardware";
-import { extractApiErrorMessage } from "../../../data/hassio/common";
-import type { HassioHassOSInfo } from "../../../data/hassio/host";
-import { fetchHassioHassOsInfo } from "../../../data/hassio/host";
-import { scanUSBDevices } from "../../../data/usb";
-import { showOptionsFlowDialog } from "../../../dialogs/config-flow/show-dialog-options-flow";
-import { showRestartDialog } from "../../../dialogs/restart/show-dialog-restart";
-import "../../../layouts/hass-subpage";
-import { SubscribeMixin } from "../../../mixins/subscribe-mixin";
-import type { ECOption } from "../../../resources/echarts/echarts";
-import { haStyle } from "../../../resources/styles";
-import { DefaultPrimaryColor } from "../../../resources/theme/color/color.globals";
-import type { HomeAssistant } from "../../../types";
-import { hardwareBrandsUrl } from "../../../util/brands-url";
-import { showhardwareAvailableDialog } from "./show-dialog-hardware-available";
+} from '../../../data/hardware'
+import { BOARD_NAMES } from '../../../data/hardware'
+import { extractApiErrorMessage } from '../../../data/hassio/common'
+import type { HassioHassOSInfo } from '../../../data/hassio/host'
+import { fetchHassioHassOsInfo } from '../../../data/hassio/host'
+import { scanUSBDevices } from '../../../data/usb'
+import { showOptionsFlowDialog } from '../../../dialogs/config-flow/show-dialog-options-flow'
+import { showRestartDialog } from '../../../dialogs/restart/show-dialog-restart'
+import '../../../layouts/hass-subpage'
+import { SubscribeMixin } from '../../../mixins/subscribe-mixin'
+import type { ECOption } from '../../../resources/echarts/echarts'
+import { haStyle } from '../../../resources/styles'
+import { DefaultPrimaryColor } from '../../../resources/theme/color/color.globals'
+import type { HomeAssistant } from '../../../types'
+import { hardwareBrandsUrl } from '../../../util/brands-url'
+import { showhardwareAvailableDialog } from './show-dialog-hardware-available'
 
-const DATASAMPLES = 60;
+const DATASAMPLES = 60
 
 const DATA_SET_CONFIG: SeriesOption = {
-  type: "line",
+  type: 'line',
   color: DefaultPrimaryColor,
   areaStyle: {
-    color: DefaultPrimaryColor + "2B",
+    color: DefaultPrimaryColor + '2B',
   },
   symbolSize: 0,
   lineStyle: {
     width: 1,
   },
   smooth: 0.25,
-};
+}
 
-@customElement("ha-config-hardware")
+@customElement('ha-config-hardware')
 class HaConfigHardware extends SubscribeMixin(LitElement) {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
-  @state() private _OSData?: HassioHassOSInfo;
+  @state() private _OSData?: HassioHassOSInfo
 
-  @state() private _hardwareInfo?: HardwareInfo;
+  @state() private _hardwareInfo?: HardwareInfo
 
-  @state() private _chartOptions?: ECOption;
+  @state() private _chartOptions?: ECOption
 
-  @state() private _systemStatusData?: SystemStatusStreamMessage;
+  @state() private _systemStatusData?: SystemStatusStreamMessage
 
-  @state() private _configEntries?: Record<string, ConfigEntry>;
+  @state() private _configEntries?: Record<string, ConfigEntry>
 
-  private _memoryEntries: [number, number | null][] = [];
+  private _memoryEntries: [number, number | null][] = []
 
-  private _cpuEntries: [number, number | null][] = [];
+  private _cpuEntries: [number, number | null][] = []
 
   public hassSubscribe(): (UnsubscribeFunc | Promise<UnsubscribeFunc>)[] {
     const subs = [
       subscribeConfigEntries(
         this.hass,
-        (messages) => {
-          let fullUpdate = false;
-          const newEntries: ConfigEntry[] = [];
-          messages.forEach((message) => {
-            if (message.type === null || message.type === "added") {
-              newEntries.push(message.entry);
+        messages => {
+          let fullUpdate = false
+          const newEntries: ConfigEntry[] = []
+          messages.forEach(message => {
+            if (message.type === null || message.type === 'added') {
+              newEntries.push(message.entry)
               if (message.type === null) {
-                fullUpdate = true;
+                fullUpdate = true
               }
-            } else if (message.type === "removed") {
+            } else if (message.type === 'removed') {
               if (this._configEntries) {
-                delete this._configEntries[message.entry.entry_id];
+                delete this._configEntries[message.entry.entry_id]
               }
-            } else if (message.type === "updated") {
+            } else if (message.type === 'updated') {
               if (this._configEntries) {
-                const newEntry = message.entry;
-                this._configEntries[message.entry.entry_id] = newEntry;
+                const newEntry = message.entry
+                this._configEntries[message.entry.entry_id] = newEntry
               }
             }
-          });
+          })
           if (!newEntries.length && !fullUpdate) {
-            return;
+            return
           }
           const entries = [
             ...(fullUpdate ? [] : Object.values(this._configEntries || {})),
             ...newEntries,
-          ];
-          const configEntries: Record<string, ConfigEntry> = {};
+          ]
+          const configEntries: Record<string, ConfigEntry> = {}
           for (const entry of entries) {
-            configEntries[entry.entry_id] = entry;
+            configEntries[entry.entry_id] = entry
           }
-          this._configEntries = configEntries;
+          this._configEntries = configEntries
         },
-        { type: ["hardware"] }
+        { type: ['hardware'] }
       ),
-    ];
+    ]
 
-    if (isComponentLoaded(this.hass, "hardware")) {
+    if (isComponentLoaded(this.hass, 'hardware')) {
       subs.push(
         this.hass.connection.subscribeMessage<SystemStatusStreamMessage>(
-          (message) => {
+          message => {
             // Only store the last 60 entries
-            this._memoryEntries.shift();
-            this._cpuEntries.shift();
+            this._memoryEntries.shift()
+            this._cpuEntries.shift()
 
             this._memoryEntries.push([
               new Date(message.timestamp).getTime(),
               message.memory_used_percent,
-            ]);
+            ])
             this._cpuEntries.push([
               new Date(message.timestamp).getTime(),
               message.cpu_percent,
-            ]);
+            ])
 
-            this._systemStatusData = message;
+            this._systemStatusData = message
           },
           {
-            type: "hardware/subscribe_system_status",
+            type: 'hardware/subscribe_system_status',
           }
         )
-      );
+      )
     }
 
-    return subs;
+    return subs
   }
 
   protected willUpdate(): void {
     if (!this.hasUpdated && !this._chartOptions) {
       this._chartOptions = {
         xAxis: {
-          type: "time",
+          type: 'time',
         },
         yAxis: {
-          type: "value",
+          type: 'value',
           min: 0,
           max: 100,
           splitLine: {
@@ -160,7 +160,7 @@ class HaConfigHardware extends SubscribeMixin(LitElement) {
           },
           axisLabel: {
             formatter: (value: number) =>
-              value + blankBeforePercent(this.hass.locale) + "%",
+              value + blankBeforePercent(this.hass.locale) + '%',
           },
           axisLine: {
             show: false,
@@ -175,68 +175,66 @@ class HaConfigHardware extends SubscribeMixin(LitElement) {
           containLabel: true,
         },
         tooltip: {
-          trigger: "axis",
-          valueFormatter: (value) =>
-            value + blankBeforePercent(this.hass.locale) + "%",
+          trigger: 'axis',
+          valueFormatter: value =>
+            value + blankBeforePercent(this.hass.locale) + '%',
         },
-      };
+      }
     }
   }
 
   protected firstUpdated(changedProps: PropertyValues) {
-    super.firstUpdated(changedProps);
-    this._load();
+    super.firstUpdated(changedProps)
+    this._load()
 
-    const date = new Date();
+    const date = new Date()
     // Force graph to start drawing from the right
     for (let i = 0; i < DATASAMPLES; i++) {
-      const t = new Date(date);
-      t.setSeconds(t.getSeconds() - 5 * (DATASAMPLES - i));
-      this._memoryEntries.push([t.getTime(), null]);
-      this._cpuEntries.push([t.getTime(), null]);
+      const t = new Date(date)
+      t.setSeconds(t.getSeconds() - 5 * (DATASAMPLES - i))
+      this._memoryEntries.push([t.getTime(), null])
+      this._cpuEntries.push([t.getTime(), null])
     }
   }
 
   protected render() {
-    let boardId: string | undefined;
-    let boardName: string | undefined;
-    let imageURL: string | undefined;
-    let documentationURL: string | undefined;
-    let boardConfigEntries: ConfigEntry[] = [];
+    let boardId: string | undefined
+    let boardName: string | undefined
+    let imageURL: string | undefined
+    let documentationURL: string | undefined
+    let boardConfigEntries: ConfigEntry[] = []
 
-    const boardData = this._hardwareInfo?.hardware.find(
-      (hw) => hw.board !== null
-    );
+    const boardData = this._hardwareInfo?.hardware.find(hw => hw.board !== null)
 
     const dongles = this._hardwareInfo?.hardware.filter(
-      (hw) =>
+      hw =>
         hw.dongle !== null &&
         (!hw.config_entries.length ||
           hw.config_entries.some(
-            (entryId) =>
+            entryId =>
               this._configEntries?.[entryId] &&
               !this._configEntries[entryId].disabled_by
           ))
-    );
+    )
 
     if (boardData) {
       boardConfigEntries = boardData.config_entries
-        .map((id) => this._configEntries?.[id])
+        .map(id => this._configEntries?.[id])
         .filter(
-          (entry) => entry?.supports_options && !entry.disabled_by
-        ) as ConfigEntry[];
-      boardId = boardData.board!.hassio_board_id;
-      boardName = boardData.name;
-      documentationURL = boardData.url;
+          entry => entry?.supports_options && !entry.disabled_by
+        ) as ConfigEntry[]
+      boardId = boardData.board!.hassio_board_id
+      boardName = boardData.name
+      documentationURL = boardData.url
       imageURL = hardwareBrandsUrl({
-        category: "boards",
+        category: 'boards',
         manufacturer: boardData.board!.manufacturer,
         model: boardData.board!.model,
         darkOptimized: this.hass.themes?.darkMode,
-      });
+      })
     } else if (this._OSData?.board) {
-      boardId = this._OSData.board;
-      boardName = BOARD_NAMES[this._OSData.board];
+      boardId = this._OSData.board
+      boardName = BOARD_NAMES[this._OSData.board]
     }
 
     return html`
@@ -244,15 +242,15 @@ class HaConfigHardware extends SubscribeMixin(LitElement) {
         back-path="/config/system"
         .hass=${this.hass}
         .narrow=${this.narrow}
-        .header=${this.hass.localize("ui.panel.config.hardware.caption")}
+        .header=${this.hass.localize('ui.panel.config.hardware.caption')}
       >
-        ${isComponentLoaded(this.hass, "hassio")
+        ${isComponentLoaded(this.hass, 'hassio')
           ? html`
               <ha-icon-button
                 slot="toolbar-icon"
                 .path=${mdiPower}
                 .label=${this.hass.localize(
-                  "ui.panel.config.hardware.restart_homeassistant"
+                  'ui.panel.config.hardware.restart_homeassistant'
                 )}
                 @click=${this._showRestartDialog}
               ></ha-icon-button>
@@ -262,7 +260,7 @@ class HaConfigHardware extends SubscribeMixin(LitElement) {
           ? html`<ha-alert alert-type="error">${this._error}</ha-alert>`
           : nothing}
         <div class="content">
-          ${boardName || isComponentLoaded(this.hass, "hassio")
+          ${boardName || isComponentLoaded(this.hass, 'hassio')
             ? html`
                 <ha-card outlined>
                   <div class="card-content">
@@ -278,7 +276,7 @@ class HaConfigHardware extends SubscribeMixin(LitElement) {
                       <p class="primary-text">
                         ${boardName ||
                         this.hass.localize(
-                          "ui.panel.config.hardware.generic_hardware"
+                          'ui.panel.config.hardware.generic_hardware'
                         )}
                       </p>
                       ${boardId
@@ -296,12 +294,12 @@ class HaConfigHardware extends SubscribeMixin(LitElement) {
                         >
                           <span
                             >${this.hass.localize(
-                              "ui.panel.config.hardware.documentation"
+                              'ui.panel.config.hardware.documentation'
                             )}</span
                           >
                           <span slot="supporting-text"
                             >${this.hass.localize(
-                              "ui.panel.config.hardware.documentation_description"
+                              'ui.panel.config.hardware.documentation_description'
                             )}</span
                           >
                           <ha-icon-next slot="end"></ha-icon-next>
@@ -309,7 +307,7 @@ class HaConfigHardware extends SubscribeMixin(LitElement) {
                       `
                     : nothing}
                   ${boardConfigEntries.length ||
-                  isComponentLoaded(this.hass, "hassio")
+                  isComponentLoaded(this.hass, 'hassio')
                     ? html`<div class="card-actions">
                         ${boardConfigEntries.length
                           ? html`
@@ -319,19 +317,19 @@ class HaConfigHardware extends SubscribeMixin(LitElement) {
                                 appearance="plain"
                               >
                                 ${this.hass.localize(
-                                  "ui.panel.config.hardware.configure"
+                                  'ui.panel.config.hardware.configure'
                                 )}
                               </ha-button>
                             `
                           : nothing}
-                        ${isComponentLoaded(this.hass, "hassio")
+                        ${isComponentLoaded(this.hass, 'hassio')
                           ? html`
                               <ha-button
                                 @click=${this._openHardware}
                                 appearance="plain"
                               >
                                 ${this.hass.localize(
-                                  "ui.panel.config.hardware.available_hardware.title"
+                                  'ui.panel.config.hardware.available_hardware.title'
                                 )}
                               </ha-button>
                             `
@@ -343,12 +341,12 @@ class HaConfigHardware extends SubscribeMixin(LitElement) {
             : nothing}
           ${dongles?.length
             ? html`<ha-card outlined>
-                ${dongles.map((dongle) => {
+                ${dongles.map(dongle => {
                   const configEntry = dongle.config_entries
-                    .map((id) => this._configEntries?.[id])
+                    .map(id => this._configEntries?.[id])
                     .filter(
-                      (entry) => entry?.supports_options && !entry.disabled_by
-                    )[0];
+                      entry => entry?.supports_options && !entry.disabled_by
+                    )[0]
                   return html`<div class="row">
                     ${dongle.name}${configEntry
                       ? html`<ha-button
@@ -357,11 +355,11 @@ class HaConfigHardware extends SubscribeMixin(LitElement) {
                           appearance="filled"
                         >
                           ${this.hass.localize(
-                            "ui.panel.config.hardware.configure"
+                            'ui.panel.config.hardware.configure'
                           )}
                         </ha-button>`
                       : nothing}
-                  </div>`;
+                  </div>`
                 })}
               </ha-card>`
             : nothing}
@@ -370,12 +368,12 @@ class HaConfigHardware extends SubscribeMixin(LitElement) {
                   <div class="header">
                     <div class="title">
                       ${this.hass.localize(
-                        "ui.panel.config.hardware.processor"
+                        'ui.panel.config.hardware.processor'
                       )}
                     </div>
                     <div class="value">
                       ${this._systemStatusData.cpu_percent ||
-                      "-"}${blankBeforePercent(this.hass.locale)}%
+                      '-'}${blankBeforePercent(this.hass.locale)}%
                     </div>
                   </div>
                   <div class="card-content">
@@ -389,7 +387,7 @@ class HaConfigHardware extends SubscribeMixin(LitElement) {
                 <ha-card outlined>
                   <div class="header">
                     <div class="title">
-                      ${this.hass.localize("ui.panel.config.hardware.memory")}
+                      ${this.hass.localize('ui.panel.config.hardware.memory')}
                     </div>
                     <div class="value">
                       ${round(this._systemStatusData.memory_used_mb / 1024, 1)}
@@ -411,13 +409,13 @@ class HaConfigHardware extends SubscribeMixin(LitElement) {
                     ></ha-chart-base>
                   </div>
                 </ha-card>`
-            : isComponentLoaded(this.hass, "hardware")
+            : isComponentLoaded(this.hass, 'hardware')
               ? html`<ha-card outlined>
                   <div class="card-content">
                     <ha-alert alert-type="info">
                       <ha-spinner slot="icon"></ha-spinner>
                       ${this.hass.localize(
-                        "ui.panel.config.hardware.loading_system_data"
+                        'ui.panel.config.hardware.loading_system_data'
                       )}
                     </ha-alert>
                   </div>
@@ -425,57 +423,57 @@ class HaConfigHardware extends SubscribeMixin(LitElement) {
               : nothing}
         </div>
       </hass-subpage>
-    `;
+    `
   }
 
   private async _load() {
-    if (isComponentLoaded(this.hass, "usb")) {
-      await scanUSBDevices(this.hass);
+    if (isComponentLoaded(this.hass, 'usb')) {
+      await scanUSBDevices(this.hass)
     }
 
-    const isHassioLoaded = isComponentLoaded(this.hass, "hassio");
+    const isHassioLoaded = isComponentLoaded(this.hass, 'hassio')
     try {
-      if (isComponentLoaded(this.hass, "hardware")) {
-        this._hardwareInfo = await this.hass.callWS({ type: "hardware/info" });
+      if (isComponentLoaded(this.hass, 'hardware')) {
+        this._hardwareInfo = await this.hass.callWS({ type: 'hardware/info' })
       }
 
       if (isHassioLoaded && !this._hardwareInfo?.hardware.length) {
-        this._OSData = await fetchHassioHassOsInfo(this.hass);
+        this._OSData = await fetchHassioHassOsInfo(this.hass)
       }
     } catch (err: any) {
-      this._error = extractApiErrorMessage(err);
+      this._error = extractApiErrorMessage(err)
     }
   }
 
   private async _openOptionsFlow(ev) {
-    const entry = ev.currentTarget.entry;
+    const entry = ev.currentTarget.entry
     if (!entry) {
-      return;
+      return
     }
-    showOptionsFlowDialog(this, entry);
+    showOptionsFlowDialog(this, entry)
   }
 
   private async _openHardware() {
-    showhardwareAvailableDialog(this);
+    showhardwareAvailableDialog(this)
   }
 
   private async _showRestartDialog() {
-    showRestartDialog(this);
+    showRestartDialog(this)
   }
 
   private _getChartData = memoizeOne(
     (entries: [number, number | null][]): SeriesOption[] => [
       {
         ...DATA_SET_CONFIG,
-        id: entries === this._cpuEntries ? "cpu" : "memory",
+        id: entries === this._cpuEntries ? 'cpu' : 'memory',
         name:
           entries === this._cpuEntries
-            ? this.hass.localize("ui.panel.config.hardware.processor")
-            : this.hass.localize("ui.panel.config.hardware.memory"),
+            ? this.hass.localize('ui.panel.config.hardware.processor')
+            : this.hass.localize('ui.panel.config.hardware.memory'),
         data: entries,
       } as SeriesOption,
     ]
-  );
+  )
 
   static styles = [
     haStyle,
@@ -553,11 +551,11 @@ class HaConfigHardware extends SubscribeMixin(LitElement) {
         --ha-spinner-size: 24px;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-config-hardware": HaConfigHardware;
+    'ha-config-hardware': HaConfigHardware
   }
 }

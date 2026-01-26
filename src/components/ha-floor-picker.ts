@@ -1,151 +1,157 @@
-import { mdiPlus, mdiTextureBox } from "@mdi/js";
-import type { ComboBoxLitRenderer } from "@vaadin/combo-box/lit";
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { TemplateResult } from "lit";
-import { LitElement, html } from "lit";
-import { customElement, property, query } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../common/dom/fire_event";
-import { computeDomain } from "../common/entity/compute_domain";
-import { computeFloorName } from "../common/entity/compute_floor_name";
-import { updateAreaRegistryEntry } from "../data/area_registry";
+import { mdiPlus, mdiTextureBox } from '@mdi/js'
+import type { ComboBoxLitRenderer } from '@vaadin/combo-box/lit'
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { TemplateResult } from 'lit'
+import { LitElement, html } from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../common/dom/fire_event'
+import { computeDomain } from '../common/entity/compute_domain'
+import { computeFloorName } from '../common/entity/compute_floor_name'
+import { updateAreaRegistryEntry } from '../data/area_registry'
 import type {
   DeviceEntityDisplayLookup,
   DeviceRegistryEntry,
-} from "../data/device_registry";
-import { getDeviceEntityDisplayLookup } from "../data/device_registry";
-import type { EntityRegistryDisplayEntry } from "../data/entity_registry";
+} from '../data/device_registry'
+import { getDeviceEntityDisplayLookup } from '../data/device_registry'
+import type { EntityRegistryDisplayEntry } from '../data/entity_registry'
 import {
   createFloorRegistryEntry,
   getFloorAreaLookup,
   type FloorRegistryEntry,
-} from "../data/floor_registry";
-import { showAlertDialog } from "../dialogs/generic/show-dialog-box";
-import { showFloorRegistryDetailDialog } from "../panels/config/areas/show-dialog-floor-registry-detail";
-import type { HomeAssistant, ValueChangedEvent } from "../types";
-import type { HaDevicePickerDeviceFilterFunc } from "./device/ha-device-picker";
-import "./ha-combo-box-item";
-import "./ha-floor-icon";
-import "./ha-generic-picker";
-import type { HaGenericPicker } from "./ha-generic-picker";
-import "./ha-icon-button";
-import type { PickerComboBoxItem } from "./ha-picker-combo-box";
-import type { PickerValueRenderer } from "./ha-picker-field";
-import "./ha-svg-icon";
+} from '../data/floor_registry'
+import { showAlertDialog } from '../dialogs/generic/show-dialog-box'
+import { showFloorRegistryDetailDialog } from '../panels/config/areas/show-dialog-floor-registry-detail'
+import type { HomeAssistant, ValueChangedEvent } from '../types'
+import type { HaDevicePickerDeviceFilterFunc } from './device/ha-device-picker'
+import './ha-combo-box-item'
+import './ha-floor-icon'
+import './ha-generic-picker'
+import type { HaGenericPicker } from './ha-generic-picker'
+import './ha-icon-button'
+import type { PickerComboBoxItem } from './ha-picker-combo-box'
+import type { PickerValueRenderer } from './ha-picker-field'
+import './ha-svg-icon'
 
-const ADD_NEW_ID = "___ADD_NEW___";
+const ADD_NEW_ID = '___ADD_NEW___'
 
 interface FloorComboBoxItem extends PickerComboBoxItem {
-  floor?: FloorRegistryEntry;
+  floor?: FloorRegistryEntry
 }
 
-@customElement("ha-floor-picker")
+@customElement('ha-floor-picker')
 export class HaFloorPicker extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public value?: string;
+  @property() public value?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property() public placeholder?: string;
+  @property() public placeholder?: string
 
-  @property({ type: Boolean, attribute: "no-add" })
-  public noAdd = false;
+  @property({ type: Boolean, attribute: 'no-add' })
+  public noAdd = false
 
   /**
    * Show only floors with entities from specific domains.
    * @type {Array}
    * @attr include-domains
    */
-  @property({ type: Array, attribute: "include-domains" })
-  public includeDomains?: string[];
+  @property({ type: Array, attribute: 'include-domains' })
+  public includeDomains?: string[]
 
   /**
    * Show no floors with entities of these domains.
    * @type {Array}
    * @attr exclude-domains
    */
-  @property({ type: Array, attribute: "exclude-domains" })
-  public excludeDomains?: string[];
+  @property({ type: Array, attribute: 'exclude-domains' })
+  public excludeDomains?: string[]
 
   /**
    * Show only floors with entities of these device classes.
    * @type {Array}
    * @attr include-device-classes
    */
-  @property({ type: Array, attribute: "include-device-classes" })
-  public includeDeviceClasses?: string[];
+  @property({ type: Array, attribute: 'include-device-classes' })
+  public includeDeviceClasses?: string[]
 
   /**
    * List of floors to be excluded.
    * @type {Array}
    * @attr exclude-floors
    */
-  @property({ type: Array, attribute: "exclude-floors" })
-  public excludeFloors?: string[];
+  @property({ type: Array, attribute: 'exclude-floors' })
+  public excludeFloors?: string[]
 
   @property({ attribute: false })
-  public deviceFilter?: HaDevicePickerDeviceFilterFunc;
+  public deviceFilter?: HaDevicePickerDeviceFilterFunc
 
   @property({ attribute: false })
-  public entityFilter?: (entity: HassEntity) => boolean;
+  public entityFilter?: (entity: HassEntity) => boolean
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = false;
+  @property({ type: Boolean }) public required = false
 
-  @query("ha-generic-picker") private _picker?: HaGenericPicker;
+  @query('ha-generic-picker') private _picker?: HaGenericPicker
 
   public async open() {
-    await this.updateComplete;
-    await this._picker?.open();
+    await this.updateComplete
+    await this._picker?.open()
   }
 
   // Recompute value renderer when the areas change
   private _computeValueRenderer = memoizeOne(
-    (_haAreas: HomeAssistant["floors"]): PickerValueRenderer =>
-      (value) => {
-        const floor = this.hass.floors[value];
+    (_haAreas: HomeAssistant['floors']): PickerValueRenderer =>
+      value => {
+        const floor = this.hass.floors[value]
 
         if (!floor) {
           return html`
-            <ha-svg-icon slot="start" .path=${mdiTextureBox}></ha-svg-icon>
+            <ha-svg-icon
+              slot="start"
+              .path=${mdiTextureBox}
+            ></ha-svg-icon>
             <span slot="headline">${floor}</span>
-          `;
+          `
         }
 
-        const floorName = floor ? computeFloorName(floor) : undefined;
+        const floorName = floor ? computeFloorName(floor) : undefined
 
         return html`
-          <ha-floor-icon slot="start" .floor=${floor}></ha-floor-icon>
+          <ha-floor-icon
+            slot="start"
+            .floor=${floor}
+          ></ha-floor-icon>
           <span slot="headline">${floorName}</span>
-        `;
+        `
       }
-  );
+  )
 
   private _getFloors = memoizeOne(
     (
-      haFloors: HomeAssistant["floors"],
-      haAreas: HomeAssistant["areas"],
-      haDevices: HomeAssistant["devices"],
-      haEntities: HomeAssistant["entities"],
-      includeDomains: this["includeDomains"],
-      excludeDomains: this["excludeDomains"],
-      includeDeviceClasses: this["includeDeviceClasses"],
-      deviceFilter: this["deviceFilter"],
-      entityFilter: this["entityFilter"],
-      excludeFloors: this["excludeFloors"]
+      haFloors: HomeAssistant['floors'],
+      haAreas: HomeAssistant['areas'],
+      haDevices: HomeAssistant['devices'],
+      haEntities: HomeAssistant['entities'],
+      includeDomains: this['includeDomains'],
+      excludeDomains: this['excludeDomains'],
+      includeDeviceClasses: this['includeDeviceClasses'],
+      deviceFilter: this['deviceFilter'],
+      entityFilter: this['entityFilter'],
+      excludeFloors: this['excludeFloors']
     ): FloorComboBoxItem[] => {
-      const floors = Object.values(haFloors);
-      const areas = Object.values(haAreas);
-      const devices = Object.values(haDevices);
-      const entities = Object.values(haEntities);
+      const floors = Object.values(haFloors)
+      const areas = Object.values(haAreas)
+      const devices = Object.values(haDevices)
+      const entities = Object.values(haEntities)
 
-      let deviceEntityLookup: DeviceEntityDisplayLookup = {};
-      let inputDevices: DeviceRegistryEntry[] | undefined;
-      let inputEntities: EntityRegistryDisplayEntry[] | undefined;
+      let deviceEntityLookup: DeviceEntityDisplayLookup = {}
+      let inputDevices: DeviceRegistryEntry[] | undefined
+      let inputEntities: EntityRegistryDisplayEntry[] | undefined
 
       if (
         includeDomains ||
@@ -154,150 +160,150 @@ export class HaFloorPicker extends LitElement {
         deviceFilter ||
         entityFilter
       ) {
-        deviceEntityLookup = getDeviceEntityDisplayLookup(entities);
-        inputDevices = devices;
-        inputEntities = entities.filter((entity) => entity.area_id);
+        deviceEntityLookup = getDeviceEntityDisplayLookup(entities)
+        inputDevices = devices
+        inputEntities = entities.filter(entity => entity.area_id)
 
         if (includeDomains) {
-          inputDevices = inputDevices!.filter((device) => {
-            const devEntities = deviceEntityLookup[device.id];
+          inputDevices = inputDevices!.filter(device => {
+            const devEntities = deviceEntityLookup[device.id]
             if (!devEntities || !devEntities.length) {
-              return false;
+              return false
             }
-            return deviceEntityLookup[device.id].some((entity) =>
+            return deviceEntityLookup[device.id].some(entity =>
               includeDomains.includes(computeDomain(entity.entity_id))
-            );
-          });
-          inputEntities = inputEntities!.filter((entity) =>
+            )
+          })
+          inputEntities = inputEntities!.filter(entity =>
             includeDomains.includes(computeDomain(entity.entity_id))
-          );
+          )
         }
 
         if (excludeDomains) {
-          inputDevices = inputDevices!.filter((device) => {
-            const devEntities = deviceEntityLookup[device.id];
+          inputDevices = inputDevices!.filter(device => {
+            const devEntities = deviceEntityLookup[device.id]
             if (!devEntities || !devEntities.length) {
-              return true;
+              return true
             }
             return entities.every(
-              (entity) =>
+              entity =>
                 !excludeDomains.includes(computeDomain(entity.entity_id))
-            );
-          });
+            )
+          })
           inputEntities = inputEntities!.filter(
-            (entity) =>
-              !excludeDomains.includes(computeDomain(entity.entity_id))
-          );
+            entity => !excludeDomains.includes(computeDomain(entity.entity_id))
+          )
         }
 
         if (includeDeviceClasses) {
-          inputDevices = inputDevices!.filter((device) => {
-            const devEntities = deviceEntityLookup[device.id];
+          inputDevices = inputDevices!.filter(device => {
+            const devEntities = deviceEntityLookup[device.id]
             if (!devEntities || !devEntities.length) {
-              return false;
+              return false
             }
-            return deviceEntityLookup[device.id].some((entity) => {
-              const stateObj = this.hass.states[entity.entity_id];
+            return deviceEntityLookup[device.id].some(entity => {
+              const stateObj = this.hass.states[entity.entity_id]
               if (!stateObj) {
-                return false;
+                return false
               }
               return (
                 stateObj.attributes.device_class &&
                 includeDeviceClasses.includes(stateObj.attributes.device_class)
-              );
-            });
-          });
-          inputEntities = inputEntities!.filter((entity) => {
-            const stateObj = this.hass.states[entity.entity_id];
+              )
+            })
+          })
+          inputEntities = inputEntities!.filter(entity => {
+            const stateObj = this.hass.states[entity.entity_id]
             return (
               stateObj.attributes.device_class &&
               includeDeviceClasses.includes(stateObj.attributes.device_class)
-            );
-          });
+            )
+          })
         }
 
         if (deviceFilter) {
-          inputDevices = inputDevices!.filter((device) =>
-            deviceFilter!(device)
-          );
+          inputDevices = inputDevices!.filter(device => deviceFilter!(device))
         }
 
         if (entityFilter) {
-          inputDevices = inputDevices!.filter((device) => {
-            const devEntities = deviceEntityLookup[device.id];
+          inputDevices = inputDevices!.filter(device => {
+            const devEntities = deviceEntityLookup[device.id]
             if (!devEntities || !devEntities.length) {
-              return false;
+              return false
             }
-            return deviceEntityLookup[device.id].some((entity) => {
-              const stateObj = this.hass.states[entity.entity_id];
+            return deviceEntityLookup[device.id].some(entity => {
+              const stateObj = this.hass.states[entity.entity_id]
               if (!stateObj) {
-                return false;
+                return false
               }
-              return entityFilter(stateObj);
-            });
-          });
-          inputEntities = inputEntities!.filter((entity) => {
-            const stateObj = this.hass.states[entity.entity_id];
+              return entityFilter(stateObj)
+            })
+          })
+          inputEntities = inputEntities!.filter(entity => {
+            const stateObj = this.hass.states[entity.entity_id]
             if (!stateObj) {
-              return false;
+              return false
             }
-            return entityFilter!(stateObj);
-          });
+            return entityFilter!(stateObj)
+          })
         }
       }
 
-      let outputFloors = floors;
+      let outputFloors = floors
 
-      let areaIds: string[] | undefined;
+      let areaIds: string[] | undefined
 
       if (inputDevices) {
         areaIds = inputDevices
-          .filter((device) => device.area_id)
-          .map((device) => device.area_id!);
+          .filter(device => device.area_id)
+          .map(device => device.area_id!)
       }
 
       if (inputEntities) {
         areaIds = (areaIds ?? []).concat(
           inputEntities
-            .filter((entity) => entity.area_id)
-            .map((entity) => entity.area_id!)
-        );
+            .filter(entity => entity.area_id)
+            .map(entity => entity.area_id!)
+        )
       }
 
       if (areaIds) {
-        const floorAreaLookup = getFloorAreaLookup(areas);
-        outputFloors = outputFloors.filter((floor) =>
-          floorAreaLookup[floor.floor_id]?.some((area) =>
+        const floorAreaLookup = getFloorAreaLookup(areas)
+        outputFloors = outputFloors.filter(floor =>
+          floorAreaLookup[floor.floor_id]?.some(area =>
             areaIds!.includes(area.area_id)
           )
-        );
+        )
       }
 
       if (excludeFloors) {
         outputFloors = outputFloors.filter(
-          (floor) => !excludeFloors!.includes(floor.floor_id)
-        );
+          floor => !excludeFloors!.includes(floor.floor_id)
+        )
       }
 
-      const items = outputFloors.map<FloorComboBoxItem>((floor) => {
-        const floorName = computeFloorName(floor);
+      const items = outputFloors.map<FloorComboBoxItem>(floor => {
+        const floorName = computeFloorName(floor)
         return {
           id: floor.floor_id,
           primary: floorName,
           floor: floor,
-          sorting_label: floor.level?.toString() || "zzzzz",
+          sorting_label: floor.level?.toString() || 'zzzzz',
           search_labels: [floorName, floor.floor_id, ...floor.aliases].filter(
             (v): v is string => Boolean(v)
           ),
-        };
-      });
+        }
+      })
 
-      return items;
+      return items
     }
-  );
+  )
 
-  private _rowRenderer: ComboBoxLitRenderer<FloorComboBoxItem> = (item) => html`
-    <ha-combo-box-item type="button" compact>
+  private _rowRenderer: ComboBoxLitRenderer<FloorComboBoxItem> = item => html`
+    <ha-combo-box-item
+      type="button"
+      compact
+    >
       ${item.icon_path
         ? html`
             <ha-svg-icon
@@ -315,7 +321,7 @@ export class HaFloorPicker extends LitElement {
           `}
       <span slot="headline">${item.primary}</span>
     </ha-combo-box-item>
-  `;
+  `
 
   private _getItems = () =>
     this._getFloors(
@@ -329,54 +335,53 @@ export class HaFloorPicker extends LitElement {
       this.deviceFilter,
       this.entityFilter,
       this.excludeFloors
-    );
+    )
 
   private _allFloorNames = memoizeOne(
-    (floors: HomeAssistant["floors"]) =>
+    (floors: HomeAssistant['floors']) =>
       Object.values(floors)
-        .map((floor) => computeFloorName(floor)?.toLowerCase())
+        .map(floor => computeFloorName(floor)?.toLowerCase())
         .filter(Boolean) as string[]
-  );
+  )
 
   private _getAdditionalItems = (
     searchString?: string
   ): PickerComboBoxItem[] => {
     if (this.noAdd) {
-      return [];
+      return []
     }
 
-    const allFloors = this._allFloorNames(this.hass.floors);
+    const allFloors = this._allFloorNames(this.hass.floors)
 
     if (searchString && !allFloors.includes(searchString.toLowerCase())) {
       return [
         {
           id: ADD_NEW_ID + searchString,
           primary: this.hass.localize(
-            "ui.components.floor-picker.add_new_sugestion",
+            'ui.components.floor-picker.add_new_sugestion',
             {
               name: searchString,
             }
           ),
           icon_path: mdiPlus,
         },
-      ];
+      ]
     }
 
     return [
       {
         id: ADD_NEW_ID,
-        primary: this.hass.localize("ui.components.floor-picker.add_new"),
+        primary: this.hass.localize('ui.components.floor-picker.add_new'),
         icon_path: mdiPlus,
       },
-    ];
-  };
+    ]
+  }
 
   protected render(): TemplateResult {
     const placeholder =
-      this.placeholder ??
-      this.hass.localize("ui.components.floor-picker.floor");
+      this.placeholder ?? this.hass.localize('ui.components.floor-picker.floor')
 
-    const valueRenderer = this._computeValueRenderer(this.hass.floors);
+    const valueRenderer = this._computeValueRenderer(this.hass.floors)
 
     return html`
       <ha-generic-picker
@@ -385,7 +390,7 @@ export class HaFloorPicker extends LitElement {
         .label=${this.label}
         .notFoundLabel=${this._notFoundLabel}
         .emptyLabel=${this.hass.localize(
-          "ui.components.floor-picker.no_floors"
+          'ui.components.floor-picker.no_floors'
         )}
         .placeholder=${placeholder}
         .value=${this.value}
@@ -396,64 +401,64 @@ export class HaFloorPicker extends LitElement {
         @value-changed=${this._valueChanged}
       >
       </ha-generic-picker>
-    `;
+    `
   }
 
   private _valueChanged(ev: ValueChangedEvent<string>) {
-    ev.stopPropagation();
-    const value = ev.detail.value;
+    ev.stopPropagation()
+    const value = ev.detail.value
 
     if (!value) {
-      this._setValue(undefined);
-      return;
+      this._setValue(undefined)
+      return
     }
 
     if (value.startsWith(ADD_NEW_ID)) {
-      this.hass.loadFragmentTranslation("config");
+      this.hass.loadFragmentTranslation('config')
 
-      const suggestedName = value.substring(ADD_NEW_ID.length);
+      const suggestedName = value.substring(ADD_NEW_ID.length)
 
       showFloorRegistryDetailDialog(this, {
         suggestedName: suggestedName,
         createEntry: async (values, addedAreas) => {
           try {
-            const floor = await createFloorRegistryEntry(this.hass, values);
-            addedAreas.forEach((areaId) => {
+            const floor = await createFloorRegistryEntry(this.hass, values)
+            addedAreas.forEach(areaId => {
               updateAreaRegistryEntry(this.hass, areaId, {
                 floor_id: floor.floor_id,
-              });
-            });
-            this._setValue(floor.floor_id);
+              })
+            })
+            this._setValue(floor.floor_id)
           } catch (err: any) {
             showAlertDialog(this, {
               title: this.hass.localize(
-                "ui.components.floor-picker.failed_create_floor"
+                'ui.components.floor-picker.failed_create_floor'
               ),
               text: err.message,
-            });
+            })
           }
         },
-      });
-      return;
+      })
+      return
     }
 
-    this._setValue(value);
+    this._setValue(value)
   }
 
   private _setValue(value?: string) {
-    this.value = value;
-    fireEvent(this, "value-changed", { value });
-    fireEvent(this, "change");
+    this.value = value
+    fireEvent(this, 'value-changed', { value })
+    fireEvent(this, 'change')
   }
 
   private _notFoundLabel = (search: string) =>
-    this.hass.localize("ui.components.floor-picker.no_match", {
+    this.hass.localize('ui.components.floor-picker.no_match', {
       term: html`<b>‘${search}’</b>`,
-    });
+    })
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-floor-picker": HaFloorPicker;
+    'ha-floor-picker': HaFloorPicker
   }
 }

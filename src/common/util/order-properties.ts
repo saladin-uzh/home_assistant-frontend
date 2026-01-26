@@ -7,12 +7,12 @@ export function orderProperties<T extends Record<string, any>>(
   keys: readonly string[]
 ): T {
   const orderedEntries = keys
-    .filter((key) => key in obj)
-    .map((key) => [key, obj[key]] as const);
+    .filter(key => key in obj)
+    .map(key => [key, obj[key]] as const)
 
   const extraEntries = Object.entries(obj).filter(
     ([key]) => !keys.includes(key)
-  );
+  )
 
-  return Object.fromEntries([...orderedEntries, ...extraEntries]) as T;
+  return Object.fromEntries([...orderedEntries, ...extraEntries]) as T
 }

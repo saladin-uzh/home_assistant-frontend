@@ -1,19 +1,19 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import "../components/entity/state-info";
-import "../components/ha-climate-state";
-import { customElement, property } from "lit/decorators";
-import type { HomeAssistant } from "../types";
-import { haStyle } from "../resources/styles";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import '../components/entity/state-info'
+import '../components/ha-climate-state'
+import { customElement, property } from 'lit/decorators'
+import type { HomeAssistant } from '../types'
+import { haStyle } from '../resources/styles'
 
-@customElement("state-card-climate")
+@customElement('state-card-climate')
 class StateCardClimate extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj!: HassEntity;
+  @property({ attribute: false }) public stateObj!: HassEntity
 
-  @property({ attribute: "in-dialog", type: Boolean }) public inDialog = false;
+  @property({ attribute: 'in-dialog', type: Boolean }) public inDialog = false
 
   protected render(): TemplateResult {
     return html`
@@ -28,7 +28,7 @@ class StateCardClimate extends LitElement {
           .stateObj=${this.stateObj}
         ></ha-climate-state>
       </div>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -46,12 +46,12 @@ class StateCardClimate extends LitElement {
           text-align: var(--float-end);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "state-card-climate": StateCardClimate;
+    'state-card-climate': StateCardClimate
   }
 }

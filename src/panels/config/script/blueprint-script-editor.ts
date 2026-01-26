@@ -1,24 +1,24 @@
-import { mdiContentSave } from "@mdi/js";
-import { css, html, nothing, type CSSResultGroup } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../../common/dom/fire_event";
-import "../../../components/ha-fab";
-import "../../../components/ha-markdown";
-import { fetchBlueprints } from "../../../data/blueprint";
-import type { BlueprintScriptConfig } from "../../../data/script";
-import { saveFabStyles } from "../automation/styles";
-import { HaBlueprintGenericEditor } from "../blueprint/blueprint-generic-editor";
+import { mdiContentSave } from '@mdi/js'
+import { css, html, nothing, type CSSResultGroup } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../../common/dom/fire_event'
+import '../../../components/ha-fab'
+import '../../../components/ha-markdown'
+import { fetchBlueprints } from '../../../data/blueprint'
+import type { BlueprintScriptConfig } from '../../../data/script'
+import { saveFabStyles } from '../automation/styles'
+import { HaBlueprintGenericEditor } from '../blueprint/blueprint-generic-editor'
 
-@customElement("blueprint-script-editor")
+@customElement('blueprint-script-editor')
 export class HaBlueprintScriptEditor extends HaBlueprintGenericEditor {
-  @property({ attribute: false }) public config!: BlueprintScriptConfig;
+  @property({ attribute: false }) public config!: BlueprintScriptConfig
 
-  @property({ type: Boolean }) public saving = false;
+  @property({ type: Boolean }) public saving = false
 
-  @property({ type: Boolean }) public dirty = false;
+  @property({ type: Boolean }) public dirty = false
 
   protected get _config(): BlueprintScriptConfig {
-    return this.config;
+    return this.config
   }
 
   protected render() {
@@ -34,23 +34,26 @@ export class HaBlueprintScriptEditor extends HaBlueprintGenericEditor {
 
       <ha-fab
         slot="fab"
-        class=${this.dirty ? "dirty" : ""}
-        .label=${this.hass.localize("ui.common.save")}
+        class=${this.dirty ? 'dirty' : ''}
+        .label=${this.hass.localize('ui.common.save')}
         .disabled=${this.saving}
         extended
         @click=${this._saveScript}
       >
-        <ha-svg-icon slot="icon" .path=${mdiContentSave}></ha-svg-icon>
+        <ha-svg-icon
+          slot="icon"
+          .path=${mdiContentSave}
+        ></ha-svg-icon>
       </ha-fab>
-    `;
+    `
   }
 
   private _saveScript() {
-    fireEvent(this, "save-script");
+    fireEvent(this, 'save-script')
   }
 
   protected async _getBlueprints() {
-    this._blueprints = await fetchBlueprints(this.hass, "script");
+    this._blueprints = await fetchBlueprints(this.hass, 'script')
   }
 
   static get styles(): CSSResultGroup {
@@ -68,11 +71,11 @@ export class HaBlueprintScriptEditor extends HaBlueprintGenericEditor {
           position: fixed;
         }
       `,
-    ];
+    ]
   }
 }
 declare global {
   interface HTMLElementTagNameMap {
-    "blueprint-script-editor": HaBlueprintScriptEditor;
+    'blueprint-script-editor': HaBlueprintScriptEditor
   }
 }

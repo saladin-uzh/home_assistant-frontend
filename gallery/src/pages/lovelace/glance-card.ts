@@ -1,67 +1,67 @@
-import type { PropertyValues, TemplateResult } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, query } from "lit/decorators";
-import { getEntity } from "../../../../src/fake_data/entity";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import "../../components/demo-cards";
-import { mockIcons } from "../../../../demo/src/stubs/icons";
+import type { PropertyValues, TemplateResult } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, query } from 'lit/decorators'
+import { getEntity } from '../../../../src/fake_data/entity'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import '../../components/demo-cards'
+import { mockIcons } from '../../../../demo/src/stubs/icons'
 
 const ENTITIES = [
-  getEntity("device_tracker", "demo_paulus", "home", {
-    source_type: "gps",
+  getEntity('device_tracker', 'demo_paulus', 'home', {
+    source_type: 'gps',
     latitude: 32.877105,
     longitude: 117.232185,
     gps_accuracy: 91,
     battery: 71,
-    friendly_name: "Paulus",
+    friendly_name: 'Paulus',
   }),
-  getEntity("media_player", "living_room", "playing", {
+  getEntity('media_player', 'living_room', 'playing', {
     volume_level: 1,
     is_volume_muted: false,
-    media_content_id: "eyU3bRy2x44",
-    media_content_type: "movie",
+    media_content_id: 'eyU3bRy2x44',
+    media_content_type: 'movie',
     media_duration: 300,
     media_position: 45.017773,
-    media_position_updated_at: "2018-07-19T10:44:45.919514+00:00",
-    media_title: "♥♥ The Best Fireplace Video (3 hours)",
-    app_name: "YouTube",
-    sound_mode: "Dummy Music",
-    sound_mode_list: ["Dummy Music", "Dummy Movie"],
+    media_position_updated_at: '2018-07-19T10:44:45.919514+00:00',
+    media_title: '♥♥ The Best Fireplace Video (3 hours)',
+    app_name: 'YouTube',
+    sound_mode: 'Dummy Music',
+    sound_mode_list: ['Dummy Music', 'Dummy Movie'],
     shuffle: false,
-    friendly_name: "Living Room",
+    friendly_name: 'Living Room',
     entity_picture:
-      "/api/media_player_proxy/media_player.living_room?token=e925f8db7f7bd1f317e4524dcb8333d60f6019219a3799a22604b5787f243567&cache=bc2ffb49c4f67034",
+      '/api/media_player_proxy/media_player.living_room?token=e925f8db7f7bd1f317e4524dcb8333d60f6019219a3799a22604b5787f243567&cache=bc2ffb49c4f67034',
     supported_features: 115597,
   }),
-  getEntity("sun", "sun", "below_horizon", {
-    next_dawn: "2018-07-19T20:48:47+00:00",
-    next_dusk: "2018-07-20T11:46:06+00:00",
-    next_midnight: "2018-07-19T16:17:28+00:00",
-    next_noon: "2018-07-20T04:17:26+00:00",
-    next_rising: "2018-07-19T21:16:31+00:00",
-    next_setting: "2018-07-20T11:18:22+00:00",
+  getEntity('sun', 'sun', 'below_horizon', {
+    next_dawn: '2018-07-19T20:48:47+00:00',
+    next_dusk: '2018-07-20T11:46:06+00:00',
+    next_midnight: '2018-07-19T16:17:28+00:00',
+    next_noon: '2018-07-20T04:17:26+00:00',
+    next_rising: '2018-07-19T21:16:31+00:00',
+    next_setting: '2018-07-20T11:18:22+00:00',
     elevation: 67.69,
     azimuth: 338.55,
-    friendly_name: "Sun",
+    friendly_name: 'Sun',
   }),
-  getEntity("cover", "kitchen_window", "open", {
-    friendly_name: "Kitchen Window",
+  getEntity('cover', 'kitchen_window', 'open', {
+    friendly_name: 'Kitchen Window',
     supported_features: 11,
   }),
-  getEntity("light", "kitchen_lights", "on", {
-    friendly_name: "Kitchen Lights",
+  getEntity('light', 'kitchen_lights', 'on', {
+    friendly_name: 'Kitchen Lights',
   }),
-  getEntity("light", "ceiling_lights", "off", {
-    friendly_name: "Ceiling Lights",
+  getEntity('light', 'ceiling_lights', 'off', {
+    friendly_name: 'Ceiling Lights',
   }),
-  getEntity("lock", "kitchen_door", "locked", {
-    friendly_name: "Kitchen Door",
+  getEntity('lock', 'kitchen_door', 'locked', {
+    friendly_name: 'Kitchen Door',
   }),
-];
+]
 
 const CONFIGS = [
   {
-    heading: "Basic example",
+    heading: 'Basic example',
     config: `
 - type: glance
   entities:
@@ -75,7 +75,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "No state colors",
+    heading: 'No state colors',
     config: `
 - type: glance
   state_color: false
@@ -90,7 +90,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "With title",
+    heading: 'With title',
     config: `
 - type: glance
   title: Custom title
@@ -106,7 +106,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Custom number of columns",
+    heading: 'Custom number of columns',
     config: `
 - type: glance
   columns: 7
@@ -121,7 +121,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "No entity names",
+    heading: 'No entity names',
     config: `
 - type: glance
   columns: 4
@@ -137,7 +137,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "No state labels",
+    heading: 'No state labels',
     config: `
 - type: glance
   columns: 4
@@ -153,7 +153,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "No names and no state labels",
+    heading: 'No names and no state labels',
     config: `
 - type: glance
   columns: 4
@@ -170,7 +170,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Custom name + custom icon",
+    heading: 'Custom name + custom icon',
     config: `
 - type: glance
   columns: 4
@@ -184,7 +184,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Selectively hidden name",
+    heading: 'Selectively hidden name',
     config: `
 - type: glance
   columns: 4
@@ -202,7 +202,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Custom tap action",
+    heading: 'Custom tap action',
     config: `
 - type: glance
   columns: 4
@@ -224,28 +224,31 @@ const CONFIGS = [
       name: Regular
     `,
   },
-];
+]
 
-@customElement("demo-lovelace-glance-card")
+@customElement('demo-lovelace-glance-card')
 class DemoGlanceEntity extends LitElement {
-  @query("#demos") private _demoRoot!: HTMLElement;
+  @query('#demos') private _demoRoot!: HTMLElement
 
   protected render(): TemplateResult {
-    return html`<demo-cards id="demos" .configs=${CONFIGS}></demo-cards>`;
+    return html`<demo-cards
+      id="demos"
+      .configs=${CONFIGS}
+    ></demo-cards>`
   }
 
   protected firstUpdated(changedProperties: PropertyValues) {
-    super.firstUpdated(changedProperties);
-    const hass = provideHass(this._demoRoot);
-    hass.updateTranslations(null, "en");
-    hass.updateTranslations("lovelace", "en");
-    hass.addEntities(ENTITIES);
-    mockIcons(hass);
+    super.firstUpdated(changedProperties)
+    const hass = provideHass(this._demoRoot)
+    hass.updateTranslations(null, 'en')
+    hass.updateTranslations('lovelace', 'en')
+    hass.addEntities(ENTITIES)
+    mockIcons(hass)
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-lovelace-glance-card": DemoGlanceEntity;
+    'demo-lovelace-glance-card': DemoGlanceEntity
   }
 }

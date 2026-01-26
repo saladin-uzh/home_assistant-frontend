@@ -1,18 +1,18 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { any, assert, enums, object, optional, string } from "superstruct";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import "../../../../../components/ha-form/ha-form";
-import type { SchemaUnion } from "../../../../../components/ha-form/types";
-import "../../../../../components/ha-service-control";
-import type { ServiceAction } from "../../../../../data/script";
-import type { HomeAssistant } from "../../../../../types";
-import type { ServiceButtonElementConfig } from "../../../elements/types";
-import type { LovelacePictureElementEditor } from "../../../types";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { any, assert, enums, object, optional, string } from 'superstruct'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import '../../../../../components/ha-form/ha-form'
+import type { SchemaUnion } from '../../../../../components/ha-form/types'
+import '../../../../../components/ha-service-control'
+import type { ServiceAction } from '../../../../../data/script'
+import type { HomeAssistant } from '../../../../../types'
+import type { ServiceButtonElementConfig } from '../../../elements/types'
+import type { LovelacePictureElementEditor } from '../../../types'
 
 const serviceButtonElementConfigStruct = object({
-  type: enums(["service-button", "action-button"]),
+  type: enums(['service-button', 'action-button']),
   style: optional(any()),
   title: optional(string()),
   action: optional(string()),
@@ -20,25 +20,25 @@ const serviceButtonElementConfigStruct = object({
   service_data: optional(any()),
   data: optional(any()),
   target: optional(any()),
-});
+})
 
 const SCHEMA = [
-  { name: "title", required: true, selector: { text: {} } },
-  { name: "style", selector: { object: {} } },
-] as const;
+  { name: 'title', required: true, selector: { text: {} } },
+  { name: 'style', selector: { object: {} } },
+] as const
 
-@customElement("hui-service-button-element-editor")
+@customElement('hui-service-button-element-editor')
 export class HuiServiceButtonElementEditor
   extends LitElement
   implements LovelacePictureElementEditor
 {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: ServiceButtonElementConfig;
+  @state() private _config?: ServiceButtonElementConfig
 
   public setConfig(config: ServiceButtonElementConfig): void {
-    assert(config, serviceButtonElementConfigStruct);
-    this._config = config;
+    assert(config, serviceButtonElementConfigStruct)
+    this._config = config
   }
 
   private _serviceData = memoizeOne(
@@ -47,11 +47,11 @@ export class HuiServiceButtonElementEditor
       data: config?.data ?? config?.service_data,
       target: config?.target,
     })
-  );
+  )
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -69,13 +69,13 @@ export class HuiServiceButtonElementEditor
         narrow
         @value-changed=${this._serviceDataChanged}
       ></ha-service-control>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent): void {
-    fireEvent(this, "config-changed", {
+    fireEvent(this, 'config-changed', {
       config: { ...this._config, ...ev.detail.value },
-    });
+    })
   }
 
   private _serviceDataChanged(ev: CustomEvent<{ value: ServiceAction }>): void {
@@ -84,19 +84,19 @@ export class HuiServiceButtonElementEditor
       action: ev.detail.value.action,
       data: ev.detail.value.data,
       target: ev.detail.value.target,
-    };
-
-    if ("service" in config) {
-      delete config.service;
     }
 
-    if ("service_data" in config) {
-      delete config.service_data;
+    if ('service' in config) {
+      delete config.service
     }
 
-    fireEvent(this, "config-changed", {
+    if ('service_data' in config) {
+      delete config.service_data
+    }
+
+    fireEvent(this, 'config-changed', {
       config,
-    });
+    })
   }
 
   private _computeLabelCallback = (schema: SchemaUnion<typeof SCHEMA>) =>
@@ -104,7 +104,7 @@ export class HuiServiceButtonElementEditor
       `ui.panel.lovelace.editor.card.generic.${schema.name}`
     ) ||
     this.hass!.localize(`ui.panel.lovelace.editor.elements.${schema.name}`) ||
-    schema.name;
+    schema.name
 
   static styles = css`
     ha-service-control {
@@ -112,11 +112,11 @@ export class HuiServiceButtonElementEditor
       margin-top: 16px;
       --service-control-padding: 0;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-service-button-element-editor": HuiServiceButtonElementEditor;
+    'hui-service-button-element-editor': HuiServiceButtonElementEditor
   }
 }

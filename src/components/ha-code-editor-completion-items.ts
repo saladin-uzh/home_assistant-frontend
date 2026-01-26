@@ -1,19 +1,19 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
 export interface CompletionItem {
-  label: string;
-  value: string;
-  subValue?: string;
+  label: string
+  value: string
+  subValue?: string
 }
 
-@customElement("ha-code-editor-completion-items")
+@customElement('ha-code-editor-completion-items')
 export class HaCodeEditorCompletionItems extends LitElement {
-  @property({ attribute: false }) public items: CompletionItem[] = [];
+  @property({ attribute: false }) public items: CompletionItem[] = []
 
   render() {
     return this.items.map(
-      (item) => html`
+      item => html`
         <span><strong>${item.label}</strong>:</span>
         <span
           >${item.value}${item.subValue && item.subValue.length > 0
@@ -22,7 +22,7 @@ export class HaCodeEditorCompletionItems extends LitElement {
             : nothing}</span
         >
       `
-    );
+    )
   }
 
   static styles = css`
@@ -48,11 +48,11 @@ export class HaCodeEditorCompletionItems extends LitElement {
       border-radius: var(--ha-border-radius-sm);
       line-height: var(--ha-line-height-condensed);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-code-editor-completion-items": HaCodeEditorCompletionItems;
+    'ha-code-editor-completion-items': HaCodeEditorCompletionItems
   }
 }

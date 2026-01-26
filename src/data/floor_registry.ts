@@ -1,25 +1,25 @@
-import { stringCompare } from "../common/string/compare";
-import type { HomeAssistant } from "../types";
-import type { AreaRegistryEntry } from "./area_registry";
-import type { RegistryEntry } from "./registry";
+import { stringCompare } from '../common/string/compare'
+import type { HomeAssistant } from '../types'
+import type { AreaRegistryEntry } from './area_registry'
+import type { RegistryEntry } from './registry'
 
-export { subscribeAreaRegistry } from "./ws-area_registry";
+export { subscribeAreaRegistry } from './ws-area_registry'
 
 export interface FloorRegistryEntry extends RegistryEntry {
-  floor_id: string;
-  name: string;
-  level: number | null;
-  icon: string | null;
-  aliases: string[];
+  floor_id: string
+  name: string
+  level: number | null
+  icon: string | null
+  aliases: string[]
 }
 
-export type FloorAreaLookup = Record<string, AreaRegistryEntry[]>;
+export type FloorAreaLookup = Record<string, AreaRegistryEntry[]>
 
 export interface FloorRegistryEntryMutableParams {
-  name: string;
-  level?: number | null;
-  icon?: string | null;
-  aliases?: string[];
+  name: string
+  level?: number | null
+  icon?: string | null
+  aliases?: string[]
 }
 
 export const createFloorRegistryEntry = (
@@ -27,9 +27,9 @@ export const createFloorRegistryEntry = (
   values: FloorRegistryEntryMutableParams
 ) =>
   hass.callWS<FloorRegistryEntry>({
-    type: "config/floor_registry/create",
+    type: 'config/floor_registry/create',
     ...values,
-  });
+  })
 
 export const updateFloorRegistryEntry = (
   hass: HomeAssistant,
@@ -37,65 +37,65 @@ export const updateFloorRegistryEntry = (
   updates: Partial<FloorRegistryEntryMutableParams>
 ) =>
   hass.callWS<AreaRegistryEntry>({
-    type: "config/floor_registry/update",
+    type: 'config/floor_registry/update',
     floor_id: floorId,
     ...updates,
-  });
+  })
 
 export const deleteFloorRegistryEntry = (
   hass: HomeAssistant,
   floorId: string
 ) =>
   hass.callWS({
-    type: "config/floor_registry/delete",
+    type: 'config/floor_registry/delete',
     floor_id: floorId,
-  });
+  })
 
 export const reorderFloorRegistryEntries = (
   hass: HomeAssistant,
   floorIds: string[]
 ) =>
   hass.callWS({
-    type: "config/floor_registry/reorder",
+    type: 'config/floor_registry/reorder',
     floor_ids: floorIds,
-  });
+  })
 
 export const getFloorAreaLookup = (
   areas: AreaRegistryEntry[]
 ): FloorAreaLookup => {
-  const floorAreaLookup: FloorAreaLookup = {};
+  const floorAreaLookup: FloorAreaLookup = {}
   for (const area of areas) {
     if (!area.floor_id) {
-      continue;
+      continue
     }
     if (!(area.floor_id in floorAreaLookup)) {
-      floorAreaLookup[area.floor_id] = [];
+      floorAreaLookup[area.floor_id] = []
     }
-    floorAreaLookup[area.floor_id].push(area);
+    floorAreaLookup[area.floor_id].push(area)
   }
-  return floorAreaLookup;
-};
+  return floorAreaLookup
+}
 
 export const floorCompare =
-  (entries?: HomeAssistant["floors"], order?: string[]) =>
+  (entries?: HomeAssistant['floors'], order?: string[]) =>
   (a: string, b: string) => {
-    const indexA = order ? order.indexOf(a) : -1;
-    const indexB = order ? order.indexOf(b) : -1;
+    const indexA = order ? order.indexOf(a) : -1
+    const indexB = order ? order.indexOf(b) : -1
     if (indexA === -1 && indexB === -1) {
-      const floorA = entries?.[a];
-      const floorB = entries?.[b];
+      const floorA = entries?.[a]
+      const floorB = entries?.[b]
       if (floorA && floorB && floorA.level !== floorB.level) {
-        return (floorB.level ?? -9999) - (floorA.level ?? -9999);
+        return (floorB.level ?? -9999) - (floorA.level ?? -9999)
       }
-      const nameA = floorA?.name ?? a;
-      const nameB = floorB?.name ?? b;
-      return stringCompare(nameA, nameB);
+      const nameA = floorA?.name ?? a
+      const nameB = floorB?.name ?? b
+      return stringCompare(nameA, nameB)
     }
     if (indexA === -1) {
-      return 1;
+      return 1
     }
     if (indexB === -1) {
-      return -1;
+      return -1
     }
-    return indexA - indexB;
-  };
+    return indexA - indexB
+  }

@@ -1,40 +1,40 @@
-import { fireEvent } from "../../common/dom/fire_event";
+import { fireEvent } from '../../common/dom/fire_event'
 
 export interface EnterCodeDialogParams {
-  codeFormat: "text" | "number";
-  codePattern?: string;
-  submitText?: string;
-  cancelText?: string;
-  title?: string;
-  submit?: (code?: string) => void;
-  cancel?: () => void;
+  codeFormat: 'text' | 'number'
+  codePattern?: string
+  submitText?: string
+  cancelText?: string
+  title?: string
+  submit?: (code?: string) => void
+  cancel?: () => void
 }
 
 export const showEnterCodeDialog = (
   element: HTMLElement,
   dialogParams: EnterCodeDialogParams
 ) =>
-  new Promise<string | null>((resolve) => {
-    const origCancel = dialogParams.cancel;
-    const origSubmit = dialogParams.submit;
+  new Promise<string | null>(resolve => {
+    const origCancel = dialogParams.cancel
+    const origSubmit = dialogParams.submit
 
-    fireEvent(element, "show-dialog", {
-      dialogTag: "dialog-enter-code",
-      dialogImport: () => import("./dialog-enter-code"),
+    fireEvent(element, 'show-dialog', {
+      dialogTag: 'dialog-enter-code',
+      dialogImport: () => import('./dialog-enter-code'),
       dialogParams: {
         ...dialogParams,
         cancel: () => {
-          resolve(null);
+          resolve(null)
           if (origCancel) {
-            origCancel();
+            origCancel()
           }
         },
         submit: (code: string) => {
-          resolve(code);
+          resolve(code)
           if (origSubmit) {
-            origSubmit(code);
+            origSubmit(code)
           }
         },
       },
-    });
-  });
+    })
+  })

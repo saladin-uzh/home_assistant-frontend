@@ -1,4 +1,4 @@
-import { css } from "lit";
+import { css } from 'lit'
 
 export const sharedStyles = css`
   .content {
@@ -32,4 +32,4 @@ export const sharedStyles = css`
   ha-textfield {
     width: 100%;
   }
-`;
+`

@@ -1,60 +1,60 @@
-import { mdiClose } from "@mdi/js";
-import { dump } from "js-yaml";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../src/common/dom/fire_event";
-import { stringCompare } from "../../../../src/common/string/compare";
-import "../../../../src/components/ha-dialog";
-import "../../../../src/components/ha-expansion-panel";
-import "../../../../src/components/ha-icon-button";
-import "../../../../src/components/search-input";
-import type { HassioHardwareInfo } from "../../../../src/data/hassio/hardware";
-import { haStyle, haStyleDialog } from "../../../../src/resources/styles";
-import type { HomeAssistant } from "../../../../src/types";
-import type { HassioHardwareDialogParams } from "./show-dialog-hassio-hardware";
+import { mdiClose } from '@mdi/js'
+import { dump } from 'js-yaml'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../src/common/dom/fire_event'
+import { stringCompare } from '../../../../src/common/string/compare'
+import '../../../../src/components/ha-dialog'
+import '../../../../src/components/ha-expansion-panel'
+import '../../../../src/components/ha-icon-button'
+import '../../../../src/components/search-input'
+import type { HassioHardwareInfo } from '../../../../src/data/hassio/hardware'
+import { haStyle, haStyleDialog } from '../../../../src/resources/styles'
+import type { HomeAssistant } from '../../../../src/types'
+import type { HassioHardwareDialogParams } from './show-dialog-hassio-hardware'
 
 const _filterDevices = memoizeOne(
   (hardware: HassioHardwareInfo, filter: string, language: string) =>
     hardware.devices
       .filter(
-        (device) =>
+        device =>
           device.by_id?.toLowerCase().includes(filter) ||
           device.name.toLowerCase().includes(filter) ||
           device.dev_path.toLocaleLowerCase().includes(filter) ||
           JSON.stringify(device.attributes).toLocaleLowerCase().includes(filter)
       )
       .sort((a, b) => stringCompare(a.name, b.name, language))
-);
+)
 
-@customElement("dialog-hassio-hardware")
+@customElement('dialog-hassio-hardware')
 class HassioHardwareDialog extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _dialogParams?: HassioHardwareDialogParams;
+  @state() private _dialogParams?: HassioHardwareDialogParams
 
-  @state() private _filter?: string;
+  @state() private _filter?: string
 
   public showDialog(dialogParams: HassioHardwareDialogParams) {
-    this._dialogParams = dialogParams;
+    this._dialogParams = dialogParams
   }
 
   public closeDialog() {
-    this._dialogParams = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._dialogParams = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._dialogParams) {
-      return nothing;
+      return nothing
     }
 
     const devices = _filterDevices(
       this._dialogParams.hardware,
-      (this._filter || "").toLowerCase(),
+      (this._filter || '').toLowerCase(),
       this.hass.locale.language
-    );
+    )
 
     return html`
       <ha-dialog
@@ -63,15 +63,18 @@ class HassioHardwareDialog extends LitElement {
         hideActions
         @closed=${this.closeDialog}
         .heading=${this._dialogParams.supervisor.localize(
-          "dialog.hardware.title"
+          'dialog.hardware.title'
         )}
       >
-        <div class="header" slot="heading">
+        <div
+          class="header"
+          slot="heading"
+        >
           <h2>
-            ${this._dialogParams.supervisor.localize("dialog.hardware.title")}
+            ${this._dialogParams.supervisor.localize('dialog.hardware.title')}
           </h2>
           <ha-icon-button
-            .label=${this._dialogParams.supervisor.localize("common.close")}
+            .label=${this._dialogParams.supervisor.localize('common.close')}
             .path=${mdiClose}
             dialogAction="close"
           ></ha-icon-button>
@@ -80,14 +83,14 @@ class HassioHardwareDialog extends LitElement {
             .filter=${this._filter}
             @value-changed=${this._handleSearchChange}
             .label=${this._dialogParams.supervisor.localize(
-              "dialog.hardware.search"
+              'dialog.hardware.search'
             )}
           >
           </search-input>
         </div>
 
         ${devices.map(
-          (device) =>
+          device =>
             html`<ha-expansion-panel
               .header=${device.name}
               .secondary=${device.by_id || undefined}
@@ -96,7 +99,7 @@ class HassioHardwareDialog extends LitElement {
               <div class="device-property">
                 <span>
                   ${this._dialogParams!.supervisor.localize(
-                    "dialog.hardware.subsystem"
+                    'dialog.hardware.subsystem'
                   )}:
                 </span>
                 <span>${device.subsystem}</span>
@@ -104,7 +107,7 @@ class HassioHardwareDialog extends LitElement {
               <div class="device-property">
                 <span>
                   ${this._dialogParams!.supervisor.localize(
-                    "dialog.hardware.device_path"
+                    'dialog.hardware.device_path'
                   )}:
                 </span>
                 <code>${device.dev_path}</code>
@@ -113,16 +116,16 @@ class HassioHardwareDialog extends LitElement {
                 ? html` <div class="device-property">
                     <span>
                       ${this._dialogParams!.supervisor.localize(
-                        "dialog.hardware.id"
+                        'dialog.hardware.id'
                       )}:
                     </span>
                     <code>${device.by_id}</code>
                   </div>`
-                : ""}
+                : ''}
               <div class="attributes">
                 <span>
                   ${this._dialogParams!.supervisor.localize(
-                    "dialog.hardware.attributes"
+                    'dialog.hardware.attributes'
                   )}:
                 </span>
                 <pre>${dump(device.attributes, { indent: 2 })}</pre>
@@ -130,11 +133,11 @@ class HassioHardwareDialog extends LitElement {
             </ha-expansion-panel>`
         )}
       </ha-dialog>
-    `;
+    `
   }
 
   private _handleSearchChange(ev: CustomEvent) {
-    this._filter = ev.detail.value;
+    this._filter = ev.detail.value
   }
 
   static get styles(): CSSResultGroup {
@@ -188,12 +191,12 @@ class HassioHardwareDialog extends LitElement {
           margin-top: 12px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-hassio-hardware": HassioHardwareDialog;
+    'dialog-hassio-hardware': HassioHardwareDialog
   }
 }

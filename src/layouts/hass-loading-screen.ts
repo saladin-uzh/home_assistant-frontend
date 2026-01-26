@@ -1,30 +1,30 @@
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { goBack } from "../common/navigate";
-import "../components/ha-spinner";
-import "../components/ha-icon-button-arrow-prev";
-import "../components/ha-menu-button";
-import { haStyle } from "../resources/styles";
-import type { HomeAssistant } from "../types";
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { goBack } from '../common/navigate'
+import '../components/ha-spinner'
+import '../components/ha-icon-button-arrow-prev'
+import '../components/ha-menu-button'
+import { haStyle } from '../resources/styles'
+import type { HomeAssistant } from '../types'
 
-@customElement("hass-loading-screen")
+@customElement('hass-loading-screen')
 class HassLoadingScreen extends LitElement {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ type: Boolean, attribute: "no-toolbar" })
-  public noToolbar = false;
+  @property({ type: Boolean, attribute: 'no-toolbar' })
+  public noToolbar = false
 
-  @property({ type: Boolean }) public rootnav = false;
+  @property({ type: Boolean }) public rootnav = false
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property() public message?: string;
+  @property() public message?: string
 
   protected render(): TemplateResult {
     return html`
       ${this.noToolbar
-        ? ""
+        ? ''
         : html`<div class="toolbar">
             ${this.rootnav || history.state?.root
               ? html`
@@ -46,11 +46,11 @@ class HassLoadingScreen extends LitElement {
           ? html`<div id="loading-text">${this.message}</div>`
           : nothing}
       </div>
-    `;
+    `
   }
 
   private _handleBack() {
-    goBack();
+    goBack()
   }
 
   static get styles(): CSSResultGroup {
@@ -96,12 +96,12 @@ class HassLoadingScreen extends LitElement {
           margin-top: 16px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hass-loading-screen": HassLoadingScreen;
+    'hass-loading-screen': HassLoadingScreen
   }
 }

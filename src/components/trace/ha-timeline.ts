@@ -1,41 +1,41 @@
-import { mdiCircleOutline } from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { buttonLinkStyle } from "../../resources/styles";
-import "../ha-svg-icon";
+import { mdiCircleOutline } from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { buttonLinkStyle } from '../../resources/styles'
+import '../ha-svg-icon'
 
-@customElement("ha-timeline")
+@customElement('ha-timeline')
 export class HaTimeline extends LitElement {
-  @property({ type: Boolean, reflect: true }) public label = false;
+  @property({ type: Boolean, reflect: true }) public label = false
 
-  @property({ type: Boolean, reflect: true }) public raised = false;
+  @property({ type: Boolean, reflect: true }) public raised = false
 
-  @property({ attribute: "not-enabled", reflect: true, type: Boolean })
-  notEnabled = false;
+  @property({ attribute: 'not-enabled', reflect: true, type: Boolean })
+  notEnabled = false
 
-  @property({ attribute: "last-item", type: Boolean }) public lastItem = false;
+  @property({ attribute: 'last-item', type: Boolean }) public lastItem = false
 
-  @property({ type: String }) public icon?: string;
+  @property({ type: String }) public icon?: string
 
-  @property({ attribute: false }) public moreItems?: TemplateResult[];
+  @property({ attribute: false }) public moreItems?: TemplateResult[]
 
-  @state() private _showMore = false;
+  @state() private _showMore = false
 
   protected render() {
     return html`
       <div class="timeline-start">
         ${this.label
-          ? ""
+          ? ''
           : html`
               <ha-svg-icon .path=${this.icon || mdiCircleOutline}></ha-svg-icon>
             `}
-        ${this.lastItem ? "" : html`<div class="line"></div>`}
+        ${this.lastItem ? '' : html`<div class="line"></div>`}
       </div>
       <div class="content">
         <slot></slot>
         ${!this.moreItems
-          ? ""
+          ? ''
           : html`
               <div>
                 ${this._showMore ||
@@ -44,18 +44,21 @@ export class HaTimeline extends LitElement {
                 this.moreItems.length === 1
                   ? this.moreItems
                   : html`
-                      <button class="link" @click=${this._handleShowMore}>
+                      <button
+                        class="link"
+                        @click=${this._handleShowMore}
+                      >
                         Show ${this.moreItems.length} more items
                       </button>
                     `}
               </div>
             `}
       </div>
-    `;
+    `
   }
 
   private _handleShowMore() {
-    this._showMore = true;
+    this._showMore = true
   }
 
   static get styles() {
@@ -116,12 +119,12 @@ export class HaTimeline extends LitElement {
         }
       `,
       buttonLinkStyle,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-timeline": HaTimeline;
+    'ha-timeline': HaTimeline
   }
 }

@@ -1,66 +1,66 @@
-import { mdiFileCodeOutline, mdiPackageVariant, mdiWeb } from "@mdi/js";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import memoizeOne from "memoize-one";
-import { PROTOCOL_INTEGRATIONS } from "../../../common/integrations/protocolIntegrationPicked";
-import { computeRTL } from "../../../common/util/compute_rtl";
-import "../../../components/ha-button";
-import "../../../components/ha-card";
-import "../../../components/ha-ripple";
-import "../../../components/ha-svg-icon";
-import "../../../components/ha-tooltip";
-import type { ConfigEntry } from "../../../data/config_entries";
-import { ERROR_STATES } from "../../../data/config_entries";
-import type { DeviceRegistryEntry } from "../../../data/device_registry";
-import type { EntityRegistryEntry } from "../../../data/entity_registry";
+import { mdiFileCodeOutline, mdiPackageVariant, mdiWeb } from '@mdi/js'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import memoizeOne from 'memoize-one'
+import { PROTOCOL_INTEGRATIONS } from '../../../common/integrations/protocolIntegrationPicked'
+import { computeRTL } from '../../../common/util/compute_rtl'
+import '../../../components/ha-button'
+import '../../../components/ha-card'
+import '../../../components/ha-ripple'
+import '../../../components/ha-svg-icon'
+import '../../../components/ha-tooltip'
+import type { ConfigEntry } from '../../../data/config_entries'
+import { ERROR_STATES } from '../../../data/config_entries'
+import type { DeviceRegistryEntry } from '../../../data/device_registry'
+import type { EntityRegistryEntry } from '../../../data/entity_registry'
 import type {
   IntegrationLogInfo,
   IntegrationManifest,
-} from "../../../data/integration";
-import { LogSeverity } from "../../../data/integration";
-import { haStyle } from "../../../resources/styles";
-import type { HomeAssistant } from "../../../types";
-import type { ConfigEntryExtended } from "./ha-config-integrations";
-import "./ha-integration-header";
+} from '../../../data/integration'
+import { LogSeverity } from '../../../data/integration'
+import { haStyle } from '../../../resources/styles'
+import type { HomeAssistant } from '../../../types'
+import type { ConfigEntryExtended } from './ha-config-integrations'
+import './ha-integration-header'
 
-@customElement("ha-integration-card")
+@customElement('ha-integration-card')
 export class HaIntegrationCard extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property() public domain!: string;
+  @property() public domain!: string
 
-  @property({ attribute: false }) public items!: ConfigEntryExtended[];
+  @property({ attribute: false }) public items!: ConfigEntryExtended[]
 
-  @property({ attribute: false }) public manifest?: IntegrationManifest;
+  @property({ attribute: false }) public manifest?: IntegrationManifest
 
   @property({ attribute: false })
-  public entityRegistryEntries!: EntityRegistryEntry[];
+  public entityRegistryEntries!: EntityRegistryEntry[]
 
-  @property({ attribute: "supports-diagnostics", type: Boolean })
-  public supportsDiagnostics = false;
+  @property({ attribute: 'supports-diagnostics', type: Boolean })
+  public supportsDiagnostics = false
 
-  @property({ attribute: false }) public logInfo?: IntegrationLogInfo;
+  @property({ attribute: false }) public logInfo?: IntegrationLogInfo
 
-  @property({ attribute: false }) public domainEntities: string[] = [];
+  @property({ attribute: false }) public domainEntities: string[] = []
 
   protected render(): TemplateResult {
-    const entryState = this._getState(this.items);
+    const entryState = this._getState(this.items)
 
     const debugLoggingEnabled =
-      this.logInfo && this.logInfo.level === LogSeverity.DEBUG;
+      this.logInfo && this.logInfo.level === LogSeverity.DEBUG
 
     return html`
       <ha-card
         outlined
         class=${classMap({
-          "state-loaded": entryState === "loaded",
-          "state-not-loaded": entryState === "not_loaded",
-          "state-failed-unload": entryState === "failed_unload",
-          "state-setup": entryState === "setup_in_progress",
-          "state-error": ERROR_STATES.includes(entryState),
-          "debug-logging": Boolean(debugLoggingEnabled),
+          'state-loaded': entryState === 'loaded',
+          'state-not-loaded': entryState === 'not_loaded',
+          'state-failed-unload': entryState === 'failed_unload',
+          'state-setup': entryState === 'setup_in_progress',
+          'state-error': ERROR_STATES.includes(entryState),
+          'debug-logging': Boolean(debugLoggingEnabled),
         })}
       >
         <a
@@ -77,14 +77,14 @@ export class HaIntegrationCard extends LitElement {
                   `ui.panel.config.integrations.config_entry.state.${entryState}`
                 )
               : undefined}
-            .warning=${entryState !== "loaded" &&
+            .warning=${entryState !== 'loaded' &&
             !ERROR_STATES.includes(entryState)
               ? this.hass.localize(
                   `ui.panel.config.integrations.config_entry.state.${entryState}`
                 )
               : debugLoggingEnabled
                 ? this.hass.localize(
-                    "ui.panel.config.integrations.config_entry.debug_logging_enabled"
+                    'ui.panel.config.integrations.config_entry.debug_logging_enabled'
                   )
                 : undefined}
             .manifest=${this.manifest}
@@ -94,20 +94,20 @@ export class HaIntegrationCard extends LitElement {
 
         ${this._renderSingleEntry()}
       </ha-card>
-    `;
+    `
   }
 
   private _renderSingleEntry(): TemplateResult {
-    const devices = this._getDevices(this.items, this.hass.devices);
+    const devices = this._getDevices(this.items, this.hass.devices)
     const entitiesCount = devices.length
       ? 0
       : this._getEntityCount(
           this.items,
           this.entityRegistryEntries,
           this.domainEntities
-        );
+        )
 
-    const services = !devices.some((device) => device.entry_type !== "service");
+    const services = !devices.some(device => device.entry_type !== 'service')
 
     return html`
       <div class="card-actions">
@@ -123,7 +123,7 @@ export class HaIntegrationCard extends LitElement {
             >
               ${this.hass.localize(
                 `ui.panel.config.integrations.config_entry.${
-                  services ? "services" : "devices"
+                  services ? 'services' : 'devices'
                 }`,
                 { count: devices.length }
               )}
@@ -138,7 +138,7 @@ export class HaIntegrationCard extends LitElement {
                   { count: entitiesCount }
                 )}
               </ha-button>`
-            : this.items.find((itm) => itm.source !== "yaml")
+            : this.items.find(itm => itm.source !== 'yaml')
               ? html`<ha-button
                   appearance="plain"
                   href=${`/config/integrations/integration/${this.domain}`}
@@ -146,7 +146,7 @@ export class HaIntegrationCard extends LitElement {
                   ${this.hass.localize(
                     `ui.panel.config.integrations.config_entry.entries`,
                     {
-                      count: this.items.filter((itm) => itm.source !== "yaml")
+                      count: this.items.filter(itm => itm.source !== 'yaml')
                         .length,
                     }
                   )}
@@ -156,8 +156,8 @@ export class HaIntegrationCard extends LitElement {
           ${this.manifest && !this.manifest.is_built_in
             ? html`<span
                 class="icon ${this.manifest.overwrites_built_in
-                  ? "overwrites"
-                  : "custom"}"
+                  ? 'overwrites'
+                  : 'custom'}"
               >
                 <ha-svg-icon
                   id="icon-custom"
@@ -165,32 +165,35 @@ export class HaIntegrationCard extends LitElement {
                 ></ha-svg-icon>
                 <ha-tooltip
                   for="icon-custom"
-                  .placement=${computeRTL(this.hass) ? "right" : "left"}
+                  .placement=${computeRTL(this.hass) ? 'right' : 'left'}
                 >
                   ${this.hass.localize(
                     this.manifest.overwrites_built_in
-                      ? "ui.panel.config.integrations.config_entry.custom_overwrites_core"
-                      : "ui.panel.config.integrations.config_entry.custom_integration"
+                      ? 'ui.panel.config.integrations.config_entry.custom_overwrites_core'
+                      : 'ui.panel.config.integrations.config_entry.custom_integration'
                   )}
                 </ha-tooltip>
               </span>`
             : nothing}
-          ${this.manifest && this.manifest.iot_class?.startsWith("cloud_")
+          ${this.manifest && this.manifest.iot_class?.startsWith('cloud_')
             ? html`<div class="icon cloud">
-                <ha-svg-icon id="icon-cloud" .path=${mdiWeb}></ha-svg-icon>
+                <ha-svg-icon
+                  id="icon-cloud"
+                  .path=${mdiWeb}
+                ></ha-svg-icon>
                 <ha-tooltip
                   for="icon-cloud"
-                  .placement=${computeRTL(this.hass) ? "right" : "left"}
+                  .placement=${computeRTL(this.hass) ? 'right' : 'left'}
                 >
                   ${this.hass.localize(
-                    "ui.panel.config.integrations.config_entry.depends_on_cloud"
+                    'ui.panel.config.integrations.config_entry.depends_on_cloud'
                   )}
                 </ha-tooltip>
               </div>`
             : nothing}
           ${this.manifest &&
           !this.manifest?.config_flow &&
-          !this.items.every((itm) => itm.source === "system")
+          !this.items.every(itm => itm.source === 'system')
             ? html`<div class="icon yaml">
                 <ha-svg-icon
                   id="icon-yaml"
@@ -198,34 +201,34 @@ export class HaIntegrationCard extends LitElement {
                 ></ha-svg-icon>
                 <ha-tooltip
                   for="icon-yaml"
-                  .placement=${computeRTL(this.hass) ? "right" : "left"}
+                  .placement=${computeRTL(this.hass) ? 'right' : 'left'}
                 >
                   ${this.hass.localize(
-                    "ui.panel.config.integrations.config_entry.no_config_flow"
+                    'ui.panel.config.integrations.config_entry.no_config_flow'
                   )}
                 </ha-tooltip>
               </div>`
             : nothing}
         </div>
       </div>
-    `;
+    `
   }
 
   private _getState = memoizeOne(
-    (configEntry: ConfigEntry[]): ConfigEntry["state"] => {
+    (configEntry: ConfigEntry[]): ConfigEntry['state'] => {
       if (configEntry.length === 1) {
-        return configEntry[0].state;
+        return configEntry[0].state
       }
-      let entryState: ConfigEntry["state"];
+      let entryState: ConfigEntry['state']
       for (const entry of configEntry) {
         if (ERROR_STATES.includes(entry.state)) {
-          return entry.state;
+          return entry.state
         }
-        entryState = entry.state;
+        entryState = entry.state
       }
-      return entryState!;
+      return entryState!
     }
-  );
+  )
 
   private _getEntityCount = memoizeOne(
     (
@@ -234,52 +237,50 @@ export class HaIntegrationCard extends LitElement {
       domainEntities: string[]
     ): number => {
       if (!entityRegistryEntries) {
-        return domainEntities.length;
+        return domainEntities.length
       }
 
-      const entryIds = configEntry
-        .map((entry) => entry.entry_id)
-        .filter(Boolean);
+      const entryIds = configEntry.map(entry => entry.entry_id).filter(Boolean)
 
       if (!entryIds.length) {
-        return domainEntities.length;
+        return domainEntities.length
       }
 
       const entityRegEntities = entityRegistryEntries.filter(
-        (entity) =>
+        entity =>
           entity.config_entry_id && entryIds.includes(entity.config_entry_id)
-      );
+      )
 
       if (entityRegEntities.length === domainEntities.length) {
-        return domainEntities.length;
+        return domainEntities.length
       }
 
       const entityIds = new Set<string>(
-        entityRegEntities.map((reg) => reg.entity_id)
-      );
+        entityRegEntities.map(reg => reg.entity_id)
+      )
 
       for (const entity of domainEntities) {
-        entityIds.add(entity);
+        entityIds.add(entity)
       }
 
-      return entityIds.size;
+      return entityIds.size
     }
-  );
+  )
 
   private _getDevices = memoizeOne(
     (
       configEntry: ConfigEntry[],
-      deviceRegistryEntries: HomeAssistant["devices"]
+      deviceRegistryEntries: HomeAssistant['devices']
     ): DeviceRegistryEntry[] => {
       if (!deviceRegistryEntries) {
-        return [];
+        return []
       }
-      const entryIds = configEntry.map((entry) => entry.entry_id);
-      return Object.values(deviceRegistryEntries).filter((device) =>
-        device.config_entries.some((entryId) => entryIds.includes(entryId))
-      );
+      const entryIds = configEntry.map(entry => entry.entry_id)
+      return Object.values(deviceRegistryEntries).filter(device =>
+        device.config_entries.some(entryId => entryIds.includes(entryId))
+      )
     }
-  );
+  )
 
   static get styles(): CSSResultGroup {
     return [
@@ -303,7 +304,7 @@ export class HaIntegrationCard extends LitElement {
         .ripple-anchor:focus-visible:before {
           position: absolute;
           display: block;
-          content: "";
+          content: '';
           inset: 0;
           background-color: var(--secondary-text-color);
           opacity: 0.08;
@@ -376,12 +377,12 @@ export class HaIntegrationCard extends LitElement {
           height: 36px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-integration-card": HaIntegrationCard;
+    'ha-integration-card': HaIntegrationCard
   }
 }

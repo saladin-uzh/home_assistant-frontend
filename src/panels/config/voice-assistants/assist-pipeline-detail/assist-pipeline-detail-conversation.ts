@@ -1,33 +1,33 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import type { LocalizeKeys } from "../../../../common/translations/localize";
-import "../../../../components/ha-form/ha-form";
-import type { AssistPipeline } from "../../../../data/assist_pipeline";
-import type { HomeAssistant } from "../../../../types";
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import type { LocalizeKeys } from '../../../../common/translations/localize'
+import '../../../../components/ha-form/ha-form'
+import type { AssistPipeline } from '../../../../data/assist_pipeline'
+import type { HomeAssistant } from '../../../../types'
 
-@customElement("assist-pipeline-detail-conversation")
+@customElement('assist-pipeline-detail-conversation')
 export class AssistPipelineDetailConversation extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public data?: Partial<AssistPipeline>;
+  @property({ attribute: false }) public data?: Partial<AssistPipeline>
 
-  @state() private _supportedLanguages?: "*" | string[];
+  @state() private _supportedLanguages?: '*' | string[]
 
   private _schema = memoizeOne(
     (
       engine?: string,
       language?: string,
-      supportedLanguages?: "*" | string[]
+      supportedLanguages?: '*' | string[]
     ) => {
       const fields: any = [
         {
-          name: "",
-          type: "grid",
+          name: '',
+          type: 'grid',
           schema: [
             {
-              name: "conversation_engine",
+              name: 'conversation_engine',
               required: true,
               selector: {
                 conversation_agent: {
@@ -37,45 +37,45 @@ export class AssistPipelineDetailConversation extends LitElement {
             },
           ],
         },
-      ];
+      ]
 
-      if (supportedLanguages !== "*" && supportedLanguages?.length) {
+      if (supportedLanguages !== '*' && supportedLanguages?.length) {
         fields[0].schema.push({
-          name: "conversation_language",
+          name: 'conversation_language',
           required: true,
           selector: {
             language: { languages: supportedLanguages, no_sort: true },
           },
-        });
+        })
       }
 
-      if (engine !== "conversation.home_assistant") {
+      if (engine !== 'conversation.home_assistant') {
         fields.push({
-          name: "prefer_local_intents",
+          name: 'prefer_local_intents',
           default: true,
           selector: {
             boolean: {},
           },
-        });
+        })
       }
 
-      return fields;
+      return fields
     }
-  );
+  )
 
   private _computeLabel = (schema): string =>
     schema.name
       ? this.hass.localize(
           `ui.panel.config.voice_assistants.assistants.pipeline.detail.form.${schema.name}` as LocalizeKeys
         )
-      : "";
+      : ''
 
   private _computeHelper = (schema): string =>
     schema.name
       ? this.hass.localize(
           `ui.panel.config.voice_assistants.assistants.pipeline.detail.form.${schema.name}_description` as LocalizeKeys
         )
-      : "";
+      : ''
 
   protected render() {
     return html`
@@ -105,29 +105,29 @@ export class AssistPipelineDetailConversation extends LitElement {
           @supported-languages-changed=${this._supportedLanguagesChanged}
         ></ha-form>
       </div>
-    `;
+    `
   }
 
   private _supportedLanguagesChanged(ev) {
-    this._supportedLanguages = ev.detail.value;
+    this._supportedLanguages = ev.detail.value
 
     if (
-      this._supportedLanguages === "*" ||
+      this._supportedLanguages === '*' ||
       !this._supportedLanguages?.includes(
-        this.data?.conversation_language || ""
+        this.data?.conversation_language || ''
       ) ||
       !this.data?.conversation_language
     ) {
       // wait for update of conversation_engine
       setTimeout(() => {
-        const value = { ...this.data };
-        if (this._supportedLanguages === "*") {
-          value.conversation_language = "*";
+        const value = { ...this.data }
+        if (this._supportedLanguages === '*') {
+          value.conversation_language = '*'
         } else {
-          value.conversation_language = this._supportedLanguages?.[0] ?? null;
+          value.conversation_language = this._supportedLanguages?.[0] ?? null
         }
-        fireEvent(this, "value-changed", { value });
-      }, 0);
+        fireEvent(this, 'value-changed', { value })
+      }, 0)
     }
   }
 
@@ -154,11 +154,11 @@ export class AssistPipelineDetailConversation extends LitElement {
       margin-top: 0;
       margin-bottom: 0;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "assist-pipeline-detail-conversation": AssistPipelineDetailConversation;
+    'assist-pipeline-detail-conversation': AssistPipelineDetailConversation
   }
 }

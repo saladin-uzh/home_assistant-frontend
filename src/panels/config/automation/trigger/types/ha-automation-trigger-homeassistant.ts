@@ -1,51 +1,51 @@
-import "../../../../../components/ha-form/ha-form";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import type { HassTrigger } from "../../../../../data/automation";
-import type { HomeAssistant } from "../../../../../types";
-import type { LocalizeFunc } from "../../../../../common/translations/localize";
-import type { SchemaUnion } from "../../../../../components/ha-form/types";
+import '../../../../../components/ha-form/ha-form'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import type { HassTrigger } from '../../../../../data/automation'
+import type { HomeAssistant } from '../../../../../types'
+import type { LocalizeFunc } from '../../../../../common/translations/localize'
+import type { SchemaUnion } from '../../../../../components/ha-form/types'
 
-@customElement("ha-automation-trigger-homeassistant")
+@customElement('ha-automation-trigger-homeassistant')
 export class HaHassTrigger extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public trigger!: HassTrigger;
+  @property({ attribute: false }) public trigger!: HassTrigger
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
   private _schema = memoizeOne(
     (localize: LocalizeFunc) =>
       [
         {
-          name: "event",
-          type: "select",
+          name: 'event',
+          type: 'select',
           required: true,
           options: [
             [
-              "start",
+              'start',
               localize(
-                "ui.panel.config.automation.editor.triggers.type.homeassistant.start"
+                'ui.panel.config.automation.editor.triggers.type.homeassistant.start'
               ),
             ],
             [
-              "shutdown",
+              'shutdown',
               localize(
-                "ui.panel.config.automation.editor.triggers.type.homeassistant.shutdown"
+                'ui.panel.config.automation.editor.triggers.type.homeassistant.shutdown'
               ),
             ],
           ],
         },
       ] as const
-  );
+  )
 
   public static get defaultConfig(): HassTrigger {
     return {
-      trigger: "homeassistant",
-      event: "start" as HassTrigger["event"],
-    };
+      trigger: 'homeassistant',
+      event: 'start' as HassTrigger['event'],
+    }
   }
 
   protected render() {
@@ -58,13 +58,13 @@ export class HaHassTrigger extends LitElement {
         .computeLabel=${this._computeLabelCallback}
         @value-changed=${this._valueChanged}
       ></ha-form>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent): void {
-    ev.stopPropagation();
-    const newTrigger = ev.detail.value;
-    fireEvent(this, "value-changed", { value: newTrigger });
+    ev.stopPropagation()
+    const newTrigger = ev.detail.value
+    fireEvent(this, 'value-changed', { value: newTrigger })
   }
 
   private _computeLabelCallback = (
@@ -72,18 +72,18 @@ export class HaHassTrigger extends LitElement {
   ): string =>
     this.hass.localize(
       `ui.panel.config.automation.editor.triggers.type.homeassistant.${schema.name}`
-    );
+    )
 
   static styles = css`
     label {
       display: flex;
       align-items: center;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-trigger-homeassistant": HaHassTrigger;
+    'ha-automation-trigger-homeassistant': HaHassTrigger
   }
 }

@@ -1,34 +1,34 @@
-import type { Condition } from "../../../panels/lovelace/common/validate-condition";
-import type { LovelaceCardConfig } from "./card";
-import type { LovelaceStrategyConfig } from "./strategy";
+import type { Condition } from '../../../panels/lovelace/common/validate-condition'
+import type { LovelaceCardConfig } from './card'
+import type { LovelaceStrategyConfig } from './strategy'
 
 export interface LovelaceBaseSectionConfig {
-  visibility?: Condition[];
-  disabled?: boolean;
-  column_span?: number;
-  row_span?: number;
+  visibility?: Condition[]
+  disabled?: boolean
+  column_span?: number
+  row_span?: number
   /**
    * @deprecated Use heading card instead.
    */
-  title?: string;
+  title?: string
 }
 
 export interface LovelaceSectionConfig extends LovelaceBaseSectionConfig {
-  type?: string;
-  cards?: LovelaceCardConfig[];
+  type?: string
+  cards?: LovelaceCardConfig[]
 }
 
 export interface LovelaceStrategySectionConfig
   extends LovelaceBaseSectionConfig {
-  strategy: LovelaceStrategyConfig;
+  strategy: LovelaceStrategyConfig
 }
 
 export type LovelaceSectionRawConfig =
   | LovelaceSectionConfig
-  | LovelaceStrategySectionConfig;
+  | LovelaceStrategySectionConfig
 
 export function isStrategySection(
   section: LovelaceSectionRawConfig
 ): section is LovelaceStrategySectionConfig {
-  return "strategy" in section;
+  return 'strategy' in section
 }

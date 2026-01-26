@@ -1,15 +1,15 @@
-import type { LitElement } from "lit";
-import { getSignedPath } from "../../../../data/auth";
-import type { BackupConfig, BackupContent } from "../../../../data/backup";
+import type { LitElement } from 'lit'
+import { getSignedPath } from '../../../../data/auth'
+import type { BackupConfig, BackupContent } from '../../../../data/backup'
 import {
   canDecryptBackupOnDownload,
   getBackupDownloadUrl,
   getPreferredAgentForDownload,
-} from "../../../../data/backup";
-import type { HomeAssistant } from "../../../../types";
-import { fileDownload } from "../../../../util/file_download";
-import { showAlertDialog } from "../../../lovelace/custom-card-helpers";
-import { showDownloadDecryptedBackupDialog } from "../dialogs/show-dialog-download-decrypted-backup";
+} from '../../../../data/backup'
+import type { HomeAssistant } from '../../../../types'
+import { fileDownload } from '../../../../util/file_download'
+import { showAlertDialog } from '../../../lovelace/custom-card-helpers'
+import { showDownloadDecryptedBackupDialog } from '../dialogs/show-dialog-download-decrypted-backup'
 
 export const downloadBackupFile = async (
   hass: HomeAssistant,
@@ -20,9 +20,9 @@ export const downloadBackupFile = async (
   const signedUrl = await getSignedPath(
     hass,
     getBackupDownloadUrl(backupId, preferedAgent, encryptionKey)
-  );
-  fileDownload(signedUrl.path);
-};
+  )
+  fileDownload(signedUrl.path)
+}
 
 export const downloadBackup = async (
   hass: HomeAssistant,
@@ -31,23 +31,23 @@ export const downloadBackup = async (
   backupConfig?: BackupConfig,
   agentId?: string
 ): Promise<void> => {
-  const agentIds = Object.keys(backup.agents);
-  const preferedAgent = agentId ?? getPreferredAgentForDownload(agentIds);
-  const isProtected = backup.agents[preferedAgent]?.protected;
+  const agentIds = Object.keys(backup.agents)
+  const preferedAgent = agentId ?? getPreferredAgentForDownload(agentIds)
+  const isProtected = backup.agents[preferedAgent]?.protected
 
   if (!isProtected) {
-    downloadBackupFile(hass, backup.backup_id, preferedAgent);
-    return;
+    downloadBackupFile(hass, backup.backup_id, preferedAgent)
+    return
   }
 
-  const encryptionKey = backupConfig?.create_backup?.password;
+  const encryptionKey = backupConfig?.create_backup?.password
 
   if (!encryptionKey) {
     showDownloadDecryptedBackupDialog(element, {
       backup,
       agentId: preferedAgent,
-    });
-    return;
+    })
+    return
   }
 
   try {
@@ -57,47 +57,47 @@ export const downloadBackup = async (
       backup.backup_id,
       preferedAgent,
       encryptionKey
-    );
-    downloadBackupFile(hass, backup.backup_id, preferedAgent, encryptionKey);
+    )
+    downloadBackupFile(hass, backup.backup_id, preferedAgent, encryptionKey)
   } catch (err: any) {
     // If encryption key is incorrect, ask for encryption key
-    if (err?.code === "password_incorrect") {
+    if (err?.code === 'password_incorrect') {
       showDownloadDecryptedBackupDialog(element, {
         backup,
         agentId: preferedAgent,
-      });
-      return;
+      })
+      return
     }
     // If decryption is not supported, ask for confirmation and download it encrypted
-    if (err?.code === "decrypt_not_supported") {
+    if (err?.code === 'decrypt_not_supported') {
       showAlertDialog(element, {
         title: hass.localize(
-          "ui.panel.config.backup.dialogs.download.decryption_unsupported_title"
+          'ui.panel.config.backup.dialogs.download.decryption_unsupported_title'
         ),
         text: hass.localize(
-          "ui.panel.config.backup.dialogs.download.decryption_unsupported"
+          'ui.panel.config.backup.dialogs.download.decryption_unsupported'
         ),
         confirm() {
-          downloadBackupFile(hass, backup.backup_id, preferedAgent);
+          downloadBackupFile(hass, backup.backup_id, preferedAgent)
         },
-      });
-      return;
+      })
+      return
     }
 
     // Else, show generic error
     showAlertDialog(element, {
       title: hass.localize(
-        "ui.panel.config.backup.dialogs.download.error_check_title",
+        'ui.panel.config.backup.dialogs.download.error_check_title',
         {
           error: err.message,
         }
       ),
       text: hass.localize(
-        "ui.panel.config.backup.dialogs.download.error_check_description",
+        'ui.panel.config.backup.dialogs.download.error_check_description',
         {
           error: err.message,
         }
       ),
-    });
+    })
   }
-};
+}

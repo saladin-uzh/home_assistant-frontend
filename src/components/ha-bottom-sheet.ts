@@ -1,39 +1,39 @@
-import "@home-assistant/webawesome/dist/components/drawer/drawer";
-import { css, html, LitElement, type PropertyValues } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { SwipeGestureRecognizer } from "../common/util/swipe-gesture-recognizer";
-import { haStyleScrollbar } from "../resources/styles";
+import '@home-assistant/webawesome/dist/components/drawer/drawer'
+import { css, html, LitElement, type PropertyValues } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { SwipeGestureRecognizer } from '../common/util/swipe-gesture-recognizer'
+import { haStyleScrollbar } from '../resources/styles'
 
-export const BOTTOM_SHEET_ANIMATION_DURATION_MS = 300;
+export const BOTTOM_SHEET_ANIMATION_DURATION_MS = 300
 
-@customElement("ha-bottom-sheet")
+@customElement('ha-bottom-sheet')
 export class HaBottomSheet extends LitElement {
-  @property({ type: Boolean }) public open = false;
+  @property({ type: Boolean }) public open = false
 
-  @property({ type: Boolean, reflect: true, attribute: "flexcontent" })
-  public flexContent = false;
+  @property({ type: Boolean, reflect: true, attribute: 'flexcontent' })
+  public flexContent = false
 
-  @state() private _drawerOpen = false;
+  @state() private _drawerOpen = false
 
-  @query("#drawer") private _drawer!: HTMLElement;
+  @query('#drawer') private _drawer!: HTMLElement
 
-  private _gestureRecognizer = new SwipeGestureRecognizer();
+  private _gestureRecognizer = new SwipeGestureRecognizer()
 
-  private _isDragging = false;
+  private _isDragging = false
 
   private _handleAfterHide() {
-    this.open = false;
-    const ev = new Event("closed", {
+    this.open = false
+    const ev = new Event('closed', {
       bubbles: true,
       composed: true,
-    });
-    this.dispatchEvent(ev);
+    })
+    this.dispatchEvent(ev)
   }
 
   protected updated(changedProperties: PropertyValues): void {
-    super.updated(changedProperties);
-    if (changedProperties.has("open")) {
-      this._drawerOpen = this.open;
+    super.updated(changedProperties)
+    if (changedProperties.has('open')) {
+      this._drawerOpen = this.open
     }
   }
 
@@ -48,98 +48,101 @@ export class HaBottomSheet extends LitElement {
         @touchstart=${this._handleTouchStart}
       >
         <slot name="header"></slot>
-        <div id="body" class="body ha-scrollbar">
+        <div
+          id="body"
+          class="body ha-scrollbar"
+        >
           <slot></slot>
         </div>
       </wa-drawer>
-    `;
+    `
   }
 
   private _handleTouchStart = (ev: TouchEvent) => {
     // Check if any element inside drawer in the composed path has scrollTop > 0
     for (const path of ev.composedPath()) {
-      const el = path as HTMLElement;
+      const el = path as HTMLElement
       if (el === this._drawer) {
-        break;
+        break
       }
       if (el.scrollTop > 0) {
-        return;
+        return
       }
     }
 
-    this._startResizing(ev.touches[0].clientY);
-  };
+    this._startResizing(ev.touches[0].clientY)
+  }
 
   private _startResizing(clientY: number) {
     // register event listeners for drag handling
-    document.addEventListener("touchmove", this._handleTouchMove, {
+    document.addEventListener('touchmove', this._handleTouchMove, {
       passive: false,
-    });
-    document.addEventListener("touchend", this._handleTouchEnd);
-    document.addEventListener("touchcancel", this._handleTouchEnd);
+    })
+    document.addEventListener('touchend', this._handleTouchEnd)
+    document.addEventListener('touchcancel', this._handleTouchEnd)
 
-    this._gestureRecognizer.start(clientY);
+    this._gestureRecognizer.start(clientY)
   }
 
   private _handleTouchMove = (ev: TouchEvent) => {
-    const currentY = ev.touches[0].clientY;
-    const delta = this._gestureRecognizer.move(currentY);
+    const currentY = ev.touches[0].clientY
+    const delta = this._gestureRecognizer.move(currentY)
 
     if (delta < 0) {
-      ev.preventDefault();
-      this._isDragging = true;
+      ev.preventDefault()
+      this._isDragging = true
       requestAnimationFrame(() => {
         if (this._isDragging) {
           this.style.setProperty(
-            "--dialog-transform",
+            '--dialog-transform',
             `translateY(${delta * -1}px)`
-          );
+          )
         }
-      });
+      })
     }
-  };
+  }
 
   private _animateSnapBack() {
     // Add transition for smooth animation
     this.style.setProperty(
-      "--dialog-transition",
+      '--dialog-transition',
       `transform ${BOTTOM_SHEET_ANIMATION_DURATION_MS}ms ease-out`
-    );
+    )
 
     // Reset transform to snap back
-    this.style.removeProperty("--dialog-transform");
+    this.style.removeProperty('--dialog-transform')
 
     // Remove transition after animation completes
     setTimeout(() => {
-      this.style.removeProperty("--dialog-transition");
-    }, BOTTOM_SHEET_ANIMATION_DURATION_MS);
+      this.style.removeProperty('--dialog-transition')
+    }, BOTTOM_SHEET_ANIMATION_DURATION_MS)
   }
 
   private _handleTouchEnd = () => {
-    this._unregisterResizeHandlers();
+    this._unregisterResizeHandlers()
 
-    this._isDragging = false;
+    this._isDragging = false
 
-    const result = this._gestureRecognizer.end();
+    const result = this._gestureRecognizer.end()
 
     // If velocity exceeds threshold, use velocity direction to determine action
     if (result.isSwipe) {
       if (result.isDownwardSwipe) {
         // Downward swipe - close the bottom sheet
-        this._drawerOpen = false;
+        this._drawerOpen = false
       } else {
         // Upward swipe - keep open and animate back
-        this._animateSnapBack();
+        this._animateSnapBack()
       }
-      return;
+      return
     }
 
     // If velocity is below threshold, use position-based logic
     // Get the drawer height to calculate 50% threshold
     const drawerBody = this._drawer.shadowRoot?.querySelector(
       '[part="body"]'
-    ) as HTMLElement;
-    const drawerHeight = drawerBody?.offsetHeight || 0;
+    ) as HTMLElement
+    const drawerHeight = drawerBody?.offsetHeight || 0
 
     // delta is negative when dragging down
     // Close if dragged down past 50% of the drawer height
@@ -148,22 +151,22 @@ export class HaBottomSheet extends LitElement {
       result.delta < 0 &&
       Math.abs(result.delta) > drawerHeight * 0.5
     ) {
-      this._drawerOpen = false;
+      this._drawerOpen = false
     } else {
-      this._animateSnapBack();
+      this._animateSnapBack()
     }
-  };
+  }
 
   private _unregisterResizeHandlers = () => {
-    document.removeEventListener("touchmove", this._handleTouchMove);
-    document.removeEventListener("touchend", this._handleTouchEnd);
-    document.removeEventListener("touchcancel", this._handleTouchEnd);
-  };
+    document.removeEventListener('touchmove', this._handleTouchMove)
+    document.removeEventListener('touchend', this._handleTouchEnd)
+    document.removeEventListener('touchcancel', this._handleTouchEnd)
+  }
 
   disconnectedCallback() {
-    super.disconnectedCallback();
-    this._unregisterResizeHandlers();
-    this._isDragging = false;
+    super.disconnectedCallback()
+    this._unregisterResizeHandlers()
+    this._isDragging = false
   }
 
   static styles = [
@@ -219,11 +222,11 @@ export class HaBottomSheet extends LitElement {
         );
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-bottom-sheet": HaBottomSheet;
+    'ha-bottom-sheet': HaBottomSheet
   }
 }

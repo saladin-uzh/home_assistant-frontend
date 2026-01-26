@@ -1,33 +1,36 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { stringCompare } from "../../../common/string/compare";
-import { fireEvent } from "../../../common/dom/fire_event";
-import type { HomeAssistant } from "../../../types";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { stringCompare } from '../../../common/string/compare'
+import { fireEvent } from '../../../common/dom/fire_event'
+import type { HomeAssistant } from '../../../types'
 
 interface EventListenerCount {
-  event: string;
-  listener_count: number;
+  event: string
+  listener_count: number
 }
 
-@customElement("events-list")
+@customElement('events-list')
 class EventsList extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public events: EventListenerCount[] = [];
+  @property({ attribute: false }) public events: EventListenerCount[] = []
 
   protected render(): TemplateResult {
     return html`
       <ul>
         ${this.events.map(
-          (event) => html`
+          event => html`
             <li>
-              <a href="#" @click=${this._eventSelected} .event=${event.event}
+              <a
+                href="#"
+                @click=${this._eventSelected}
+                .event=${event.event}
                 >${event.event}</a
               >
               <span>
                 ${this.hass.localize(
-                  "ui.panel.developer-tools.tabs.events.count_listeners",
+                  'ui.panel.developer-tools.tabs.events.count_listeners',
                   {
                     count: event.listener_count,
                   }
@@ -37,23 +40,23 @@ class EventsList extends LitElement {
           `
         )}
       </ul>
-    `;
+    `
   }
 
   protected async firstUpdated() {
     const events = await this.hass.callApi<EventListenerCount[]>(
-      "GET",
-      "events"
-    );
+      'GET',
+      'events'
+    )
     this.events = events.sort((e1, e2) =>
       stringCompare(e1.event, e2.event, this.hass.locale.language)
-    );
+    )
   }
 
   private _eventSelected(ev: Event) {
-    ev.preventDefault();
-    const event: string = (ev.currentTarget! as any).event;
-    fireEvent(this, "event-selected", { eventType: event });
+    ev.preventDefault()
+    const event: string = (ev.currentTarget! as any).event
+    fireEvent(this, 'event-selected', { eventType: event })
   }
 
   static styles = css`
@@ -70,14 +73,14 @@ class EventsList extends LitElement {
     a {
       color: var(--primary-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "events-list": EventsList;
+    'events-list': EventsList
   }
   interface HASSDomEvents {
-    "event-selected": { eventType: string };
+    'event-selected': { eventType: string }
   }
 }

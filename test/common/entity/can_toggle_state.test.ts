@@ -1,8 +1,8 @@
-import { assert, describe, it } from "vitest";
+import { assert, describe, it } from 'vitest'
 
-import { canToggleState } from "../../../src/common/entity/can_toggle_state";
+import { canToggleState } from '../../../src/common/entity/can_toggle_state'
 
-describe("canToggleState", () => {
+describe('canToggleState', () => {
   const hass: any = {
     services: {
       light: {
@@ -11,80 +11,80 @@ describe("canToggleState", () => {
       },
     },
     states: {
-      "light.bla": { entity_id: "light.bla" },
-      "light.test": { entity_id: "light.test" },
+      'light.bla': { entity_id: 'light.bla' },
+      'light.test': { entity_id: 'light.test' },
     },
-  };
+  }
 
-  it("Detects lights toggle", () => {
+  it('Detects lights toggle', () => {
     const stateObj: any = {
-      entity_id: "light.bla",
-      state: "on",
-    };
-    assert.isTrue(canToggleState(hass, stateObj));
-  });
+      entity_id: 'light.bla',
+      state: 'on',
+    }
+    assert.isTrue(canToggleState(hass, stateObj))
+  })
 
-  it("Detects group with toggle", () => {
+  it('Detects group with toggle', () => {
     const stateObj: any = {
-      entity_id: "group.bla",
-      state: "on",
+      entity_id: 'group.bla',
+      state: 'on',
       attributes: {
-        entity_id: ["light.bla", "light.test"],
+        entity_id: ['light.bla', 'light.test'],
       },
-    };
+    }
 
-    assert.isTrue(canToggleState(hass, stateObj));
-  });
+    assert.isTrue(canToggleState(hass, stateObj))
+  })
 
-  it("Detects group without toggle", () => {
+  it('Detects group without toggle', () => {
     const stateObj: any = {
-      entity_id: "group.devices",
-      state: "home",
-    };
-    assert.isFalse(canToggleState(hass, stateObj));
-  });
+      entity_id: 'group.devices',
+      state: 'home',
+    }
+    assert.isFalse(canToggleState(hass, stateObj))
+  })
 
-  it("Detects climate with toggle", () => {
+  it('Detects climate with toggle', () => {
     const stateObj: any = {
-      entity_id: "climate.bla",
+      entity_id: 'climate.bla',
       attributes: {
         supported_features: 4096,
       },
-    };
-    assert.isTrue(canToggleState(hass, stateObj));
-  });
+    }
+    assert.isTrue(canToggleState(hass, stateObj))
+  })
 
-  it("Detects climate without toggle", () => {
+  it('Detects climate without toggle', () => {
     const stateObj: any = {
-      entity_id: "climate.bla",
+      entity_id: 'climate.bla',
       attributes: {
         supported_features: 0,
       },
-    };
-    assert.isFalse(canToggleState(hass, stateObj));
-  });
+    }
+    assert.isFalse(canToggleState(hass, stateObj))
+  })
 
-  it("Detects group with missing entity", () => {
+  it('Detects group with missing entity', () => {
     const stateObj: any = {
-      entity_id: "group.bla",
-      state: "on",
+      entity_id: 'group.bla',
+      state: 'on',
       attributes: {
-        entity_id: ["light.non_existing"],
+        entity_id: ['light.non_existing'],
       },
-    };
+    }
 
-    assert.isFalse(canToggleState(hass, stateObj));
-  });
+    assert.isFalse(canToggleState(hass, stateObj))
+  })
 
-  it("Detects group with off state", () => {
+  it('Detects group with off state', () => {
     const stateObj: any = {
-      entity_id: "group.bla",
-      state: "off",
+      entity_id: 'group.bla',
+      state: 'off',
       attributes: {
-        entity_id: ["light.test"],
+        entity_id: ['light.test'],
       },
-    };
+    }
 
-    assert.isTrue(canToggleState(hass, stateObj));
-  });
-});
+    assert.isTrue(canToggleState(hass, stateObj))
+  })
+})

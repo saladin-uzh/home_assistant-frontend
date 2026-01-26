@@ -11,34 +11,34 @@ export const throttle = <T extends any[]>(
   leading = true,
   trailing = true
 ) => {
-  let timeout: number | undefined;
-  let previous = 0;
+  let timeout: number | undefined
+  let previous = 0
   const throttledFunc = (...args: T): void => {
     const later = () => {
-      previous = leading === false ? 0 : Date.now();
-      timeout = undefined;
-      func(...args);
-    };
-    const now = Date.now();
-    if (!previous && leading === false) {
-      previous = now;
+      previous = leading === false ? 0 : Date.now()
+      timeout = undefined
+      func(...args)
     }
-    const remaining = wait - (now - previous);
+    const now = Date.now()
+    if (!previous && leading === false) {
+      previous = now
+    }
+    const remaining = wait - (now - previous)
     if (remaining <= 0 || remaining > wait) {
       if (timeout) {
-        clearTimeout(timeout);
-        timeout = undefined;
+        clearTimeout(timeout)
+        timeout = undefined
       }
-      previous = now;
-      func(...args);
+      previous = now
+      func(...args)
     } else if (!timeout && trailing !== false) {
-      timeout = window.setTimeout(later, remaining);
+      timeout = window.setTimeout(later, remaining)
     }
-  };
+  }
   throttledFunc.cancel = () => {
-    clearTimeout(timeout);
-    timeout = undefined;
-    previous = 0;
-  };
-  return throttledFunc;
-};
+    clearTimeout(timeout)
+    timeout = undefined
+    previous = 0
+  }
+  return throttledFunc
+}

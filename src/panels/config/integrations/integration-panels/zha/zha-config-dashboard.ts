@@ -6,104 +6,104 @@ import {
   mdiNetwork,
   mdiPencil,
   mdiPlus,
-} from "@mdi/js";
-import type { CSSResultGroup, PropertyValues, TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import "../../../../../components/buttons/ha-progress-button";
-import "../../../../../components/ha-alert";
-import "../../../../../components/ha-button";
-import "../../../../../components/ha-card";
-import "../../../../../components/ha-fab";
-import "../../../../../components/ha-form/ha-form";
-import "../../../../../components/ha-icon-button";
-import "../../../../../components/ha-icon-next";
-import "../../../../../components/ha-settings-row";
-import "../../../../../components/ha-svg-icon";
-import type { ConfigEntry } from "../../../../../data/config_entries";
-import { getConfigEntries } from "../../../../../data/config_entries";
+} from '@mdi/js'
+import type { CSSResultGroup, PropertyValues, TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import '../../../../../components/buttons/ha-progress-button'
+import '../../../../../components/ha-alert'
+import '../../../../../components/ha-button'
+import '../../../../../components/ha-card'
+import '../../../../../components/ha-fab'
+import '../../../../../components/ha-form/ha-form'
+import '../../../../../components/ha-icon-button'
+import '../../../../../components/ha-icon-next'
+import '../../../../../components/ha-settings-row'
+import '../../../../../components/ha-svg-icon'
+import type { ConfigEntry } from '../../../../../data/config_entries'
+import { getConfigEntries } from '../../../../../data/config_entries'
 import type {
   ZHAConfiguration,
   ZHANetworkBackupAndMetadata,
   ZHANetworkSettings,
-} from "../../../../../data/zha";
+} from '../../../../../data/zha'
 import {
   createZHANetworkBackup,
   fetchDevices,
   fetchZHAConfiguration,
   fetchZHANetworkSettings,
   updateZHAConfiguration,
-} from "../../../../../data/zha";
-import { showOptionsFlowDialog } from "../../../../../dialogs/config-flow/show-dialog-options-flow";
-import { showAlertDialog } from "../../../../../dialogs/generic/show-dialog-box";
-import "../../../../../layouts/hass-tabs-subpage";
-import type { PageNavigation } from "../../../../../layouts/hass-tabs-subpage";
-import { haStyle } from "../../../../../resources/styles";
-import type { HomeAssistant, Route } from "../../../../../types";
-import { fileDownload } from "../../../../../util/file_download";
-import "../../../ha-config-section";
-import { showZHAChangeChannelDialog } from "./show-dialog-zha-change-channel";
-import type { HaProgressButton } from "../../../../../components/buttons/ha-progress-button";
+} from '../../../../../data/zha'
+import { showOptionsFlowDialog } from '../../../../../dialogs/config-flow/show-dialog-options-flow'
+import { showAlertDialog } from '../../../../../dialogs/generic/show-dialog-box'
+import '../../../../../layouts/hass-tabs-subpage'
+import type { PageNavigation } from '../../../../../layouts/hass-tabs-subpage'
+import { haStyle } from '../../../../../resources/styles'
+import type { HomeAssistant, Route } from '../../../../../types'
+import { fileDownload } from '../../../../../util/file_download'
+import '../../../ha-config-section'
+import { showZHAChangeChannelDialog } from './show-dialog-zha-change-channel'
+import type { HaProgressButton } from '../../../../../components/buttons/ha-progress-button'
 
-const MULTIPROTOCOL_ADDON_URL = "socket://core-silabs-multiprotocol:9999";
+const MULTIPROTOCOL_ADDON_URL = 'socket://core-silabs-multiprotocol:9999'
 
 export const zhaTabs: PageNavigation[] = [
   {
-    translationKey: "ui.panel.config.zha.network.caption",
+    translationKey: 'ui.panel.config.zha.network.caption',
     path: `/config/zha/dashboard`,
     iconPath: mdiNetwork,
   },
   {
-    translationKey: "ui.panel.config.zha.groups.caption",
+    translationKey: 'ui.panel.config.zha.groups.caption',
     path: `/config/zha/groups`,
     iconPath: mdiFolderMultipleOutline,
   },
   {
-    translationKey: "ui.panel.config.zha.visualization.caption",
+    translationKey: 'ui.panel.config.zha.visualization.caption',
     path: `/config/zha/visualization`,
     iconPath: mdiLan,
   },
-];
+]
 
-@customElement("zha-config-dashboard")
+@customElement('zha-config-dashboard')
 class ZHAConfigDashboard extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public route!: Route;
+  @property({ attribute: false }) public route!: Route
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ attribute: "is-wide", type: Boolean }) public isWide = false;
+  @property({ attribute: 'is-wide', type: Boolean }) public isWide = false
 
-  @property({ attribute: false }) public configEntryId?: string;
+  @property({ attribute: false }) public configEntryId?: string
 
-  @state() private _configuration?: ZHAConfiguration;
+  @state() private _configuration?: ZHAConfiguration
 
-  @state() private _networkSettings?: ZHANetworkSettings;
+  @state() private _networkSettings?: ZHANetworkSettings
 
-  @state() private _totalDevices = 0;
+  @state() private _totalDevices = 0
 
-  @state() private _offlineDevices = 0;
+  @state() private _offlineDevices = 0
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
-  @state() private _generatingBackup = false;
+  @state() private _generatingBackup = false
 
-  @query("#config-save-button") private _configSaveButton?: HaProgressButton;
+  @query('#config-save-button') private _configSaveButton?: HaProgressButton
 
   protected firstUpdated(changedProperties: PropertyValues) {
-    super.firstUpdated(changedProperties);
+    super.firstUpdated(changedProperties)
     if (this.hass) {
-      this.hass.loadBackendTranslation("config_panel", "zha", false);
-      this._fetchConfiguration();
-      this._fetchSettings();
-      this._fetchDevicesAndUpdateStatus();
+      this.hass.loadBackendTranslation('config_panel', 'zha', false)
+      this._fetchConfiguration()
+      this._fetchSettings()
+      this._fetchDevicesAndUpdateStatus()
     }
   }
 
   protected render(): TemplateResult {
     const deviceOnline =
-      this._offlineDevices < this._totalDevices || this._totalDevices === 0;
+      this._offlineDevices < this._totalDevices || this._totalDevices === 0
     return html`
       <hass-tabs-subpage
         .hass=${this.hass}
@@ -123,27 +123,27 @@ class ZHAConfigDashboard extends LitElement {
                 <div class="icon">
                   <ha-svg-icon
                     .path=${deviceOnline ? mdiCheckCircle : mdiAlertCircle}
-                    class=${deviceOnline ? "online" : "offline"}
+                    class=${deviceOnline ? 'online' : 'offline'}
                   ></ha-svg-icon>
                 </div>
                 <div class="details">
                   ZHA
                   ${this.hass.localize(
-                    "ui.panel.config.zha.configuration_page.status_title"
+                    'ui.panel.config.zha.configuration_page.status_title'
                   )}:
                   ${this.hass.localize(
-                    `ui.panel.config.zha.configuration_page.status_${deviceOnline ? "online" : "offline"}`
+                    `ui.panel.config.zha.configuration_page.status_${deviceOnline ? 'online' : 'offline'}`
                   )}<br />
                   <small>
                     ${this.hass.localize(
-                      "ui.panel.config.zha.configuration_page.devices",
+                      'ui.panel.config.zha.configuration_page.devices',
                       { count: this._totalDevices }
                     )}
                   </small>
                   <small class="offline">
                     ${this._offlineDevices > 0
                       ? html`(${this.hass.localize(
-                          "ui.panel.config.zha.configuration_page.devices_offline",
+                          'ui.panel.config.zha.configuration_page.devices_offline',
                           { count: this._offlineDevices }
                         )})`
                       : nothing}
@@ -159,7 +159,7 @@ class ZHAConfigDashboard extends LitElement {
                     size="small"
                   >
                     ${this.hass.localize(
-                      "ui.panel.config.devices.caption"
+                      'ui.panel.config.devices.caption'
                     )}</ha-button
                   >
                   <ha-button
@@ -168,16 +168,16 @@ class ZHAConfigDashboard extends LitElement {
                     href=${`/config/entities/dashboard?historyBack=1&config_entry=${this.configEntryId}`}
                   >
                     ${this.hass.localize(
-                      "ui.panel.config.entities.caption"
+                      'ui.panel.config.entities.caption'
                     )}</ha-button
                   >
                 </div>`
-              : ""}
+              : ''}
           </ha-card>
           <ha-card
             class="network-settings"
             header=${this.hass.localize(
-              "ui.panel.config.zha.configuration_page.network_settings_title"
+              'ui.panel.config.zha.configuration_page.network_settings_title'
             )}
           >
             ${this._networkSettings
@@ -207,7 +207,7 @@ class ZHAConfigDashboard extends LitElement {
 
                     <ha-icon-button
                       .label=${this.hass.localize(
-                        "ui.panel.config.zha.configuration_page.change_channel"
+                        'ui.panel.config.zha.configuration_page.change_channel'
                       )}
                       .path=${mdiPencil}
                       @click=${this._showChannelMigrationDialog}
@@ -237,7 +237,7 @@ class ZHAConfigDashboard extends LitElement {
                   </ha-settings-row>
 
                   ${this._networkSettings.device.baudrate &&
-                  !this._networkSettings.device.path.startsWith("socket://")
+                  !this._networkSettings.device.path.startsWith('socket://')
                     ? html`
                         <ha-settings-row>
                           <span slot="description">Baudrate</span>
@@ -257,7 +257,7 @@ class ZHAConfigDashboard extends LitElement {
                 .disabled=${!this._networkSettings || this._generatingBackup}
               >
                 ${this.hass.localize(
-                  "ui.panel.config.zha.configuration_page.download_backup"
+                  'ui.panel.config.zha.configuration_page.download_backup'
                 )}
               </ha-progress-button>
               <ha-button
@@ -266,7 +266,7 @@ class ZHAConfigDashboard extends LitElement {
                 @click=${this._openOptionFlow}
               >
                 ${this.hass.localize(
-                  "ui.panel.config.zha.configuration_page.migrate_radio"
+                  'ui.panel.config.zha.configuration_page.migrate_radio'
                 )}
               </ha-button>
             </div>
@@ -300,7 +300,7 @@ class ZHAConfigDashboard extends LitElement {
                         @click=${this._updateConfiguration}
                       >
                         ${this.hass.localize(
-                          "ui.panel.config.zha.configuration_page.update_button"
+                          'ui.panel.config.zha.configuration_page.update_button'
                         )}
                       </ha-progress-button>
                     </div>
@@ -309,34 +309,40 @@ class ZHAConfigDashboard extends LitElement {
             : nothing}
         </div>
 
-        <a href="/config/zha/add" slot="fab">
+        <a
+          href="/config/zha/add"
+          slot="fab"
+        >
           <ha-fab
-            .label=${this.hass.localize("ui.panel.config.zha.add_device")}
+            .label=${this.hass.localize('ui.panel.config.zha.add_device')}
             extended
           >
-            <ha-svg-icon slot="icon" .path=${mdiPlus}></ha-svg-icon>
+            <ha-svg-icon
+              slot="icon"
+              .path=${mdiPlus}
+            ></ha-svg-icon>
           </ha-fab>
         </a>
       </hass-tabs-subpage>
-    `;
+    `
   }
 
   private async _fetchConfiguration(): Promise<void> {
-    this._configuration = await fetchZHAConfiguration(this.hass!);
+    this._configuration = await fetchZHAConfiguration(this.hass!)
   }
 
   private async _fetchSettings(): Promise<void> {
-    this._networkSettings = await fetchZHANetworkSettings(this.hass!);
+    this._networkSettings = await fetchZHANetworkSettings(this.hass!)
   }
 
   private async _fetchDevicesAndUpdateStatus(): Promise<void> {
     try {
-      const devices = await fetchDevices(this.hass);
-      this._totalDevices = devices.length;
+      const devices = await fetchDevices(this.hass)
+      this._totalDevices = devices.length
       this._offlineDevices =
-        this._totalDevices - devices.filter((d) => d.available).length;
+        this._totalDevices - devices.filter(d => d.available).length
     } catch (err: any) {
-      this._error = err.message || err;
+      this._error = err.message || err
     }
   }
 
@@ -344,98 +350,98 @@ class ZHAConfigDashboard extends LitElement {
     if (this._networkSettings!.device.path === MULTIPROTOCOL_ADDON_URL) {
       showAlertDialog(this, {
         title: this.hass.localize(
-          "ui.panel.config.zha.configuration_page.channel_dialog.title"
+          'ui.panel.config.zha.configuration_page.channel_dialog.title'
         ),
         text: this.hass.localize(
-          "ui.panel.config.zha.configuration_page.channel_dialog.text"
+          'ui.panel.config.zha.configuration_page.channel_dialog.text'
         ),
         warning: true,
-      });
-      return;
+      })
+      return
     }
 
     showZHAChangeChannelDialog(this, {
       currentChannel: this._networkSettings!.settings.network_info.channel,
-    });
+    })
   }
 
   private async _createAndDownloadBackup(): Promise<void> {
-    let backup_and_metadata: ZHANetworkBackupAndMetadata;
+    let backup_and_metadata: ZHANetworkBackupAndMetadata
 
-    this._generatingBackup = true;
+    this._generatingBackup = true
 
     try {
-      backup_and_metadata = await createZHANetworkBackup(this.hass!);
+      backup_and_metadata = await createZHANetworkBackup(this.hass!)
     } catch (err: any) {
       showAlertDialog(this, {
-        title: "Failed to create backup",
+        title: 'Failed to create backup',
         text: err.message,
         warning: true,
-      });
-      return;
+      })
+      return
     } finally {
-      this._generatingBackup = false;
+      this._generatingBackup = false
     }
 
     if (!backup_and_metadata.is_complete) {
       await showAlertDialog(this, {
-        title: "Backup is incomplete",
-        text: "A backup has been created but it is incomplete and cannot be restored. This is a coordinator firmware limitation.",
-      });
+        title: 'Backup is incomplete',
+        text: 'A backup has been created but it is incomplete and cannot be restored. This is a coordinator firmware limitation.',
+      })
     }
 
     const backupJSON: string =
-      "data:text/plain;charset=utf-8," +
-      encodeURIComponent(JSON.stringify(backup_and_metadata.backup, null, 4));
+      'data:text/plain;charset=utf-8,' +
+      encodeURIComponent(JSON.stringify(backup_and_metadata.backup, null, 4))
     const backupTime: Date = new Date(
       Date.parse(backup_and_metadata.backup.backup_time)
-    );
-    let basename = `ZHA backup ${backupTime.toISOString().replace(/:/g, "-")}`;
+    )
+    let basename = `ZHA backup ${backupTime.toISOString().replace(/:/g, '-')}`
 
     if (!backup_and_metadata.is_complete) {
-      basename = `Incomplete ${basename}`;
+      basename = `Incomplete ${basename}`
     }
 
-    fileDownload(backupJSON, `${basename}.json`);
+    fileDownload(backupJSON, `${basename}.json`)
   }
 
   private async _openOptionFlow() {
     if (!this.configEntryId) {
-      return;
+      return
     }
 
     const configEntries: ConfigEntry[] = await getConfigEntries(this.hass, {
-      domain: "zha",
-    });
+      domain: 'zha',
+    })
 
     const configEntry = configEntries.find(
-      (entry) => entry.entry_id === this.configEntryId
-    );
+      entry => entry.entry_id === this.configEntryId
+    )
 
-    showOptionsFlowDialog(this, configEntry!);
+    showOptionsFlowDialog(this, configEntry!)
   }
 
   private _dataChanged(ev) {
-    this._configuration!.data[ev.currentTarget!.section] = ev.detail.value;
+    this._configuration!.data[ev.currentTarget!.section] = ev.detail.value
   }
 
   private async _updateConfiguration(): Promise<any> {
-    this._configSaveButton!.progress = true;
+    this._configSaveButton!.progress = true
     try {
-      await updateZHAConfiguration(this.hass!, this._configuration!.data);
-      this._configSaveButton!.actionSuccess();
+      await updateZHAConfiguration(this.hass!, this._configuration!.data)
+      this._configSaveButton!.actionSuccess()
     } catch (_err: any) {
-      this._configSaveButton!.actionError();
+      this._configSaveButton!.actionError()
     } finally {
-      this._configSaveButton!.progress = false;
+      this._configSaveButton!.progress = false
     }
   }
 
   private _computeLabelCallback(localize, section: string) {
     // Returns a callback for ha-form to calculate labels per schema object
-    return (schema) =>
+    return schema =>
       localize(`component.zha.config_panel.${section}.${schema.name}`) ||
-      schema.name;
+      schema.name
   }
 
   static get styles(): CSSResultGroup {
@@ -460,7 +466,7 @@ class ZHAConfigDashboard extends LitElement {
           padding-inline-end: 0;
         }
 
-        .network-settings ha-settings-row span[slot="heading"] {
+        .network-settings ha-settings-row span[slot='heading'] {
           white-space: normal;
           word-break: break-all;
           text-indent: -1em;
@@ -515,12 +521,12 @@ class ZHAConfigDashboard extends LitElement {
           padding: var(--ha-space-2) var(--ha-space-4) var(--ha-space-4);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "zha-config-dashboard": ZHAConfigDashboard;
+    'zha-config-dashboard': ZHAConfigDashboard
   }
 }

@@ -1,19 +1,19 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { ClimateEntity } from "../data/climate";
-import { CLIMATE_PRESET_NONE } from "../data/climate";
-import { isUnavailableState, OFF } from "../data/entity";
-import type { HomeAssistant } from "../types";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { ClimateEntity } from '../data/climate'
+import { CLIMATE_PRESET_NONE } from '../data/climate'
+import { isUnavailableState, OFF } from '../data/entity'
+import type { HomeAssistant } from '../types'
 
-@customElement("ha-climate-state")
+@customElement('ha-climate-state')
 class HaClimateState extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj!: ClimateEntity;
+  @property({ attribute: false }) public stateObj!: ClimateEntity
 
   protected render(): TemplateResult {
-    const currentStatus = this._computeCurrentStatus();
+    const currentStatus = this._computeCurrentStatus()
 
     return html`<div class="target">
         ${!isUnavailableState(this.stateObj.state)
@@ -24,7 +24,7 @@ class HaClimateState extends LitElement {
                   ? html`-
                     ${this.hass.formatEntityAttributeValue(
                       this.stateObj,
-                      "preset_mode"
+                      'preset_mode'
                     )}`
                   : nothing}
               </span>
@@ -35,16 +35,16 @@ class HaClimateState extends LitElement {
       ${currentStatus && !isUnavailableState(this.stateObj.state)
         ? html`
             <div class="current">
-              ${this.hass.localize("ui.card.climate.currently")}:
+              ${this.hass.localize('ui.card.climate.currently')}:
               <div class="unit">${currentStatus}</div>
             </div>
           `
-        : nothing}`;
+        : nothing}`
   }
 
   private _computeCurrentStatus(): string | undefined {
     if (!this.hass || !this.stateObj) {
-      return undefined;
+      return undefined
     }
     if (
       this.stateObj.attributes.current_temperature != null &&
@@ -52,34 +52,34 @@ class HaClimateState extends LitElement {
     ) {
       return `${this.hass.formatEntityAttributeValue(
         this.stateObj,
-        "current_temperature"
+        'current_temperature'
       )}/
       ${this.hass.formatEntityAttributeValue(
         this.stateObj,
-        "current_humidity"
-      )}`;
+        'current_humidity'
+      )}`
     }
 
     if (this.stateObj.attributes.current_temperature != null) {
       return this.hass.formatEntityAttributeValue(
         this.stateObj,
-        "current_temperature"
-      );
+        'current_temperature'
+      )
     }
 
     if (this.stateObj.attributes.current_humidity != null) {
       return this.hass.formatEntityAttributeValue(
         this.stateObj,
-        "current_humidity"
-      );
+        'current_humidity'
+      )
     }
 
-    return undefined;
+    return undefined
   }
 
   private _computeTarget(): string {
     if (!this.hass || !this.stateObj) {
-      return "";
+      return ''
     }
 
     if (
@@ -88,15 +88,15 @@ class HaClimateState extends LitElement {
     ) {
       return `${this.hass.formatEntityAttributeValue(
         this.stateObj,
-        "target_temp_low"
+        'target_temp_low'
       )}-${this.hass.formatEntityAttributeValue(
         this.stateObj,
-        "target_temp_high"
-      )}`;
+        'target_temp_high'
+      )}`
     }
 
     if (this.stateObj.attributes.temperature != null) {
-      return this.hass.formatEntityAttributeValue(this.stateObj, "temperature");
+      return this.hass.formatEntityAttributeValue(this.stateObj, 'temperature')
     }
     if (
       this.stateObj.attributes.target_humidity_low != null &&
@@ -104,36 +104,36 @@ class HaClimateState extends LitElement {
     ) {
       return `${this.hass.formatEntityAttributeValue(
         this.stateObj,
-        "target_humidity_low"
+        'target_humidity_low'
       )}-${this.hass.formatEntityAttributeValue(
         this.stateObj,
-        "target_humidity_high"
-      )}`;
+        'target_humidity_high'
+      )}`
     }
 
     if (this.stateObj.attributes.humidity != null) {
-      return this.hass.formatEntityAttributeValue(this.stateObj, "humidity");
+      return this.hass.formatEntityAttributeValue(this.stateObj, 'humidity')
     }
 
-    return "";
+    return ''
   }
 
   private _localizeState(): string {
     if (isUnavailableState(this.stateObj.state)) {
-      return this.hass.localize(`state.default.${this.stateObj.state}`);
+      return this.hass.localize(`state.default.${this.stateObj.state}`)
     }
 
-    const stateString = this.hass.formatEntityState(this.stateObj);
+    const stateString = this.hass.formatEntityState(this.stateObj)
 
     if (this.stateObj.attributes.hvac_action && this.stateObj.state !== OFF) {
       const actionString = this.hass.formatEntityAttributeValue(
         this.stateObj,
-        "hvac_action"
-      );
-      return `${actionString} (${stateString})`;
+        'hvac_action'
+      )
+      return `${actionString} (${stateString})`
     }
 
-    return stateString;
+    return stateString
   }
 
   static styles = css`
@@ -161,11 +161,11 @@ class HaClimateState extends LitElement {
       display: inline-block;
       direction: ltr;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-climate-state": HaClimateState;
+    'ha-climate-state': HaClimateState
   }
 }

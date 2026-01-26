@@ -1,23 +1,23 @@
 import type {
   MediaPlayerEntity,
   MediaPlayerItem,
-} from "../../data/media-player";
+} from '../../data/media-player'
 import {
   BROWSER_PLAYER,
   MediaPlayerEntityFeature,
-} from "../../data/media-player";
-import type { ResolvedMediaSource } from "../../data/media_source";
-import type { HomeAssistant } from "../../types";
+} from '../../data/media-player'
+import type { ResolvedMediaSource } from '../../data/media_source'
+import type { HomeAssistant } from '../../types'
 
-export const ERR_UNSUPPORTED_MEDIA = "Unsupported Media";
+export const ERR_UNSUPPORTED_MEDIA = 'Unsupported Media'
 
 export class BrowserMediaPlayer {
-  private player: HTMLAudioElement;
+  private player: HTMLAudioElement
 
   // We pretend we're playing while still buffering.
-  public buffering = true;
+  public buffering = true
 
-  private _removed = false;
+  private _removed = false
 
   constructor(
     public hass: HomeAssistant,
@@ -26,72 +26,72 @@ export class BrowserMediaPlayer {
     volume: number,
     private onChange: () => void
   ) {
-    const player = new Audio(this.resolved.url);
-    if (player.canPlayType(resolved.mime_type) === "") {
-      throw new Error(ERR_UNSUPPORTED_MEDIA);
+    const player = new Audio(this.resolved.url)
+    if (player.canPlayType(resolved.mime_type) === '') {
+      throw new Error(ERR_UNSUPPORTED_MEDIA)
     }
-    player.autoplay = true;
-    player.volume = volume;
-    player.addEventListener("play", this._handleChange);
-    player.addEventListener("playing", () => {
-      this.buffering = false;
-      this._handleChange();
-    });
-    player.addEventListener("pause", this._handleChange);
-    player.addEventListener("ended", this._handleChange);
-    player.addEventListener("canplaythrough", this._handleChange);
-    this.player = player;
+    player.autoplay = true
+    player.volume = volume
+    player.addEventListener('play', this._handleChange)
+    player.addEventListener('playing', () => {
+      this.buffering = false
+      this._handleChange()
+    })
+    player.addEventListener('pause', this._handleChange)
+    player.addEventListener('ended', this._handleChange)
+    player.addEventListener('canplaythrough', this._handleChange)
+    this.player = player
   }
 
   private _handleChange = () => {
     if (!this._removed) {
-      this.onChange();
+      this.onChange()
     }
-  };
+  }
 
   public pause() {
-    this.buffering = false;
-    this.player.pause();
+    this.buffering = false
+    this.player.pause()
   }
 
   public play() {
-    this.player.play();
+    this.player.play()
   }
 
   public setVolume(volume: number) {
-    this.player.volume = volume;
-    this.onChange();
+    this.player.volume = volume
+    this.onChange()
   }
 
   public remove() {
-    this._removed = true;
+    this._removed = true
     // @ts-ignore
-    this.onChange = undefined;
+    this.onChange = undefined
     if (this.player) {
-      this.player.pause();
+      this.player.pause()
     }
   }
 
   static idleStateObj(): MediaPlayerEntity {
-    const now = new Date().toISOString();
+    const now = new Date().toISOString()
     return {
-      state: "idle",
+      state: 'idle',
       entity_id: BROWSER_PLAYER,
       last_changed: now,
       last_updated: now,
       attributes: {},
-      context: { id: "", user_id: null, parent_id: null },
-    };
+      context: { id: '', user_id: null, parent_id: null },
+    }
   }
 
   toStateObj(): MediaPlayerEntity {
     // https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement
-    const stateObj = BrowserMediaPlayer.idleStateObj();
+    const stateObj = BrowserMediaPlayer.idleStateObj()
     stateObj.state = this.buffering
-      ? "buffering"
+      ? 'buffering'
       : this.player.paused || this.player.ended
-        ? "paused"
-        : "playing";
+        ? 'paused'
+        : 'playing'
     stateObj.attributes = {
       media_title: this.item.title,
       entity_picture: this.item.thumbnail,
@@ -101,13 +101,13 @@ export class BrowserMediaPlayer {
         MediaPlayerEntityFeature.PLAY |
         MediaPlayerEntityFeature.PAUSE |
         MediaPlayerEntityFeature.VOLUME_SET,
-    };
+    }
 
     if (this.player.duration) {
-      stateObj.attributes.media_duration = this.player.duration;
-      stateObj.attributes.media_position = this.player.currentTime;
-      stateObj.attributes.media_position_updated_at = stateObj.last_updated;
+      stateObj.attributes.media_duration = this.player.duration
+      stateObj.attributes.media_position = this.player.currentTime
+      stateObj.attributes.media_position_updated_at = stateObj.last_updated
     }
-    return stateObj;
+    return stateObj
   }
 }

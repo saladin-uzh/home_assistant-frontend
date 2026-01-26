@@ -1,1 +1,1 @@
-export const isFrontpageEmbed = document.location.search === "?frontpage";
+export const isFrontpageEmbed = document.location.search === '?frontpage'

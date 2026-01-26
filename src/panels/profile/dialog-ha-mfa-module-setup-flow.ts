@@ -1,76 +1,76 @@
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "../../components/ha-button";
-import "../../components/ha-dialog";
-import "../../components/ha-form/ha-form";
-import "../../components/ha-markdown";
-import "../../components/ha-spinner";
-import { autocompleteLoginFields } from "../../data/auth";
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import '../../components/ha-button'
+import '../../components/ha-dialog'
+import '../../components/ha-form/ha-form'
+import '../../components/ha-markdown'
+import '../../components/ha-spinner'
+import { autocompleteLoginFields } from '../../data/auth'
 import type {
   DataEntryFlowStep,
   DataEntryFlowStepForm,
-} from "../../data/data_entry_flow";
-import { haStyleDialog } from "../../resources/styles";
-import type { HomeAssistant } from "../../types";
+} from '../../data/data_entry_flow'
+import { haStyleDialog } from '../../resources/styles'
+import type { HomeAssistant } from '../../types'
 
-let instance = 0;
+let instance = 0
 
-@customElement("ha-mfa-module-setup-flow")
+@customElement('ha-mfa-module-setup-flow')
 class HaMfaModuleSetupFlow extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   @state() private _dialogClosedCallback?: (params: {
-    flowFinished: boolean;
-  }) => void;
+    flowFinished: boolean
+  }) => void
 
-  @state() private _instance?: number;
+  @state() private _instance?: number
 
-  @state() private _loading = false;
+  @state() private _loading = false
 
-  @state() private _opened = false;
+  @state() private _opened = false
 
-  @state() private _stepData: any = {};
+  @state() private _stepData: any = {}
 
-  @state() private _step?: DataEntryFlowStep;
+  @state() private _step?: DataEntryFlowStep
 
-  @state() private _errorMessage?: string;
+  @state() private _errorMessage?: string
 
   public showDialog({ continueFlowId, mfaModuleId, dialogClosedCallback }) {
-    this._instance = instance++;
-    this._dialogClosedCallback = dialogClosedCallback;
-    this._opened = true;
+    this._instance = instance++
+    this._dialogClosedCallback = dialogClosedCallback
+    this._opened = true
 
     const fetchStep = continueFlowId
       ? this.hass.callWS({
-          type: "auth/setup_mfa",
+          type: 'auth/setup_mfa',
           flow_id: continueFlowId,
         })
       : this.hass.callWS({
-          type: "auth/setup_mfa",
+          type: 'auth/setup_mfa',
           mfa_module_id: mfaModuleId,
-        });
+        })
 
-    const curInstance = this._instance;
+    const curInstance = this._instance
 
-    fetchStep.then((step) => {
-      if (curInstance !== this._instance) return;
+    fetchStep.then(step => {
+      if (curInstance !== this._instance) return
 
-      this._processStep(step);
-    });
+      this._processStep(step)
+    })
   }
 
   public closeDialog() {
     // Closed dialog by clicking on the overlay
     if (this._step) {
-      this._flowDone();
+      this._flowDone()
     }
-    this._opened = false;
+    this._opened = false
   }
 
   protected render() {
     if (!this._opened) {
-      return nothing;
+      return nothing
     }
     return html`
       <ha-dialog
@@ -81,12 +81,12 @@ class HaMfaModuleSetupFlow extends LitElement {
         <div>
           ${this._errorMessage
             ? html`<div class="error">${this._errorMessage}</div>`
-            : ""}
+            : ''}
           ${!this._step
             ? html`<div class="init-spinner">
                 <ha-spinner></ha-spinner>
               </div>`
-            : html`${this._step.type === "abort"
+            : html`${this._step.type === 'abort'
                 ? html` <ha-markdown
                     allow-svg
                     breaks
@@ -94,14 +94,14 @@ class HaMfaModuleSetupFlow extends LitElement {
                       `component.auth.mfa_setup.${this._step.handler}.abort.${this._step.reason}`
                     )}
                   ></ha-markdown>`
-                : this._step.type === "create_entry"
+                : this._step.type === 'create_entry'
                   ? html`<p>
                       ${this.hass.localize(
-                        "ui.panel.profile.mfa_setup.step_done",
+                        'ui.panel.profile.mfa_setup.step_done',
                         { step: this._step.title || this._step.handler }
                       )}
                     </p>`
-                  : this._step.type === "form"
+                  : this._step.type === 'form'
                     ? html`<ha-markdown
                           allow-svg
                           breaks
@@ -125,34 +125,34 @@ class HaMfaModuleSetupFlow extends LitElement {
                           .computeError=${this._computeError}
                           @value-changed=${this._stepDataChanged}
                         ></ha-form>`
-                    : ""}`}
+                    : ''}`}
         </div>
         <ha-button
           slot="primaryAction"
           @click=${this.closeDialog}
-          appearance=${["abort", "create_entry"].includes(
-            this._step?.type || ""
+          appearance=${['abort', 'create_entry'].includes(
+            this._step?.type || ''
           )
-            ? "accent"
-            : "plain"}
+            ? 'accent'
+            : 'plain'}
           >${this.hass.localize(
-            ["abort", "create_entry"].includes(this._step?.type || "")
-              ? "ui.panel.profile.mfa_setup.close"
-              : "ui.common.cancel"
+            ['abort', 'create_entry'].includes(this._step?.type || '')
+              ? 'ui.panel.profile.mfa_setup.close'
+              : 'ui.common.cancel'
           )}</ha-button
         >
-        ${this._step?.type === "form"
+        ${this._step?.type === 'form'
           ? html`<ha-button
               slot="primaryAction"
               .disabled=${this._loading}
               @click=${this._submitStep}
               >${this.hass.localize(
-                "ui.panel.profile.mfa_setup.submit"
+                'ui.panel.profile.mfa_setup.submit'
               )}</ha-button
             >`
           : nothing}
       </ha-dialog>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -188,104 +188,104 @@ class HaMfaModuleSetupFlow extends LitElement {
           text-align: center;
         }
       `,
-    ];
+    ]
   }
 
   protected firstUpdated(changedProperties) {
-    super.firstUpdated(changedProperties);
-    this.hass.loadBackendTranslation("mfa_setup", "auth");
-    this.addEventListener("keypress", (ev) => {
-      if (ev.key === "Enter") {
-        this._submitStep();
+    super.firstUpdated(changedProperties)
+    this.hass.loadBackendTranslation('mfa_setup', 'auth')
+    this.addEventListener('keypress', ev => {
+      if (ev.key === 'Enter') {
+        this._submitStep()
       }
-    });
+    })
   }
 
   private _stepDataChanged(ev: CustomEvent) {
-    this._stepData = ev.detail.value;
+    this._stepData = ev.detail.value
   }
 
   private _submitStep() {
-    this._loading = true;
-    this._errorMessage = undefined;
+    this._loading = true
+    this._errorMessage = undefined
 
-    const curInstance = this._instance;
+    const curInstance = this._instance
 
     this.hass
       .callWS({
-        type: "auth/setup_mfa",
+        type: 'auth/setup_mfa',
         flow_id: this._step!.flow_id,
         user_input: this._stepData,
       })
       .then(
-        (step) => {
+        step => {
           if (curInstance !== this._instance) {
-            return;
+            return
           }
 
-          this._processStep(step);
-          this._loading = false;
+          this._processStep(step)
+          this._loading = false
         },
-        (err) => {
+        err => {
           this._errorMessage =
-            (err && err.body && err.body.message) || "Unknown error occurred";
-          this._loading = false;
+            (err && err.body && err.body.message) || 'Unknown error occurred'
+          this._loading = false
         }
-      );
+      )
   }
 
   private _processStep(step) {
-    if (!step.errors) step.errors = {};
-    this._step = step;
+    if (!step.errors) step.errors = {}
+    this._step = step
     // We got a new form if there are no errors.
     if (Object.keys(step.errors).length === 0) {
-      this._stepData = {};
+      this._stepData = {}
     }
   }
 
   private _flowDone() {
     const flowFinished = Boolean(
-      this._step && ["create_entry", "abort"].includes(this._step.type)
-    );
+      this._step && ['create_entry', 'abort'].includes(this._step.type)
+    )
 
     this._dialogClosedCallback!({
       flowFinished,
-    });
+    })
 
-    this._errorMessage = undefined;
-    this._step = undefined;
-    this._stepData = {};
-    this._dialogClosedCallback = undefined;
-    this.closeDialog();
+    this._errorMessage = undefined
+    this._step = undefined
+    this._stepData = {}
+    this._dialogClosedCallback = undefined
+    this.closeDialog()
   }
 
   private _computeStepTitle() {
-    return this._step?.type === "abort"
-      ? this.hass.localize("ui.panel.profile.mfa_setup.title_aborted")
-      : this._step?.type === "create_entry"
-        ? this.hass.localize("ui.panel.profile.mfa_setup.title_success")
-        : this._step?.type === "form"
+    return this._step?.type === 'abort'
+      ? this.hass.localize('ui.panel.profile.mfa_setup.title_aborted')
+      : this._step?.type === 'create_entry'
+        ? this.hass.localize('ui.panel.profile.mfa_setup.title_success')
+        : this._step?.type === 'form'
           ? this.hass.localize(
               `component.auth.mfa_setup.${this._step.handler}.step.${this._step.step_id}.title`
             )
-          : "";
+          : ''
   }
 
-  private _computeLabel = (schema) =>
+  private _computeLabel = schema =>
     this.hass.localize(
       `component.auth.mfa_setup.${this._step!.handler}.step.${
         (this._step! as DataEntryFlowStepForm).step_id
       }.data.${schema.name}`
-    ) || schema.name;
+    ) || schema.name
 
-  private _computeError = (error) =>
+  private _computeError = error =>
     this.hass.localize(
       `component.auth.mfa_setup.${this._step!.handler}.error.${error}`
-    ) || error;
+    ) || error
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-mfa-module-setup-flow": HaMfaModuleSetupFlow;
+    'ha-mfa-module-setup-flow': HaMfaModuleSetupFlow
   }
 }

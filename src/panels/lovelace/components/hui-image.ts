@@ -1,30 +1,30 @@
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { styleMap } from "lit/directives/style-map";
-import { STATES_OFF } from "../../../common/const";
-import { computeDomain } from "../../../common/entity/compute_domain";
-import parseAspectRatio from "../../../common/util/parse-aspect-ratio";
-import "../../../components/ha-camera-stream";
-import type { HaCameraStream } from "../../../components/ha-camera-stream";
-import "../../../components/ha-spinner";
-import type { CameraEntity } from "../../../data/camera";
-import { fetchThumbnailUrlWithCache } from "../../../data/camera";
-import { UNAVAILABLE } from "../../../data/entity";
-import type { ImageEntity } from "../../../data/image";
-import { computeImageUrl } from "../../../data/image";
-import type { HomeAssistant } from "../../../types";
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { styleMap } from 'lit/directives/style-map'
+import { STATES_OFF } from '../../../common/const'
+import { computeDomain } from '../../../common/entity/compute_domain'
+import parseAspectRatio from '../../../common/util/parse-aspect-ratio'
+import '../../../components/ha-camera-stream'
+import type { HaCameraStream } from '../../../components/ha-camera-stream'
+import '../../../components/ha-spinner'
+import type { CameraEntity } from '../../../data/camera'
+import { fetchThumbnailUrlWithCache } from '../../../data/camera'
+import { UNAVAILABLE } from '../../../data/entity'
+import type { ImageEntity } from '../../../data/image'
+import { computeImageUrl } from '../../../data/image'
+import type { HomeAssistant } from '../../../types'
 import {
   isMediaSourceContentId,
   resolveMediaSource,
-} from "../../../data/media_source";
+} from '../../../data/media_source'
 
-const UPDATE_INTERVAL = 10000;
-const DEFAULT_FILTER = "grayscale(100%)";
+const UPDATE_INTERVAL = 10000
+const DEFAULT_FILTER = 'grayscale(100%)'
 
-const MAX_IMAGE_WIDTH = 640;
-const ASPECT_RATIO_DEFAULT = 9 / 16;
+const MAX_IMAGE_WIDTH = 640
+const ASPECT_RATIO_DEFAULT = 9 / 16
 
 const enum LoadState {
   Loading = 1,
@@ -32,213 +32,211 @@ const enum LoadState {
   Error = 3,
 }
 
-export type StateSpecificConfig = Record<string, string>;
+export type StateSpecificConfig = Record<string, string>
 
-@customElement("hui-image")
+@customElement('hui-image')
 export class HuiImage extends LitElement {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property() public entity?: string;
+  @property() public entity?: string
 
-  @property() public image?: string;
+  @property() public image?: string
 
-  @property({ attribute: false }) public stateImage?: StateSpecificConfig;
+  @property({ attribute: false }) public stateImage?: StateSpecificConfig
 
-  @property({ attribute: false }) public cameraImage?: string;
+  @property({ attribute: false }) public cameraImage?: string
 
-  @property({ attribute: false }) public cameraView?: "live" | "auto";
+  @property({ attribute: false }) public cameraView?: 'live' | 'auto'
 
-  @property({ attribute: false }) public aspectRatio?: string;
+  @property({ attribute: false }) public aspectRatio?: string
 
-  @property() public filter?: string;
+  @property() public filter?: string
 
-  @property({ attribute: false }) public stateFilter?: StateSpecificConfig;
+  @property({ attribute: false }) public stateFilter?: StateSpecificConfig
 
-  @property({ attribute: false }) public darkModeImage?: string;
+  @property({ attribute: false }) public darkModeImage?: string
 
-  @property({ attribute: false }) public darkModeFilter?: string;
+  @property({ attribute: false }) public darkModeFilter?: string
 
-  @property({ attribute: "fit-mode", type: String }) public fitMode?:
-    | "cover"
-    | "contain"
-    | "fill";
+  @property({ attribute: 'fit-mode', type: String }) public fitMode?:
+    | 'cover'
+    | 'contain'
+    | 'fill'
 
-  @state() private _imageVisible? = false;
+  @state() private _imageVisible? = false
 
-  @state() private _loadState?: LoadState;
+  @state() private _loadState?: LoadState
 
-  @state() private _cameraImageSrc?: string;
+  @state() private _cameraImageSrc?: string
 
-  @state() private _loadedImageSrc?: string;
+  @state() private _loadedImageSrc?: string
 
-  @state() private _resolvedImageSrc?: string;
+  @state() private _resolvedImageSrc?: string
 
-  @state() private _resolvedDarkModeImageSrc?: string;
+  @state() private _resolvedDarkModeImageSrc?: string
 
-  @state() private _resolvedStateImages: Record<string, string> = {};
+  @state() private _resolvedStateImages: Record<string, string> = {}
 
-  @state() private _lastImageHeight?: number;
+  @state() private _lastImageHeight?: number
 
-  private _intersectionObserver?: IntersectionObserver;
+  private _intersectionObserver?: IntersectionObserver
 
-  private _cameraUpdater?: number;
+  private _cameraUpdater?: number
 
   private _ratio: {
-    w: number;
-    h: number;
-  } | null = null;
+    w: number
+    h: number
+  } | null = null
 
   public connectedCallback(): void {
-    super.connectedCallback();
+    super.connectedCallback()
     if (this._loadState === undefined) {
-      this._loadState = LoadState.Loading;
+      this._loadState = LoadState.Loading
     }
-    if (this.cameraImage && this.cameraView !== "live") {
-      this._startIntersectionObserverOrUpdates();
+    if (this.cameraImage && this.cameraView !== 'live') {
+      this._startIntersectionObserverOrUpdates()
     }
   }
 
   public disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this._stopUpdateCameraInterval();
-    this._stopIntersectionObserver();
-    this._imageVisible = undefined;
+    super.disconnectedCallback()
+    this._stopUpdateCameraInterval()
+    this._stopIntersectionObserver()
+    this._imageVisible = undefined
   }
 
   protected handleIntersectionCallback(entries: IntersectionObserverEntry[]) {
-    this._imageVisible = entries[0].isIntersecting;
+    this._imageVisible = entries[0].isIntersecting
   }
 
   public willUpdate(changedProps: PropertyValues): void {
-    if (changedProps.has("hass")) {
-      const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
+    if (changedProps.has('hass')) {
+      const oldHass = changedProps.get('hass') as HomeAssistant | undefined
 
       if (this._shouldStartCameraUpdates(oldHass)) {
-        this._startIntersectionObserverOrUpdates();
+        this._startIntersectionObserverOrUpdates()
       } else if (!this.hass!.connected) {
-        this._stopUpdateCameraInterval();
-        this._stopIntersectionObserver();
-        this._loadState = LoadState.Loading;
-        this._cameraImageSrc = undefined;
-        this._loadedImageSrc = undefined;
+        this._stopUpdateCameraInterval()
+        this._stopIntersectionObserver()
+        this._loadState = LoadState.Loading
+        this._cameraImageSrc = undefined
+        this._loadedImageSrc = undefined
       }
     }
-    if (changedProps.has("_imageVisible")) {
+    if (changedProps.has('_imageVisible')) {
       if (this._imageVisible) {
         if (this._shouldStartCameraUpdates()) {
-          this._startUpdateCameraInterval();
+          this._startUpdateCameraInterval()
         }
       } else {
-        this._stopUpdateCameraInterval();
+        this._stopUpdateCameraInterval()
       }
     }
-    if (changedProps.has("aspectRatio")) {
-      this._ratio = this.aspectRatio
-        ? parseAspectRatio(this.aspectRatio)
-        : null;
+    if (changedProps.has('aspectRatio')) {
+      this._ratio = this.aspectRatio ? parseAspectRatio(this.aspectRatio) : null
     }
     if (this._loadState === LoadState.Loading && !this.cameraImage) {
-      this._loadState = LoadState.Loaded;
+      this._loadState = LoadState.Loaded
     }
 
-    const firstHass = changedProps.has("hass") && !changedProps.get("hass");
-    if (this.hass && (changedProps.has("image") || firstHass)) {
+    const firstHass = changedProps.has('hass') && !changedProps.get('hass')
+    if (this.hass && (changedProps.has('image') || firstHass)) {
       if (this.image && isMediaSourceContentId(this.image)) {
-        resolveMediaSource(this.hass, this.image).then((result) => {
-          this._resolvedImageSrc = result.url;
-        });
+        resolveMediaSource(this.hass, this.image).then(result => {
+          this._resolvedImageSrc = result.url
+        })
       } else {
-        this._resolvedImageSrc = this.image;
+        this._resolvedImageSrc = this.image
       }
     }
-    if (this.hass && (changedProps.has("darkModeImage") || firstHass)) {
+    if (this.hass && (changedProps.has('darkModeImage') || firstHass)) {
       if (this.darkModeImage && isMediaSourceContentId(this.darkModeImage)) {
-        resolveMediaSource(this.hass, this.darkModeImage).then((result) => {
-          this._resolvedDarkModeImageSrc = result.url;
-        });
+        resolveMediaSource(this.hass, this.darkModeImage).then(result => {
+          this._resolvedDarkModeImageSrc = result.url
+        })
       } else {
-        this._resolvedDarkModeImageSrc = this.darkModeImage;
+        this._resolvedDarkModeImageSrc = this.darkModeImage
       }
     }
-    if (changedProps.has("stateImage") || firstHass) {
-      this._resolvedStateImages = {};
-      Object.entries(this.stateImage || {}).forEach((entry) => {
-        const key = entry[0] as string;
-        const value = entry[1] as any;
+    if (changedProps.has('stateImage') || firstHass) {
+      this._resolvedStateImages = {}
+      Object.entries(this.stateImage || {}).forEach(entry => {
+        const key = entry[0] as string
+        const value = entry[1] as any
         const image =
-          (typeof value === "object" && value.media_content_id) ||
-          (value as string | undefined);
+          (typeof value === 'object' && value.media_content_id) ||
+          (value as string | undefined)
         if (isMediaSourceContentId(image)) {
-          resolveMediaSource(this.hass!, image).then((result) => {
+          resolveMediaSource(this.hass!, image).then(result => {
             this._resolvedStateImages = {
               ...this._resolvedStateImages,
               [key]: result.url,
-            };
-          });
+            }
+          })
         } else {
-          this._resolvedStateImages![key] = image;
+          this._resolvedStateImages![key] = image
         }
-      });
+      })
     }
   }
 
   protected render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
     const useRatio = Boolean(
       this._ratio && this._ratio.w > 0 && this._ratio.h > 0
-    );
-    const stateObj = this.entity ? this.hass.states[this.entity] : undefined;
-    const entityState = stateObj ? stateObj.state : UNAVAILABLE;
+    )
+    const stateObj = this.entity ? this.hass.states[this.entity] : undefined
+    const entityState = stateObj ? stateObj.state : UNAVAILABLE
 
     // Figure out image source to use
-    let imageSrc: string | undefined;
-    let cameraObj: CameraEntity | undefined;
+    let imageSrc: string | undefined
+    let cameraObj: CameraEntity | undefined
     // Track if we are we using a fallback image, used for filter.
-    let imageFallback = !this.stateImage;
+    let imageFallback = !this.stateImage
 
     if (this.cameraImage) {
-      if (this.cameraView === "live") {
-        cameraObj = this.hass.states[this.cameraImage] as CameraEntity;
+      if (this.cameraView === 'live') {
+        cameraObj = this.hass.states[this.cameraImage] as CameraEntity
       } else {
-        imageSrc = this._cameraImageSrc;
+        imageSrc = this._cameraImageSrc
       }
     } else if (this.stateImage) {
-      const stateImage = this._resolvedStateImages[entityState];
+      const stateImage = this._resolvedStateImages[entityState]
 
       if (stateImage) {
-        imageSrc = stateImage;
+        imageSrc = stateImage
       } else {
-        imageSrc = this._resolvedImageSrc;
-        imageFallback = true;
+        imageSrc = this._resolvedImageSrc
+        imageFallback = true
       }
     } else if (this.darkModeImage && this.hass.themes.darkMode) {
-      imageSrc = this._resolvedDarkModeImageSrc;
-    } else if (stateObj && computeDomain(stateObj.entity_id) === "image") {
-      imageSrc = computeImageUrl(stateObj as ImageEntity);
+      imageSrc = this._resolvedDarkModeImageSrc
+    } else if (stateObj && computeDomain(stateObj.entity_id) === 'image') {
+      imageSrc = computeImageUrl(stateObj as ImageEntity)
     } else {
-      imageSrc = this._resolvedImageSrc;
+      imageSrc = this._resolvedImageSrc
     }
 
     if (imageSrc) {
-      imageSrc = this.hass.hassUrl(imageSrc);
+      imageSrc = this.hass.hassUrl(imageSrc)
     }
 
     // Figure out filter to use
-    let filter = this.filter || "";
+    let filter = this.filter || ''
 
     if (this.hass.themes.darkMode && this.darkModeFilter) {
-      filter += this.darkModeFilter;
+      filter += this.darkModeFilter
     }
 
     if (this.stateFilter && this.stateFilter[entityState]) {
-      filter += this.stateFilter[entityState];
+      filter += this.stateFilter[entityState]
     }
 
     if (!filter && this.entity) {
-      const isOff = !stateObj || STATES_OFF.includes(entityState);
-      filter = isOff && imageFallback ? DEFAULT_FILTER : "";
+      const isOff = !stateObj || STATES_OFF.includes(entityState)
+      filter = isOff && imageFallback ? DEFAULT_FILTER : ''
     }
 
     return html`
@@ -247,24 +245,24 @@ export class HuiImage extends LitElement {
           paddingBottom: useRatio
             ? `${((100 * this._ratio!.h) / this._ratio!.w).toFixed(2)}%`
             : this._lastImageHeight === undefined
-              ? "56.25%"
+              ? '56.25%'
               : undefined,
           backgroundImage:
             useRatio && this._loadedImageSrc
               ? `url("${this._loadedImageSrc}")`
               : undefined,
           filter:
-            this._loadState === LoadState.Loaded || this.cameraView === "live"
+            this._loadState === LoadState.Loaded || this.cameraView === 'live'
               ? filter
               : undefined,
         })}
         class="container ${classMap({
           ratio: useRatio || this._lastImageHeight === undefined,
-          contain: this.fitMode === "contain",
-          fill: this.fitMode === "fill",
+          contain: this.fitMode === 'contain',
+          fill: this.fitMode === 'fill',
         })}"
       >
-        ${this.cameraImage && this.cameraView === "live"
+        ${this.cameraImage && this.cameraView === 'live'
           ? html`
               <ha-camera-stream
                 muted
@@ -283,14 +281,14 @@ export class HuiImage extends LitElement {
                 <img
                   id="image"
                   src=${imageSrc}
-                  alt=${this.entity || ""}
+                  alt=${this.entity || ''}
                   @error=${this._onImageError}
                   @load=${this._onImageLoad}
                   style=${styleMap({
                     display:
                       useRatio || this._loadState === LoadState.Loaded
-                        ? "block"
-                        : "none",
+                        ? 'block'
+                        : 'none',
                   })}
                 />
               `}
@@ -299,144 +297,147 @@ export class HuiImage extends LitElement {
               id="brokenImage"
               style=${styleMap({
                 height: !useRatio
-                  ? `${this._lastImageHeight}px` || "100%"
+                  ? `${this._lastImageHeight}px` || '100%'
                   : undefined,
               })}
             ></div>`
-          : this.cameraView !== "live" &&
+          : this.cameraView !== 'live' &&
               (imageSrc === undefined || this._loadState === LoadState.Loading)
             ? html`<div
                 class="progress-container"
                 style=${styleMap({
                   height: !useRatio
-                    ? `${this._lastImageHeight}px` || "100%"
+                    ? `${this._lastImageHeight}px` || '100%'
                     : undefined,
                 })}
               >
-                <ha-spinner class="render-spinner" size="small"></ha-spinner>
+                <ha-spinner
+                  class="render-spinner"
+                  size="small"
+                ></ha-spinner>
               </div>`
-            : ""}
+            : ''}
       </div>
-    `;
+    `
   }
 
   protected _shouldStartCameraUpdates(oldHass?: HomeAssistant): boolean {
     return !!(
       (!oldHass || oldHass.connected !== this.hass!.connected) &&
       this.hass!.connected &&
-      this.cameraView !== "live"
-    );
+      this.cameraView !== 'live'
+    )
   }
 
   private _startIntersectionObserverOrUpdates(): void {
-    if ("IntersectionObserver" in window) {
+    if ('IntersectionObserver' in window) {
       if (!this._intersectionObserver) {
         this._intersectionObserver = new IntersectionObserver(
           this.handleIntersectionCallback.bind(this)
-        );
+        )
       }
-      this._intersectionObserver.observe(this);
+      this._intersectionObserver.observe(this)
     } else {
       // No support for IntersectionObserver
       // assume all images are visible
-      this._imageVisible = true;
-      this._startUpdateCameraInterval();
+      this._imageVisible = true
+      this._startUpdateCameraInterval()
     }
   }
 
   private _stopIntersectionObserver(): void {
     if (this._intersectionObserver) {
-      this._intersectionObserver.disconnect();
+      this._intersectionObserver.disconnect()
     }
   }
 
   private _startUpdateCameraInterval(): void {
-    this._stopUpdateCameraInterval();
-    this._updateCameraImageSrc();
+    this._stopUpdateCameraInterval()
+    this._updateCameraImageSrc()
     if (this.cameraImage && this.isConnected) {
       this._cameraUpdater = window.setInterval(
         () => this._updateCameraImageSrcAtInterval(),
         UPDATE_INTERVAL
-      );
+      )
     }
   }
 
   private _stopUpdateCameraInterval(): void {
     if (this._cameraUpdater) {
-      clearInterval(this._cameraUpdater);
-      this._cameraUpdater = undefined;
+      clearInterval(this._cameraUpdater)
+      this._cameraUpdater = undefined
     }
   }
 
   private _onImageError(): void {
-    this._loadState = LoadState.Error;
+    this._loadState = LoadState.Error
   }
 
   private async _onImageLoad(ev: Event): Promise<void> {
-    this._loadState = LoadState.Loaded;
-    const imgEl = ev.target as HTMLImageElement;
+    this._loadState = LoadState.Loaded
+    const imgEl = ev.target as HTMLImageElement
     if (this._ratio && this._ratio.w > 0 && this._ratio.h > 0) {
-      this._loadedImageSrc = imgEl.src;
+      this._loadedImageSrc = imgEl.src
     }
-    await this.updateComplete;
-    this._lastImageHeight = imgEl.offsetHeight;
+    await this.updateComplete
+    this._lastImageHeight = imgEl.offsetHeight
   }
 
   private async _onVideoLoad(ev: Event): Promise<void> {
-    this._loadState = LoadState.Loaded;
-    const videoEl = ev.currentTarget as HaCameraStream;
-    await this.updateComplete;
-    this._lastImageHeight = videoEl.offsetHeight;
+    this._loadState = LoadState.Loaded
+    const videoEl = ev.currentTarget as HaCameraStream
+    await this.updateComplete
+    this._lastImageHeight = videoEl.offsetHeight
   }
 
   private async _updateCameraImageSrcAtInterval(): Promise<void> {
     // If we hit the interval and it was still loading
     // it means we timed out so we should show the error.
     if (this._loadState === LoadState.Loading) {
-      this._onImageError();
+      this._onImageError()
     }
-    return this._updateCameraImageSrc();
+    return this._updateCameraImageSrc()
   }
 
   private async _updateCameraImageSrc(): Promise<void> {
     if (!this.hass || !this.cameraImage) {
-      return;
+      return
     }
 
     const cameraState = this.hass.states[this.cameraImage] as
       | CameraEntity
-      | undefined;
+      | undefined
 
     if (!cameraState) {
-      this._onImageError();
-      return;
+      this._onImageError()
+      return
     }
 
-    const element_width = this.clientWidth || MAX_IMAGE_WIDTH;
-    let width = Math.ceil(element_width * devicePixelRatio);
-    let height: number;
+    const element_width = this.clientWidth || MAX_IMAGE_WIDTH
+    let width = Math.ceil(element_width * devicePixelRatio)
+    let height: number
     // If the image has not rendered yet we have no height
     if (!this._lastImageHeight) {
       if (this._ratio && this._ratio.w > 0 && this._ratio.h > 0) {
-        height = Math.ceil(width * (this._ratio.h / this._ratio.w));
+        height = Math.ceil(width * (this._ratio.h / this._ratio.w))
       } else {
         // If we don't have a ratio and we don't have a height
         // we ask for 200% of what we need because the aspect
         // ratio might result in a smaller image
-        width *= 2;
-        height = Math.ceil(width * ASPECT_RATIO_DEFAULT);
+        width *= 2
+        height = Math.ceil(width * ASPECT_RATIO_DEFAULT)
       }
     } else {
-      height = Math.ceil(this._lastImageHeight * devicePixelRatio);
+      height = Math.ceil(this._lastImageHeight * devicePixelRatio)
     }
     this._cameraImageSrc = await fetchThumbnailUrlWithCache(
       this.hass,
       this.cameraImage,
       width,
       height
-    );
+    )
     if (this._cameraImageSrc === undefined) {
-      this._onImageError();
+      this._onImageError()
     }
   }
 
@@ -504,14 +505,14 @@ export class HuiImage extends LitElement {
     }
 
     #brokenImage {
-      background: grey url("/static/images/image-broken.svg") center/36px
+      background: grey url('/static/images/image-broken.svg') center/36px
         no-repeat;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-image": HuiImage;
+    'hui-image': HuiImage
   }
 }

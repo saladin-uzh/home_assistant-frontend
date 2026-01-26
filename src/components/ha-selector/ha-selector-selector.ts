@@ -1,49 +1,49 @@
-import type { PropertyValues } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../common/dom/fire_event";
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../common/dom/fire_event'
 import type {
   LocalizeFunc,
   LocalizeKeys,
-} from "../../common/translations/localize";
-import type { HomeAssistant } from "../../types";
-import "../ha-form/ha-form";
+} from '../../common/translations/localize'
+import type { HomeAssistant } from '../../types'
+import '../ha-form/ha-form'
 
 const SELECTOR_DEFAULTS = {
   number: {
     min: 1,
     max: 100,
   },
-};
+}
 
 const SELECTOR_SCHEMAS = {
   action: [] as const,
   area: [
     {
-      name: "multiple",
+      name: 'multiple',
       selector: { boolean: {} },
     },
   ] as const,
   attribute: [
     {
-      name: "entity_id",
+      name: 'entity_id',
       selector: { entity: {} },
     },
   ] as const,
   boolean: [] as const,
   color_temp: [
     {
-      name: "unit",
-      selector: { select: { options: ["kelvin", "mired"] } },
+      name: 'unit',
+      selector: { select: { options: ['kelvin', 'mired'] } },
     },
     {
-      name: "min",
-      selector: { number: { mode: "box" } },
+      name: 'min',
+      selector: { number: { mode: 'box' } },
     },
     {
-      name: "max",
-      selector: { number: { mode: "box" } },
+      name: 'max',
+      selector: { number: { mode: 'box' } },
     },
   ] as const,
   condition: [] as const,
@@ -51,29 +51,29 @@ const SELECTOR_SCHEMAS = {
   datetime: [] as const,
   device: [
     {
-      name: "multiple",
+      name: 'multiple',
       selector: { boolean: {} },
     },
   ] as const,
   duration: [
     {
-      name: "enable_day",
+      name: 'enable_day',
       selector: { boolean: {} },
     },
     {
-      name: "enable_millisecond",
+      name: 'enable_millisecond',
       selector: { boolean: {} },
     },
   ] as const,
   entity: [
     {
-      name: "multiple",
+      name: 'multiple',
       selector: { boolean: {} },
     },
   ] as const,
   floor: [
     {
-      name: "multiple",
+      name: 'multiple',
       selector: { boolean: {} },
     },
   ] as const,
@@ -81,7 +81,7 @@ const SELECTOR_SCHEMAS = {
   location: [] as const,
   media: [
     {
-      name: "accept",
+      name: 'accept',
       selector: {
         text: {
           multiple: true,
@@ -91,37 +91,37 @@ const SELECTOR_SCHEMAS = {
   ] as const,
   number: [
     {
-      name: "min",
-      selector: { number: { mode: "box", step: "any" } },
+      name: 'min',
+      selector: { number: { mode: 'box', step: 'any' } },
     },
     {
-      name: "max",
-      selector: { number: { mode: "box", step: "any" } },
+      name: 'max',
+      selector: { number: { mode: 'box', step: 'any' } },
     },
     {
-      name: "step",
-      selector: { number: { mode: "box", step: "any" } },
+      name: 'step',
+      selector: { number: { mode: 'box', step: 'any' } },
     },
   ] as const,
   object: [] as const,
   color_rgb: [] as const,
   select: [
     {
-      name: "options",
+      name: 'options',
       selector: { object: {} },
     },
     {
-      name: "multiple",
+      name: 'multiple',
       selector: { boolean: {} },
     },
   ] as const,
   state: [
     {
-      name: "entity_id",
+      name: 'entity_id',
       selector: { entity: {} },
     },
     {
-      name: "multiple",
+      name: 'multiple',
       selector: { boolean: {} },
     },
   ] as const,
@@ -129,57 +129,57 @@ const SELECTOR_SCHEMAS = {
   template: [] as const,
   text: [
     {
-      name: "multiple",
+      name: 'multiple',
       selector: { boolean: {} },
     },
     {
-      name: "multiline",
+      name: 'multiline',
       selector: { boolean: {} },
     },
-    { name: "prefix", selector: { text: {} } },
-    { name: "suffix", selector: { text: {} } },
+    { name: 'prefix', selector: { text: {} } },
+    { name: 'suffix', selector: { text: {} } },
   ] as const,
   theme: [] as const,
   time: [] as const,
-};
+}
 
-@customElement("ha-selector-selector")
+@customElement('ha-selector-selector')
 export class HaSelectorSelector extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public value?: any;
+  @property({ attribute: false }) public value?: any
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean, reflect: true }) public disabled = false;
+  @property({ type: Boolean, reflect: true }) public disabled = false
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ type: Boolean, reflect: true }) public required = true;
+  @property({ type: Boolean, reflect: true }) public required = true
 
-  private _yamlMode = false;
+  private _yamlMode = false
 
   protected shouldUpdate(changedProps: PropertyValues) {
-    if (changedProps.size === 1 && changedProps.has("hass")) {
-      return false;
+    if (changedProps.size === 1 && changedProps.has('hass')) {
+      return false
     }
-    return true;
+    return true
   }
 
   private _schema = memoizeOne(
     (choice: string, localize: LocalizeFunc) =>
       [
         {
-          name: "type",
+          name: 'type',
           required: true,
           selector: {
             select: {
-              mode: "dropdown",
+              mode: 'dropdown',
               options: Object.keys(SELECTOR_SCHEMAS)
-                .concat("manual")
-                .map((key) => ({
+                .concat('manual')
+                .map(key => ({
                   label:
                     localize(
                       `ui.components.selectors.selector.types.${key}` as LocalizeKeys
@@ -189,10 +189,10 @@ export class HaSelectorSelector extends LitElement {
             },
           },
         },
-        ...(choice === "manual"
+        ...(choice === 'manual'
           ? ([
               {
-                name: "manual",
+                name: 'manual',
                 selector: { object: {} },
               },
             ] as const)
@@ -201,36 +201,36 @@ export class HaSelectorSelector extends LitElement {
           ? SELECTOR_SCHEMAS[choice].length > 1
             ? [
                 {
-                  name: "",
-                  type: "expandable",
-                  title: localize("ui.components.selectors.selector.options"),
+                  name: '',
+                  type: 'expandable',
+                  title: localize('ui.components.selectors.selector.options'),
                   schema: SELECTOR_SCHEMAS[choice],
                 },
               ]
             : SELECTOR_SCHEMAS[choice]
           : []),
       ] as const
-  );
+  )
 
   protected render() {
-    let data;
-    let type;
+    let data
+    let type
     if (this._yamlMode) {
-      type = "manual";
-      data = { type, manual: this.value };
+      type = 'manual'
+      data = { type, manual: this.value }
     } else {
-      type = Object.keys(this.value)[0];
-      const value0 = Object.values(this.value)[0];
+      type = Object.keys(this.value)[0]
+      const value0 = Object.values(this.value)[0]
       data = {
         type,
-        ...(typeof value0 === "object" ? value0 : []),
-      };
+        ...(typeof value0 === 'object' ? value0 : []),
+      }
     }
 
-    const schema = this._schema(type, this.hass.localize);
+    const schema = this._schema(type, this.hass.localize)
 
     return html`<div>
-      <p>${this.label ? this.label : ""}</p>
+      <p>${this.label ? this.label : ''}</p>
       <ha-form
         .hass=${this.hass}
         .data=${data}
@@ -239,51 +239,51 @@ export class HaSelectorSelector extends LitElement {
         @value-changed=${this._valueChanged}
         .narrow=${this.narrow}
       ></ha-form>
-    </div>`;
+    </div>`
   }
 
   private _valueChanged(ev: CustomEvent) {
-    ev.stopPropagation();
-    const value = ev.detail.value;
+    ev.stopPropagation()
+    const value = ev.detail.value
 
-    const type = value.type;
-    if (!type || typeof value !== "object" || Object.keys(value).length === 0) {
+    const type = value.type
+    if (!type || typeof value !== 'object' || Object.keys(value).length === 0) {
       // not sure how this happens, but reject it
-      return;
+      return
     }
 
-    const oldType = Object.keys(this.value)[0];
-    if (type === "manual" && !this._yamlMode) {
-      this._yamlMode = true;
-      this.requestUpdate();
-      return;
+    const oldType = Object.keys(this.value)[0]
+    if (type === 'manual' && !this._yamlMode) {
+      this._yamlMode = true
+      this.requestUpdate()
+      return
     }
-    if (type === "manual" && value.manual === undefined) {
-      return;
+    if (type === 'manual' && value.manual === undefined) {
+      return
     }
-    if (type !== "manual") {
-      this._yamlMode = false;
+    if (type !== 'manual') {
+      this._yamlMode = false
     }
-    delete value.type;
+    delete value.type
 
-    let newValue;
-    if (type === "manual") {
-      newValue = value.manual;
+    let newValue
+    if (type === 'manual') {
+      newValue = value.manual
     } else if (type === oldType) {
       newValue = {
         [type]: { ...(value.manual ? value.manual[oldType] : value) },
-      };
+      }
     } else {
-      newValue = { [type]: { ...SELECTOR_DEFAULTS[type] } };
+      newValue = { [type]: { ...SELECTOR_DEFAULTS[type] } }
     }
 
-    fireEvent(this, "value-changed", { value: newValue });
+    fireEvent(this, 'value-changed', { value: newValue })
   }
 
   private _computeLabelCallback = (schema: any): string =>
     this.hass.localize(
       `ui.components.selectors.selector.${schema.name}` as LocalizeKeys
-    ) || schema.name;
+    ) || schema.name
 
   static styles = css`
     .title {
@@ -298,11 +298,11 @@ export class HaSelectorSelector extends LitElement {
       padding-inline-end: 4px;
       white-space: nowrap;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-selector": HaSelectorSelector;
+    'ha-selector-selector': HaSelectorSelector
   }
 }

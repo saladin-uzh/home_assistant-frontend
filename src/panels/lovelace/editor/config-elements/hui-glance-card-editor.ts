@@ -1,5 +1,5 @@
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
 import {
   array,
   assert,
@@ -10,21 +10,21 @@ import {
   optional,
   string,
   union,
-} from "superstruct";
-import type { HASSDomEvent } from "../../../../common/dom/fire_event";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-form/ha-form";
-import type { SchemaUnion } from "../../../../components/ha-form/types";
-import type { HomeAssistant } from "../../../../types";
-import type { ConfigEntity, GlanceCardConfig } from "../../cards/types";
-import "../../components/hui-entity-editor";
-import type { EntityConfig } from "../../entity-rows/types";
-import type { LovelaceCardEditor } from "../../types";
-import "../hui-sub-element-editor";
-import { processEditorEntities } from "../process-editor-entities";
-import { baseLovelaceCardConfig } from "../structs/base-card-struct";
-import { entitiesConfigStruct } from "../structs/entities-struct";
-import type { EditDetailElementEvent, SubElementEditorConfig } from "../types";
+} from 'superstruct'
+import type { HASSDomEvent } from '../../../../common/dom/fire_event'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-form/ha-form'
+import type { SchemaUnion } from '../../../../components/ha-form/types'
+import type { HomeAssistant } from '../../../../types'
+import type { ConfigEntity, GlanceCardConfig } from '../../cards/types'
+import '../../components/hui-entity-editor'
+import type { EntityConfig } from '../../entity-rows/types'
+import type { LovelaceCardEditor } from '../../types'
+import '../hui-sub-element-editor'
+import { processEditorEntities } from '../process-editor-entities'
+import { baseLovelaceCardConfig } from '../structs/base-card-struct'
+import { entitiesConfigStruct } from '../structs/entities-struct'
+import type { EditDetailElementEvent, SubElementEditorConfig } from '../types'
 
 const cardConfigStruct = assign(
   baseLovelaceCardConfig,
@@ -38,102 +38,102 @@ const cardConfigStruct = assign(
     state_color: optional(boolean()),
     entities: array(entitiesConfigStruct),
   })
-);
+)
 
 const SUB_SCHEMA = [
-  { name: "entity", selector: { entity: {} }, required: true },
+  { name: 'entity', selector: { entity: {} }, required: true },
   {
-    name: "name",
+    name: 'name',
     selector: { entity_name: {} },
     context: {
-      entity: "entity",
+      entity: 'entity',
     },
   },
   {
-    type: "grid",
-    name: "",
+    type: 'grid',
+    name: '',
     schema: [
       {
-        name: "icon",
+        name: 'icon',
         selector: {
           icon: {},
         },
         context: {
-          icon_entity: "entity",
+          icon_entity: 'entity',
         },
       },
-      { name: "show_last_changed", selector: { boolean: {} } },
-      { name: "show_state", selector: { boolean: {} }, default: true },
+      { name: 'show_last_changed', selector: { boolean: {} } },
+      { name: 'show_state', selector: { boolean: {} }, default: true },
     ],
   },
   {
-    name: "tap_action",
+    name: 'tap_action',
     selector: {
       ui_action: {
-        default_action: "more-info",
+        default_action: 'more-info',
       },
     },
   },
   {
-    name: "",
-    type: "optional_actions",
+    name: '',
+    type: 'optional_actions',
     flatten: true,
-    schema: (["hold_action", "double_tap_action"] as const).map((action) => ({
+    schema: (['hold_action', 'double_tap_action'] as const).map(action => ({
       name: action,
       selector: {
         ui_action: {
-          default_action: "none" as const,
+          default_action: 'none' as const,
         },
       },
     })),
   },
-] as const;
+] as const
 
 const SCHEMA = [
-  { name: "title", selector: { text: {} } },
+  { name: 'title', selector: { text: {} } },
   {
-    name: "",
-    type: "grid",
+    name: '',
+    type: 'grid',
     schema: [
-      { name: "columns", selector: { number: { min: 1, mode: "box" } } },
-      { name: "theme", selector: { theme: {} } },
+      { name: 'columns', selector: { number: { min: 1, mode: 'box' } } },
+      { name: 'theme', selector: { theme: {} } },
     ],
   },
   {
-    name: "",
-    type: "grid",
-    column_min_width: "100px",
+    name: '',
+    type: 'grid',
+    column_min_width: '100px',
     schema: [
-      { name: "show_name", selector: { boolean: {} } },
-      { name: "show_icon", selector: { boolean: {} } },
-      { name: "show_state", selector: { boolean: {} } },
+      { name: 'show_name', selector: { boolean: {} } },
+      { name: 'show_icon', selector: { boolean: {} } },
+      { name: 'show_state', selector: { boolean: {} } },
     ],
   },
-  { name: "state_color", selector: { boolean: {} } },
-] as const;
+  { name: 'state_color', selector: { boolean: {} } },
+] as const
 
-@customElement("hui-glance-card-editor")
+@customElement('hui-glance-card-editor')
 export class HuiGlanceCardEditor
   extends LitElement
   implements LovelaceCardEditor
 {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: GlanceCardConfig;
+  @state() private _config?: GlanceCardConfig
 
-  @state() private _subElementEditorConfig?: SubElementEditorConfig;
+  @state() private _subElementEditorConfig?: SubElementEditorConfig
 
-  @state() private _configEntities?: ConfigEntity[];
+  @state() private _configEntities?: ConfigEntity[]
 
   public setConfig(config: GlanceCardConfig): void {
-    assert(config, cardConfigStruct);
-    this._config = config;
-    this._configEntities = processEditorEntities(config.entities);
+    assert(config, cardConfigStruct)
+    this._config = config
+    this._configEntities = processEditorEntities(config.entities)
   }
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
     if (this._subElementEditorConfig) {
@@ -146,7 +146,7 @@ export class HuiGlanceCardEditor
           @config-changed=${this._handleSubEntityChanged}
         >
         </hui-sub-element-editor>
-      `;
+      `
     }
 
     const data = {
@@ -154,7 +154,7 @@ export class HuiGlanceCardEditor
       show_icon: true,
       show_state: true,
       ...this._config,
-    };
+    }
 
     return html`
       <ha-form
@@ -171,72 +171,72 @@ export class HuiGlanceCardEditor
         @entities-changed=${this._entitiesChanged}
         @edit-detail-element=${this._editDetailElement}
       ></hui-entity-editor>
-    `;
+    `
   }
 
   private _goBack(): void {
-    this._subElementEditorConfig = undefined;
+    this._subElementEditorConfig = undefined
   }
 
   private _editDetailElement(ev: HASSDomEvent<EditDetailElementEvent>): void {
-    this._subElementEditorConfig = ev.detail.subElementConfig;
+    this._subElementEditorConfig = ev.detail.subElementConfig
   }
 
   private _handleSubEntityChanged(ev: CustomEvent): void {
-    ev.stopPropagation();
+    ev.stopPropagation()
 
-    const index = this._subElementEditorConfig!.index!;
+    const index = this._subElementEditorConfig!.index!
 
-    const newEntities = this._configEntities!.concat();
-    const newConfig = ev.detail.config as EntityConfig;
+    const newEntities = this._configEntities!.concat()
+    const newConfig = ev.detail.config as EntityConfig
     this._subElementEditorConfig = {
       ...this._subElementEditorConfig!,
       elementConfig: newConfig,
-    };
-    newEntities[index] = newConfig;
-    let config = this._config!;
-    config = { ...config, entities: newEntities };
-    this._config = config;
-    this._configEntities = processEditorEntities(config.entities);
+    }
+    newEntities[index] = newConfig
+    let config = this._config!
+    config = { ...config, entities: newEntities }
+    this._config = config
+    this._configEntities = processEditorEntities(config.entities)
 
-    fireEvent(this, "config-changed", { config });
+    fireEvent(this, 'config-changed', { config })
   }
 
   private _valueChanged(ev: CustomEvent): void {
-    const config = ev.detail.value;
-    fireEvent(this, "config-changed", { config });
+    const config = ev.detail.value
+    fireEvent(this, 'config-changed', { config })
   }
 
   private _entitiesChanged(ev: CustomEvent): void {
-    let config = this._config!;
-    config = { ...config, entities: ev.detail.entities! };
+    let config = this._config!
+    config = { ...config, entities: ev.detail.entities! }
 
-    this._configEntities = processEditorEntities(this._config!.entities);
-    fireEvent(this, "config-changed", { config });
+    this._configEntities = processEditorEntities(this._config!.entities)
+    fireEvent(this, 'config-changed', { config })
   }
 
   private _computeLabelCallback = (schema: SchemaUnion<typeof SCHEMA>) => {
     switch (schema.name) {
-      case "theme":
+      case 'theme':
         return `${this.hass!.localize(
-          "ui.panel.lovelace.editor.card.generic.theme"
+          'ui.panel.lovelace.editor.card.generic.theme'
         )} (${this.hass!.localize(
-          "ui.panel.lovelace.editor.card.config.optional"
-        )})`;
-      case "columns":
+          'ui.panel.lovelace.editor.card.config.optional'
+        )})`
+      case 'columns':
         return this.hass!.localize(
           `ui.panel.lovelace.editor.card.glance.${schema.name}`
-        );
+        )
       default:
         return this.hass!.localize(
           `ui.panel.lovelace.editor.card.generic.${schema.name}`
-        );
+        )
     }
-  };
+  }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-glance-card-editor": HuiGlanceCardEditor;
+    'hui-glance-card-editor': HuiGlanceCardEditor
   }
 }

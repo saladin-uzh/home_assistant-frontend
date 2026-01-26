@@ -1,5 +1,5 @@
-import type { RequestSelectedDetail } from "@material/mwc-list/mwc-list-item";
-import { mdiDotsVertical } from "@mdi/js";
+import type { RequestSelectedDetail } from '@material/mwc-list/mwc-list-item'
+import { mdiDotsVertical } from '@mdi/js'
 import {
   differenceInDays,
   differenceInMonths,
@@ -11,132 +11,132 @@ import {
   startOfDay,
   startOfWeek,
   subDays,
-} from "date-fns";
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { PropertyValues } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
+} from 'date-fns'
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { PropertyValues } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
 import {
   calcDate,
   calcDateProperty,
   calcDateDifferenceProperty,
   shiftDateRange,
-} from "../../../common/datetime/calc_date";
-import { firstWeekdayIndex } from "../../../common/datetime/first_weekday";
+} from '../../../common/datetime/calc_date'
+import { firstWeekdayIndex } from '../../../common/datetime/first_weekday'
 import {
   formatDate,
   formatDateMonthYear,
   formatDateShort,
   formatDateVeryShort,
   formatDateYear,
-} from "../../../common/datetime/format_date";
-import { debounce } from "../../../common/util/debounce";
-import "../../../components/ha-button-menu";
-import "../../../components/ha-button";
-import "../../../components/ha-check-list-item";
-import "../../../components/ha-date-range-picker";
-import type { DateRangePickerRanges } from "../../../components/ha-date-range-picker";
-import "../../../components/ha-icon-button-next";
-import "../../../components/ha-icon-button-prev";
-import type { EnergyData } from "../../../data/energy";
-import { CompareMode, getEnergyDataCollection } from "../../../data/energy";
-import { SubscribeMixin } from "../../../mixins/subscribe-mixin";
-import type { HomeAssistant } from "../../../types";
-import { calcDateRange } from "../../../common/datetime/calc_date_range";
-import type { DateRange } from "../../../common/datetime/calc_date_range";
+} from '../../../common/datetime/format_date'
+import { debounce } from '../../../common/util/debounce'
+import '../../../components/ha-button-menu'
+import '../../../components/ha-button'
+import '../../../components/ha-check-list-item'
+import '../../../components/ha-date-range-picker'
+import type { DateRangePickerRanges } from '../../../components/ha-date-range-picker'
+import '../../../components/ha-icon-button-next'
+import '../../../components/ha-icon-button-prev'
+import type { EnergyData } from '../../../data/energy'
+import { CompareMode, getEnergyDataCollection } from '../../../data/energy'
+import { SubscribeMixin } from '../../../mixins/subscribe-mixin'
+import type { HomeAssistant } from '../../../types'
+import { calcDateRange } from '../../../common/datetime/calc_date_range'
+import type { DateRange } from '../../../common/datetime/calc_date_range'
 
 const RANGE_KEYS: DateRange[] = [
-  "today",
-  "yesterday",
-  "this_week",
-  "this_month",
-  "this_quarter",
-  "this_year",
-  "now-7d",
-  "now-30d",
-  "now-12m",
-];
+  'today',
+  'yesterday',
+  'this_week',
+  'this_month',
+  'this_quarter',
+  'this_year',
+  'now-7d',
+  'now-30d',
+  'now-12m',
+]
 
-@customElement("hui-energy-period-selector")
+@customElement('hui-energy-period-selector')
 export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: "collection-key" }) public collectionKey?: string;
+  @property({ attribute: 'collection-key' }) public collectionKey?: string
 
-  @property({ type: Boolean, reflect: true }) public narrow?;
+  @property({ type: Boolean, reflect: true }) public narrow?
 
-  @state() _startDate?: Date;
+  @state() _startDate?: Date
 
-  @state() _endDate?: Date;
+  @state() _endDate?: Date
 
-  @state() private _ranges: DateRangePickerRanges = {};
+  @state() private _ranges: DateRangePickerRanges = {}
 
-  @state() private _compare = false;
+  @state() private _compare = false
 
-  private _resizeObserver?: ResizeObserver;
+  private _resizeObserver?: ResizeObserver
 
   public hassSubscribe(): UnsubscribeFunc[] {
     return [
       getEnergyDataCollection(this.hass, {
         key: this.collectionKey,
-      }).subscribe((data) => this._updateDates(data)),
-    ];
+      }).subscribe(data => this._updateDates(data)),
+    ]
   }
 
   private _measure() {
-    this.narrow = this.offsetWidth < 450;
+    this.narrow = this.offsetWidth < 450
   }
 
   private async _attachObserver(): Promise<void> {
     if (!this._resizeObserver) {
       this._resizeObserver = new ResizeObserver(
         debounce(() => this._measure(), 250, false)
-      );
+      )
     }
-    this._resizeObserver.observe(this);
+    this._resizeObserver.observe(this)
   }
 
   protected firstUpdated(): void {
-    this._attachObserver();
+    this._attachObserver()
   }
 
   public connectedCallback(): void {
-    super.connectedCallback();
-    this.updateComplete.then(() => this._attachObserver());
+    super.connectedCallback()
+    this.updateComplete.then(() => this._attachObserver())
   }
 
   public disconnectedCallback(): void {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
     if (this._resizeObserver) {
-      this._resizeObserver.disconnect();
+      this._resizeObserver.disconnect()
     }
   }
 
   public willUpdate(changedProps: PropertyValues) {
-    super.willUpdate(changedProps);
+    super.willUpdate(changedProps)
     if (!this.hasUpdated) {
-      this._measure();
+      this._measure()
     }
 
     if (
       !this.hasUpdated ||
-      (changedProps.has("hass") &&
-        this.hass?.localize !== changedProps.get("hass")?.localize)
+      (changedProps.has('hass') &&
+        this.hass?.localize !== changedProps.get('hass')?.localize)
     ) {
       // pre defined date ranges
-      this._ranges = {};
-      RANGE_KEYS.forEach((key) => {
+      this._ranges = {}
+      RANGE_KEYS.forEach(key => {
         this._ranges[
           this.hass.localize(`ui.components.date-range-picker.ranges.${key}`)
-        ] = calcDateRange(this.hass, key);
-      });
+        ] = calcDateRange(this.hass, key)
+      })
     }
   }
 
   protected render() {
     if (!this.hass || !this._startDate) {
-      return nothing;
+      return nothing
     }
 
     const simpleRange = this._simpleRange(
@@ -144,12 +144,12 @@ export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
       this._endDate,
       this.hass.locale,
       this.hass.config
-    );
+    )
 
     return html`
       <div class="row">
         <div class="label">
-          ${simpleRange === "day"
+          ${simpleRange === 'day'
             ? this.narrow
               ? formatDateShort(
                   this._startDate,
@@ -157,13 +157,13 @@ export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
                   this.hass.config
                 )
               : formatDate(this._startDate, this.hass.locale, this.hass.config)
-            : simpleRange === "month"
+            : simpleRange === 'month'
               ? formatDateMonthYear(
                   this._startDate,
                   this.hass.locale,
                   this.hass.config
                 )
-              : simpleRange === "year"
+              : simpleRange === 'year'
                 ? formatDateYear(
                     this._startDate,
                     this.hass.locale,
@@ -182,13 +182,13 @@ export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
         <div class="time-handle">
           <ha-icon-button-prev
             .label=${this.hass.localize(
-              "ui.panel.lovelace.components.energy_period_selector.previous"
+              'ui.panel.lovelace.components.energy_period_selector.previous'
             )}
             @click=${this._pickPrevious}
           ></ha-icon-button-prev>
           <ha-icon-button-next
             .label=${this.hass.localize(
-              "ui.panel.lovelace.components.energy_period_selector.next"
+              'ui.panel.lovelace.components.energy_period_selector.next'
             )}
             @click=${this._pickNext}
           ></ha-icon-button-next>
@@ -211,7 +211,7 @@ export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
               @click=${this._pickNow}
             >
               ${this.hass.localize(
-                "ui.panel.lovelace.components.energy_period_selector.now"
+                'ui.panel.lovelace.components.energy_period_selector.now'
               )}
             </ha-button>`
           : nothing}
@@ -219,7 +219,7 @@ export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
         <ha-button-menu>
           <ha-icon-button
             slot="trigger"
-            .label=${this.hass.localize("ui.common.menu")}
+            .label=${this.hass.localize('ui.common.menu')}
             .path=${mdiDotsVertical}
           ></ha-icon-button>
           <ha-check-list-item
@@ -228,19 +228,19 @@ export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
             .selected=${this._compare}
           >
             ${this.hass.localize(
-              "ui.panel.lovelace.components.energy_period_selector.compare"
+              'ui.panel.lovelace.components.energy_period_selector.compare'
             )}
           </ha-check-list-item>
           <slot name="overflow-menu"></slot>
         </ha-button-menu>
       </div>
-    `;
+    `
   }
 
   private _simpleRange = memoizeOne(
     (startDate, endDate, locale, config): string => {
       if (differenceInDays(endDate!, startDate!) === 0) {
-        return "day";
+        return 'day'
       }
       if (
         (calcDateProperty(
@@ -260,7 +260,7 @@ export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
             config
           ) as number) === 0
         ) {
-          return "month";
+          return 'month'
         }
         if (
           (calcDateDifferenceProperty(
@@ -272,7 +272,7 @@ export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
           ) as number) === 2 &&
           startDate.getMonth() % 3 === 0
         ) {
-          return "quarter";
+          return 'quarter'
         }
       }
       if (
@@ -286,18 +286,18 @@ export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
           config
         ) === 11
       ) {
-        return "year";
+        return 'year'
       }
-      return "other";
+      return 'other'
     }
-  );
+  )
 
   private _updateCollectionPeriod() {
     const energyCollection = getEnergyDataCollection(this.hass, {
       key: this.collectionKey,
-    });
-    energyCollection.setPeriod(this._startDate!, this._endDate!);
-    energyCollection.refresh();
+    })
+    energyCollection.setPeriod(this._startDate!, this._endDate!)
+    energyCollection.refresh()
   }
 
   private _dateRangeChanged(ev) {
@@ -306,45 +306,45 @@ export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
       startOfDay,
       this.hass.locale,
       this.hass.config
-    );
+    )
     this._endDate = calcDate(
       ev.detail.value.endDate,
       endOfDay,
       this.hass.locale,
       this.hass.config
-    );
+    )
 
-    this._updateCollectionPeriod();
+    this._updateCollectionPeriod()
   }
 
   private _presetSelected(ev) {
     localStorage.setItem(
-      `energy-default-period-_${this.collectionKey || "energy"}`,
+      `energy-default-period-_${this.collectionKey || 'energy'}`,
       RANGE_KEYS[ev.detail.index]
-    );
+    )
   }
 
   private _pickNow() {
-    if (!this._startDate) return;
+    if (!this._startDate) return
 
     const range = this._simpleRange(
       this._startDate,
       this._endDate,
       this.hass.locale,
       this.hass.config
-    );
-    const today = new Date();
-    if (range === "month") {
-      [this._startDate, this._endDate] = calcDateRange(this.hass, "this_month");
-    } else if (range === "quarter") {
-      [this._startDate, this._endDate] = calcDateRange(
+    )
+    const today = new Date()
+    if (range === 'month') {
+      ;[this._startDate, this._endDate] = calcDateRange(this.hass, 'this_month')
+    } else if (range === 'quarter') {
+      ;[this._startDate, this._endDate] = calcDateRange(
         this.hass,
-        "this_quarter"
-      );
-    } else if (range === "year") {
-      [this._startDate, this._endDate] = calcDateRange(this.hass, "this_year");
+        'this_quarter'
+      )
+    } else if (range === 'year') {
+      ;[this._startDate, this._endDate] = calcDateRange(this.hass, 'this_year')
     } else {
-      const weekStartsOn = firstWeekdayIndex(this.hass.locale);
+      const weekStartsOn = firstWeekdayIndex(this.hass.locale)
       const weekStart = calcDate(
         this._endDate!,
         startOfWeek,
@@ -353,7 +353,7 @@ export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
         {
           weekStartsOn,
         }
-      );
+      )
       const weekEnd = calcDate(
         this._endDate!,
         endOfWeek,
@@ -362,7 +362,7 @@ export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
         {
           weekStartsOn,
         }
-      );
+      )
 
       // Check if a single week is selected
       if (
@@ -370,10 +370,10 @@ export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
         this._endDate!.getTime() === weekEnd.getTime()
       ) {
         // Pick current week
-        [this._startDate, this._endDate] = calcDateRange(
+        ;[this._startDate, this._endDate] = calcDateRange(
           this.hass,
-          "this_week"
-        );
+          'this_week'
+        )
       } else {
         // Custom date range
         const difference = calcDateDifferenceProperty(
@@ -382,7 +382,7 @@ export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
           differenceInDays,
           this.hass.locale,
           this.hass.config
-        ) as number;
+        ) as number
         this._startDate = calcDate(
           calcDate(
             today,
@@ -397,7 +397,7 @@ export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
           {
             weekStartsOn,
           }
-        );
+        )
         this._endDate = calcDate(
           today,
           endOfDay,
@@ -406,53 +406,53 @@ export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
           {
             weekStartsOn,
           }
-        );
+        )
       }
     }
 
-    this._updateCollectionPeriod();
+    this._updateCollectionPeriod()
   }
 
   private _pickPrevious() {
-    this._shift(false);
+    this._shift(false)
   }
 
   private _pickNext() {
-    this._shift(true);
+    this._shift(true)
   }
 
   private _shift(forward: boolean) {
-    if (!this._startDate) return;
+    if (!this._startDate) return
     const { start, end } = shiftDateRange(
       this._startDate,
       this._endDate!,
       forward,
       this.hass.locale,
       this.hass.config
-    );
-    this._startDate = start;
-    this._endDate = end;
-    this._updateCollectionPeriod();
+    )
+    this._startDate = start
+    this._endDate = end
+    this._updateCollectionPeriod()
   }
 
   private _updateDates(energyData: EnergyData): void {
-    this._compare = energyData.startCompare !== undefined;
-    this._startDate = energyData.start;
-    this._endDate = energyData.end || endOfToday();
+    this._compare = energyData.startCompare !== undefined
+    this._startDate = energyData.start
+    this._endDate = energyData.end || endOfToday()
   }
 
   private _toggleCompare(ev: CustomEvent<RequestSelectedDetail>) {
-    if (ev.detail.source !== "interaction") {
-      return;
+    if (ev.detail.source !== 'interaction') {
+      return
     }
-    this._compare = ev.detail.selected;
+    this._compare = ev.detail.selected
     const energyCollection = getEnergyDataCollection(this.hass, {
       key: this.collectionKey,
-    });
+    })
     energyCollection.setCompare(
       this._compare ? CompareMode.PREVIOUS : CompareMode.NONE
-    );
-    energyCollection.refresh();
+    )
+    energyCollection.refresh()
   }
 
   static styles = css`
@@ -491,11 +491,11 @@ export class HuiEnergyPeriodSelector extends SubscribeMixin(LitElement) {
       flex-shrink: 0;
       --ha-button-theme-color: currentColor;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-energy-period-selector": HuiEnergyPeriodSelector;
+    'hui-energy-period-selector': HuiEnergyPeriodSelector
   }
 }

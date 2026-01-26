@@ -1,44 +1,44 @@
-import type { List, SelectedDetail } from "@material/mwc-list";
-import { mdiFilterVariantRemove } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { fireEvent } from "../common/dom/fire_event";
-import { haStyleScrollbar } from "../resources/styles";
-import type { HomeAssistant } from "../types";
-import "./ha-check-list-item";
-import "./ha-expansion-panel";
-import "./ha-icon";
-import "./ha-icon-button";
-import "./ha-list";
+import type { List, SelectedDetail } from '@material/mwc-list'
+import { mdiFilterVariantRemove } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { fireEvent } from '../common/dom/fire_event'
+import { haStyleScrollbar } from '../resources/styles'
+import type { HomeAssistant } from '../types'
+import './ha-check-list-item'
+import './ha-expansion-panel'
+import './ha-icon'
+import './ha-icon-button'
+import './ha-list'
 
-@customElement("ha-filter-states")
+@customElement('ha-filter-states')
 export class HaFilterStates extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property({ attribute: false }) public value?: string[];
+  @property({ attribute: false }) public value?: string[]
 
   @property({ attribute: false }) public states?: {
-    value: any;
-    label?: string;
-    icon?: string;
-  }[];
+    value: any
+    label?: string
+    icon?: string
+  }[]
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ type: Boolean, reflect: true }) public expanded = false;
+  @property({ type: Boolean, reflect: true }) public expanded = false
 
-  @state() private _shouldRender = false;
+  @state() private _shouldRender = false
 
-  @query("ha-list") private _list!: List;
+  @query('ha-list') private _list!: List
 
   protected render() {
     if (!this.states) {
-      return nothing;
+      return nothing
     }
-    const hasIcon = this.states.find((item) => item.icon);
+    const hasIcon = this.states.find(item => item.icon)
     return html`
       <ha-expansion-panel
         left-chevron
@@ -46,7 +46,10 @@ export class HaFilterStates extends LitElement {
         @expanded-will-change=${this._expandedWillChange}
         @expanded-changed=${this._expandedChanged}
       >
-        <div slot="header" class="header">
+        <div
+          slot="header"
+          class="header"
+        >
           ${this.label}
           ${this.value?.length
             ? html`<div class="badge">${this.value?.length}</div>
@@ -64,11 +67,11 @@ export class HaFilterStates extends LitElement {
                 class="ha-scrollbar"
               >
                 ${this.states.map(
-                  (item) =>
+                  item =>
                     html`<ha-check-list-item
                       .value=${item.value}
                       .selected=${this.value?.includes(item.value) ?? false}
-                      .graphic=${hasIcon ? "icon" : null}
+                      .graphic=${hasIcon ? 'icon' : null}
                     >
                       ${item.icon
                         ? html`<ha-icon
@@ -83,67 +86,67 @@ export class HaFilterStates extends LitElement {
             `
           : nothing}
       </ha-expansion-panel>
-    `;
+    `
   }
 
   protected willUpdate(changed) {
-    if (changed.has("expanded") && this.expanded) {
-      this._shouldRender = true;
+    if (changed.has('expanded') && this.expanded) {
+      this._shouldRender = true
     }
   }
 
   protected updated(changed) {
-    if ((changed.has("expanded") || changed.has("states")) && this.expanded) {
+    if ((changed.has('expanded') || changed.has('states')) && this.expanded) {
       setTimeout(async () => {
-        if (!this.expanded) return;
-        const list = this._list;
+        if (!this.expanded) return
+        const list = this._list
         if (!list) {
-          return;
+          return
         }
-        list.style.height = `${this.clientHeight - 49}px`;
-      }, 300);
+        list.style.height = `${this.clientHeight - 49}px`
+      }, 300)
     }
   }
 
   private _expandedWillChange(ev) {
-    this._shouldRender = ev.detail.expanded;
+    this._shouldRender = ev.detail.expanded
   }
 
   private _expandedChanged(ev) {
-    this.expanded = ev.detail.expanded;
+    this.expanded = ev.detail.expanded
   }
 
   private async _statesSelected(ev: CustomEvent<SelectedDetail<Set<number>>>) {
     if (!ev.detail.index.size) {
-      fireEvent(this, "data-table-filter-changed", {
+      fireEvent(this, 'data-table-filter-changed', {
         value: [],
         items: undefined,
-      });
-      this.value = [];
-      return;
+      })
+      this.value = []
+      return
     }
 
-    const value: string[] = [];
+    const value: string[] = []
 
     for (const index of ev.detail.index) {
-      const val = this.states![index].value;
-      value.push(val);
+      const val = this.states![index].value
+      value.push(val)
     }
-    this.value = value;
+    this.value = value
 
-    fireEvent(this, "data-table-filter-changed", {
+    fireEvent(this, 'data-table-filter-changed', {
       value,
       items: undefined,
-    });
+    })
   }
 
   private _clearFilter(ev) {
-    ev.preventDefault();
-    this.value = undefined;
-    fireEvent(this, "data-table-filter-changed", {
+    ev.preventDefault()
+    this.value = undefined
+    fireEvent(this, 'data-table-filter-changed', {
       value: undefined,
       items: undefined,
-    });
+    })
   }
 
   static get styles(): CSSResultGroup {
@@ -186,12 +189,12 @@ export class HaFilterStates extends LitElement {
           color: var(--text-primary-color);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-filter-states": HaFilterStates;
+    'ha-filter-states': HaFilterStates
   }
 }

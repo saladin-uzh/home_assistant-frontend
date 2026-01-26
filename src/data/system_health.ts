@@ -1,105 +1,105 @@
-import type { HomeAssistant } from "../types";
+import type { HomeAssistant } from '../types'
 
 interface SystemCheckValueDateObject {
-  type: "date";
-  value: string;
+  type: 'date'
+  value: string
 }
 
 interface SystemCheckValueErrorObject {
-  type: "failed";
-  error: string;
-  more_info?: string;
+  type: 'failed'
+  error: string
+  more_info?: string
 }
 
 interface SystemCheckValuePendingObject {
-  type: "pending";
+  type: 'pending'
 }
 
 export type SystemCheckValueObject =
   | SystemCheckValueDateObject
   | SystemCheckValueErrorObject
-  | SystemCheckValuePendingObject;
+  | SystemCheckValuePendingObject
 
 export type SystemCheckValue =
   | string
   | number
   | boolean
-  | SystemCheckValueObject;
+  | SystemCheckValueObject
 
 export type SystemHealthInfo = Partial<{
   homeassistant: {
     info: {
-      version: string;
-      installation_type: string;
-      dev: boolean;
-      hassio: boolean;
-      docker: boolean;
-      container_arch: string;
-      user: string;
-      virtualenv: boolean;
-      python_version: string;
-      os_name: string;
-      os_version: string;
-      arch: string;
-      timezone: string;
-      config_dir: string;
-    };
-  };
+      version: string
+      installation_type: string
+      dev: boolean
+      hassio: boolean
+      docker: boolean
+      container_arch: string
+      user: string
+      virtualenv: boolean
+      python_version: string
+      os_name: string
+      os_version: string
+      arch: string
+      timezone: string
+      config_dir: string
+    }
+  }
   [domain: string]: {
-    manage_url?: string;
-    info: Record<string, SystemCheckValue>;
-  };
-}>;
+    manage_url?: string
+    info: Record<string, SystemCheckValue>
+  }
+}>
 
 interface SystemHealthEventInitial {
-  type: "initial";
-  data: SystemHealthInfo;
+  type: 'initial'
+  data: SystemHealthInfo
 }
 interface SystemHealthEventUpdateSuccess {
-  type: "update";
-  success: true;
-  domain: string;
-  key: string;
-  data: SystemCheckValue;
+  type: 'update'
+  success: true
+  domain: string
+  key: string
+  data: SystemCheckValue
 }
 
 interface SystemHealthEventUpdateError {
-  type: "update";
-  success: false;
-  domain: string;
-  key: string;
+  type: 'update'
+  success: false
+  domain: string
+  key: string
   error: {
-    msg: string;
-  };
+    msg: string
+  }
 }
 
 interface SystemHealthEventFinish {
-  type: "finish";
+  type: 'finish'
 }
 
 type SystemHealthEvent =
   | SystemHealthEventInitial
   | SystemHealthEventUpdateSuccess
   | SystemHealthEventUpdateError
-  | SystemHealthEventFinish;
+  | SystemHealthEventFinish
 
 export const subscribeSystemHealthInfo = (
   hass: HomeAssistant,
   callback: (info: SystemHealthInfo | undefined) => void
 ) => {
-  let data = {};
+  let data = {}
 
   const unsubProm = hass.connection.subscribeMessage<SystemHealthEvent>(
-    (updateEvent) => {
-      if (updateEvent.type === "initial") {
-        data = updateEvent.data;
-        callback(data);
-        return;
+    updateEvent => {
+      if (updateEvent.type === 'initial') {
+        data = updateEvent.data
+        callback(data)
+        return
       }
-      if (updateEvent.type === "finish") {
-        unsubProm.then((unsub) => unsub());
-        callback(undefined);
-        return;
+      if (updateEvent.type === 'finish') {
+        unsubProm.then(unsub => unsub())
+        callback(undefined)
+        return
       }
 
       data = {
@@ -116,13 +116,13 @@ export const subscribeSystemHealthInfo = (
                 },
           },
         },
-      };
-      callback(data);
+      }
+      callback(data)
     },
     {
-      type: "system_health/info",
+      type: 'system_health/info',
     }
-  );
+  )
 
-  return unsubProm;
-};
+  return unsubProm
+}

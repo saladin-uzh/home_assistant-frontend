@@ -1,87 +1,87 @@
-import { mdiChevronDown } from "@mdi/js";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { isComponentLoaded } from "../../../common/config/is_component_loaded";
-import { navigate } from "../../../common/navigate";
-import { extractSearchParam } from "../../../common/url/search-params";
-import "../../../components/ha-button";
-import "../../../components/ha-button-menu";
-import "../../../components/ha-list-item";
-import "../../../components/search-input";
-import type { LogProvider } from "../../../data/error_log";
-import { fetchHassioAddonsInfo } from "../../../data/hassio/addon";
-import { showAlertDialog } from "../../../dialogs/generic/show-dialog-box";
-import "../../../layouts/hass-subpage";
-import { haStyle } from "../../../resources/styles";
-import type { HomeAssistant, Route } from "../../../types";
-import "./error-log-card";
-import "./system-log-card";
-import type { SystemLogCard } from "./system-log-card";
-import { stringCompare } from "../../../common/string/compare";
+import { mdiChevronDown } from '@mdi/js'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { isComponentLoaded } from '../../../common/config/is_component_loaded'
+import { navigate } from '../../../common/navigate'
+import { extractSearchParam } from '../../../common/url/search-params'
+import '../../../components/ha-button'
+import '../../../components/ha-button-menu'
+import '../../../components/ha-list-item'
+import '../../../components/search-input'
+import type { LogProvider } from '../../../data/error_log'
+import { fetchHassioAddonsInfo } from '../../../data/hassio/addon'
+import { showAlertDialog } from '../../../dialogs/generic/show-dialog-box'
+import '../../../layouts/hass-subpage'
+import { haStyle } from '../../../resources/styles'
+import type { HomeAssistant, Route } from '../../../types'
+import './error-log-card'
+import './system-log-card'
+import type { SystemLogCard } from './system-log-card'
+import { stringCompare } from '../../../common/string/compare'
 
 const logProviders: LogProvider[] = [
   {
-    key: "core",
-    name: "Home Assistant Core",
+    key: 'core',
+    name: 'Home Assistant Core',
   },
   {
-    key: "supervisor",
-    name: "Supervisor",
+    key: 'supervisor',
+    name: 'Supervisor',
   },
   {
-    key: "host",
-    name: "Host",
+    key: 'host',
+    name: 'Host',
   },
   {
-    key: "dns",
-    name: "DNS",
+    key: 'dns',
+    name: 'DNS',
   },
   {
-    key: "audio",
-    name: "Audio",
+    key: 'audio',
+    name: 'Audio',
   },
   {
-    key: "multicast",
-    name: "Multicast",
+    key: 'multicast',
+    name: 'Multicast',
   },
-];
+]
 
-@customElement("ha-config-logs")
+@customElement('ha-config-logs')
 export class HaConfigLogs extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ attribute: "is-wide", type: Boolean }) public isWide = false;
+  @property({ attribute: 'is-wide', type: Boolean }) public isWide = false
 
-  @property({ attribute: false }) public route!: Route;
+  @property({ attribute: false }) public route!: Route
 
-  @state() private _filter = extractSearchParam("filter") || "";
+  @state() private _filter = extractSearchParam('filter') || ''
 
-  @state() private _detail = false;
+  @state() private _detail = false
 
-  @query("system-log-card") private systemLog?: SystemLogCard;
+  @query('system-log-card') private systemLog?: SystemLogCard
 
-  @state() private _selectedLogProvider = "core";
+  @state() private _selectedLogProvider = 'core'
 
-  @state() private _logProviders = logProviders;
+  @state() private _logProviders = logProviders
 
   public connectedCallback() {
-    super.connectedCallback();
-    const systemLog = this.systemLog;
+    super.connectedCallback()
+    const systemLog = this.systemLog
     if (systemLog && systemLog.loaded) {
-      systemLog.fetchData();
+      systemLog.fetchData()
     }
   }
 
   protected firstUpdated(changedProps): void {
-    super.firstUpdated(changedProps);
-    this._init();
+    super.firstUpdated(changedProps)
+    this._init()
   }
 
   private async _filterChanged(ev) {
-    this._filter = ev.detail.value;
+    this._filter = ev.detail.value
   }
 
   protected render(): TemplateResult {
@@ -93,7 +93,7 @@ export class HaConfigLogs extends LitElement {
               @value-changed=${this._filterChanged}
               .hass=${this.hass}
               .filter=${this._filter}
-              .label=${this.hass.localize("ui.panel.config.logs.search")}
+              .label=${this.hass.localize('ui.panel.config.logs.search')}
             ></search-input>
           </div>
         `
@@ -103,29 +103,35 @@ export class HaConfigLogs extends LitElement {
               @value-changed=${this._filterChanged}
               .hass=${this.hass}
               .filter=${this._filter}
-              .label=${this.hass.localize("ui.panel.config.logs.search")}
+              .label=${this.hass.localize('ui.panel.config.logs.search')}
             ></search-input>
           </div>
-        `;
+        `
 
     return html`
       <hass-subpage
         .hass=${this.hass}
         .narrow=${this.narrow}
-        .header=${this.hass.localize("ui.panel.config.logs.caption")}
+        .header=${this.hass.localize('ui.panel.config.logs.caption')}
         back-path="/config/system"
       >
-        ${isComponentLoaded(this.hass, "hassio")
+        ${isComponentLoaded(this.hass, 'hassio')
           ? html`
               <ha-button-menu slot="toolbar-icon">
-                <ha-button slot="trigger" appearance="filled">
-                  <ha-svg-icon slot="end" .path=${mdiChevronDown}></ha-svg-icon>
+                <ha-button
+                  slot="trigger"
+                  appearance="filled"
+                >
+                  <ha-svg-icon
+                    slot="end"
+                    .path=${mdiChevronDown}
+                  ></ha-svg-icon>
                   ${this._logProviders.find(
-                    (p) => p.key === this._selectedLogProvider
+                    p => p.key === this._selectedLogProvider
                   )!.name}
                 </ha-button>
                 ${this._logProviders.map(
-                  (provider) => html`
+                  provider => html`
                     <ha-list-item
                       ?selected=${provider.key === this._selectedLogProvider}
                       .provider=${provider.key}
@@ -137,15 +143,15 @@ export class HaConfigLogs extends LitElement {
                 )}
               </ha-button-menu>
             `
-          : ""}
+          : ''}
         ${search}
         <div class="content">
-          ${this._selectedLogProvider === "core" && !this._detail
+          ${this._selectedLogProvider === 'core' && !this._detail
             ? html`
                 <system-log-card
                   .hass=${this.hass}
                   .header=${this._logProviders.find(
-                    (p) => p.key === this._selectedLogProvider
+                    p => p.key === this._selectedLogProvider
                   )!.name}
                   .filter=${this._filter}
                   @switch-log-view=${this._showDetail}
@@ -154,7 +160,7 @@ export class HaConfigLogs extends LitElement {
             : html`<error-log-card
                 .hass=${this.hass}
                 .header=${this._logProviders.find(
-                  (p) => p.key === this._selectedLogProvider
+                  p => p.key === this._selectedLogProvider
                 )!.name}
                 .filter=${this._filter}
                 .provider=${this._selectedLogProvider}
@@ -163,63 +169,63 @@ export class HaConfigLogs extends LitElement {
               ></error-log-card>`}
         </div>
       </hass-subpage>
-    `;
+    `
   }
 
   private _showDetail() {
-    this._detail = !this._detail;
+    this._detail = !this._detail
   }
 
   private _selectProvider(ev) {
-    this._selectedLogProvider = (ev.currentTarget as any).provider;
-    this._filter = "";
-    navigate(`/config/logs?provider=${this._selectedLogProvider}`);
+    this._selectedLogProvider = (ev.currentTarget as any).provider
+    this._filter = ''
+    navigate(`/config/logs?provider=${this._selectedLogProvider}`)
   }
 
   private async _init() {
-    if (isComponentLoaded(this.hass, "hassio")) {
-      await this._getInstalledAddons();
+    if (isComponentLoaded(this.hass, 'hassio')) {
+      await this._getInstalledAddons()
     }
-    const providerKey = extractSearchParam("provider");
+    const providerKey = extractSearchParam('provider')
     if (providerKey) {
       if (
-        isComponentLoaded(this.hass, "hassio") &&
-        this._logProviders.find((p) => p.key === providerKey)
+        isComponentLoaded(this.hass, 'hassio') &&
+        this._logProviders.find(p => p.key === providerKey)
       ) {
-        this._selectedLogProvider = providerKey;
+        this._selectedLogProvider = providerKey
       } else {
-        navigate("/config/logs", { replace: true });
+        navigate('/config/logs', { replace: true })
         showAlertDialog(this, {
           title:
-            this.hass.localize("ui.panel.config.logs.provider_not_found") ||
-            "Log provider not found",
+            this.hass.localize('ui.panel.config.logs.provider_not_found') ||
+            'Log provider not found',
           text: this.hass.localize(
-            "ui.panel.config.logs.provider_not_available",
+            'ui.panel.config.logs.provider_not_available',
             {
               provider:
-                this._logProviders.find((p) => p.key === providerKey)?.name ||
+                this._logProviders.find(p => p.key === providerKey)?.name ||
                 providerKey,
             }
           ),
-        });
+        })
       }
     }
   }
 
   private async _getInstalledAddons() {
     try {
-      const addonsInfo = await fetchHassioAddonsInfo(this.hass);
+      const addonsInfo = await fetchHassioAddonsInfo(this.hass)
       const sortedAddons = addonsInfo.addons
-        .filter((addon) => addon.version)
-        .map((addon) => ({
+        .filter(addon => addon.version)
+        .map(addon => ({
           key: addon.slug,
           name: addon.name,
         }))
         .sort((a, b) =>
           stringCompare(a.name, b.name, this.hass.locale.language)
-        );
+        )
 
-      this._logProviders = [...this._logProviders, ...sortedAddons];
+      this._logProviders = [...this._logProviders, ...sortedAddons]
     } catch (_err) {
       // Ignore, nothing the user can do anyway
     }
@@ -269,12 +275,12 @@ export class HaConfigLogs extends LitElement {
           color: var(--primary-color);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-config-logs": HaConfigLogs;
+    'ha-config-logs': HaConfigLogs
   }
 }

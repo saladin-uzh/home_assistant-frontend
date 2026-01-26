@@ -1,15 +1,15 @@
-import { css, html, LitElement, nothing } from "lit";
-import { ifDefined } from "lit/directives/if-defined";
-import { customElement, property } from "lit/decorators";
+import { css, html, LitElement, nothing } from 'lit'
+import { ifDefined } from 'lit/directives/if-defined'
+import { customElement, property } from 'lit/decorators'
 
-@customElement("ha-divider")
+@customElement('ha-divider')
 export class HaMdDivider extends LitElement {
-  @property() public label?: string;
+  @property() public label?: string
 
   public render() {
     return html`
       <div
-        role=${ifDefined(this.label ? "separator" : undefined)}
+        role=${ifDefined(this.label ? 'separator' : undefined)}
         aria-label=${ifDefined(this.label)}
       >
         <span class="line"></span>
@@ -20,7 +20,7 @@ export class HaMdDivider extends LitElement {
             `
           : nothing}
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -40,11 +40,11 @@ export class HaMdDivider extends LitElement {
       background-color: var(--divider-color);
       height: var(--ha-divider-line-height, 1px);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-divider": HaMdDivider;
+    'ha-divider': HaMdDivider
   }
 }

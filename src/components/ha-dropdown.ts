@@ -1,6 +1,6 @@
-import Dropdown from "@home-assistant/webawesome/dist/components/dropdown/dropdown";
-import { css, type CSSResultGroup } from "lit";
-import { customElement, property } from "lit/decorators";
+import Dropdown from '@home-assistant/webawesome/dist/components/dropdown/dropdown'
+import { css, type CSSResultGroup } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
 /**
  * Home Assistant dropdown component
@@ -12,11 +12,11 @@ import { customElement, property } from "lit/decorators";
  * A stylable dropdown component supporting Home Assistant theming, variants, and appearances based on webawesome dropdown.
  *
  */
-@customElement("ha-dropdown")
+@customElement('ha-dropdown')
 export class HaDropdown extends Dropdown {
-  @property({ attribute: false }) dropdownTag = "ha-dropdown";
+  @property({ attribute: false }) dropdownTag = 'ha-dropdown'
 
-  @property({ attribute: false }) dropdownItemTag = "ha-dropdown-item";
+  @property({ attribute: false }) dropdownItemTag = 'ha-dropdown-item'
 
   static get styles(): CSSResultGroup {
     return [
@@ -34,12 +34,12 @@ export class HaDropdown extends Dropdown {
           padding: var(--ha-space-1);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-dropdown": HaDropdown;
+    'ha-dropdown': HaDropdown
   }
 }

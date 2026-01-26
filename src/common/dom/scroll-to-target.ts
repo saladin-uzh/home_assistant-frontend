@@ -11,31 +11,31 @@ export default function scrollToTarget(element, target) {
   // the scroll event will trigger _updateScrollState directly,
   // However, _updateScrollState relies on the previous `scrollTop` to update the states.
   // Calling _updateScrollState will ensure that the states are synced correctly.
-  const top = 0;
-  const scroller = target;
+  const top = 0
+  const scroller = target
   const easingFn = function easeOutQuad(t, b, c, d) {
-    t /= d;
-    return -c * t * (t - 2) + b;
-  };
-  const animationId = Math.random();
-  const duration = 200;
-  const startTime = Date.now();
-  const currentScrollTop = scroller.scrollTop;
-  const deltaScrollTop = top - currentScrollTop;
-  element._currentAnimationId = animationId;
-  (function updateFrame() {
-    const now = Date.now();
-    const elapsedTime = now - startTime;
+    t /= d
+    return -c * t * (t - 2) + b
+  }
+  const animationId = Math.random()
+  const duration = 200
+  const startTime = Date.now()
+  const currentScrollTop = scroller.scrollTop
+  const deltaScrollTop = top - currentScrollTop
+  element._currentAnimationId = animationId
+  ;(function updateFrame() {
+    const now = Date.now()
+    const elapsedTime = now - startTime
     if (elapsedTime > duration) {
-      scroller.scrollTop = top;
+      scroller.scrollTop = top
     } else if (element._currentAnimationId === animationId) {
       scroller.scrollTop = easingFn(
         elapsedTime,
         currentScrollTop,
         deltaScrollTop,
         duration
-      );
-      requestAnimationFrame(updateFrame.bind(element));
+      )
+      requestAnimationFrame(updateFrame.bind(element))
     }
-  }).call(element);
+  }).call(element)
 }

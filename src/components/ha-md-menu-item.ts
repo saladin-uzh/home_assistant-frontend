@@ -1,11 +1,11 @@
-import { MenuItemEl } from "@material/web/menu/internal/menuitem/menu-item";
-import { styles } from "@material/web/menu/internal/menuitem/menu-item-styles";
-import { css } from "lit";
-import { customElement, property } from "lit/decorators";
+import { MenuItemEl } from '@material/web/menu/internal/menuitem/menu-item'
+import { styles } from '@material/web/menu/internal/menuitem/menu-item-styles'
+import { css } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
-@customElement("ha-md-menu-item")
+@customElement('ha-md-menu-item')
 export class HaMdMenuItem extends MenuItemEl {
-  @property({ attribute: false }) clickAction?: (item?: HTMLElement) => void;
+  @property({ attribute: false }) clickAction?: (item?: HTMLElement) => void
 
   static override styles = [
     styles,
@@ -33,7 +33,7 @@ export class HaMdMenuItem extends MenuItemEl {
         --md-menu-item-label-text-color: var(--error-color);
         --md-menu-item-leading-icon-color: var(--error-color);
       }
-      ::slotted([slot="headline"]) {
+      ::slotted([slot='headline']) {
         text-wrap: nowrap;
       }
       :host([disabled]) {
@@ -42,11 +42,11 @@ export class HaMdMenuItem extends MenuItemEl {
         --md-menu-item-leading-icon-color: var(--disabled-text-color);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-md-menu-item": HaMdMenuItem;
+    'ha-md-menu-item': HaMdMenuItem
   }
 }

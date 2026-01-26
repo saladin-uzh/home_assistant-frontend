@@ -1,35 +1,35 @@
-import { STATE_NOT_RUNNING } from "home-assistant-js-websocket";
-import { ReactiveElement } from "lit";
-import { customElement } from "lit/decorators";
-import type { LovelaceConfig } from "../../../../data/lovelace/config/types";
-import type { LovelaceViewRawConfig } from "../../../../data/lovelace/config/view";
-import type { HomeAssistant } from "../../../../types";
-import type { LovelaceStrategyEditor } from "../types";
+import { STATE_NOT_RUNNING } from 'home-assistant-js-websocket'
+import { ReactiveElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import type { LovelaceConfig } from '../../../../data/lovelace/config/types'
+import type { LovelaceViewRawConfig } from '../../../../data/lovelace/config/view'
+import type { HomeAssistant } from '../../../../types'
+import type { LovelaceStrategyEditor } from '../types'
 import type {
   AreaViewStrategyConfig,
   EntitiesDisplay,
-} from "./area-view-strategy";
-import type { AreasViewStrategyConfig } from "./areas-overview-view-strategy";
-import { computeAreaPath, getAreas } from "./helpers/areas-strategy-helper";
+} from './area-view-strategy'
+import type { AreasViewStrategyConfig } from './areas-overview-view-strategy'
+import { computeAreaPath, getAreas } from './helpers/areas-strategy-helper'
 
 interface AreaOptions {
-  card_size?: "small" | "large";
-  groups_options?: Record<string, EntitiesDisplay>;
+  card_size?: 'small' | 'large'
+  groups_options?: Record<string, EntitiesDisplay>
 }
 
 export interface AreasDashboardStrategyConfig {
-  type: "areas";
+  type: 'areas'
   areas_display?: {
-    hidden?: string[];
-    order?: string[];
-  };
+    hidden?: string[]
+    order?: string[]
+  }
   floors_display?: {
-    order?: string[];
-  };
-  areas_options?: Record<string, AreaOptions>;
+    order?: string[]
+  }
+  areas_options?: Record<string, AreaOptions>
 }
 
-@customElement("areas-dashboard-strategy")
+@customElement('areas-dashboard-strategy')
 export class AreasDashboardStrategy extends ReactiveElement {
   static async generate(
     config: AreasDashboardStrategyConfig,
@@ -39,53 +39,53 @@ export class AreasDashboardStrategy extends ReactiveElement {
       return {
         views: [
           {
-            type: "sections",
-            sections: [{ cards: [{ type: "starting" }] }],
+            type: 'sections',
+            sections: [{ cards: [{ type: 'starting' }] }],
           },
         ],
-      };
+      }
     }
 
     if (hass.config.recovery_mode) {
       return {
         views: [
           {
-            type: "sections",
-            sections: [{ cards: [{ type: "recovery-mode" }] }],
+            type: 'sections',
+            sections: [{ cards: [{ type: 'recovery-mode' }] }],
           },
         ],
-      };
+      }
     }
 
     const areas = getAreas(
       hass.areas,
       config.areas_display?.hidden,
       config.areas_display?.order
-    );
+    )
 
-    const areaViews = areas.map<LovelaceViewRawConfig>((area) => {
-      const path = computeAreaPath(area.area_id);
-      const areaConfig = config.areas_options?.[area.area_id];
+    const areaViews = areas.map<LovelaceViewRawConfig>(area => {
+      const path = computeAreaPath(area.area_id)
+      const areaConfig = config.areas_options?.[area.area_id]
 
       return {
         title: area.name,
         path: path,
         subview: true,
         strategy: {
-          type: "area",
+          type: 'area',
           area: area.area_id,
           groups_options: areaConfig?.groups_options,
         } satisfies AreaViewStrategyConfig,
-      };
-    });
+      }
+    })
 
     return {
       views: [
         {
-          icon: "mdi:home",
-          path: "home",
+          icon: 'mdi:home',
+          path: 'home',
           strategy: {
-            type: "areas-overview",
+            type: 'areas-overview',
             areas_display: config.areas_display,
             areas_options: config.areas_options,
             floors_display: config.floors_display,
@@ -93,17 +93,17 @@ export class AreasDashboardStrategy extends ReactiveElement {
         },
         ...areaViews,
       ],
-    };
+    }
   }
 
   public static async getConfigElement(): Promise<LovelaceStrategyEditor> {
-    await import("./editor/hui-areas-dashboard-strategy-editor");
-    return document.createElement("hui-areas-dashboard-strategy-editor");
+    await import('./editor/hui-areas-dashboard-strategy-editor')
+    return document.createElement('hui-areas-dashboard-strategy-editor')
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "areas-dashboard-strategy": AreasDashboardStrategy;
+    'areas-dashboard-strategy': AreasDashboardStrategy
   }
 }

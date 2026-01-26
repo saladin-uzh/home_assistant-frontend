@@ -1,4 +1,4 @@
-import { css } from "lit";
+import { css } from 'lit'
 
 export const animationStyles = css`
   @keyframes fade-in {
@@ -27,4 +27,4 @@ export const animationStyles = css`
       transform: scale(1);
     }
   }
-`;
+`

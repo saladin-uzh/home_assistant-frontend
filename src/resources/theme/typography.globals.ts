@@ -1,5 +1,5 @@
-import { css } from "lit";
-import { extractDerivedVars, extractVar } from "../../common/style/derived-css-vars";
+import { css } from 'lit'
+import { extractDerivedVars, extractVar } from '../../common/style/derived-css-vars'
 
 export const typographyStyles = css`
   html {
@@ -47,12 +47,12 @@ export const typographyStyles = css`
     --md-list-item-supporting-text-font: var(--ha-font-family-body);
     --md-list-item-trailing-supporting-text-font: var(--ha-font-family-body);
   }
-`;
+`
 
-export const typographyDerivedVariables = extractDerivedVars(typographyStyles);
+export const typographyDerivedVariables = extractDerivedVars(typographyStyles)
 
-export const haFontFamilyBody = extractVar(typographyStyles, "ha-font-family-body");
+export const haFontFamilyBody = extractVar(typographyStyles, 'ha-font-family-body')
 
-export const haFontSmoothing = extractVar(typographyStyles, "ha-font-smoothing");
+export const haFontSmoothing = extractVar(typographyStyles, 'ha-font-smoothing')
 
-export const haMozOsxFontSmoothing = extractVar(typographyStyles, "ha-moz-osx-font-smoothing");
+export const haMozOsxFontSmoothing = extractVar(typographyStyles, 'ha-moz-osx-font-smoothing')

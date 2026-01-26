@@ -1,158 +1,156 @@
-import { mdiClose, mdiHelpCircle } from "@mdi/js";
-import deepFreeze from "deep-freeze";
-import type { CSSResultGroup, PropertyValues } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import type { HASSDomEvent } from "../../../../common/dom/fire_event";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { computeRTLDirection } from "../../../../common/util/compute_rtl";
-import "../../../../components/ha-spinner";
-import "../../../../components/ha-button";
-import "../../../../components/ha-dialog";
-import "../../../../components/ha-dialog-header";
-import "../../../../components/ha-icon-button";
-import type { LovelaceCardConfig } from "../../../../data/lovelace/config/card";
-import type { LovelaceSectionConfig } from "../../../../data/lovelace/config/section";
+import { mdiClose, mdiHelpCircle } from '@mdi/js'
+import deepFreeze from 'deep-freeze'
+import type { CSSResultGroup, PropertyValues } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import type { HASSDomEvent } from '../../../../common/dom/fire_event'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { computeRTLDirection } from '../../../../common/util/compute_rtl'
+import '../../../../components/ha-spinner'
+import '../../../../components/ha-button'
+import '../../../../components/ha-dialog'
+import '../../../../components/ha-dialog-header'
+import '../../../../components/ha-icon-button'
+import type { LovelaceCardConfig } from '../../../../data/lovelace/config/card'
+import type { LovelaceSectionConfig } from '../../../../data/lovelace/config/section'
 import {
   getCustomCardEntry,
   isCustomType,
   stripCustomPrefix,
-} from "../../../../data/lovelace_custom_cards";
-import { showConfirmationDialog } from "../../../../dialogs/generic/show-dialog-box";
-import type { HassDialog } from "../../../../dialogs/make-dialog-manager";
+} from '../../../../data/lovelace_custom_cards'
+import { showConfirmationDialog } from '../../../../dialogs/generic/show-dialog-box'
+import type { HassDialog } from '../../../../dialogs/make-dialog-manager'
 import {
   haStyleDialog,
   haStyleDialogFixedTop,
-} from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import { showToast } from "../../../../util/toast";
-import { showSaveSuccessToast } from "../../../../util/toast-saved-success";
-import "../../cards/hui-card";
-import "../../sections/hui-section";
-import { getCardDocumentationURL } from "../get-dashboard-documentation-url";
-import type { ConfigChangedEvent } from "../hui-element-editor";
-import type { GUIModeChangedEvent } from "../types";
-import "./hui-card-element-editor";
-import type { HuiCardElementEditor } from "./hui-card-element-editor";
-import type { EditCardDialogParams } from "./show-edit-card-dialog";
+} from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import { showToast } from '../../../../util/toast'
+import { showSaveSuccessToast } from '../../../../util/toast-saved-success'
+import '../../cards/hui-card'
+import '../../sections/hui-section'
+import { getCardDocumentationURL } from '../get-dashboard-documentation-url'
+import type { ConfigChangedEvent } from '../hui-element-editor'
+import type { GUIModeChangedEvent } from '../types'
+import './hui-card-element-editor'
+import type { HuiCardElementEditor } from './hui-card-element-editor'
+import type { EditCardDialogParams } from './show-edit-card-dialog'
 
 declare global {
   // for fire event
   interface HASSDomEvents {
-    "reload-lovelace": undefined;
+    'reload-lovelace': undefined
   }
   // for add event listener
   interface HTMLElementEventMap {
-    "reload-lovelace": HASSDomEvent<undefined>;
+    'reload-lovelace': HASSDomEvent<undefined>
   }
 }
 
-@customElement("hui-dialog-edit-card")
+@customElement('hui-dialog-edit-card')
 export class HuiDialogEditCard
   extends LitElement
   implements HassDialog<EditCardDialogParams>
 {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean, reflect: true }) public large = false;
+  @property({ type: Boolean, reflect: true }) public large = false
 
-  @state() private _params?: EditCardDialogParams;
+  @state() private _params?: EditCardDialogParams
 
-  @state() private _cardConfig?: LovelaceCardConfig;
+  @state() private _cardConfig?: LovelaceCardConfig
 
-  @state() private _sectionConfig?: LovelaceSectionConfig;
+  @state() private _sectionConfig?: LovelaceSectionConfig
 
-  @state() private _saving = false;
+  @state() private _saving = false
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
-  @state() private _guiModeAvailable? = true;
+  @state() private _guiModeAvailable? = true
 
-  @query("hui-card-element-editor")
-  private _cardEditorEl?: HuiCardElementEditor;
+  @query('hui-card-element-editor')
+  private _cardEditorEl?: HuiCardElementEditor
 
-  @state() private _GUImode = true;
+  @state() private _GUImode = true
 
-  @state() private _documentationURL?: string;
+  @state() private _documentationURL?: string
 
-  @state() private _dirty = false;
+  @state() private _dirty = false
 
   public async showDialog(params: EditCardDialogParams): Promise<void> {
-    this._params = params;
-    this._GUImode = true;
-    this._guiModeAvailable = true;
+    this._params = params
+    this._GUImode = true
+    this._guiModeAvailable = true
 
-    this._sectionConfig = this._params.sectionConfig;
+    this._sectionConfig = this._params.sectionConfig
 
-    this._cardConfig = params.cardConfig;
-    this._dirty = Boolean(this._params.isNew);
+    this._cardConfig = params.cardConfig
+    this._dirty = Boolean(this._params.isNew)
 
-    this.large = false;
+    this.large = false
     if (this._cardConfig && !Object.isFrozen(this._cardConfig)) {
-      this._cardConfig = deepFreeze(this._cardConfig);
+      this._cardConfig = deepFreeze(this._cardConfig)
     }
   }
 
   public closeDialog(): boolean {
     if (this._dirty) {
-      this._confirmCancel();
-      return false;
+      this._confirmCancel()
+      return false
     }
-    this._params = undefined;
-    this._cardConfig = undefined;
-    this._error = undefined;
-    this._documentationURL = undefined;
-    this._dirty = false;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
-    return true;
+    this._params = undefined
+    this._cardConfig = undefined
+    this._error = undefined
+    this._documentationURL = undefined
+    this._dirty = false
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
+    return true
   }
 
   protected updated(changedProps: PropertyValues): void {
-    if (!this._cardConfig || !changedProps.has("_cardConfig")) {
-      return;
+    if (!this._cardConfig || !changedProps.has('_cardConfig')) {
+      return
     }
 
-    const oldConfig = changedProps.get("_cardConfig") as LovelaceCardConfig;
+    const oldConfig = changedProps.get('_cardConfig') as LovelaceCardConfig
 
     if (oldConfig?.type !== this._cardConfig!.type) {
       this._documentationURL = getCardDocumentationURL(
         this.hass,
         this._cardConfig!.type
-      );
+      )
     }
   }
 
   protected render() {
     if (!this._params || !this._cardConfig) {
-      return nothing;
+      return nothing
     }
 
-    let heading: string;
+    let heading: string
     if (this._cardConfig.type) {
-      let cardName: string | undefined;
+      let cardName: string | undefined
       if (isCustomType(this._cardConfig.type)) {
         // prettier-ignore
         cardName = getCustomCardEntry(
           stripCustomPrefix(this._cardConfig.type)
         )?.name;
         // Trim names that end in " Card" so as not to redundantly duplicate it
-        if (cardName?.toLowerCase().endsWith(" card")) {
-          cardName = cardName.substring(0, cardName.length - 5);
+        if (cardName?.toLowerCase().endsWith(' card')) {
+          cardName = cardName.substring(0, cardName.length - 5)
         }
       } else {
         cardName = this.hass!.localize(
           `ui.panel.lovelace.editor.card.${this._cardConfig.type}.name`
-        );
+        )
       }
       heading = this.hass!.localize(
-        "ui.panel.lovelace.editor.edit_card.typed_header",
+        'ui.panel.lovelace.editor.edit_card.typed_header',
         { type: cardName }
-      );
+      )
     } else {
-      heading = this.hass!.localize(
-        "ui.panel.lovelace.editor.edit_card.header"
-      );
+      heading = this.hass!.localize('ui.panel.lovelace.editor.edit_card.header')
     }
 
     return html`
@@ -169,16 +167,20 @@ export class HuiDialogEditCard
           <ha-icon-button
             slot="navigationIcon"
             dialogAction="cancel"
-            .label=${this.hass.localize("ui.common.close")}
+            .label=${this.hass.localize('ui.common.close')}
             .path=${mdiClose}
           ></ha-icon-button>
-          <span slot="title" @click=${this._enlarge}>${heading}</span>
+          <span
+            slot="title"
+            @click=${this._enlarge}
+            >${heading}</span
+          >
           ${this._documentationURL !== undefined
             ? html`
                 <a
                   slot="actionItems"
                   href=${this._documentationURL}
-                  title=${this.hass!.localize("ui.panel.lovelace.menu.help")}
+                  title=${this.hass!.localize('ui.panel.lovelace.menu.help')}
                   target="_blank"
                   rel="noreferrer"
                   dir=${computeRTLDirection(this.hass)}
@@ -191,7 +193,7 @@ export class HuiDialogEditCard
         <div class="content">
           <div class="element-editor">
             <hui-card-element-editor
-              .showVisibilityTab=${this._cardConfig.type !== "conditional"}
+              .showVisibilityTab=${this._cardConfig.type !== 'conditional'}
               .sectionConfig=${this._sectionConfig}
               .hass=${this.hass}
               .lovelace=${this._params.lovelaceConfig}
@@ -209,7 +211,7 @@ export class HuiDialogEditCard
                     .hass=${this.hass}
                     .config=${this._cardConfigInSection(this._cardConfig)}
                     preview
-                    class=${this._error ? "blur" : ""}
+                    class=${this._error ? 'blur' : ''}
                   ></hui-section>
                 `
               : html`
@@ -217,7 +219,7 @@ export class HuiDialogEditCard
                     .hass=${this.hass}
                     .config=${this._cardConfig}
                     preview
-                    class=${this._error ? "blur" : ""}
+                    class=${this._error ? 'blur' : ''}
                   ></hui-card>
                 `}
             ${this._error
@@ -236,19 +238,22 @@ export class HuiDialogEditCard
               >
                 ${this.hass!.localize(
                   !this._cardEditorEl || this._GUImode
-                    ? "ui.panel.lovelace.editor.edit_card.show_code_editor"
-                    : "ui.panel.lovelace.editor.edit_card.show_visual_editor"
+                    ? 'ui.panel.lovelace.editor.edit_card.show_code_editor'
+                    : 'ui.panel.lovelace.editor.edit_card.show_visual_editor'
                 )}
               </ha-button>
             `
-          : ""}
-        <div slot="primaryAction" @click=${this._save}>
+          : ''}
+        <div
+          slot="primaryAction"
+          @click=${this._save}
+        >
           <ha-button
             appearance="plain"
             @click=${this._cancel}
             dialogInitialFocus
           >
-            ${this.hass!.localize("ui.common.cancel")}
+            ${this.hass!.localize('ui.common.cancel')}
           </ha-button>
           ${this._cardConfig !== undefined && this._dirty
             ? html`
@@ -257,117 +262,117 @@ export class HuiDialogEditCard
                   @click=${this._save}
                   .loading=${this._saving}
                 >
-                  ${this.hass!.localize("ui.common.save")}
+                  ${this.hass!.localize('ui.common.save')}
                 </ha-button>
               `
             : ``}
         </div>
       </ha-dialog>
-    `;
+    `
   }
 
   private _enlarge() {
-    this.large = !this.large;
+    this.large = !this.large
   }
 
   private _ignoreKeydown(ev: KeyboardEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
   }
 
   private _handleConfigChanged(ev: HASSDomEvent<ConfigChangedEvent>) {
-    this._cardConfig = deepFreeze(ev.detail.config);
-    this._error = ev.detail.error;
-    this._guiModeAvailable = ev.detail.guiModeAvailable;
-    this._dirty = true;
+    this._cardConfig = deepFreeze(ev.detail.config)
+    this._error = ev.detail.error
+    this._guiModeAvailable = ev.detail.guiModeAvailable
+    this._dirty = true
   }
 
   private _handleGUIModeChanged(ev: HASSDomEvent<GUIModeChangedEvent>): void {
-    ev.stopPropagation();
-    this._GUImode = ev.detail.guiMode;
-    this._guiModeAvailable = ev.detail.guiModeAvailable;
+    ev.stopPropagation()
+    this._GUImode = ev.detail.guiMode
+    this._guiModeAvailable = ev.detail.guiModeAvailable
   }
 
   private _toggleMode(): void {
-    this._cardEditorEl?.toggleMode();
+    this._cardEditorEl?.toggleMode()
   }
 
   private _opened() {
-    this._cardEditorEl?.focusYamlEditor();
+    this._cardEditorEl?.focusYamlEditor()
   }
 
   private _cardConfigInSection = memoizeOne(
     (cardConfig: LovelaceCardConfig) => {
       const { cards, title, ...containerConfig } = this
-        ._sectionConfig as LovelaceSectionConfig;
+        ._sectionConfig as LovelaceSectionConfig
 
       return {
         ...containerConfig,
         cards: cardConfig ? [cardConfig] : [],
-      };
+      }
     }
-  );
+  )
 
   private get _canSave(): boolean {
     if (this._saving) {
-      return false;
+      return false
     }
     if (this._cardConfig === undefined) {
-      return false;
+      return false
     }
     if (this._cardEditorEl && this._cardEditorEl.hasError) {
-      return false;
+      return false
     }
-    return true;
+    return true
   }
 
   private async _confirmCancel() {
     // Make sure the open state of this dialog is handled before the open state of confirm dialog
-    await new Promise((resolve) => {
-      setTimeout(resolve, 0);
-    });
+    await new Promise(resolve => {
+      setTimeout(resolve, 0)
+    })
     const confirm = await showConfirmationDialog(this, {
       title: this.hass!.localize(
-        "ui.panel.lovelace.editor.edit_card.unsaved_changes"
+        'ui.panel.lovelace.editor.edit_card.unsaved_changes'
       ),
       text: this.hass!.localize(
-        "ui.panel.lovelace.editor.edit_card.confirm_cancel"
+        'ui.panel.lovelace.editor.edit_card.confirm_cancel'
       ),
-      dismissText: this.hass!.localize("ui.common.stay"),
-      confirmText: this.hass!.localize("ui.common.leave"),
-    });
+      dismissText: this.hass!.localize('ui.common.stay'),
+      confirmText: this.hass!.localize('ui.common.leave'),
+    })
     if (confirm) {
-      this._cancel();
+      this._cancel()
     }
   }
 
   private _cancel(ev?: Event) {
     if (ev) {
-      ev.stopPropagation();
+      ev.stopPropagation()
     }
-    this._dirty = false;
-    this.closeDialog();
+    this._dirty = false
+    this.closeDialog()
   }
 
   private async _save(): Promise<void> {
     if (!this._canSave) {
-      return;
+      return
     }
     if (!this._dirty) {
-      this.closeDialog();
-      return;
+      this.closeDialog()
+      return
     }
-    this._saving = true;
+    this._saving = true
     try {
-      await this._params!.saveCardConfig(this._cardConfig!);
-      this._saving = false;
-      this._dirty = false;
-      showSaveSuccessToast(this, this.hass);
-      this.closeDialog();
+      await this._params!.saveCardConfig(this._cardConfig!)
+      this._saving = false
+      this._dirty = false
+      showSaveSuccessToast(this, this.hass)
+      this.closeDialog()
     } catch (err: any) {
       showToast(this, {
         message: err.message,
-      });
-      this._saving = false;
+      })
+      this._saving = false
     }
   }
 
@@ -505,17 +510,17 @@ export class HuiDialogEditCard
           text-decoration: none;
         }
 
-        [slot="primaryAction"] {
+        [slot='primaryAction'] {
           gap: var(--ha-space-2);
           display: flex;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-dialog-edit-card": HuiDialogEditCard;
+    'hui-dialog-edit-card': HuiDialogEditCard
   }
 }

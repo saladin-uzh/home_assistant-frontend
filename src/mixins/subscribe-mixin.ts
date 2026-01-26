@@ -1,62 +1,62 @@
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { PropertyValues, ReactiveElement } from "lit";
-import { property } from "lit/decorators";
-import type { Constructor, HomeAssistant } from "../types";
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { PropertyValues, ReactiveElement } from 'lit'
+import { property } from 'lit/decorators'
+import type { Constructor, HomeAssistant } from '../types'
 
 export interface HassSubscribeElement {
-  hassSubscribe(): UnsubscribeFunc[];
+  hassSubscribe(): UnsubscribeFunc[]
 }
 
 export const SubscribeMixin = <T extends Constructor<ReactiveElement>>(
   superClass: T
 ) => {
   class SubscribeClass extends superClass {
-    @property({ attribute: false }) public hass?: HomeAssistant;
+    @property({ attribute: false }) public hass?: HomeAssistant
 
     // we wait with subscribing till these properties are set on the host element
-    protected hassSubscribeRequiredHostProps?: string[];
+    protected hassSubscribeRequiredHostProps?: string[]
 
-    private __unsubs?: (UnsubscribeFunc | Promise<UnsubscribeFunc>)[];
+    private __unsubs?: (UnsubscribeFunc | Promise<UnsubscribeFunc>)[]
 
     public connectedCallback() {
-      super.connectedCallback();
-      this._checkSubscribed();
+      super.connectedCallback()
+      this._checkSubscribed()
     }
 
     public disconnectedCallback() {
-      super.disconnectedCallback();
+      super.disconnectedCallback()
       if (this.__unsubs) {
         while (this.__unsubs.length) {
-          const unsub = this.__unsubs.pop()!;
+          const unsub = this.__unsubs.pop()!
           if (unsub instanceof Promise) {
-            unsub.then((unsubFunc) => unsubFunc());
+            unsub.then(unsubFunc => unsubFunc())
           } else {
-            unsub();
+            unsub()
           }
         }
-        this.__unsubs = undefined;
+        this.__unsubs = undefined
       }
     }
 
     protected updated(changedProps: PropertyValues) {
-      super.updated(changedProps);
-      if (changedProps.has("hass")) {
-        this._checkSubscribed();
-        return;
+      super.updated(changedProps)
+      if (changedProps.has('hass')) {
+        this._checkSubscribed()
+        return
       }
       if (!this.hassSubscribeRequiredHostProps) {
-        return;
+        return
       }
       for (const key of changedProps.keys()) {
         if (this.hassSubscribeRequiredHostProps.includes(key as string)) {
-          this._checkSubscribed();
-          return;
+          this._checkSubscribed()
+          return
         }
       }
     }
 
     protected hassSubscribe(): (UnsubscribeFunc | Promise<UnsubscribeFunc>)[] {
-      return [];
+      return []
     }
 
     private _checkSubscribed(): void {
@@ -65,13 +65,13 @@ export const SubscribeMixin = <T extends Constructor<ReactiveElement>>(
         !(this as unknown as Element).isConnected ||
         this.hass === undefined ||
         this.hassSubscribeRequiredHostProps?.some(
-          (prop) => this[prop] === undefined
+          prop => this[prop] === undefined
         )
       ) {
-        return;
+        return
       }
-      this.__unsubs = this.hassSubscribe();
+      this.__unsubs = this.hassSubscribe()
     }
   }
-  return SubscribeClass;
-};
+  return SubscribeClass
+}

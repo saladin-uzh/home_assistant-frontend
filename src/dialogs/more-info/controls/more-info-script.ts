@@ -1,79 +1,76 @@
-import { mdiPlay, mdiStop } from "@mdi/js";
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { listenMediaQuery } from "../../../common/dom/media_query";
-import { computeObjectId } from "../../../common/entity/compute_object_id";
-import "../../../components/entity/state-info";
-import "../../../components/ha-control-button";
-import "../../../components/ha-control-button-group";
-import "../../../components/ha-markdown";
-import "../../../components/ha-relative-time";
-import "../../../components/ha-service-control";
-import { isUnavailableState } from "../../../data/entity";
-import type { ExtEntityRegistryEntry } from "../../../data/entity_registry";
-import type { ScriptEntity } from "../../../data/script";
+import { mdiPlay, mdiStop } from '@mdi/js'
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { listenMediaQuery } from '../../../common/dom/media_query'
+import { computeObjectId } from '../../../common/entity/compute_object_id'
+import '../../../components/entity/state-info'
+import '../../../components/ha-control-button'
+import '../../../components/ha-control-button-group'
+import '../../../components/ha-markdown'
+import '../../../components/ha-relative-time'
+import '../../../components/ha-service-control'
+import { isUnavailableState } from '../../../data/entity'
+import type { ExtEntityRegistryEntry } from '../../../data/entity_registry'
+import type { ScriptEntity } from '../../../data/script'
 import {
   canRun,
   hasRequiredScriptFields,
   requiredScriptFieldsFilled,
-} from "../../../data/script";
-import type { HomeAssistant } from "../../../types";
-import "../components/ha-more-info-state-header";
+} from '../../../data/script'
+import type { HomeAssistant } from '../../../types'
+import '../components/ha-more-info-state-header'
 
-@customElement("more-info-script")
+@customElement('more-info-script')
 class MoreInfoScript extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj?: ScriptEntity;
+  @property({ attribute: false }) public stateObj?: ScriptEntity
 
-  @property({ attribute: false }) public entry?: ExtEntityRegistryEntry;
+  @property({ attribute: false }) public entry?: ExtEntityRegistryEntry
 
-  @property({ attribute: false }) public data?: Record<string, any>;
+  @property({ attribute: false }) public data?: Record<string, any>
 
-  @state() private _scriptData: Record<string, any> = {};
+  @state() private _scriptData: Record<string, any> = {}
 
-  @state() private narrow = false;
+  @state() private narrow = false
 
-  private _unsubMediaQuery?: () => void;
+  private _unsubMediaQuery?: () => void
 
   public connectedCallback(): void {
-    super.connectedCallback();
-    this._unsubMediaQuery = listenMediaQuery(
-      "(max-width: 870px)",
-      (matches) => {
-        this.narrow = matches;
-      }
-    );
+    super.connectedCallback()
+    this._unsubMediaQuery = listenMediaQuery('(max-width: 870px)', matches => {
+      this.narrow = matches
+    })
   }
 
   public disconnectedCallback(): void {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
     if (this._unsubMediaQuery) {
-      this._unsubMediaQuery();
-      this._unsubMediaQuery = undefined;
+      this._unsubMediaQuery()
+      this._unsubMediaQuery = undefined
     }
   }
 
   protected render() {
     if (!this.hass || !this.stateObj) {
-      return nothing;
+      return nothing
     }
-    const stateObj = this.stateObj;
+    const stateObj = this.stateObj
 
     const script =
       this.hass.services.script[
         this.entry?.unique_id || computeObjectId(this.stateObj.entity_id)
-      ];
-    const fields = script?.fields;
+      ]
+    const fields = script?.fields
 
-    const hasFields = fields && Object.keys(fields).length > 0;
+    const hasFields = fields && Object.keys(fields).length > 0
 
-    const current = stateObj.attributes.current || 0;
-    const isQueued = stateObj.attributes.mode === "queued";
-    const isParallel = stateObj.attributes.mode === "parallel";
-    const hasQueue = isQueued && current > 1;
+    const current = stateObj.attributes.current || 0
+    const isQueued = stateObj.attributes.mode === 'queued'
+    const isParallel = stateObj.attributes.mode === 'parallel'
+    const hasQueue = isQueued && current > 1
 
     return html`
       <ha-more-info-state-header
@@ -81,11 +78,11 @@ class MoreInfoScript extends LitElement {
         .hass=${this.hass}
         .stateOverride=${current > 0
           ? isParallel && current > 1
-            ? this.hass.localize("ui.card.script.running_parallel", {
+            ? this.hass.localize('ui.card.script.running_parallel', {
                 active: current,
               })
-            : this.hass.localize("ui.card.script.running_single")
-          : this.hass.localize("ui.card.script.idle")}
+            : this.hass.localize('ui.card.script.running_single')
+          : this.hass.localize('ui.card.script.idle')}
         .changedOverride=${this.stateObj.attributes.last_triggered || 0}
       ></ha-more-info-state-header>
 
@@ -96,21 +93,21 @@ class MoreInfoScript extends LitElement {
           ></ha-markdown>`
         : nothing}
 
-      <div class=${`queue ${hasQueue ? "has-queue" : ""}`}>
+      <div class=${`queue ${hasQueue ? 'has-queue' : ''}`}>
         ${hasQueue
           ? html`
-              ${this.hass.localize("ui.card.script.running_queued", {
+              ${this.hass.localize('ui.card.script.running_queued', {
                 queued: current - 1,
               })}
             `
-          : ""}
+          : ''}
       </div>
 
       ${hasFields
         ? html`
             <div class="fields">
               <div class="title">
-                ${this.hass.localize("ui.card.script.run_script")}
+                ${this.hass.localize('ui.card.script.run_script')}
               </div>
               <ha-service-control
                 hide-picker
@@ -136,8 +133,8 @@ class MoreInfoScript extends LitElement {
         >
           <ha-svg-icon .path=${mdiStop}></ha-svg-icon>
           ${(isQueued || isParallel) && current > 1
-            ? this.hass.localize("ui.card.script.cancel_all")
-            : this.hass.localize("ui.card.script.cancel")}
+            ? this.hass.localize('ui.card.script.cancel_all')
+            : this.hass.localize('ui.card.script.cancel')}
         </ha-control-button>
         <ha-control-button
           class="run-button"
@@ -145,20 +142,20 @@ class MoreInfoScript extends LitElement {
           .disabled=${isUnavailableState(stateObj.state) || !this._canRun()}
         >
           <ha-svg-icon .path=${mdiPlay}></ha-svg-icon>
-          ${this.hass!.localize("ui.card.script.run")}
+          ${this.hass!.localize('ui.card.script.run')}
         </ha-control-button>
       </ha-control-button-group>
-    `;
+    `
   }
 
   protected override willUpdate(changedProperties: PropertyValues): void {
-    super.willUpdate(changedProperties);
+    super.willUpdate(changedProperties)
 
-    if (changedProperties.has("stateObj")) {
-      const oldState = changedProperties.get("stateObj") as
+    if (changedProperties.has('stateObj')) {
+      const oldState = changedProperties.get('stateObj') as
         | HassEntity
-        | undefined;
-      const newState = this.stateObj;
+        | undefined
+      const newState = this.stateObj
 
       if (
         newState &&
@@ -169,40 +166,40 @@ class MoreInfoScript extends LitElement {
             this.entry?.entity_id === newState.entity_id
               ? `script.${this.entry.unique_id}`
               : newState.entity_id,
-        };
+        }
       }
     }
 
-    if (this.entry?.unique_id && changedProperties.has("entry")) {
-      const action = `script.${this.entry?.unique_id}`;
+    if (this.entry?.unique_id && changedProperties.has('entry')) {
+      const action = `script.${this.entry?.unique_id}`
       if (this._scriptData?.action !== action) {
-        this._scriptData = { ...this._scriptData, action };
+        this._scriptData = { ...this._scriptData, action }
       }
     }
   }
 
   private _cancelScript(ev: Event) {
-    ev.stopPropagation();
-    this._callService("turn_off");
+    ev.stopPropagation()
+    this._callService('turn_off')
   }
 
   private async _runScript(ev: Event) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     this.hass.callService(
-      "script",
+      'script',
       this.entry?.unique_id || computeObjectId(this.stateObj!.entity_id),
       this._scriptData.data
-    );
+    )
   }
 
   private _callService(service: string): void {
-    this.hass.callService("script", service, {
+    this.hass.callService('script', service, {
       entity_id: this.stateObj!.entity_id,
-    });
+    })
   }
 
   private _scriptDataChanged(ev: CustomEvent): void {
-    this._scriptData = { ...this._scriptData, ...ev.detail.value };
+    this._scriptData = { ...this._scriptData, ...ev.detail.value }
   }
 
   private _canRun() {
@@ -215,11 +212,11 @@ class MoreInfoScript extends LitElement {
       ) &&
         canRun(this.stateObj!)) ||
       // Restart can also always runs. Just cancels other run.
-      this.stateObj!.attributes.mode === "restart"
+      this.stateObj!.attributes.mode === 'restart'
     ) {
-      return true;
+      return true
     }
-    return false;
+    return false
   }
 
   static styles = css`
@@ -254,11 +251,11 @@ class MoreInfoScript extends LitElement {
       text-align: center;
       padding: 0 16px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "more-info-script": MoreInfoScript;
+    'more-info-script': MoreInfoScript
   }
 }

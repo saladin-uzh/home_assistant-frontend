@@ -1,7 +1,7 @@
-import { mdiListBox } from "@mdi/js";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
+import { mdiListBox } from '@mdi/js'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
 import {
   any,
   array,
@@ -11,34 +11,34 @@ import {
   object,
   optional,
   string,
-} from "superstruct";
-import type { HASSDomEvent } from "../../../../common/dom/fire_event";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-expansion-panel";
-import "../../../../components/ha-form/ha-form";
+} from 'superstruct'
+import type { HASSDomEvent } from '../../../../common/dom/fire_event'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-expansion-panel'
+import '../../../../components/ha-form/ha-form'
 import type {
   HaFormSchema,
   SchemaUnion,
-} from "../../../../components/ha-form/types";
-import "../../../../components/ha-svg-icon";
-import type { HomeAssistant } from "../../../../types";
+} from '../../../../components/ha-form/types'
+import '../../../../components/ha-svg-icon'
+import type { HomeAssistant } from '../../../../types'
 import type {
   LovelaceCardFeatureConfig,
   LovelaceCardFeatureContext,
-} from "../../card-features/types";
-import type { HumidifierCardConfig } from "../../cards/types";
-import type { LovelaceCardEditor } from "../../types";
-import { baseLovelaceCardConfig } from "../structs/base-card-struct";
-import { entityNameStruct } from "../structs/entity-name-struct";
-import type { EditDetailElementEvent, EditSubElementEvent } from "../types";
-import { configElementStyle } from "./config-elements-style";
-import "./hui-card-features-editor";
-import type { FeatureType } from "./hui-card-features-editor";
+} from '../../card-features/types'
+import type { HumidifierCardConfig } from '../../cards/types'
+import type { LovelaceCardEditor } from '../../types'
+import { baseLovelaceCardConfig } from '../structs/base-card-struct'
+import { entityNameStruct } from '../structs/entity-name-struct'
+import type { EditDetailElementEvent, EditSubElementEvent } from '../types'
+import { configElementStyle } from './config-elements-style'
+import './hui-card-features-editor'
+import type { FeatureType } from './hui-card-features-editor'
 
 const COMPATIBLE_FEATURES_TYPES: FeatureType[] = [
-  "humidifier-modes",
-  "humidifier-toggle",
-];
+  'humidifier-modes',
+  'humidifier-toggle',
+]
 
 const cardConfigStruct = assign(
   baseLovelaceCardConfig,
@@ -49,61 +49,61 @@ const cardConfigStruct = assign(
     show_current_as_primary: optional(boolean()),
     features: optional(array(any())),
   })
-);
+)
 
 const SCHEMA = [
   {
-    name: "entity",
+    name: 'entity',
     required: true,
-    selector: { entity: { domain: "humidifier" } },
+    selector: { entity: { domain: 'humidifier' } },
   },
   {
-    name: "name",
+    name: 'name',
     selector: {
       entity_name: {},
     },
-    context: { entity: "entity" },
+    context: { entity: 'entity' },
   },
   {
-    type: "grid",
-    name: "",
-    schema: [{ name: "theme", selector: { theme: {} } }],
+    type: 'grid',
+    name: '',
+    schema: [{ name: 'theme', selector: { theme: {} } }],
   },
   {
-    name: "show_current_as_primary",
+    name: 'show_current_as_primary',
     selector: {
       boolean: {},
     },
   },
-] as const satisfies readonly HaFormSchema[];
+] as const satisfies readonly HaFormSchema[]
 
-@customElement("hui-humidifier-card-editor")
+@customElement('hui-humidifier-card-editor')
 export class HuiHumidifierCardEditor
   extends LitElement
   implements LovelaceCardEditor
 {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: HumidifierCardConfig;
+  @state() private _config?: HumidifierCardConfig
 
   public setConfig(config: HumidifierCardConfig): void {
-    assert(config, cardConfigStruct);
-    this._config = config;
+    assert(config, cardConfigStruct)
+    this._config = config
   }
 
   private _featureContext = memoizeOne(
     (entityId?: string): LovelaceCardFeatureContext => ({
       entity_id: entityId,
     })
-  );
+  )
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
-    const entityId = this._config.entity;
-    const featureContext = this._featureContext(entityId);
+    const entityId = this._config.entity
+    const featureContext = this._featureContext(entityId)
 
     return html`
       <ha-form
@@ -114,10 +114,13 @@ export class HuiHumidifierCardEditor
         @value-changed=${this._valueChanged}
       ></ha-form>
       <ha-expansion-panel outlined>
-        <ha-svg-icon slot="leading-icon" .path=${mdiListBox}></ha-svg-icon>
+        <ha-svg-icon
+          slot="leading-icon"
+          .path=${mdiListBox}
+        ></ha-svg-icon>
         <h3 slot="header">
           ${this.hass!.localize(
-            "ui.panel.lovelace.editor.card.generic.features"
+            'ui.panel.lovelace.editor.card.generic.features'
           )}
         </h3>
         <div class="content">
@@ -131,69 +134,69 @@ export class HuiHumidifierCardEditor
           ></hui-card-features-editor>
         </div>
       </ha-expansion-panel>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent): void {
-    fireEvent(this, "config-changed", { config: ev.detail.value });
+    fireEvent(this, 'config-changed', { config: ev.detail.value })
   }
 
   private _featuresChanged(ev: CustomEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!this._config || !this.hass) {
-      return;
+      return
     }
 
-    const features = ev.detail.features as LovelaceCardFeatureConfig[];
+    const features = ev.detail.features as LovelaceCardFeatureConfig[]
     const config: HumidifierCardConfig = {
       ...this._config,
       features,
-    };
-
-    if (features.length === 0) {
-      delete config.features;
     }
 
-    fireEvent(this, "config-changed", { config });
+    if (features.length === 0) {
+      delete config.features
+    }
+
+    fireEvent(this, 'config-changed', { config })
   }
 
   private _editDetailElement(ev: HASSDomEvent<EditDetailElementEvent>): void {
-    const index = ev.detail.subElementConfig.index;
-    const config = this._config!.features![index!];
+    const index = ev.detail.subElementConfig.index
+    const config = this._config!.features![index!]
 
-    fireEvent(this, "edit-sub-element", {
+    fireEvent(this, 'edit-sub-element', {
       config: config,
-      saveConfig: (newConfig) => this._updateFeature(index!, newConfig),
+      saveConfig: newConfig => this._updateFeature(index!, newConfig),
       context: {
         entity_id: this._config!.entity,
       },
-      type: "feature",
+      type: 'feature',
     } as EditSubElementEvent<
       LovelaceCardFeatureConfig,
       LovelaceCardFeatureContext
-    >);
+    >)
   }
 
   private _updateFeature(index: number, feature: LovelaceCardFeatureConfig) {
-    const features = this._config!.features!.concat();
-    features[index] = feature;
-    const config = { ...this._config!, features };
-    fireEvent(this, "config-changed", {
+    const features = this._config!.features!.concat()
+    features[index] = feature
+    const config = { ...this._config!, features }
+    fireEvent(this, 'config-changed', {
       config: config,
-    });
+    })
   }
 
   private _computeLabelCallback = (schema: SchemaUnion<typeof SCHEMA>) => {
-    if (schema.name === "show_current_as_primary") {
+    if (schema.name === 'show_current_as_primary') {
       return this.hass!.localize(
-        "ui.panel.lovelace.editor.card.humidifier.show_current_as_primary"
-      );
+        'ui.panel.lovelace.editor.card.humidifier.show_current_as_primary'
+      )
     }
 
     return this.hass!.localize(
       `ui.panel.lovelace.editor.card.generic.${schema.name}`
-    );
-  };
+    )
+  }
 
   static get styles() {
     return [
@@ -204,12 +207,12 @@ export class HuiHumidifierCardEditor
           margin-bottom: 24px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-humidifier-card-editor": HuiHumidifierCardEditor;
+    'hui-humidifier-card-editor': HuiHumidifierCardEditor
   }
 }

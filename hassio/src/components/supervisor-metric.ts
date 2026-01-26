@@ -1,34 +1,37 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import "../../../src/components/ha-bar";
-import "../../../src/components/ha-settings-row";
-import { roundWithOneDecimal } from "../../../src/util/calculate";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import '../../../src/components/ha-bar'
+import '../../../src/components/ha-settings-row'
+import { roundWithOneDecimal } from '../../../src/util/calculate'
 
-@customElement("supervisor-metric")
+@customElement('supervisor-metric')
 class SupervisorMetric extends LitElement {
-  @property({ type: Number }) public value!: number;
+  @property({ type: Number }) public value!: number
 
-  @property({ type: String }) public description!: string;
+  @property({ type: String }) public description!: string
 
-  @property({ type: String }) public tooltip?: string;
+  @property({ type: String }) public tooltip?: string
 
   protected render(): TemplateResult {
-    const roundedValue = roundWithOneDecimal(this.value);
+    const roundedValue = roundWithOneDecimal(this.value)
     return html`<ha-settings-row>
       <span slot="heading"> ${this.description} </span>
-      <div slot="description" .title=${this.tooltip ?? ""}>
+      <div
+        slot="description"
+        .title=${this.tooltip ?? ''}
+      >
         <span class="value"> ${roundedValue} % </span>
         <ha-bar
           class=${classMap({
-            "target-warning": roundedValue > 50,
-            "target-critical": roundedValue > 85,
+            'target-warning': roundedValue > 50,
+            'target-critical': roundedValue > 85,
           })}
           .value=${this.value}
         ></ha-bar>
       </div>
-    </ha-settings-row>`;
+    </ha-settings-row>`
   }
 
   static styles = css`
@@ -37,7 +40,7 @@ class SupervisorMetric extends LitElement {
       height: 54px;
       width: 100%;
     }
-    ha-settings-row > div[slot="description"] {
+    ha-settings-row > div[slot='description'] {
       white-space: normal;
       color: var(--secondary-text-color);
       display: flex;
@@ -65,11 +68,11 @@ class SupervisorMetric extends LitElement {
       padding-inline-end: 4px;
       flex-shrink: 0;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "supervisor-metric": SupervisorMetric;
+    'supervisor-metric': SupervisorMetric
   }
 }

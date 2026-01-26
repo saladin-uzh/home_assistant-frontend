@@ -5,21 +5,21 @@ export const toggleAttribute = (
   force?: boolean
 ) => {
   if (force !== undefined) {
-    force = !!force;
+    force = !!force
   }
 
   if (el.hasAttribute(name)) {
     if (force) {
-      return true;
+      return true
     }
 
-    el.removeAttribute(name);
-    return false;
+    el.removeAttribute(name)
+    return false
   }
   if (force === false) {
-    return false;
+    return false
   }
 
-  el.setAttribute(name, "");
-  return true;
-};
+  el.setAttribute(name, '')
+  return true
+}

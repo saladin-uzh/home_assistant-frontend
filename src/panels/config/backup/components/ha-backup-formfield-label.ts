@@ -1,25 +1,33 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../../components/ha-svg-icon";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../../components/ha-svg-icon'
 
-@customElement("ha-backup-formfield-label")
+@customElement('ha-backup-formfield-label')
 class SupervisorFormfieldLabel extends LitElement {
-  @property({ type: String }) public label!: string;
+  @property({ type: String }) public label!: string
 
-  @property({ type: String, attribute: "image-url" }) public imageUrl?: string;
+  @property({ type: String, attribute: 'image-url' }) public imageUrl?: string
 
-  @property({ type: String, attribute: "icon-path" }) public iconPath?: string;
+  @property({ type: String, attribute: 'icon-path' }) public iconPath?: string
 
-  @property({ type: String }) public version?: string;
+  @property({ type: String }) public version?: string
 
   protected render(): TemplateResult {
     return html`
       ${this.imageUrl
-        ? html`<img loading="lazy" alt="" src=${this.imageUrl} class="icon" />`
+        ? html`<img
+            loading="lazy"
+            alt=""
+            src=${this.imageUrl}
+            class="icon"
+          />`
         : this.iconPath
           ? html`
-              <ha-svg-icon .path=${this.iconPath} class="icon"></ha-svg-icon>
+              <ha-svg-icon
+                .path=${this.iconPath}
+                class="icon"
+              ></ha-svg-icon>
             `
           : nothing}
       <span class="label">
@@ -28,7 +36,7 @@ class SupervisorFormfieldLabel extends LitElement {
           ? html`<span class="version">(${this.version})</span>`
           : nothing}
       </span>
-    `;
+    `
   }
 
   static styles = css`
@@ -55,11 +63,11 @@ class SupervisorFormfieldLabel extends LitElement {
       width: 24px;
       height: 24px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-backup-formfield-label": SupervisorFormfieldLabel;
+    'ha-backup-formfield-label': SupervisorFormfieldLabel
   }
 }

@@ -1,25 +1,25 @@
-import { html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../common/dom/fire_event";
-import type { NavigationSelector } from "../../data/selector";
-import type { HomeAssistant } from "../../types";
-import "../ha-navigation-picker";
+import { html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../common/dom/fire_event'
+import type { NavigationSelector } from '../../data/selector'
+import type { HomeAssistant } from '../../types'
+import '../ha-navigation-picker'
 
-@customElement("ha-selector-navigation")
+@customElement('ha-selector-navigation')
 export class HaNavigationSelector extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: NavigationSelector;
+  @property({ attribute: false }) public selector!: NavigationSelector
 
-  @property() public value?: string;
+  @property() public value?: string
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean, reflect: true }) public disabled = false;
+  @property({ type: Boolean, reflect: true }) public disabled = false
 
-  @property({ type: Boolean }) public required = true;
+  @property({ type: Boolean }) public required = true
 
   protected render() {
     return html`
@@ -32,16 +32,16 @@ export class HaNavigationSelector extends LitElement {
         .helper=${this.helper}
         @value-changed=${this._valueChanged}
       ></ha-navigation-picker>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent) {
-    fireEvent(this, "value-changed", { value: ev.detail.value });
+    fireEvent(this, 'value-changed', { value: ev.detail.value })
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-navigation": HaNavigationSelector;
+    'ha-selector-navigation': HaNavigationSelector
   }
 }

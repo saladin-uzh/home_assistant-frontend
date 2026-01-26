@@ -1,21 +1,21 @@
-import { tinykeys } from "tinykeys";
-import { canOverrideAlphanumericInput } from "../dom/can-override-input";
+import { tinykeys } from 'tinykeys'
+import { canOverrideAlphanumericInput } from '../dom/can-override-input'
 
 /**
  * A function to handle a keyboard shortcut.
  */
-export type ShortcutHandler = (event: KeyboardEvent) => void;
+export type ShortcutHandler = (event: KeyboardEvent) => void
 
 /**
  * Configuration for a keyboard shortcut.
  */
 export interface ShortcutConfig {
-  handler: ShortcutHandler;
+  handler: ShortcutHandler
   /**
    * If true, allows shortcuts even when text is selected.
    * Default is false to avoid interrupting copy/paste.
    */
-  allowWhenTextSelected?: boolean;
+  allowWhenTextSelected?: boolean
 }
 
 /**
@@ -25,43 +25,43 @@ export interface ShortcutConfig {
 function registerShortcuts(
   shortcuts: Record<string, ShortcutConfig>
 ): () => void {
-  const wrappedShortcuts: Record<string, ShortcutHandler> = {};
+  const wrappedShortcuts: Record<string, ShortcutHandler> = {}
 
   Object.entries(shortcuts).forEach(([key, config]) => {
     wrappedShortcuts[key] = (event: KeyboardEvent) => {
       if (!canOverrideAlphanumericInput(event.composedPath())) {
-        return;
+        return
       }
       if (!config.allowWhenTextSelected && window.getSelection()?.toString()) {
-        return;
+        return
       }
-      config.handler(event);
-    };
-  });
+      config.handler(event)
+    }
+  })
 
-  return tinykeys(window, wrappedShortcuts);
+  return tinykeys(window, wrappedShortcuts)
 }
 
 /**
  * Manages keyboard shortcuts registration and cleanup.
  */
 export class ShortcutManager {
-  private _disposer?: () => void;
+  private _disposer?: () => void
 
   /**
    * Register keyboard shortcuts.
    * Uses tinykeys syntax: https://github.com/jamiebuilds/tinykeys#usage
    */
   public add(shortcuts: Record<string, ShortcutConfig>) {
-    this._disposer?.();
-    this._disposer = registerShortcuts(shortcuts);
+    this._disposer?.()
+    this._disposer = registerShortcuts(shortcuts)
   }
 
   /**
    * Remove all registered shortcuts.
    */
   public remove() {
-    this._disposer?.();
-    this._disposer = undefined;
+    this._disposer?.()
+    this._disposer = undefined
   }
 }

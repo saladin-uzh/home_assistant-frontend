@@ -1,57 +1,57 @@
-import type { HassEntity, UnsubscribeFunc } from "home-assistant-js-websocket";
-import { LitElement, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { debounce } from "../../../common/util/debounce";
-import type { FlowType } from "../../../data/data_entry_flow";
+import type { HassEntity, UnsubscribeFunc } from 'home-assistant-js-websocket'
+import { LitElement, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { debounce } from '../../../common/util/debounce'
+import type { FlowType } from '../../../data/data_entry_flow'
 import type {
   TemplateListeners,
   TemplatePreview,
-} from "../../../data/ws-templates";
-import { subscribePreviewTemplate } from "../../../data/ws-templates";
-import type { HomeAssistant } from "../../../types";
-import "./entity-preview-row";
-import { fireEvent } from "../../../common/dom/fire_event";
-import "../../../components/ha-alert";
+} from '../../../data/ws-templates'
+import { subscribePreviewTemplate } from '../../../data/ws-templates'
+import type { HomeAssistant } from '../../../types'
+import './entity-preview-row'
+import { fireEvent } from '../../../common/dom/fire_event'
+import '../../../components/ha-alert'
 
-@customElement("flow-preview-template")
+@customElement('flow-preview-template')
 class FlowPreviewTemplate extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public flowType!: FlowType;
+  @property({ attribute: false }) public flowType!: FlowType
 
-  public handler!: string;
+  public handler!: string
 
-  @property({ attribute: false }) public stepId!: string;
+  @property({ attribute: false }) public stepId!: string
 
-  @property({ attribute: false }) public flowId!: string;
+  @property({ attribute: false }) public flowId!: string
 
-  @property({ attribute: false }) public stepData!: Record<string, any>;
+  @property({ attribute: false }) public stepData!: Record<string, any>
 
-  @state() private _preview?: HassEntity;
+  @state() private _preview?: HassEntity
 
-  @state() private _listeners?: TemplateListeners;
+  @state() private _listeners?: TemplateListeners
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
-  private _unsub?: Promise<UnsubscribeFunc>;
+  private _unsub?: Promise<UnsubscribeFunc>
 
   disconnectedCallback(): void {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
     if (this._unsub) {
-      this._unsub.then((unsub) => unsub());
-      this._unsub = undefined;
+      this._unsub.then(unsub => unsub())
+      this._unsub = undefined
     }
   }
 
   willUpdate(changedProps) {
-    if (changedProps.has("stepData")) {
-      this._debouncedSubscribePreview();
+    if (changedProps.has('stepData')) {
+      this._debouncedSubscribePreview()
     }
   }
 
   protected render() {
     if (this._error) {
-      return html`<ha-alert alert-type="error">${this._error}</ha-alert>`;
+      return html`<ha-alert alert-type="error">${this._error}</ha-alert>`
     }
     return html`<entity-preview-row
         .hass=${this.hass}
@@ -60,7 +60,7 @@ class FlowPreviewTemplate extends LitElement {
       ${this._listeners?.time
         ? html`
             <p>
-              ${this.hass.localize("ui.dialogs.helper_settings.template.time")}
+              ${this.hass.localize('ui.dialogs.helper_settings.template.time')}
             </p>
           `
         : nothing}
@@ -70,7 +70,7 @@ class FlowPreviewTemplate extends LitElement {
           ? html`
               <p class="all_listeners">
                 ${this.hass.localize(
-                  "ui.dialogs.helper_settings.template.all_listeners"
+                  'ui.dialogs.helper_settings.template.all_listeners'
                 )}
               </p>
             `
@@ -78,18 +78,18 @@ class FlowPreviewTemplate extends LitElement {
             ? html`
                 <p>
                   ${this.hass.localize(
-                    "ui.dialogs.helper_settings.template.listeners"
+                    'ui.dialogs.helper_settings.template.listeners'
                   )}
                 </p>
                 <ul>
                   ${this._listeners.domains
                     .sort()
                     .map(
-                      (domain) => html`
+                      domain => html`
                         <li>
                           <b
                             >${this.hass.localize(
-                              "ui.dialogs.helper_settings.template.domain"
+                              'ui.dialogs.helper_settings.template.domain'
                             )}</b
                           >: ${domain}
                         </li>
@@ -98,11 +98,11 @@ class FlowPreviewTemplate extends LitElement {
                   ${this._listeners.entities
                     .sort()
                     .map(
-                      (entity_id) => html`
+                      entity_id => html`
                         <li>
                           <b
                             >${this.hass.localize(
-                              "ui.dialogs.helper_settings.template.entity"
+                              'ui.dialogs.helper_settings.template.entity'
                             )}</b
                           >: ${entity_id}
                         </li>
@@ -113,42 +113,42 @@ class FlowPreviewTemplate extends LitElement {
             : !this._listeners.time
               ? html`<p class="all_listeners">
                   ${this.hass.localize(
-                    "ui.dialogs.helper_settings.template.no_listeners"
+                    'ui.dialogs.helper_settings.template.no_listeners'
                   )}
                 </p>`
-              : nothing} `;
+              : nothing} `
   }
 
   private _setPreview = (preview: TemplatePreview) => {
-    if ("error" in preview) {
-      this._error = preview.error;
-      this._preview = undefined;
-      return;
+    if ('error' in preview) {
+      this._error = preview.error
+      this._preview = undefined
+      return
     }
-    this._error = undefined;
-    this._listeners = preview.listeners;
-    const now = new Date().toISOString();
+    this._error = undefined
+    this._listeners = preview.listeners
+    const now = new Date().toISOString()
     this._preview = {
       entity_id: `${this.stepId}.___flow_preview___`,
       last_changed: now,
       last_updated: now,
-      context: { id: "", parent_id: null, user_id: null },
+      context: { id: '', parent_id: null, user_id: null },
       attributes: preview.attributes,
       state: preview.state,
-    };
-  };
+    }
+  }
 
   private _debouncedSubscribePreview = debounce(() => {
-    this._subscribePreview();
-  }, 250);
+    this._subscribePreview()
+  }, 250)
 
   private async _subscribePreview() {
     if (this._unsub) {
-      (await this._unsub)();
-      this._unsub = undefined;
+      ;(await this._unsub)()
+      this._unsub = undefined
     }
-    if (this.flowType !== "config_flow" && this.flowType !== "options_flow") {
-      return;
+    if (this.flowType !== 'config_flow' && this.flowType !== 'options_flow') {
+      return
     }
     try {
       this._unsub = subscribePreviewTemplate(
@@ -157,24 +157,24 @@ class FlowPreviewTemplate extends LitElement {
         this.flowType,
         this.stepData,
         this._setPreview
-      );
-      await this._unsub;
-      fireEvent(this, "set-flow-errors", { errors: {} });
+      )
+      await this._unsub
+      fireEvent(this, 'set-flow-errors', { errors: {} })
     } catch (err: any) {
-      if (typeof err.message === "string") {
-        this._error = err.message;
+      if (typeof err.message === 'string') {
+        this._error = err.message
       } else {
-        this._error = undefined;
-        fireEvent(this, "set-flow-errors", err.message);
+        this._error = undefined
+        fireEvent(this, 'set-flow-errors', err.message)
       }
-      this._unsub = undefined;
-      this._preview = undefined;
+      this._unsub = undefined
+      this._preview = undefined
     }
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "flow-preview-template": FlowPreviewTemplate;
+    'flow-preview-template': FlowPreviewTemplate
   }
 }

@@ -1,56 +1,56 @@
 export default [
   {
     // This section has no header and so all page links are shown directly in the sidebar
-    category: "concepts",
-    pages: ["home"],
+    category: 'concepts',
+    pages: ['home'],
   },
 
   {
-    category: "lovelace",
+    category: 'lovelace',
     // Label for in the sidebar
-    header: "Dashboards",
+    header: 'Dashboards',
     // Specify order of pages. Any pages in the category folder but not listed here will
     // automatically be added after the pages listed here.
-    pages: ["introduction"],
+    pages: ['introduction'],
   },
   {
-    category: "automation",
-    header: "Automation",
+    category: 'automation',
+    header: 'Automation',
     pages: [
-      "editor-trigger",
-      "editor-condition",
-      "editor-action",
-      "trace",
-      "trace-timeline",
+      'editor-trigger',
+      'editor-condition',
+      'editor-action',
+      'trace',
+      'trace-timeline',
     ],
   },
   {
-    category: "components",
-    header: "Components",
+    category: 'components',
+    header: 'Components',
   },
   {
-    category: "more-info",
-    header: "More Info dialogs",
+    category: 'more-info',
+    header: 'More Info dialogs',
   },
   {
-    category: "misc",
-    header: "Miscellaneous",
+    category: 'misc',
+    header: 'Miscellaneous',
   },
   {
-    category: "brand",
-    header: "Brand",
+    category: 'brand',
+    header: 'Brand',
   },
   {
-    category: "user-test",
-    header: "Users",
-    pages: ["user-types", "configuration-menu"],
+    category: 'user-test',
+    header: 'Users',
+    pages: ['user-types', 'configuration-menu'],
   },
   {
-    category: "date-time",
-    header: "Date and Time",
+    category: 'date-time',
+    header: 'Date and Time',
   },
   {
-    category: "design.home-assistant.io",
-    header: "About",
+    category: 'design.home-assistant.io',
+    header: 'About',
   },
-];
+]

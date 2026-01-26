@@ -1,26 +1,26 @@
-import { mdiLightbulbOutline } from "@mdi/js";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { HomeAssistant } from "../types";
+import { mdiLightbulbOutline } from '@mdi/js'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { HomeAssistant } from '../types'
 
-import "./ha-svg-icon";
+import './ha-svg-icon'
 
-@customElement("ha-tip")
+@customElement('ha-tip')
 class HaTip extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   public render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
 
     return html`
       <ha-svg-icon .path=${mdiLightbulbOutline}></ha-svg-icon>
       <span class="prefix"
-        >${this.hass.localize("ui.panel.config.tips.tip")}</span
+        >${this.hass.localize('ui.panel.config.tips.tip')}</span
       >
       <span class="text"><slot></slot></span>
-    `;
+    `
   }
 
   static styles = css`
@@ -40,11 +40,11 @@ class HaTip extends LitElement {
     .prefix {
       font-weight: var(--ha-font-weight-medium);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-tip": HaTip;
+    'ha-tip': HaTip
   }
 }

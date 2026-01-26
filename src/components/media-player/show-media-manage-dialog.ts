@@ -1,18 +1,18 @@
-import { fireEvent } from "../../common/dom/fire_event";
-import type { MediaPlayerItem } from "../../data/media-player";
+import { fireEvent } from '../../common/dom/fire_event'
+import type { MediaPlayerItem } from '../../data/media-player'
 
 export interface MediaManageDialogParams {
-  currentItem: MediaPlayerItem;
-  onClose?: () => void;
+  currentItem: MediaPlayerItem
+  onClose?: () => void
 }
 
 export const showMediaManageDialog = (
   element: HTMLElement,
   dialogParams: MediaManageDialogParams
 ): void => {
-  fireEvent(element, "show-dialog", {
-    dialogTag: "dialog-media-manage",
-    dialogImport: () => import("./dialog-media-manage"),
+  fireEvent(element, 'show-dialog', {
+    dialogTag: 'dialog-media-manage',
+    dialogImport: () => import('./dialog-media-manage'),
     dialogParams,
-  });
-};
+  })
+}

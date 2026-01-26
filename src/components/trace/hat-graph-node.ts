@@ -1,48 +1,48 @@
-import { mdiExclamationThick } from "@mdi/js";
-import type { PropertyValues, TemplateResult } from "lit";
-import { LitElement, css, html, nothing, svg } from "lit";
-import { customElement, property } from "lit/decorators";
-import { isSafari } from "../../util/is_safari";
-import { NODE_SIZE, SPACING } from "./hat-graph-const";
+import { mdiExclamationThick } from '@mdi/js'
+import type { PropertyValues, TemplateResult } from 'lit'
+import { LitElement, css, html, nothing, svg } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { isSafari } from '../../util/is_safari'
+import { NODE_SIZE, SPACING } from './hat-graph-const'
 
 /**
  * @attribute active
  * @attribute track
  */
-@customElement("hat-graph-node")
+@customElement('hat-graph-node')
 export class HatGraphNode extends LitElement {
-  @property({ attribute: false }) iconPath?: string;
+  @property({ attribute: false }) iconPath?: string
 
-  @property({ type: Boolean, reflect: true }) public disabled = false;
+  @property({ type: Boolean, reflect: true }) public disabled = false
 
-  @property({ type: Boolean }) public error = false;
+  @property({ type: Boolean }) public error = false
 
-  @property({ attribute: "not-enabled", reflect: true, type: Boolean })
-  notEnabled = false;
+  @property({ attribute: 'not-enabled', reflect: true, type: Boolean })
+  notEnabled = false
 
-  @property({ attribute: "graph-start", reflect: true, type: Boolean })
-  graphStart = false;
+  @property({ attribute: 'graph-start', reflect: true, type: Boolean })
+  graphStart = false
 
-  @property({ type: Boolean, attribute: "nofocus" }) noFocus = false;
+  @property({ type: Boolean, attribute: 'nofocus' }) noFocus = false
 
-  @property({ reflect: true, type: Number }) badge?: number;
+  @property({ reflect: true, type: Number }) badge?: number
 
   protected updated(changedProps: PropertyValues) {
-    if (changedProps.has("noFocus")) {
-      if (!this.hasAttribute("tabindex") && !this.noFocus) {
-        this.setAttribute("tabindex", "0");
-      } else if (changedProps.get("noFocus") !== undefined && this.noFocus) {
-        this.removeAttribute("tabindex");
+    if (changedProps.has('noFocus')) {
+      if (!this.hasAttribute('tabindex') && !this.noFocus) {
+        this.setAttribute('tabindex', '0')
+      } else if (changedProps.get('noFocus') !== undefined && this.noFocus) {
+        this.removeAttribute('tabindex')
       }
     }
   }
 
   protected render(): TemplateResult {
-    const height = NODE_SIZE + (this.graphStart ? 2 : SPACING + 1);
-    const width = SPACING + NODE_SIZE;
+    const height = NODE_SIZE + (this.graphStart ? 2 : SPACING + 1)
+    const width = SPACING + NODE_SIZE
     return html`
       <svg
-        class=${isSafari ? "safari" : ""}
+        class=${isSafari ? 'safari' : ''}
         width="${width}px"
         height="${height}px"
         viewBox="-${Math.ceil(width / 2)} -${this.graphStart
@@ -62,7 +62,11 @@ export class HatGraphNode extends LitElement {
           />
           `}
         <g class="node">
-          <circle cx="0" cy="0" r=${NODE_SIZE / 2} />
+          <circle
+            cx="0"
+            cy="0"
+            r=${NODE_SIZE / 2}
+          />
           ${this.error
             ? svg`
         <g class="error">
@@ -88,18 +92,21 @@ export class HatGraphNode extends LitElement {
             y=${-NODE_SIZE / 2}
             text-anchor="middle"
             alignment-baseline="middle"
-          >${this.badge > 9 ? "9+" : this.badge}</text>
+          >${this.badge > 9 ? '9+' : this.badge}</text>
         </g>
       `
             : nothing}
-          <g style="pointer-events: none" transform="translate(-12 -12)">
+          <g
+            style="pointer-events: none"
+            transform="translate(-12 -12)"
+          >
             ${this.iconPath
               ? svg`<path class="icon" d=${this.iconPath}/>`
               : svg`<foreignObject><span class="icon"><slot name="icon"></slot></span></foreignObject>`}
           </g>
         </g>
       </svg>
-    `;
+    `
   }
 
   static styles = css`
@@ -177,11 +184,11 @@ export class HatGraphNode extends LitElement {
     .icon {
       color: var(--icon-clr);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hat-graph-node": HatGraphNode;
+    'hat-graph-node': HatGraphNode
   }
 }

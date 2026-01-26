@@ -1,19 +1,19 @@
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../components/entity/state-info";
-import type { UpdateEntity } from "../data/update";
-import { computeUpdateStateDisplay } from "../data/update";
-import { haStyle } from "../resources/styles";
-import type { HomeAssistant } from "../types";
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../components/entity/state-info'
+import type { UpdateEntity } from '../data/update'
+import { computeUpdateStateDisplay } from '../data/update'
+import { haStyle } from '../resources/styles'
+import type { HomeAssistant } from '../types'
 
-@customElement("state-card-update")
+@customElement('state-card-update')
 export class StateCardUpdate extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj!: UpdateEntity;
+  @property({ attribute: false }) public stateObj!: UpdateEntity
 
-  @property({ attribute: "in-dialog", type: Boolean }) public inDialog = false;
+  @property({ attribute: 'in-dialog', type: Boolean }) public inDialog = false
 
   protected render(): TemplateResult {
     return html`
@@ -28,7 +28,7 @@ export class StateCardUpdate extends LitElement {
           ${computeUpdateStateDisplay(this.stateObj, this.hass)}
         </div>
       </div>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -52,12 +52,12 @@ export class StateCardUpdate extends LitElement {
           justify-content: flex-end;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "state-card-update": StateCardUpdate;
+    'state-card-update': StateCardUpdate
   }
 }

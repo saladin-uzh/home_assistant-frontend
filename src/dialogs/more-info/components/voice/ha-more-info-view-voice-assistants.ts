@@ -1,39 +1,39 @@
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import type { ExtEntityRegistryEntry } from "../../../../data/entity_registry";
-import type { ExposeEntitySettings } from "../../../../data/expose";
-import { voiceAssistants } from "../../../../data/expose";
-import "../../../../panels/config/voice-assistants/entity-voice-settings";
-import type { HomeAssistant } from "../../../../types";
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import type { ExtEntityRegistryEntry } from '../../../../data/entity_registry'
+import type { ExposeEntitySettings } from '../../../../data/expose'
+import { voiceAssistants } from '../../../../data/expose'
+import '../../../../panels/config/voice-assistants/entity-voice-settings'
+import type { HomeAssistant } from '../../../../types'
 
-@customElement("ha-more-info-view-voice-assistants")
+@customElement('ha-more-info-view-voice-assistants')
 class MoreInfoViewVoiceAssistants extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public entry!: ExtEntityRegistryEntry;
+  @property({ attribute: false }) public entry!: ExtEntityRegistryEntry
 
-  @property() public params?;
+  @property() public params?
 
   private _calculateExposed = memoizeOne((entry: ExtEntityRegistryEntry) => {
-    const exposed: ExposeEntitySettings = {};
-    Object.keys(voiceAssistants).forEach((key) => {
-      exposed[key] = entry.options?.[key]?.should_expose;
-    });
-    return exposed;
-  });
+    const exposed: ExposeEntitySettings = {}
+    Object.keys(voiceAssistants).forEach(key => {
+      exposed[key] = entry.options?.[key]?.should_expose
+    })
+    return exposed
+  })
 
   protected render() {
     if (!this.params) {
-      return nothing;
+      return nothing
     }
     return html`<entity-voice-settings
       .hass=${this.hass}
       .entityId=${this.entry.entity_id}
       .entry=${this.entry}
       .exposed=${this._calculateExposed(this.entry)}
-    ></entity-voice-settings>`;
+    ></entity-voice-settings>`
   }
 
   static get styles(): CSSResultGroup {
@@ -52,12 +52,12 @@ class MoreInfoViewVoiceAssistants extends LitElement {
           flex: 1;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-more-info-view-voice-assistants": MoreInfoViewVoiceAssistants;
+    'ha-more-info-view-voice-assistants': MoreInfoViewVoiceAssistants
   }
 }

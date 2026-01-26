@@ -1,5 +1,5 @@
-import type { List } from "@material/mwc-list/mwc-list";
-import type { ActionDetail } from "@material/mwc-list/mwc-list-foundation";
+import type { List } from '@material/mwc-list/mwc-list'
+import type { ActionDetail } from '@material/mwc-list/mwc-list-foundation'
 import {
   mdiClock,
   mdiDelete,
@@ -8,34 +8,34 @@ import {
   mdiDragHorizontalVariant,
   mdiPlus,
   mdiSort,
-} from "@mdi/js";
-import { endOfDay, isSameDay } from "date-fns";
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { PropertyValueMap, PropertyValues } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { repeat } from "lit/directives/repeat";
-import memoizeOne from "memoize-one";
-import { applyThemesOnElement } from "../../../common/dom/apply_themes_on_element";
-import { stopPropagation } from "../../../common/dom/stop_propagation";
-import { supportsFeature } from "../../../common/entity/supports-feature";
-import { caseInsensitiveStringCompare } from "../../../common/string/compare";
-import "../../../components/ha-card";
-import "../../../components/ha-check-list-item";
-import "../../../components/ha-checkbox";
-import "../../../components/ha-icon-button";
-import "../../../components/ha-list";
-import "../../../components/ha-list-item";
-import "../../../components/ha-markdown-element";
-import "../../../components/ha-relative-time";
-import "../../../components/ha-select";
-import "../../../components/ha-sortable";
-import "../../../components/ha-svg-icon";
-import "../../../components/ha-textfield";
-import type { HaTextField } from "../../../components/ha-textfield";
-import { isUnavailableState } from "../../../data/entity";
-import type { TodoItem } from "../../../data/todo";
+} from '@mdi/js'
+import { endOfDay, isSameDay } from 'date-fns'
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { PropertyValueMap, PropertyValues } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { repeat } from 'lit/directives/repeat'
+import memoizeOne from 'memoize-one'
+import { applyThemesOnElement } from '../../../common/dom/apply_themes_on_element'
+import { stopPropagation } from '../../../common/dom/stop_propagation'
+import { supportsFeature } from '../../../common/entity/supports-feature'
+import { caseInsensitiveStringCompare } from '../../../common/string/compare'
+import '../../../components/ha-card'
+import '../../../components/ha-check-list-item'
+import '../../../components/ha-checkbox'
+import '../../../components/ha-icon-button'
+import '../../../components/ha-list'
+import '../../../components/ha-list-item'
+import '../../../components/ha-markdown-element'
+import '../../../components/ha-relative-time'
+import '../../../components/ha-select'
+import '../../../components/ha-sortable'
+import '../../../components/ha-svg-icon'
+import '../../../components/ha-textfield'
+import type { HaTextField } from '../../../components/ha-textfield'
+import { isUnavailableState } from '../../../data/entity'
+import type { TodoItem } from '../../../data/todo'
 import {
   TodoItemStatus,
   TodoListEntityFeature,
@@ -45,23 +45,23 @@ import {
   moveItem,
   subscribeItems,
   updateItem,
-} from "../../../data/todo";
-import { showConfirmationDialog } from "../../../dialogs/generic/show-dialog-box";
-import type { HomeAssistant } from "../../../types";
-import { showTodoItemEditDialog } from "../../todo/show-dialog-todo-item-editor";
-import { findEntities } from "../common/find-entities";
-import { createEntityNotFoundWarning } from "../components/hui-warning";
-import type { LovelaceCard, LovelaceCardEditor } from "../types";
-import type { TodoListCardConfig } from "./types";
+} from '../../../data/todo'
+import { showConfirmationDialog } from '../../../dialogs/generic/show-dialog-box'
+import type { HomeAssistant } from '../../../types'
+import { showTodoItemEditDialog } from '../../todo/show-dialog-todo-item-editor'
+import { findEntities } from '../common/find-entities'
+import { createEntityNotFoundWarning } from '../components/hui-warning'
+import type { LovelaceCard, LovelaceCardEditor } from '../types'
+import type { TodoListCardConfig } from './types'
 
-export const ITEM_TAP_ACTION_EDIT = "edit";
-export const ITEM_TAP_ACTION_TOGGLE = "toggle";
+export const ITEM_TAP_ACTION_EDIT = 'edit'
+export const ITEM_TAP_ACTION_TOGGLE = 'toggle'
 
-@customElement("hui-todo-list-card")
+@customElement('hui-todo-list-card')
 export class HuiTodoListCard extends LitElement implements LovelaceCard {
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import("../editor/config-elements/hui-todo-list-editor");
-    return document.createElement("hui-todo-list-card-editor");
+    await import('../editor/config-elements/hui-todo-list-editor')
+    return document.createElement('hui-todo-list-card-editor')
   }
 
   public static getStubConfig(
@@ -69,69 +69,69 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
     entities: string[],
     entitiesFallback: string[]
   ): TodoListCardConfig {
-    const includeDomains = ["todo"];
-    const maxEntities = 1;
+    const includeDomains = ['todo']
+    const maxEntities = 1
     const foundEntities = findEntities(
       hass,
       maxEntities,
       entities,
       entitiesFallback,
       includeDomains
-    );
+    )
 
-    return { type: "todo-list", entity: foundEntities[0] || "" };
+    return { type: 'todo-list', entity: foundEntities[0] || '' }
   }
 
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: TodoListCardConfig;
+  @state() private _config?: TodoListCardConfig
 
-  @state() private _entityId?: string;
+  @state() private _entityId?: string
 
-  @state() private _items?: TodoItem[];
+  @state() private _items?: TodoItem[]
 
-  @state() private _reordering = false;
+  @state() private _reordering = false
 
-  private _unsubItems?: Promise<UnsubscribeFunc>;
+  private _unsubItems?: Promise<UnsubscribeFunc>
 
   connectedCallback(): void {
-    super.connectedCallback();
+    super.connectedCallback()
     if (this.hasUpdated) {
-      this._subscribeItems();
+      this._subscribeItems()
     }
   }
 
   disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this._unsubItems?.then((unsub) => unsub());
-    this._unsubItems = undefined;
+    super.disconnectedCallback()
+    this._unsubItems?.then(unsub => unsub())
+    this._unsubItems = undefined
   }
 
   public getCardSize(): number {
-    return (this._config ? (this._config.title ? 2 : 0) : 0) + 3;
+    return (this._config ? (this._config.title ? 2 : 0) : 0) + 3
   }
 
   public setConfig(config: TodoListCardConfig): void {
-    this.checkConfig(config);
+    this.checkConfig(config)
 
-    this._config = config;
-    this._entityId = config.entity;
+    this._config = config
+    this._entityId = config.entity
   }
 
   protected checkConfig(config: TodoListCardConfig): void {
-    if (!config.entity || config.entity.split(".")[0] !== "todo") {
-      throw new Error("Specify an entity from within the todo domain");
+    if (!config.entity || config.entity.split('.')[0] !== 'todo') {
+      throw new Error('Specify an entity from within the todo domain')
     }
   }
 
   protected getEntityId(): string | undefined {
     // not implemented, todo list should always have an entity id set;
-    return undefined;
+    return undefined
   }
 
   private _sortItems(items: TodoItem[], sort?: string) {
     if (sort === TodoSortMode.ALPHA_ASC || sort === TodoSortMode.ALPHA_DESC) {
-      const sortOrder = sort === TodoSortMode.ALPHA_ASC ? 1 : -1;
+      const sortOrder = sort === TodoSortMode.ALPHA_ASC ? 1 : -1
       return items.sort(
         (a, b) =>
           sortOrder *
@@ -140,23 +140,23 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
             b.summary,
             this.hass?.locale.language
           )
-      );
+      )
     }
     if (
       sort === TodoSortMode.DUEDATE_ASC ||
       sort === TodoSortMode.DUEDATE_DESC
     ) {
-      const sortOrder = sort === TodoSortMode.DUEDATE_ASC ? 1 : -1;
+      const sortOrder = sort === TodoSortMode.DUEDATE_ASC ? 1 : -1
       return items.sort((a, b) => {
-        const aDue = this._getDueDate(a) ?? Infinity;
-        const bDue = this._getDueDate(b) ?? Infinity;
+        const aDue = this._getDueDate(a) ?? Infinity
+        const bDue = this._getDueDate(b) ?? Infinity
         if (aDue === bDue) {
-          return 0;
+          return 0
         }
-        return aDue < bDue ? -sortOrder : sortOrder;
-      });
+        return aDue < bDue ? -sortOrder : sortOrder
+      })
     }
-    return items;
+    return items
   }
 
   private _getUncheckedAndItemsWithoutStatus = memoizeOne(
@@ -164,120 +164,119 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
       items
         ? this._sortItems(
             items.filter(
-              (item) =>
-                item.status === TodoItemStatus.NeedsAction || !item.status
+              item => item.status === TodoItemStatus.NeedsAction || !item.status
             ),
             sort
           )
         : []
-  );
+  )
 
   private _getCheckedItems = memoizeOne(
     (items?: TodoItem[], sort?: string | undefined): TodoItem[] =>
       items
         ? this._sortItems(
-            items.filter((item) => item.status === TodoItemStatus.Completed),
+            items.filter(item => item.status === TodoItemStatus.Completed),
             sort
           )
         : []
-  );
+  )
 
   private _getUncheckedItems = memoizeOne(
     (items?: TodoItem[], sort?: string | undefined): TodoItem[] =>
       items
         ? this._sortItems(
-            items.filter((item) => item.status === TodoItemStatus.NeedsAction),
+            items.filter(item => item.status === TodoItemStatus.NeedsAction),
             sort
           )
         : []
-  );
+  )
 
   private _getItemsWithoutStatus = memoizeOne(
     (items?: TodoItem[], sort?: string | undefined): TodoItem[] =>
       items
         ? this._sortItems(
-            items.filter((item) => !item.status),
+            items.filter(item => !item.status),
             sort
           )
         : []
-  );
+  )
 
   public willUpdate(
     changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>
   ): void {
     if (!this.hasUpdated) {
       if (!this._entityId) {
-        this._entityId = this.getEntityId();
+        this._entityId = this.getEntityId()
       }
-      this._subscribeItems();
-    } else if (changedProperties.has("_entityId") || !this._items) {
-      this._items = undefined;
-      this._subscribeItems();
+      this._subscribeItems()
+    } else if (changedProperties.has('_entityId') || !this._items) {
+      this._items = undefined
+      this._subscribeItems()
     }
   }
 
   protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
+    super.updated(changedProps)
     if (!this._config || !this.hass) {
-      return;
+      return
     }
 
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
-    const oldConfig = changedProps.get("_config") as
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined
+    const oldConfig = changedProps.get('_config') as
       | TodoListCardConfig
-      | undefined;
+      | undefined
 
     if (
-      (changedProps.has("hass") && oldHass?.themes !== this.hass.themes) ||
-      (changedProps.has("_config") && oldConfig?.theme !== this._config.theme)
+      (changedProps.has('hass') && oldHass?.themes !== this.hass.themes) ||
+      (changedProps.has('_config') && oldConfig?.theme !== this._config.theme)
     ) {
-      applyThemesOnElement(this, this.hass.themes, this._config.theme);
+      applyThemesOnElement(this, this.hass.themes, this._config.theme)
     }
   }
 
   protected render() {
     if (!this._config || !this.hass || !this._entityId) {
-      return nothing;
+      return nothing
     }
 
-    const stateObj = this.hass.states[this._entityId];
+    const stateObj = this.hass.states[this._entityId]
 
     if (!stateObj) {
       return html`
         <hui-warning .hass=${this.hass}>
           ${createEntityNotFoundWarning(this.hass, this._entityId)}
         </hui-warning>
-      `;
+      `
     }
 
-    const unavailable = isUnavailableState(stateObj.state);
+    const unavailable = isUnavailableState(stateObj.state)
 
     const checkedItems = this._getCheckedItems(
       this._items,
       this._config.display_order
-    );
+    )
     const uncheckedItems = this._getUncheckedItems(
       this._items,
       this._config.display_order
-    );
+    )
 
     const itemsWithoutStatus = this._getItemsWithoutStatus(
       this._items,
       this._config.display_order
-    );
+    )
 
     const reorderableItems = this._reordering
       ? this._getUncheckedAndItemsWithoutStatus(
           this._items,
           this._config.display_order
         )
-      : undefined;
+      : undefined
 
     return html`
       <ha-card
         .header=${this._config.title}
         class=${classMap({
-          "has-header": "title" in this._config,
+          'has-header': 'title' in this._config,
         })}
       >
         ${!this._config.hide_create &&
@@ -287,7 +286,7 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
                 <ha-textfield
                   class="addBox"
                   .placeholder=${this.hass!.localize(
-                    "ui.panel.lovelace.cards.todo-list.add_item"
+                    'ui.panel.lovelace.cards.todo-list.add_item'
                   )}
                   @keydown=${this._addKeyPress}
                   .disabled=${unavailable}
@@ -296,7 +295,7 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
                   class="addButton"
                   .path=${mdiPlus}
                   .title=${this.hass!.localize(
-                    "ui.panel.lovelace.cards.todo-list.add_item"
+                    'ui.panel.lovelace.cards.todo-list.add_item'
                   )}
                   .disabled=${unavailable}
                   @click=${this._addItem}
@@ -311,18 +310,24 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
           .disabled=${!this._reordering}
           @item-moved=${this._itemMoved}
         >
-          <ha-list wrapFocus multi>
+          <ha-list
+            wrapFocus
+            multi
+          >
             ${!uncheckedItems.length && !itemsWithoutStatus.length
               ? html`<p class="empty">
                   ${this.hass.localize(
-                    "ui.panel.lovelace.cards.todo-list.no_unchecked_items"
+                    'ui.panel.lovelace.cards.todo-list.no_unchecked_items'
                   )}
                 </p>`
               : this._reordering
-                ? html`<div class="header" role="separator">
+                ? html`<div
+                      class="header"
+                      role="separator"
+                    >
                       <h2>
                         ${this.hass!.localize(
-                          "ui.panel.lovelace.cards.todo-list.reorder_items"
+                          'ui.panel.lovelace.cards.todo-list.reorder_items'
                         )}
                       </h2>
                       ${this._renderMenu(this._config, unavailable)}
@@ -335,7 +340,7 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
                     ? html`<div class="header">
                         <h2>
                           ${this.hass!.localize(
-                            "ui.panel.lovelace.cards.todo-list.unchecked_items"
+                            'ui.panel.lovelace.cards.todo-list.unchecked_items'
                           )}
                         </h2>
                         ${this._renderMenu(this._config, unavailable)}
@@ -348,12 +353,18 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
               ? html`
                   <div>
                     ${uncheckedItems.length
-                      ? html`<div class="divider" role="separator"></div>`
+                      ? html`<div
+                          class="divider"
+                          role="separator"
+                        ></div>`
                       : nothing}
-                    <div class="header" role="separator">
+                    <div
+                      class="header"
+                      role="separator"
+                    >
                       <h2>
                         ${this.hass!.localize(
-                          "ui.panel.lovelace.cards.todo-list.no_status_items"
+                          'ui.panel.lovelace.cards.todo-list.no_status_items'
                         )}
                       </h2>
                       ${!uncheckedItems.length
@@ -367,12 +378,15 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
             ${!this._config.hide_completed && checkedItems.length
               ? html`
                   <div>
-                    <div class="divider" role="separator"></div>
+                    <div
+                      class="divider"
+                      role="separator"
+                    ></div>
                     ${!this._config.hide_section_headers
                       ? html`<div class="header">
                           <h2>
                             ${this.hass!.localize(
-                              "ui.panel.lovelace.cards.todo-list.checked_items"
+                              'ui.panel.lovelace.cards.todo-list.checked_items'
                             )}
                           </h2>
                           ${this._todoListSupportsFeature(
@@ -387,9 +401,12 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
                                   slot="trigger"
                                   .path=${mdiDotsVertical}
                                 ></ha-icon-button>
-                                <ha-list-item graphic="icon" class="warning">
+                                <ha-list-item
+                                  graphic="icon"
+                                  class="warning"
+                                >
                                   ${this.hass!.localize(
-                                    "ui.panel.lovelace.cards.todo-list.clear_items"
+                                    'ui.panel.lovelace.cards.todo-list.clear_items'
                                   )}
                                   <ha-svg-icon
                                     class="warning"
@@ -410,7 +427,7 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
           </ha-list>
         </ha-sortable>
       </ha-card>
-    `;
+    `
   }
 
   private _renderMenu(config: TodoListCardConfig, unavailable: boolean) {
@@ -429,8 +446,8 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
           <ha-list-item graphic="icon">
             ${this.hass!.localize(
               this._reordering
-                ? "ui.panel.lovelace.cards.todo-list.exit_reorder_items"
-                : "ui.panel.lovelace.cards.todo-list.reorder_items"
+                ? 'ui.panel.lovelace.cards.todo-list.exit_reorder_items'
+                : 'ui.panel.lovelace.cards.todo-list.reorder_items'
             )}
             <ha-svg-icon
               slot="graphic"
@@ -440,35 +457,35 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
             </ha-svg-icon>
           </ha-list-item>
         </ha-button-menu>`
-      : nothing;
+      : nothing
   }
 
   private _getDueDate(item: TodoItem): Date | undefined {
     return item.due
-      ? item.due.includes("T")
+      ? item.due.includes('T')
         ? new Date(item.due)
         : endOfDay(new Date(`${item.due}T00:00:00`))
-      : undefined;
+      : undefined
   }
 
   private _renderItems(items: TodoItem[], unavailable = false) {
     return html`
       ${repeat(
         items,
-        (item) => item.uid,
-        (item) => {
+        item => item.uid,
+        item => {
           const showDelete =
             this._todoListSupportsFeature(
               TodoListEntityFeature.DELETE_TODO_ITEM
             ) &&
             !this._todoListSupportsFeature(
               TodoListEntityFeature.UPDATE_TODO_ITEM
-            );
+            )
           const showReorder =
-            item.status !== TodoItemStatus.Completed && this._reordering;
-          const due = this._getDueDate(item);
+            item.status !== TodoItemStatus.Completed && this._reordering
+          const due = this._getDueDate(item)
           const today =
-            due && !item.due!.includes("T") && isSameDay(new Date(), due);
+            due && !item.due!.includes('T') && isSameDay(new Date(), due)
           return html`
             <ha-check-list-item
               left
@@ -502,10 +519,10 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
                     ></ha-markdown-element>`
                   : nothing}
                 ${due
-                  ? html`<div class="due ${due < new Date() ? "overdue" : ""}">
+                  ? html`<div class="due ${due < new Date() ? 'overdue' : ''}">
                       <ha-svg-icon .path=${mdiClock}></ha-svg-icon>${today
                         ? this.hass!.localize(
-                            "ui.panel.lovelace.cards.todo-list.today"
+                            'ui.panel.lovelace.cards.todo-list.today'
                           )
                         : html`<ha-relative-time
                             capitalize
@@ -519,7 +536,7 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
                 ? html`
                     <ha-svg-icon
                       .title=${this.hass!.localize(
-                        "ui.panel.lovelace.cards.todo-list.drag_and_drop"
+                        'ui.panel.lovelace.cards.todo-list.drag_and_drop'
                       )}
                       class="reorderButton handle"
                       .path=${mdiDragHorizontalVariant}
@@ -530,7 +547,7 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
                 : showDelete
                   ? html`<ha-icon-button
                       .title=${this.hass!.localize(
-                        "ui.panel.lovelace.cards.todo-list.delete_item"
+                        'ui.panel.lovelace.cards.todo-list.delete_item'
                       )}
                       class="deleteItemButton"
                       .path=${mdiDelete}
@@ -541,48 +558,48 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
                     </ha-icon-button>`
                   : nothing}
             </ha-check-list-item>
-          `;
+          `
         }
       )}
-    `;
+    `
   }
 
   private _todoListSupportsFeature(feature: number): boolean {
-    const entityStateObj = this.hass!.states[this._entityId!];
-    return entityStateObj && supportsFeature(entityStateObj, feature);
+    const entityStateObj = this.hass!.states[this._entityId!]
+    return entityStateObj && supportsFeature(entityStateObj, feature)
   }
 
   private async _subscribeItems(): Promise<void> {
     if (this._unsubItems) {
-      this._unsubItems.then((unsub) => unsub());
-      this._unsubItems = undefined;
+      this._unsubItems.then(unsub => unsub())
+      this._unsubItems = undefined
     }
     if (!this.hass || !this._entityId) {
-      return;
+      return
     }
     if (!(this._entityId in this.hass.states)) {
-      return;
+      return
     }
-    this._unsubItems = subscribeItems(this.hass!, this._entityId, (update) => {
-      this._items = update.items;
-    });
+    this._unsubItems = subscribeItems(this.hass!, this._entityId, update => {
+      this._items = update.items
+    })
   }
 
   private _getItem(itemId: string) {
-    return this._items?.find((item) => item.uid === itemId);
+    return this._items?.find(item => item.uid === itemId)
   }
 
   private _requestSelected(ev: Event): void {
-    ev.stopPropagation();
+    ev.stopPropagation()
   }
 
   private _handleKeydown(ev) {
-    if (ev.key === " ") {
-      this._completeItem(ev);
-      return;
+    if (ev.key === ' ') {
+      this._completeItem(ev)
+      return
     }
-    if (ev.key === "Enter") {
-      this._itemTap(ev);
+    if (ev.key === 'Enter') {
+      this._itemTap(ev)
     }
   }
 
@@ -591,40 +608,40 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
       !this._config!.item_tap_action ||
       this._config!.item_tap_action === ITEM_TAP_ACTION_EDIT
     ) {
-      this._openItem(ev);
+      this._openItem(ev)
     } else if (this._config!.item_tap_action === ITEM_TAP_ACTION_TOGGLE) {
-      this._completeItem(ev);
+      this._completeItem(ev)
     }
   }
 
   private _openItem(ev): void {
-    ev.stopPropagation();
+    ev.stopPropagation()
 
     if (
       ev
         .composedPath()
-        .find((el) => ["input", "a", "button"].includes(el.localName))
+        .find(el => ['input', 'a', 'button'].includes(el.localName))
     ) {
-      return;
+      return
     }
 
-    const item = this._getItem(ev.currentTarget.itemId);
+    const item = this._getItem(ev.currentTarget.itemId)
     showTodoItemEditDialog(this, {
       entity: this._entityId!,
       item,
-    });
+    })
   }
 
   private async _completeItem(ev): Promise<void> {
-    let focusedIndex: number | undefined;
-    let list: List | undefined;
-    if (ev.type === "keydown") {
-      list = this.renderRoot.querySelector("ha-list")!;
-      focusedIndex = list.getFocusedItemIndex();
+    let focusedIndex: number | undefined
+    let list: List | undefined
+    if (ev.type === 'keydown') {
+      list = this.renderRoot.querySelector('ha-list')!
+      focusedIndex = list.getFocusedItemIndex()
     }
-    const item = this._getItem(ev.currentTarget.itemId);
+    const item = this._getItem(ev.currentTarget.itemId)
     if (!item) {
-      return;
+      return
     }
     await updateItem(this.hass!, this._entityId!, {
       uid: item.uid,
@@ -633,142 +650,142 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
         item.status === TodoItemStatus.NeedsAction
           ? TodoItemStatus.Completed
           : TodoItemStatus.NeedsAction,
-    });
+    })
     if (focusedIndex !== undefined && list) {
-      await this.updateComplete;
-      await list.updateComplete;
-      list.focusItemAtIndex(focusedIndex);
+      await this.updateComplete
+      await list.updateComplete
+      list.focusItemAtIndex(focusedIndex)
     }
   }
 
   private _handleCompletedMenuAction(ev: CustomEvent<ActionDetail>) {
     switch (ev.detail.index) {
       case 0:
-        this._clearCompletedItems();
-        break;
+        this._clearCompletedItems()
+        break
     }
   }
 
   private _clearCompletedItems() {
     if (!this.hass) {
-      return;
+      return
     }
-    const checkedItems = this._getCheckedItems(this._items);
-    const uids = checkedItems.map((item: TodoItem) => item.uid);
+    const checkedItems = this._getCheckedItems(this._items)
+    const uids = checkedItems.map((item: TodoItem) => item.uid)
     showConfirmationDialog(this, {
       title: this.hass.localize(
-        "ui.panel.lovelace.cards.todo-list.delete_confirm_title"
+        'ui.panel.lovelace.cards.todo-list.delete_confirm_title'
       ),
       text: this.hass.localize(
-        "ui.panel.lovelace.cards.todo-list.delete_confirm_text",
+        'ui.panel.lovelace.cards.todo-list.delete_confirm_text',
         { number: uids.length }
       ),
-      dismissText: this.hass.localize("ui.common.cancel"),
-      confirmText: this.hass.localize("ui.common.delete"),
+      dismissText: this.hass.localize('ui.common.cancel'),
+      confirmText: this.hass.localize('ui.common.delete'),
       destructive: true,
       confirm: () => {
-        deleteItems(this.hass!, this._entityId!, uids);
+        deleteItems(this.hass!, this._entityId!, uids)
       },
-    });
+    })
   }
 
   private get _newItem(): HaTextField {
-    return this.shadowRoot!.querySelector(".addBox") as HaTextField;
+    return this.shadowRoot!.querySelector('.addBox') as HaTextField
   }
 
   private _addItem(ev): void {
-    const newItem = this._newItem;
+    const newItem = this._newItem
     if (newItem.value!.length > 0) {
       createItem(this.hass!, this._entityId!, {
         summary: newItem.value!,
-      });
+      })
     }
 
-    newItem.value = "";
+    newItem.value = ''
     if (ev) {
-      newItem.focus();
+      newItem.focus()
     }
   }
 
   private _deleteItem(ev): void {
-    const item = this._getItem(ev.target.itemId);
+    const item = this._getItem(ev.target.itemId)
     if (!item) {
-      return;
+      return
     }
-    deleteItems(this.hass!, this._entityId!, [item.uid]);
+    deleteItems(this.hass!, this._entityId!, [item.uid])
   }
 
   private _addKeyPress(ev): void {
-    if (ev.key === "Enter") {
-      this._addItem(null);
+    if (ev.key === 'Enter') {
+      this._addItem(null)
     }
   }
 
   private _handlePrimaryMenuAction(ev: CustomEvent<ActionDetail>) {
     switch (ev.detail.index) {
       case 0:
-        this._toggleReorder();
-        break;
+        this._toggleReorder()
+        break
     }
   }
 
   private _toggleReorder() {
-    this._reordering = !this._reordering;
+    this._reordering = !this._reordering
   }
 
   private async _itemMoved(ev: CustomEvent) {
-    ev.stopPropagation();
-    const { oldIndex, newIndex } = ev.detail;
-    this._moveItem(oldIndex, newIndex);
+    ev.stopPropagation()
+    const { oldIndex, newIndex } = ev.detail
+    this._moveItem(oldIndex, newIndex)
   }
 
   private _findFirstItem(
     items: HTMLCollection,
     start: number,
-    direction: "up" | "down"
+    direction: 'up' | 'down'
   ) {
-    let item: Element | undefined;
-    let index = direction === "up" ? start - 1 : start;
-    while (item?.localName !== "ha-check-list-item") {
-      item = items[index];
-      index = direction === "up" ? index - 1 : index + 1;
+    let item: Element | undefined
+    let index = direction === 'up' ? start - 1 : start
+    while (item?.localName !== 'ha-check-list-item') {
+      item = items[index]
+      index = direction === 'up' ? index - 1 : index + 1
       if (!item) {
-        break;
+        break
       }
     }
-    return item;
+    return item
   }
 
   private async _moveItem(oldIndex: number, newIndex: number) {
-    await this.updateComplete;
+    await this.updateComplete
 
-    const list = this.renderRoot.querySelector("ha-list")!;
+    const list = this.renderRoot.querySelector('ha-list')!
 
-    const items = list.children;
+    const items = list.children
 
-    const itemId = (items[oldIndex] as any).itemId as string;
+    const itemId = (items[oldIndex] as any).itemId as string
 
     const prevItemId = (
       this._findFirstItem(
         items,
         newIndex,
-        newIndex < oldIndex ? "up" : "down"
+        newIndex < oldIndex ? 'up' : 'down'
       ) as any
-    )?.itemId;
+    )?.itemId
 
     // Optimistic change
-    const itemIndex = this._items!.findIndex((itm) => itm.uid === itemId);
-    const item = this._items!.splice(itemIndex, 1)[0];
+    const itemIndex = this._items!.findIndex(itm => itm.uid === itemId)
+    const item = this._items!.splice(itemIndex, 1)[0]
 
     if (!prevItemId) {
-      this._items!.unshift(item);
+      this._items!.unshift(item)
     } else {
-      const prevIndex = this._items!.findIndex((itm) => itm.uid === prevItemId);
-      this._items!.splice(prevIndex + 1, 0, item);
+      const prevIndex = this._items!.findIndex(itm => itm.uid === prevItemId)
+      this._items!.splice(prevIndex + 1, 0, item)
     }
-    this._items = [...this._items!];
+    this._items = [...this._items!]
 
-    await moveItem(this.hass!, this._entityId!, itemId, prevItemId);
+    await moveItem(this.hass!, this._entityId!, itemId, prevItemId)
   }
 
   static styles = css`
@@ -933,11 +950,11 @@ export class HuiTodoListCard extends LitElement implements LovelaceCard {
     .warning {
       color: var(--error-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-todo-list-card": HuiTodoListCard;
+    'hui-todo-list-card': HuiTodoListCard
   }
 }

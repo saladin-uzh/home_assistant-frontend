@@ -1,33 +1,33 @@
-import type { HomeAssistant } from "../types";
+import type { HomeAssistant } from '../types'
 
 export interface DiagnosticInfo {
-  domain: string;
+  domain: string
   handlers: {
-    config_entry: boolean;
-    device: boolean;
-  };
+    config_entry: boolean
+    device: boolean
+  }
 }
 
 export const fetchDiagnosticHandlers = (
   hass: HomeAssistant
 ): Promise<DiagnosticInfo[]> =>
   hass.callWS<DiagnosticInfo[]>({
-    type: "diagnostics/list",
-  });
+    type: 'diagnostics/list',
+  })
 
 export const fetchDiagnosticHandler = (
   hass: HomeAssistant,
   domain: string
 ): Promise<DiagnosticInfo> =>
   hass.callWS<DiagnosticInfo>({
-    type: "diagnostics/get",
+    type: 'diagnostics/get',
     domain,
-  });
+  })
 
 export const getConfigEntryDiagnosticsDownloadUrl = (entry_id: string) =>
-  `/api/diagnostics/config_entry/${entry_id}`;
+  `/api/diagnostics/config_entry/${entry_id}`
 
 export const getDeviceDiagnosticsDownloadUrl = (
   entry_id: string,
   device_id: string
-) => `/api/diagnostics/config_entry/${entry_id}/device/${device_id}`;
+) => `/api/diagnostics/config_entry/${entry_id}/device/${device_id}`

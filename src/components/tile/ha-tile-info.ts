@@ -1,5 +1,5 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
 /**
  * Home Assistant tile info component
@@ -23,23 +23,29 @@ import { customElement, property } from "lit/decorators";
  * @cssprop --ha-tile-info-secondary-letter-spacing - The letter spacing of the secondary text. defaults to `0.4px`.
  * @cssprop --ha-tile-info-secondary-color - The color of the secondary text. defaults to `var(--primary-text-color)`.
  */
-@customElement("ha-tile-info")
+@customElement('ha-tile-info')
 export class HaTileInfo extends LitElement {
-  @property() public primary?: string;
+  @property() public primary?: string
 
-  @property() public secondary?: string;
+  @property() public secondary?: string
 
   protected render() {
     return html`
       <div class="info">
-        <slot name="primary" class="primary">
+        <slot
+          name="primary"
+          class="primary"
+        >
           <span>${this.primary}</span>
         </slot>
-        <slot name="secondary" class="secondary">
+        <slot
+          name="secondary"
+          class="secondary"
+        >
           <span>${this.secondary}</span>
         </slot>
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -113,11 +119,11 @@ export class HaTileInfo extends LitElement {
       letter-spacing: var(--tile-info-secondary-letter-spacing);
       color: var(--tile-info-secondary-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-tile-info": HaTileInfo;
+    'ha-tile-info': HaTileInfo
   }
 }

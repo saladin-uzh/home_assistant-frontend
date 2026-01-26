@@ -1,59 +1,59 @@
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../common/dom/fire_event";
-import "../../components/ha-wa-dialog";
-import "../../components/ha-dialog-footer";
-import "../../components/ha-formfield";
-import "../../components/ha-switch";
-import "../../components/ha-button";
-import type { HaSwitch } from "../../components/ha-switch";
-import type { ConfigEntryMutableParams } from "../../data/config_entries";
-import { updateConfigEntry } from "../../data/config_entries";
-import { haStyleDialog } from "../../resources/styles";
-import type { HomeAssistant } from "../../types";
-import { showAlertDialog } from "../generic/show-dialog-box";
-import type { ConfigEntrySystemOptionsDialogParams } from "./show-dialog-config-entry-system-options";
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../common/dom/fire_event'
+import '../../components/ha-wa-dialog'
+import '../../components/ha-dialog-footer'
+import '../../components/ha-formfield'
+import '../../components/ha-switch'
+import '../../components/ha-button'
+import type { HaSwitch } from '../../components/ha-switch'
+import type { ConfigEntryMutableParams } from '../../data/config_entries'
+import { updateConfigEntry } from '../../data/config_entries'
+import { haStyleDialog } from '../../resources/styles'
+import type { HomeAssistant } from '../../types'
+import { showAlertDialog } from '../generic/show-dialog-box'
+import type { ConfigEntrySystemOptionsDialogParams } from './show-dialog-config-entry-system-options'
 
-@customElement("dialog-config-entry-system-options")
+@customElement('dialog-config-entry-system-options')
 class DialogConfigEntrySystemOptions extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _disableNewEntities!: boolean;
+  @state() private _disableNewEntities!: boolean
 
-  @state() private _disablePolling!: boolean;
+  @state() private _disablePolling!: boolean
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
-  @state() private _params?: ConfigEntrySystemOptionsDialogParams;
+  @state() private _params?: ConfigEntrySystemOptionsDialogParams
 
-  @state() private _submitting = false;
+  @state() private _submitting = false
 
-  @state() private _open = false;
+  @state() private _open = false
 
   public async showDialog(
     params: ConfigEntrySystemOptionsDialogParams
   ): Promise<void> {
-    this._params = params;
-    this._error = undefined;
-    this._disableNewEntities = params.entry.pref_disable_new_entities;
-    this._disablePolling = params.entry.pref_disable_polling;
-    this._open = true;
+    this._params = params
+    this._error = undefined
+    this._disableNewEntities = params.entry.pref_disable_new_entities
+    this._disablePolling = params.entry.pref_disable_polling
+    this._open = true
   }
 
   public closeDialog(): void {
-    this._open = false;
+    this._open = false
   }
 
   private _dialogClosed(): void {
-    this._error = "";
-    this._params = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._error = ''
+    this._params = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -61,7 +61,7 @@ class DialogConfigEntrySystemOptions extends LitElement {
         .hass=${this.hass}
         .open=${this._open}
         header-title=${this.hass.localize(
-          "ui.dialogs.config_entry_system_options.title",
+          'ui.dialogs.config_entry_system_options.title',
           {
             integration:
               this.hass.localize(
@@ -71,16 +71,16 @@ class DialogConfigEntrySystemOptions extends LitElement {
         )}
         @closed=${this._dialogClosed}
       >
-        ${this._error ? html` <div class="error">${this._error}</div> ` : ""}
+        ${this._error ? html` <div class="error">${this._error}</div> ` : ''}
         <ha-formfield
           .label=${html`<p>
               ${this.hass.localize(
-                "ui.dialogs.config_entry_system_options.enable_new_entities_label"
+                'ui.dialogs.config_entry_system_options.enable_new_entities_label'
               )}
             </p>
             <p class="secondary">
               ${this.hass.localize(
-                "ui.dialogs.config_entry_system_options.enable_new_entities_description",
+                'ui.dialogs.config_entry_system_options.enable_new_entities_description',
                 {
                   integration:
                     this.hass.localize(
@@ -101,12 +101,12 @@ class DialogConfigEntrySystemOptions extends LitElement {
         <ha-formfield
           .label=${html`<p>
               ${this.hass.localize(
-                "ui.dialogs.config_entry_system_options.enable_polling_label"
+                'ui.dialogs.config_entry_system_options.enable_polling_label'
               )}
             </p>
             <p class="secondary">
               ${this.hass.localize(
-                "ui.dialogs.config_entry_system_options.enable_polling_description",
+                'ui.dialogs.config_entry_system_options.enable_polling_description',
                 {
                   integration:
                     this.hass.localize(
@@ -130,7 +130,7 @@ class DialogConfigEntrySystemOptions extends LitElement {
             @click=${this.closeDialog}
             .disabled=${this._submitting}
           >
-            ${this.hass.localize("ui.common.cancel")}
+            ${this.hass.localize('ui.common.cancel')}
           </ha-button>
           <ha-button
             slot="primaryAction"
@@ -138,48 +138,48 @@ class DialogConfigEntrySystemOptions extends LitElement {
             .disabled=${this._submitting}
           >
             ${this.hass.localize(
-              "ui.dialogs.config_entry_system_options.update"
+              'ui.dialogs.config_entry_system_options.update'
             )}
           </ha-button>
         </ha-dialog-footer>
       </ha-wa-dialog>
-    `;
+    `
   }
 
   private _disableNewEntitiesChanged(ev: Event): void {
-    this._error = undefined;
-    this._disableNewEntities = !(ev.target as HaSwitch).checked;
+    this._error = undefined
+    this._disableNewEntities = !(ev.target as HaSwitch).checked
   }
 
   private _disablePollingChanged(ev: Event): void {
-    this._error = undefined;
-    this._disablePolling = !(ev.target as HaSwitch).checked;
+    this._error = undefined
+    this._disablePolling = !(ev.target as HaSwitch).checked
   }
 
   private async _updateEntry(): Promise<void> {
-    this._submitting = true;
+    this._submitting = true
     const data: ConfigEntryMutableParams = {
       pref_disable_new_entities: this._disableNewEntities,
-    };
-    data.pref_disable_polling = this._disablePolling;
+    }
+    data.pref_disable_polling = this._disablePolling
     try {
       const result = await updateConfigEntry(
         this.hass,
         this._params!.entry.entry_id,
         data
-      );
+      )
       if (result.require_restart) {
         await showAlertDialog(this, {
           text: this.hass.localize(
-            "ui.dialogs.config_entry_system_options.restart_home_assistant"
+            'ui.dialogs.config_entry_system_options.restart_home_assistant'
           ),
-        });
+        })
       }
-      this.closeDialog();
+      this.closeDialog()
     } catch (err: any) {
-      this._error = err.message || "Unknown error";
+      this._error = err.message || 'Unknown error'
     } finally {
-      this._submitting = false;
+      this._submitting = false
     }
   }
 
@@ -191,12 +191,12 @@ class DialogConfigEntrySystemOptions extends LitElement {
           color: var(--error-color);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-config-entry-system-options": DialogConfigEntrySystemOptions;
+    'dialog-config-entry-system-options': DialogConfigEntrySystemOptions
   }
 }

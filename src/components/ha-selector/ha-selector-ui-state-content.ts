@@ -1,29 +1,29 @@
-import { html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { UiStateContentSelector } from "../../data/selector";
-import { SubscribeMixin } from "../../mixins/subscribe-mixin";
-import type { HomeAssistant } from "../../types";
-import "../entity/ha-entity-state-content-picker";
+import { html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { UiStateContentSelector } from '../../data/selector'
+import { SubscribeMixin } from '../../mixins/subscribe-mixin'
+import type { HomeAssistant } from '../../types'
+import '../entity/ha-entity-state-content-picker'
 
-@customElement("ha-selector-ui_state_content")
+@customElement('ha-selector-ui_state_content')
 export class HaSelectorUiStateContent extends SubscribeMixin(LitElement) {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: UiStateContentSelector;
+  @property({ attribute: false }) public selector!: UiStateContentSelector
 
-  @property() public value?: string | string[];
+  @property() public value?: string | string[]
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = true;
+  @property({ type: Boolean }) public required = true
 
   @property({ attribute: false }) public context?: {
-    filter_entity?: string;
-  };
+    filter_entity?: string
+  }
 
   protected render() {
     return html`
@@ -38,12 +38,12 @@ export class HaSelectorUiStateContent extends SubscribeMixin(LitElement) {
         .required=${this.required}
         .allowName=${this.selector.ui_state_content?.allow_name || false}
       ></ha-entity-state-content-picker>
-    `;
+    `
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-ui_state_content": HaSelectorUiStateContent;
+    'ha-selector-ui_state_content': HaSelectorUiStateContent
   }
 }

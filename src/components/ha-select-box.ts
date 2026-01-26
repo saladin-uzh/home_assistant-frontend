@@ -1,66 +1,69 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { styleMap } from "lit/directives/style-map";
-import { fireEvent } from "../common/dom/fire_event";
-import { stopPropagation } from "../common/dom/stop_propagation";
-import { computeRTL } from "../common/util/compute_rtl";
-import type { HomeAssistant } from "../types";
-import "./ha-radio";
-import type { HaRadio } from "./ha-radio";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { styleMap } from 'lit/directives/style-map'
+import { fireEvent } from '../common/dom/fire_event'
+import { stopPropagation } from '../common/dom/stop_propagation'
+import { computeRTL } from '../common/util/compute_rtl'
+import type { HomeAssistant } from '../types'
+import './ha-radio'
+import type { HaRadio } from './ha-radio'
 
 interface SelectBoxOptionImage {
-  src: string;
-  src_dark?: string;
-  flip_rtl?: boolean;
+  src: string
+  src_dark?: string
+  flip_rtl?: boolean
 }
 
 export interface SelectBoxOption {
-  label?: string;
-  description?: string;
-  image?: string | SelectBoxOptionImage;
-  value: string;
-  disabled?: boolean;
+  label?: string
+  description?: string
+  image?: string | SelectBoxOptionImage
+  value: string
+  disabled?: boolean
 }
 
-@customElement("ha-select-box")
+@customElement('ha-select-box')
 export class HaSelectBox extends LitElement {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ attribute: false }) public options: SelectBoxOption[] = [];
+  @property({ attribute: false }) public options: SelectBoxOption[] = []
 
-  @property({ attribute: false }) public value?: string;
+  @property({ attribute: false }) public value?: string
 
-  @property({ type: Boolean }) public disabled?: boolean;
+  @property({ type: Boolean }) public disabled?: boolean
 
-  @property({ type: Number, attribute: "max_columns" })
-  public maxColumns?: number;
+  @property({ type: Number, attribute: 'max_columns' })
+  public maxColumns?: number
 
   render() {
-    const maxColumns = this.maxColumns ?? 3;
-    const columns = Math.min(maxColumns, this.options.length);
+    const maxColumns = this.maxColumns ?? 3
+    const columns = Math.min(maxColumns, this.options.length)
 
     return html`
-      <div class="list" style=${styleMap({ "--columns": columns })}>
-        ${this.options.map((option) => this._renderOption(option))}
+      <div
+        class="list"
+        style=${styleMap({ '--columns': columns })}
+      >
+        ${this.options.map(option => this._renderOption(option))}
       </div>
-    `;
+    `
   }
 
   private _renderOption(option: SelectBoxOption) {
-    const horizontal = this.maxColumns === 1;
-    const disabled = option.disabled || this.disabled || false;
-    const selected = option.value === this.value;
+    const horizontal = this.maxColumns === 1
+    const disabled = option.disabled || this.disabled || false
+    const selected = option.value === this.value
 
-    const isDark = this.hass?.themes.darkMode || false;
-    const isRTL = this.hass ? computeRTL(this.hass) : false;
+    const isDark = this.hass?.themes.darkMode || false
+    const isRTL = this.hass ? computeRTL(this.hass) : false
 
     const imageSrc =
-      typeof option.image === "object"
+      typeof option.image === 'object'
         ? (isDark && option.image.src_dark) || option.image.src
-        : option.image;
+        : option.image
     const imageFlip =
-      typeof option.image === "object" ? isRTL && option.image.flip_rtl : false;
+      typeof option.image === 'object' ? isRTL && option.image.flip_rtl : false
 
     return html`
       <label
@@ -88,28 +91,32 @@ export class HaSelectBox extends LitElement {
         </div>
         ${imageSrc
           ? html`
-              <img class=${imageFlip ? "flipped" : ""} alt="" src=${imageSrc} />
+              <img
+                class=${imageFlip ? 'flipped' : ''}
+                alt=""
+                src=${imageSrc}
+              />
             `
           : nothing}
       </label>
-    `;
+    `
   }
 
   private _labelClick(ev) {
-    ev.stopPropagation();
-    ev.currentTarget.querySelector("ha-radio")?.click();
+    ev.stopPropagation()
+    ev.currentTarget.querySelector('ha-radio')?.click()
   }
 
   private _radioChanged(ev: CustomEvent) {
-    ev.stopPropagation();
-    const radio = ev.currentTarget as HaRadio;
-    const value = radio.value;
-    if (this.disabled || value === undefined || value === (this.value ?? "")) {
-      return;
+    ev.stopPropagation()
+    const radio = ev.currentTarget as HaRadio
+    const value = radio.value
+    if (this.disabled || value === undefined || value === (this.value ?? '')) {
+      return
     }
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: value,
-    });
+    })
   }
 
   static styles = css`
@@ -188,7 +195,7 @@ export class HaSelectBox extends LitElement {
     }
 
     .option:before {
-      content: "";
+      content: '';
       display: block;
       inset: 0;
       position: absolute;
@@ -216,10 +223,10 @@ export class HaSelectBox extends LitElement {
       background-color: var(--disabled-color);
       opacity: 0.05;
     }
-  `;
+  `
 }
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-select-box": HaSelectBox;
+    'ha-select-box': HaSelectBox
   }
 }

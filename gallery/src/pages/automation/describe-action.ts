@@ -1,141 +1,141 @@
-import { dump } from "js-yaml";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-yaml-editor";
-import type { Action } from "../../../../src/data/script";
-import { describeAction } from "../../../../src/data/script_i18n";
-import { getEntity } from "../../../../src/fake_data/entity";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import type { HomeAssistant } from "../../../../src/types";
+import { dump } from 'js-yaml'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-yaml-editor'
+import type { Action } from '../../../../src/data/script'
+import { describeAction } from '../../../../src/data/script_i18n'
+import { getEntity } from '../../../../src/fake_data/entity'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import type { HomeAssistant } from '../../../../src/types'
 
 const ENTITIES = [
-  getEntity("scene", "kitchen_morning", "scening", {
-    friendly_name: "Kitchen Morning",
+  getEntity('scene', 'kitchen_morning', 'scening', {
+    friendly_name: 'Kitchen Morning',
   }),
-  getEntity("media_player", "kitchen", "playing", {
-    friendly_name: "Sonos Kitchen",
+  getEntity('media_player', 'kitchen', 'playing', {
+    friendly_name: 'Sonos Kitchen',
   }),
-];
+]
 
 const ACTIONS = [
-  { wait_template: "{{ true }}", alias: "Something with an alias" },
-  { delay: "0:05" },
-  { wait_template: "{{ true }}" },
+  { wait_template: '{{ true }}', alias: 'Something with an alias' },
+  { delay: '0:05' },
+  { wait_template: '{{ true }}' },
   {
-    condition: "template",
-    value_template: "{{ true }}",
+    condition: 'template',
+    value_template: '{{ true }}',
   },
-  { event: "happy_event" },
+  { event: 'happy_event' },
   {
-    device_id: "abcdefgh",
-    domain: "plex",
-    entity_id: "media_player.kitchen",
-    type: "turn_on",
+    device_id: 'abcdefgh',
+    domain: 'plex',
+    entity_id: 'media_player.kitchen',
+    type: 'turn_on',
   },
-  { scene: "scene.kitchen_morning" },
+  { scene: 'scene.kitchen_morning' },
   {
-    service: "scene.turn_on",
-    target: { entity_id: "scene.kitchen_morning" },
+    service: 'scene.turn_on',
+    target: { entity_id: 'scene.kitchen_morning' },
     metadata: {},
   },
   {
-    service: "media_player.play_media",
-    target: { entity_id: "media_player.kitchen" },
-    data: { media_content_id: "", media_content_type: "" },
-    metadata: { title: "Happy Song" },
+    service: 'media_player.play_media',
+    target: { entity_id: 'media_player.kitchen' },
+    data: { media_content_id: '', media_content_type: '' },
+    metadata: { title: 'Happy Song' },
   },
   {
     wait_for_trigger: [
       {
-        trigger: "state",
-        entity_id: "input_boolean.toggle_1",
+        trigger: 'state',
+        entity_id: 'input_boolean.toggle_1',
       },
     ],
   },
   {
     variables: {
-      hello: "world",
+      hello: 'world',
     },
   },
   {
-    service: "input_boolean.toggle",
+    service: 'input_boolean.toggle',
     target: {
-      entity_id: "input_boolean.toggle_4",
+      entity_id: 'input_boolean.toggle_4',
     },
   },
   {
     sequence: [
-      { scene: "scene.kitchen_morning" },
-      { service: "light.turn_off", target: { entity_id: "light.kitchen" } },
+      { scene: 'scene.kitchen_morning' },
+      { service: 'light.turn_off', target: { entity_id: 'light.kitchen' } },
     ],
   },
   {
     parallel: [
-      { scene: "scene.kitchen_morning" },
+      { scene: 'scene.kitchen_morning' },
       {
-        service: "media_player.play_media",
-        target: { entity_id: "media_player.living_room" },
-        data: { media_content_id: "", media_content_type: "" },
-        metadata: { title: "Happy Song" },
+        service: 'media_player.play_media',
+        target: { entity_id: 'media_player.living_room' },
+        data: { media_content_id: '', media_content_type: '' },
+        metadata: { title: 'Happy Song' },
       },
     ],
   },
   {
-    stop: "No one is home!",
+    stop: 'No one is home!',
   },
-  { repeat: { count: 3, sequence: [{ delay: "00:00:01" }] } },
+  { repeat: { count: 3, sequence: [{ delay: '00:00:01' }] } },
   {
     repeat: {
-      for_each: ["bread", "butter", "cheese"],
-      sequence: [{ delay: "00:00:01" }],
+      for_each: ['bread', 'butter', 'cheese'],
+      sequence: [{ delay: '00:00:01' }],
     },
   },
   {
-    if: [{ condition: "state" }],
-    then: [{ delay: "00:00:01" }],
-    else: [{ delay: "00:00:05" }],
+    if: [{ condition: 'state' }],
+    then: [{ delay: '00:00:01' }],
+    else: [{ delay: '00:00:05' }],
   },
   {
-    if: [{ condition: "state" }],
-    then: [{ delay: "00:00:01" }],
+    if: [{ condition: 'state' }],
+    then: [{ delay: '00:00:01' }],
   },
   {
-    if: [{ condition: "state" }, { condition: "state" }],
-    then: [{ delay: "00:00:01" }],
-    else: [{ delay: "00:00:05" }],
+    if: [{ condition: 'state' }, { condition: 'state' }],
+    then: [{ delay: '00:00:01' }],
+    else: [{ delay: '00:00:05' }],
   },
   {
     choose: [
       {
-        conditions: [{ condition: "state" }],
-        sequence: [{ delay: "00:00:01" }],
+        conditions: [{ condition: 'state' }],
+        sequence: [{ delay: '00:00:01' }],
       },
       {
-        conditions: [{ condition: "sun" }],
-        sequence: [{ delay: "00:00:05" }],
+        conditions: [{ condition: 'sun' }],
+        sequence: [{ delay: '00:00:05' }],
       },
     ],
-    default: [{ delay: "00:00:03" }],
+    default: [{ delay: '00:00:03' }],
   },
-];
+]
 
 const initialAction: Action = {
-  action: "light.turn_on",
+  action: 'light.turn_on',
   target: {
-    entity_id: "light.kitchen",
+    entity_id: 'light.kitchen',
   },
-};
+}
 
-@customElement("demo-automation-describe-action")
+@customElement('demo-automation-describe-action')
 export class DemoAutomationDescribeAction extends LitElement {
-  @property({ attribute: false }) hass!: HomeAssistant;
+  @property({ attribute: false }) hass!: HomeAssistant
 
-  @state() _action = initialAction;
+  @state() _action = initialAction
 
   protected render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
     return html`
       <ha-card header="Actions">
@@ -143,7 +143,7 @@ export class DemoAutomationDescribeAction extends LitElement {
           <span>
             ${this._action
               ? describeAction(this.hass, [], [], {}, this._action)
-              : "<invalid YAML>"}
+              : '<invalid YAML>'}
           </span>
           <ha-yaml-editor
             label="Action Config"
@@ -153,7 +153,7 @@ export class DemoAutomationDescribeAction extends LitElement {
         </div>
 
         ${ACTIONS.map(
-          (conf) => html`
+          conf => html`
             <div class="action">
               <span>${describeAction(this.hass, [], [], {}, conf as any)}</span>
               <pre>${dump(conf)}</pre>
@@ -161,20 +161,20 @@ export class DemoAutomationDescribeAction extends LitElement {
           `
         )}
       </ha-card>
-    `;
+    `
   }
 
   protected firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
-    const hass = provideHass(this);
-    hass.updateTranslations(null, "en");
-    hass.updateTranslations("config", "en");
-    hass.addEntities(ENTITIES);
+    super.firstUpdated(changedProps)
+    const hass = provideHass(this)
+    hass.updateTranslations(null, 'en')
+    hass.updateTranslations('config', 'en')
+    hass.addEntities(ENTITIES)
   }
 
   private _dataChanged(ev: CustomEvent): void {
-    ev.stopPropagation();
-    this._action = ev.detail.isValid ? ev.detail.value : undefined;
+    ev.stopPropagation()
+    this._action = ev.detail.isValid ? ev.detail.value : undefined
   }
 
   static styles = css`
@@ -194,11 +194,11 @@ export class DemoAutomationDescribeAction extends LitElement {
     ha-yaml-editor {
       width: 50%;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-automation-describe-action": DemoAutomationDescribeAction;
+    'demo-automation-describe-action': DemoAutomationDescribeAction
   }
 }

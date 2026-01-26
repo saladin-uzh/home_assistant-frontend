@@ -1,37 +1,40 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, state } from "lit/decorators";
-import type { HomeAssistant } from "../../../types";
-import type { LovelaceRow, SectionConfig } from "../entity-rows/types";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, state } from 'lit/decorators'
+import type { HomeAssistant } from '../../../types'
+import type { LovelaceRow, SectionConfig } from '../entity-rows/types'
 
-@customElement("hui-section-row")
+@customElement('hui-section-row')
 class HuiSectionRow extends LitElement implements LovelaceRow {
-  public hass?: HomeAssistant;
+  public hass?: HomeAssistant
 
-  @state() private _config?: SectionConfig;
+  @state() private _config?: SectionConfig
 
   public setConfig(config: SectionConfig): void {
     if (!config) {
-      throw new Error("Invalid configuration");
+      throw new Error('Invalid configuration')
     }
 
-    this._config = config;
+    this._config = config
   }
 
   protected render() {
     if (!this._config) {
-      return nothing;
+      return nothing
     }
 
     return html`
       <div class="divider"></div>
       ${this._config.label
         ? html`
-            <div class="label" .title=${this._config.label}>
+            <div
+              class="label"
+              .title=${this._config.label}
+            >
               ${this._config.label}
             </div>
           `
         : nothing}
-    `;
+    `
   }
 
   static styles = css`
@@ -53,11 +56,11 @@ class HuiSectionRow extends LitElement implements LovelaceRow {
       margin-inline-end: -16px;
       margin-top: 8px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-section-row": HuiSectionRow;
+    'hui-section-row': HuiSectionRow
   }
 }

@@ -1,45 +1,45 @@
-import { mdiHelpCircle } from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../src/components/ha-svg-icon";
-import type { HomeAssistant } from "../../../src/types";
+import { mdiHelpCircle } from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../src/components/ha-svg-icon'
+import type { HomeAssistant } from '../../../src/types'
 
-@customElement("hassio-card-content")
+@customElement('hassio-card-content')
 class HassioCardContent extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   // eslint-disable-next-line lit/no-native-attributes
-  @property() public title!: string;
+  @property() public title!: string
 
-  @property() public description?: string;
+  @property() public description?: string
 
-  @property({ type: Boolean }) public available = true;
+  @property({ type: Boolean }) public available = true
 
-  @property({ attribute: false }) public showTopbar = false;
+  @property({ attribute: false }) public showTopbar = false
 
-  @property({ attribute: false }) public topbarClass?: string;
+  @property({ attribute: false }) public topbarClass?: string
 
-  @property({ attribute: false }) public iconTitle?: string;
+  @property({ attribute: false }) public iconTitle?: string
 
-  @property({ attribute: false }) public iconClass?: string;
+  @property({ attribute: false }) public iconClass?: string
 
-  @property() public icon = mdiHelpCircle;
+  @property() public icon = mdiHelpCircle
 
-  @property({ attribute: false }) public iconImage?: string;
+  @property({ attribute: false }) public iconImage?: string
 
   protected render(): TemplateResult {
     return html`
       ${this.showTopbar
         ? html` <div class="topbar ${this.topbarClass}"></div> `
-        : ""}
+        : ''}
       ${this.iconImage
         ? html`
             <div class="icon_image ${this.iconClass}">
               <img
                 src=${this.iconImage}
                 .title=${this.iconTitle}
-                alt=${this.iconTitle ?? ""}
+                alt=${this.iconTitle ?? ''}
               />
               <div></div>
             </div>
@@ -57,11 +57,11 @@ class HassioCardContent extends LitElement {
           ${this.description}
           ${
             /* treat as available when undefined */
-            this.available === false ? " (Not available)" : ""
+            this.available === false ? ' (Not available)' : ''
           }
         </div>
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -141,11 +141,11 @@ class HassioCardContent extends LitElement {
     .topbar.unavailable {
       background-color: var(--error-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hassio-card-content": HassioCardContent;
+    'hassio-card-content': HassioCardContent
   }
 }

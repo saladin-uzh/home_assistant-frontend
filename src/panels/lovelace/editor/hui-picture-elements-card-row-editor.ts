@@ -1,16 +1,16 @@
-import { mdiClose, mdiContentDuplicate, mdiPencil } from "@mdi/js";
-import deepClone from "deep-clone-simple";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, query } from "lit/decorators";
-import { fireEvent } from "../../../common/dom/fire_event";
-import { stopPropagation } from "../../../common/dom/stop_propagation";
-import "../../../components/ha-icon-button";
-import "../../../components/ha-list-item";
-import "../../../components/ha-select";
-import type { HaSelect } from "../../../components/ha-select";
-import "../../../components/ha-svg-icon";
-import { showConfirmationDialog } from "../../../dialogs/generic/show-dialog-box";
-import type { HomeAssistant } from "../../../types";
+import { mdiClose, mdiContentDuplicate, mdiPencil } from '@mdi/js'
+import deepClone from 'deep-clone-simple'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import { fireEvent } from '../../../common/dom/fire_event'
+import { stopPropagation } from '../../../common/dom/stop_propagation'
+import '../../../components/ha-icon-button'
+import '../../../components/ha-list-item'
+import '../../../components/ha-select'
+import type { HaSelect } from '../../../components/ha-select'
+import '../../../components/ha-svg-icon'
+import { showConfirmationDialog } from '../../../dialogs/generic/show-dialog-box'
+import type { HomeAssistant } from '../../../types'
 import type {
   ConditionalElementConfig,
   IconElementConfig,
@@ -20,44 +20,44 @@ import type {
   StateBadgeElementConfig,
   StateIconElementConfig,
   StateLabelElementConfig,
-} from "../elements/types";
-import { getElementStubConfig } from "./get-element-stub-config";
+} from '../elements/types'
+import { getElementStubConfig } from './get-element-stub-config'
 
 declare global {
   interface HASSDomEvents {
-    "elements-changed": {
-      elements: any[];
-    };
+    'elements-changed': {
+      elements: any[]
+    }
   }
 }
 
 const elementTypes: string[] = [
-  "state-badge",
-  "state-icon",
-  "state-label",
-  "action-button",
-  "icon",
-  "image",
-  "conditional",
-];
+  'state-badge',
+  'state-icon',
+  'state-label',
+  'action-button',
+  'icon',
+  'image',
+  'conditional',
+]
 
-@customElement("hui-picture-elements-card-row-editor")
+@customElement('hui-picture-elements-card-row-editor')
 export class HuiPictureElementsCardRowEditor extends LitElement {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ attribute: false }) public elements?: LovelaceElementConfig[];
+  @property({ attribute: false }) public elements?: LovelaceElementConfig[]
 
-  @query("ha-select") private _select!: HaSelect;
+  @query('ha-select') private _select!: HaSelect
 
   protected render() {
     if (!this.elements || !this.hass) {
-      return nothing;
+      return nothing
     }
 
     return html`
       <h3>
         ${this.hass.localize(
-          "ui.panel.lovelace.editor.card.picture-elements.elements"
+          'ui.panel.lovelace.editor.card.picture-elements.elements'
         )}
       </h3>
       <div class="elements">
@@ -81,21 +81,21 @@ export class HuiPictureElementsCardRowEditor extends LitElement {
                   `
                 : nothing}
               <ha-icon-button
-                .label=${this.hass!.localize("ui.common.delete")}
+                .label=${this.hass!.localize('ui.common.delete')}
                 .path=${mdiClose}
                 class="remove-icon"
                 .index=${index}
                 @click=${this._removeRow}
               ></ha-icon-button>
               <ha-icon-button
-                .label=${this.hass!.localize("ui.common.edit")}
+                .label=${this.hass!.localize('ui.common.edit')}
                 .path=${mdiPencil}
                 class="edit-icon"
                 .index=${index}
                 @click=${this._editRow}
               ></ha-icon-button>
               <ha-icon-button
-                .label=${this.hass!.localize("ui.common.duplicate")}
+                .label=${this.hass!.localize('ui.common.duplicate')}
                 .path=${mdiContentDuplicate}
                 class="duplicate-icon"
                 .index=${index}
@@ -108,14 +108,14 @@ export class HuiPictureElementsCardRowEditor extends LitElement {
           fixedMenuPosition
           naturalMenuWidth
           .label=${this.hass.localize(
-            "ui.panel.lovelace.editor.card.picture-elements.new_element"
+            'ui.panel.lovelace.editor.card.picture-elements.new_element'
           )}
-          .value=${""}
+          .value=${''}
           @closed=${stopPropagation}
           @selected=${this._addElement}
         >
           ${elementTypes.map(
-            (element) => html`
+            element => html`
               <ha-list-item .value=${element}
                 >${this.hass?.localize(
                   `ui.panel.lovelace.editor.card.picture-elements.element_types.${element}`
@@ -125,16 +125,16 @@ export class HuiPictureElementsCardRowEditor extends LitElement {
           )}
         </ha-select>
       </div>
-    `;
+    `
   }
 
   private _getSecondaryDescription(element: LovelaceElementConfig): string {
     switch (element.type) {
-      case "icon":
-        return element.title ?? (element as IconElementConfig).icon ?? "";
-      case "state-badge":
-      case "state-icon":
-      case "state-label":
+      case 'icon':
+        return element.title ?? (element as IconElementConfig).icon ?? ''
+      case 'state-badge':
+      case 'state-icon':
+      case 'state-label':
         return (
           element.title ??
           (
@@ -143,44 +143,44 @@ export class HuiPictureElementsCardRowEditor extends LitElement {
               | StateIconElementConfig
               | StateLabelElementConfig
           ).entity ??
-          ""
-        );
-      case "action-button":
-      case "service-button":
+          ''
+        )
+      case 'action-button':
+      case 'service-button':
         return (
           element.title ??
           (element as ServiceButtonElementConfig).action ??
           (element as ServiceButtonElementConfig).service ??
-          ""
-        );
-      case "image": {
+          ''
+        )
+      case 'image': {
         if (element.title) {
-          return element.title;
+          return element.title
         }
-        const config = element as ImageElementConfig;
+        const config = element as ImageElementConfig
         if (config.image) {
-          if (typeof config.image === "string") {
-            return config.image;
+          if (typeof config.image === 'string') {
+            return config.image
           }
           return (
-            config.image.metadata?.title || config.image.media_content_id || ""
-          );
+            config.image.metadata?.title || config.image.media_content_id || ''
+          )
         }
-        return config.camera_image || "";
+        return config.camera_image || ''
       }
-      case "conditional":
+      case 'conditional':
         return (
           element.title ??
-          `${((element as ConditionalElementConfig).elements || []).length.toString()} ${this.hass?.localize("ui.panel.lovelace.editor.card.picture-elements.elements")}`
-        );
+          `${((element as ConditionalElementConfig).elements || []).length.toString()} ${this.hass?.localize('ui.panel.lovelace.editor.card.picture-elements.elements')}`
+        )
     }
-    return element.title ?? "Unknown type";
+    return element.title ?? 'Unknown type'
   }
 
   private async _addElement(ev): Promise<void> {
-    const value = ev.target!.value;
-    if (value === "") {
-      return;
+    const value = ev.target!.value
+    if (value === '') {
+      return
     }
     const newElements = this.elements!.concat(
       await getElementStubConfig(
@@ -189,20 +189,20 @@ export class HuiPictureElementsCardRowEditor extends LitElement {
         Object.keys(this.hass!.entities),
         []
       )
-    );
-    fireEvent(this, "elements-changed", { elements: newElements });
-    this._select.select(-1);
+    )
+    fireEvent(this, 'elements-changed', { elements: newElements })
+    this._select.select(-1)
   }
 
   private _removeRow(ev: CustomEvent): void {
-    const index = (ev.currentTarget as any).index;
-    const element = this.elements?.[index];
+    const index = (ev.currentTarget as any).index
+    const element = this.elements?.[index]
     if (!element) {
-      return;
+      return
     }
     showConfirmationDialog(this, {
       text: this.hass!.localize(
-        "ui.panel.lovelace.editor.card.picture-elements.confirm_delete_element",
+        'ui.panel.lovelace.editor.card.picture-elements.confirm_delete_element',
         {
           type:
             this.hass!.localize(
@@ -210,32 +210,32 @@ export class HuiPictureElementsCardRowEditor extends LitElement {
             ) || element.type,
         }
       ),
-      confirmText: this.hass!.localize("ui.common.delete"),
+      confirmText: this.hass!.localize('ui.common.delete'),
       destructive: true,
       confirm: () => {
-        const newElements = this.elements!.concat();
-        newElements.splice(index, 1);
-        fireEvent(this, "elements-changed", { elements: newElements });
+        const newElements = this.elements!.concat()
+        newElements.splice(index, 1)
+        fireEvent(this, 'elements-changed', { elements: newElements })
       },
-    });
+    })
   }
 
   private _editRow(ev: CustomEvent): void {
-    const index = (ev.currentTarget as any).index;
-    fireEvent(this, "edit-detail-element", {
+    const index = (ev.currentTarget as any).index
+    fireEvent(this, 'edit-detail-element', {
       subElementConfig: {
         index,
-        type: "element",
+        type: 'element',
         elementConfig: this.elements![index],
       },
-    });
+    })
   }
 
   private _duplicateRow(ev: CustomEvent): void {
-    const index = (ev.currentTarget as any).index;
-    const newElements = [...this.elements!, deepClone(this.elements![index])];
+    const index = (ev.currentTarget as any).index
+    const newElements = [...this.elements!, deepClone(this.elements![index])]
 
-    fireEvent(this, "elements-changed", { elements: newElements });
+    fireEvent(this, 'elements-changed', { elements: newElements })
   }
 
   static styles = css`
@@ -273,11 +273,11 @@ export class HuiPictureElementsCardRowEditor extends LitElement {
     ha-select {
       width: 100%;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-picture-elements-card-row-editor": HuiPictureElementsCardRowEditor;
+    'hui-picture-elements-card-row-editor': HuiPictureElementsCardRowEditor
   }
 }

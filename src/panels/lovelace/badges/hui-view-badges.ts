@@ -1,127 +1,127 @@
-import { mdiPlus } from "@mdi/js";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { repeat } from "lit/directives/repeat";
-import { fireEvent } from "../../../common/dom/fire_event";
-import "../../../components/ha-ripple";
-import "../../../components/ha-sortable";
-import type { HaSortableOptions } from "../../../components/ha-sortable";
-import "../../../components/ha-svg-icon";
-import type { HomeAssistant } from "../../../types";
-import "../components/hui-badge-edit-mode";
-import { moveBadge } from "../editor/config-util";
-import type { LovelaceCardPath } from "../editor/lovelace-path";
-import type { Lovelace } from "../types";
-import type { HuiBadge } from "./hui-badge";
+import { mdiPlus } from '@mdi/js'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { repeat } from 'lit/directives/repeat'
+import { fireEvent } from '../../../common/dom/fire_event'
+import '../../../components/ha-ripple'
+import '../../../components/ha-sortable'
+import type { HaSortableOptions } from '../../../components/ha-sortable'
+import '../../../components/ha-svg-icon'
+import type { HomeAssistant } from '../../../types'
+import '../components/hui-badge-edit-mode'
+import { moveBadge } from '../editor/config-util'
+import type { LovelaceCardPath } from '../editor/lovelace-path'
+import type { Lovelace } from '../types'
+import type { HuiBadge } from './hui-badge'
 
 const BADGE_SORTABLE_OPTIONS: HaSortableOptions = {
   delay: 100,
   delayOnTouchOnly: true,
-  direction: "horizontal",
+  direction: 'horizontal',
   invertedSwapThreshold: 0.7,
-} as HaSortableOptions;
+} as HaSortableOptions
 
-@customElement("hui-view-badges")
+@customElement('hui-view-badges')
 export class HuiViewBadges extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public lovelace!: Lovelace;
+  @property({ attribute: false }) public lovelace!: Lovelace
 
-  @property({ attribute: false }) public badges: HuiBadge[] = [];
+  @property({ attribute: false }) public badges: HuiBadge[] = []
 
-  @property({ attribute: false }) public viewIndex!: number;
+  @property({ attribute: false }) public viewIndex!: number
 
-  @property({ type: Boolean, attribute: "show-add-label" })
-  public showAddLabel!: boolean;
+  @property({ type: Boolean, attribute: 'show-add-label' })
+  public showAddLabel!: boolean
 
-  @state() _dragging = false;
+  @state() _dragging = false
 
-  private _badgeConfigKeys = new WeakMap<HuiBadge, string>();
+  private _badgeConfigKeys = new WeakMap<HuiBadge, string>()
 
   private _checkAllHidden() {
     const allHidden =
-      !this.lovelace.editMode && this.badges.every((section) => section.hidden);
-    this.toggleAttribute("hidden", allHidden);
+      !this.lovelace.editMode && this.badges.every(section => section.hidden)
+    this.toggleAttribute('hidden', allHidden)
   }
 
   private _badgeVisibilityChanged = () => {
-    this._checkAllHidden();
-  };
+    this._checkAllHidden()
+  }
 
   connectedCallback(): void {
-    super.connectedCallback();
+    super.connectedCallback()
     this.addEventListener(
-      "badge-visibility-changed",
+      'badge-visibility-changed',
       this._badgeVisibilityChanged
-    );
+    )
   }
 
   disconnectedCallback(): void {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
     this.removeEventListener(
-      "badge-visibility-changed",
+      'badge-visibility-changed',
       this._badgeVisibilityChanged
-    );
+    )
   }
 
   willUpdate(changedProperties: PropertyValues<typeof this>): void {
-    if (changedProperties.has("badges") || changedProperties.has("lovelace")) {
-      this._checkAllHidden();
+    if (changedProperties.has('badges') || changedProperties.has('lovelace')) {
+      this._checkAllHidden()
     }
   }
 
   private _getBadgeKey(badge: HuiBadge) {
     if (!this._badgeConfigKeys.has(badge)) {
-      this._badgeConfigKeys.set(badge, Math.random().toString());
+      this._badgeConfigKeys.set(badge, Math.random().toString())
     }
-    return this._badgeConfigKeys.get(badge)!;
+    return this._badgeConfigKeys.get(badge)!
   }
 
   private _badgeMoved(ev) {
-    ev.stopPropagation();
-    const { oldIndex, newIndex } = ev.detail;
+    ev.stopPropagation()
+    const { oldIndex, newIndex } = ev.detail
     const newConfig = moveBadge(
       this.lovelace!.config,
       [this.viewIndex!, oldIndex],
       [this.viewIndex!, newIndex]
-    );
-    this.lovelace!.saveConfig(newConfig);
+    )
+    this.lovelace!.saveConfig(newConfig)
   }
 
   private _badgeAdded(ev) {
-    ev.stopPropagation();
-    const { index, data } = ev.detail;
-    const oldPath = data as LovelaceCardPath;
-    const newPath = [this.viewIndex!, index] as LovelaceCardPath;
-    const newConfig = moveBadge(this.lovelace!.config, oldPath, newPath);
-    this.lovelace!.saveConfig(newConfig);
+    ev.stopPropagation()
+    const { index, data } = ev.detail
+    const oldPath = data as LovelaceCardPath
+    const newPath = [this.viewIndex!, index] as LovelaceCardPath
+    const newConfig = moveBadge(this.lovelace!.config, oldPath, newPath)
+    this.lovelace!.saveConfig(newConfig)
   }
 
   private _badgeRemoved(ev) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     // Do nothing, it's handled by the "item-added" event from the new parent.
   }
 
   private _dragStart() {
-    this._dragging = true;
+    this._dragging = true
   }
 
   private _dragEnd() {
-    this._dragging = false;
+    this._dragging = false
   }
 
   private _addBadge() {
-    fireEvent(this, "ll-create-badge");
+    fireEvent(this, 'll-create-badge')
   }
 
   render() {
-    if (!this.lovelace) return nothing;
+    if (!this.lovelace) return nothing
 
-    const editMode = this.lovelace.editMode;
+    const editMode = this.lovelace.editMode
 
-    const badges = this.badges;
+    const badges = this.badges
 
     return html`
       ${badges?.length > 0 || editMode
@@ -139,12 +139,12 @@ export class HuiViewBadges extends LitElement {
               .options=${BADGE_SORTABLE_OPTIONS}
               invert-swap
             >
-              <div class="badges ${classMap({ "edit-mode": editMode })}">
+              <div class="badges ${classMap({ 'edit-mode': editMode })}">
                 ${repeat(
                   badges,
-                  (badge) => this._getBadgeKey(badge),
+                  badge => this._getBadgeKey(badge),
                   (badge, idx) => {
-                    const badgePath = [this.viewIndex, idx] as LovelaceCardPath;
+                    const badgePath = [this.viewIndex, idx] as LovelaceCardPath
                     return html`
                       ${editMode
                         ? html`
@@ -160,7 +160,7 @@ export class HuiViewBadges extends LitElement {
                             </hui-badge-edit-mode>
                           `
                         : badge}
-                    `;
+                    `
                   }
                 )}
                 ${editMode
@@ -169,17 +169,17 @@ export class HuiViewBadges extends LitElement {
                         class="add"
                         @click=${this._addBadge}
                         aria-label=${this.hass.localize(
-                          "ui.panel.lovelace.editor.section.add_badge"
+                          'ui.panel.lovelace.editor.section.add_badge'
                         )}
                         .title=${this.hass.localize(
-                          "ui.panel.lovelace.editor.section.add_badge"
+                          'ui.panel.lovelace.editor.section.add_badge'
                         )}
                       >
                         <ha-ripple></ha-ripple>
                         <ha-svg-icon .path=${mdiPlus}></ha-svg-icon>
                         ${this.showAddLabel
                           ? this.hass.localize(
-                              "ui.panel.lovelace.editor.section.add_badge"
+                              'ui.panel.lovelace.editor.section.add_badge'
                             )
                           : nothing}
                       </button>
@@ -189,7 +189,7 @@ export class HuiViewBadges extends LitElement {
             </ha-sortable>
           `
         : nothing}
-    `;
+    `
   }
 
   static styles = css`
@@ -209,7 +209,7 @@ export class HuiViewBadges extends LitElement {
     /* Use before and after because padding doesn't work well with scrolling */
     .badges::before,
     .badges::after {
-      content: "";
+      content: '';
       position: relative;
       display: block;
       min-width: var(--badge-padding, 0px);
@@ -265,11 +265,11 @@ export class HuiViewBadges extends LitElement {
     .add:focus {
       border-style: solid;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-view-badges": HuiViewBadges;
+    'hui-view-badges': HuiViewBadges
   }
 }

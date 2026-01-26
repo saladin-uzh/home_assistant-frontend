@@ -1,91 +1,91 @@
-import { differenceInDays, endOfToday, isToday, startOfToday } from "date-fns";
-import type { HassConfig, UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import memoizeOne from "memoize-one";
-import type { BarSeriesOption, LineSeriesOption } from "echarts/charts";
-import { getEnergyColor } from "./common/color";
-import { formatNumber } from "../../../../common/number/format_number";
-import "../../../../components/chart/ha-chart-base";
-import "../../../../components/ha-card";
+import { differenceInDays, endOfToday, isToday, startOfToday } from 'date-fns'
+import type { HassConfig, UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import memoizeOne from 'memoize-one'
+import type { BarSeriesOption, LineSeriesOption } from 'echarts/charts'
+import { getEnergyColor } from './common/color'
+import { formatNumber } from '../../../../common/number/format_number'
+import '../../../../components/chart/ha-chart-base'
+import '../../../../components/ha-card'
 import type {
   EnergyData,
   EnergySolarForecasts,
   SolarSourceTypeEnergyPreference,
-} from "../../../../data/energy";
+} from '../../../../data/energy'
 import {
   getEnergyDataCollection,
   getEnergySolarForecasts,
-} from "../../../../data/energy";
-import type { Statistics, StatisticsMetaData } from "../../../../data/recorder";
-import { getStatisticLabel } from "../../../../data/recorder";
-import type { FrontendLocaleData } from "../../../../data/translation";
-import { SubscribeMixin } from "../../../../mixins/subscribe-mixin";
-import type { HomeAssistant } from "../../../../types";
-import type { LovelaceCard } from "../../types";
-import type { EnergySolarGraphCardConfig } from "../types";
-import { hasConfigChanged } from "../../common/has-changed";
+} from '../../../../data/energy'
+import type { Statistics, StatisticsMetaData } from '../../../../data/recorder'
+import { getStatisticLabel } from '../../../../data/recorder'
+import type { FrontendLocaleData } from '../../../../data/translation'
+import { SubscribeMixin } from '../../../../mixins/subscribe-mixin'
+import type { HomeAssistant } from '../../../../types'
+import type { LovelaceCard } from '../../types'
+import type { EnergySolarGraphCardConfig } from '../types'
+import { hasConfigChanged } from '../../common/has-changed'
 import {
   fillDataGapsAndRoundCaps,
   getCommonOptions,
   getCompareTransform,
-} from "./common/energy-chart-options";
-import type { ECOption } from "../../../../resources/echarts/echarts";
-import "./common/hui-energy-graph-chip";
-import "../../../../components/ha-tooltip";
+} from './common/energy-chart-options'
+import type { ECOption } from '../../../../resources/echarts/echarts'
+import './common/hui-energy-graph-chip'
+import '../../../../components/ha-tooltip'
 
-@customElement("hui-energy-solar-graph-card")
+@customElement('hui-energy-solar-graph-card')
 export class HuiEnergySolarGraphCard
   extends SubscribeMixin(LitElement)
   implements LovelaceCard
 {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _config?: EnergySolarGraphCardConfig;
+  @state() private _config?: EnergySolarGraphCardConfig
 
-  @state() private _chartData: ECOption["series"][] = [];
+  @state() private _chartData: ECOption['series'][] = []
 
-  @state() private _start = startOfToday();
+  @state() private _start = startOfToday()
 
-  @state() private _end = endOfToday();
+  @state() private _end = endOfToday()
 
-  @state() private _compareStart?: Date;
+  @state() private _compareStart?: Date
 
-  @state() private _compareEnd?: Date;
+  @state() private _compareEnd?: Date
 
-  @state() private _total?: number;
+  @state() private _total?: number
 
-  protected hassSubscribeRequiredHostProps = ["_config"];
+  protected hassSubscribeRequiredHostProps = ['_config']
 
   public hassSubscribe(): UnsubscribeFunc[] {
     return [
       getEnergyDataCollection(this.hass, {
         key: this._config?.collection_key,
-      }).subscribe((data) => this._getStatistics(data)),
-    ];
+      }).subscribe(data => this._getStatistics(data)),
+    ]
   }
 
   public getCardSize(): Promise<number> | number {
-    return 3;
+    return 3
   }
 
   public setConfig(config: EnergySolarGraphCardConfig): void {
-    this._config = config;
+    this._config = config
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     return (
       hasConfigChanged(this, changedProps) ||
       changedProps.size > 1 ||
-      !changedProps.has("hass")
-    );
+      !changedProps.has('hass')
+    )
   }
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -102,7 +102,7 @@ export class HuiEnergySolarGraphCard
         </div>
         <div
           class="content ${classMap({
-            "has-header": !!this._config.title,
+            'has-header': !!this._config.title,
           })}"
         >
           <ha-chart-base
@@ -121,22 +121,22 @@ export class HuiEnergySolarGraphCard
           ${!this._chartData.length
             ? html`<div class="no-data">
                 ${isToday(this._start)
-                  ? this.hass.localize("ui.panel.lovelace.cards.energy.no_data")
+                  ? this.hass.localize('ui.panel.lovelace.cards.energy.no_data')
                   : this.hass.localize(
-                      "ui.panel.lovelace.cards.energy.no_data_period"
+                      'ui.panel.lovelace.cards.energy.no_data_period'
                     )}
               </div>`
-            : ""}
+            : ''}
         </div>
       </ha-card>
-    `;
+    `
   }
 
   private _formatTotal = (total: number) =>
     this.hass.localize(
-      "ui.panel.lovelace.cards.energy.energy_solar_graph.total_produced",
+      'ui.panel.lovelace.cards.energy.energy_solar_graph.total_produced',
       { num: formatNumber(total, this.hass.locale) }
-    );
+    )
 
   private _createOptions = memoizeOne(
     (
@@ -152,39 +152,39 @@ export class HuiEnergySolarGraphCard
         end,
         locale,
         config,
-        "kWh",
+        'kWh',
         compareStart,
         compareEnd,
         this._formatTotal
       )
-  );
+  )
 
   private async _getStatistics(energyData: EnergyData): Promise<void> {
-    this._start = energyData.start;
-    this._end = energyData.end || endOfToday();
+    this._start = energyData.start
+    this._end = energyData.end || endOfToday()
 
-    this._compareStart = energyData.startCompare;
-    this._compareEnd = energyData.endCompare;
+    this._compareStart = energyData.startCompare
+    this._compareEnd = energyData.endCompare
 
     const solarSources: SolarSourceTypeEnergyPreference[] =
       energyData.prefs.energy_sources.filter(
-        (source) => source.type === "solar"
-      ) as SolarSourceTypeEnergyPreference[];
+        source => source.type === 'solar'
+      ) as SolarSourceTypeEnergyPreference[]
 
-    let forecasts: EnergySolarForecasts | undefined;
+    let forecasts: EnergySolarForecasts | undefined
     if (
-      solarSources.some((source) => source.config_entry_solar_forecast?.length)
+      solarSources.some(source => source.config_entry_solar_forecast?.length)
     ) {
       try {
-        forecasts = await getEnergySolarForecasts(this.hass);
+        forecasts = await getEnergySolarForecasts(this.hass)
       } catch (_e) {
         // ignore
       }
     }
 
-    const datasets: ECOption["series"] = [];
+    const datasets: ECOption['series'] = []
 
-    const computedStyles = getComputedStyle(this);
+    const computedStyles = getComputedStyle(this)
 
     if (energyData.statsCompare) {
       datasets.push(
@@ -195,17 +195,17 @@ export class HuiEnergySolarGraphCard
           computedStyles,
           true
         )
-      );
+      )
     } else {
       // add empty dataset so compare bars are first
       // `stack: solar` so it doesn't take up space yet
-      const firstId = solarSources[0]?.stat_energy_from ?? "placeholder";
+      const firstId = solarSources[0]?.stat_energy_from ?? 'placeholder'
       datasets.push({
-        id: "compare-" + firstId,
-        type: "bar",
-        stack: "solar",
+        id: 'compare-' + firstId,
+        type: 'bar',
+        stack: 'solar',
         data: [],
-      });
+      })
     }
 
     datasets.push(
@@ -215,9 +215,9 @@ export class HuiEnergySolarGraphCard
         solarSources,
         computedStyles
       )
-    );
+    )
 
-    fillDataGapsAndRoundCaps(datasets as BarSeriesOption[]);
+    fillDataGapsAndRoundCaps(datasets as BarSeriesOption[])
 
     if (forecasts) {
       datasets.push(
@@ -225,15 +225,15 @@ export class HuiEnergySolarGraphCard
           energyData.statsMetadata,
           forecasts,
           solarSources,
-          computedStyles.getPropertyValue("--primary-text-color"),
+          computedStyles.getPropertyValue('--primary-text-color'),
           energyData.start,
           energyData.end
         )
-      );
+      )
     }
 
-    this._chartData = datasets;
-    this._total = this._processTotal(energyData.stats, solarSources);
+    this._chartData = datasets
+    this._total = this._processTotal(energyData.stats, solarSources)
   }
 
   private _processTotal(
@@ -250,7 +250,7 @@ export class HuiEnergySolarGraphCard
             )
           : 0),
       0
-    );
+    )
   }
 
   private _processDataSet(
@@ -260,20 +260,20 @@ export class HuiEnergySolarGraphCard
     computedStyles: CSSStyleDeclaration,
     compare = false
   ) {
-    const data: BarSeriesOption[] = [];
+    const data: BarSeriesOption[] = []
     const compareTransform = getCompareTransform(
       this._start,
       this._compareStart!
-    );
+    )
 
     solarSources.forEach((source, idx) => {
-      let prevStart: number | null = null;
+      let prevStart: number | null = null
 
-      const solarProductionData: BarSeriesOption["data"] = [];
+      const solarProductionData: BarSeriesOption['data'] = []
 
       // Process solar production data.
       if (source.stat_energy_from in statistics) {
-        const stats = statistics[source.stat_energy_from];
+        const stats = statistics[source.stat_energy_from]
 
         for (const point of stats) {
           if (
@@ -281,32 +281,32 @@ export class HuiEnergySolarGraphCard
             point.change === undefined ||
             point.change === 0
           ) {
-            continue;
+            continue
           }
           if (prevStart === point.start) {
-            continue;
+            continue
           }
           const dataPoint: (Date | string | number)[] = [
             point.start,
             point.change,
-          ];
+          ]
           if (compare) {
-            dataPoint[2] = dataPoint[0];
-            dataPoint[0] = compareTransform(new Date(point.start));
+            dataPoint[2] = dataPoint[0]
+            dataPoint[0] = compareTransform(new Date(point.start))
           }
-          solarProductionData.push(dataPoint);
-          prevStart = point.start;
+          solarProductionData.push(dataPoint)
+          prevStart = point.start
         }
       }
 
       data.push({
-        type: "bar",
-        cursor: "default",
+        type: 'bar',
+        cursor: 'default',
         id: compare
-          ? "compare-" + source.stat_energy_from
+          ? 'compare-' + source.stat_energy_from
           : source.stat_energy_from,
         name: this.hass.localize(
-          "ui.panel.lovelace.cards.energy.energy_solar_graph.production",
+          'ui.panel.lovelace.cards.energy.energy_solar_graph.production',
           {
             name: getStatisticLabel(
               this.hass,
@@ -322,7 +322,7 @@ export class HuiEnergySolarGraphCard
             this.hass.themes.darkMode,
             false,
             compare,
-            "--energy-solar-color",
+            '--energy-solar-color',
             idx
           ),
         },
@@ -331,15 +331,15 @@ export class HuiEnergySolarGraphCard
           this.hass.themes.darkMode,
           true,
           compare,
-          "--energy-solar-color",
+          '--energy-solar-color',
           idx
         ),
         data: solarProductionData,
-        stack: compare ? "compare" : "solar",
-      });
-    });
+        stack: compare ? 'compare' : 'solar',
+      })
+    })
 
-    return data;
+    return data
   }
 
   private _processForecast(
@@ -350,55 +350,55 @@ export class HuiEnergySolarGraphCard
     start: Date,
     end?: Date
   ) {
-    const data: LineSeriesOption[] = [];
+    const data: LineSeriesOption[] = []
 
-    const dayDifference = differenceInDays(end || new Date(), start);
+    const dayDifference = differenceInDays(end || new Date(), start)
 
     // Process solar forecast data.
-    solarSources.forEach((source) => {
+    solarSources.forEach(source => {
       if (source.config_entry_solar_forecast) {
-        const forecastsData: Record<string, number> | undefined = {};
-        source.config_entry_solar_forecast.forEach((configEntryId) => {
+        const forecastsData: Record<string, number> | undefined = {}
+        source.config_entry_solar_forecast.forEach(configEntryId => {
           if (!forecasts![configEntryId]) {
-            return;
+            return
           }
           Object.entries(forecasts![configEntryId].wh_hours).forEach(
             ([date, value]) => {
-              const dateObj = new Date(date);
+              const dateObj = new Date(date)
               if (dateObj < start || (end && dateObj > end)) {
-                return;
+                return
               }
               if (dayDifference > 35) {
-                dateObj.setDate(1);
+                dateObj.setDate(1)
               }
               if (dayDifference > 2) {
-                dateObj.setHours(0, 0, 0, 0);
+                dateObj.setHours(0, 0, 0, 0)
               } else {
-                dateObj.setMinutes(0, 0, 0);
+                dateObj.setMinutes(0, 0, 0)
               }
-              const time = dateObj.getTime();
+              const time = dateObj.getTime()
               if (time in forecastsData) {
-                forecastsData[time] += value;
+                forecastsData[time] += value
               } else {
-                forecastsData[time] = value;
+                forecastsData[time] = value
               }
             }
-          );
-        });
+          )
+        })
 
         if (forecastsData) {
-          const solarForecastData: LineSeriesOption["data"] = [];
+          const solarForecastData: LineSeriesOption['data'] = []
           for (const [time, value] of Object.entries(forecastsData)) {
-            solarForecastData.push([Number(time), value / 1000]);
+            solarForecastData.push([Number(time), value / 1000])
           }
 
           if (solarForecastData.length) {
             data.push({
-              id: "forecast-" + source.stat_energy_from,
-              type: "line",
-              stack: "forecast",
+              id: 'forecast-' + source.stat_energy_from,
+              type: 'line',
+              stack: 'forecast',
               name: this.hass.localize(
-                "ui.panel.lovelace.cards.energy.energy_solar_graph.forecast",
+                'ui.panel.lovelace.cards.energy.energy_solar_graph.forecast',
                 {
                   name: getStatisticLabel(
                     this.hass,
@@ -413,15 +413,15 @@ export class HuiEnergySolarGraphCard
                 type: [7, 5],
                 width: 1.5,
               },
-              symbol: "none",
+              symbol: 'none',
               data: solarForecastData,
-            });
+            })
           }
         }
       }
-    });
+    })
 
-    return data;
+    return data
   }
 
   static styles = css`
@@ -455,11 +455,11 @@ export class HuiEnergySolarGraphCard
       margin-inline-end: initial;
       box-sizing: border-box;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-energy-solar-graph-card": HuiEnergySolarGraphCard;
+    'hui-energy-solar-graph-card': HuiEnergySolarGraphCard
   }
 }

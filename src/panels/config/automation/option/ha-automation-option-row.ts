@@ -1,4 +1,4 @@
-import { consume } from "@lit/context";
+import { consume } from '@lit/context'
 import {
   mdiAppleKeyboardCommand,
   mdiArrowDown,
@@ -7,121 +7,116 @@ import {
   mdiDotsVertical,
   mdiPlusCircleMultipleOutline,
   mdiRenameBox,
-} from "@mdi/js";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { ensureArray } from "../../../../common/array/ensure-array";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { preventDefaultStopPropagation } from "../../../../common/dom/prevent_default_stop_propagation";
-import { stopPropagation } from "../../../../common/dom/stop_propagation";
-import { capitalizeFirstLetter } from "../../../../common/string/capitalize-first-letter";
-import "../../../../components/ha-automation-row";
-import type { HaAutomationRow } from "../../../../components/ha-automation-row";
-import "../../../../components/ha-card";
-import "../../../../components/ha-expansion-panel";
-import "../../../../components/ha-icon-button";
-import "../../../../components/ha-md-button-menu";
-import "../../../../components/ha-md-menu-item";
-import "../../../../components/ha-svg-icon";
+} from '@mdi/js'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { ensureArray } from '../../../../common/array/ensure-array'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { preventDefaultStopPropagation } from '../../../../common/dom/prevent_default_stop_propagation'
+import { stopPropagation } from '../../../../common/dom/stop_propagation'
+import { capitalizeFirstLetter } from '../../../../common/string/capitalize-first-letter'
+import '../../../../components/ha-automation-row'
+import type { HaAutomationRow } from '../../../../components/ha-automation-row'
+import '../../../../components/ha-card'
+import '../../../../components/ha-expansion-panel'
+import '../../../../components/ha-icon-button'
+import '../../../../components/ha-md-button-menu'
+import '../../../../components/ha-md-menu-item'
+import '../../../../components/ha-svg-icon'
 import type {
   Condition,
   OptionSidebarConfig,
-} from "../../../../data/automation";
-import { describeCondition } from "../../../../data/automation_i18n";
-import { fullEntitiesContext } from "../../../../data/context";
-import type { EntityRegistryEntry } from "../../../../data/entity_registry";
-import type { Action, Option } from "../../../../data/script";
-import { showPromptDialog } from "../../../../dialogs/generic/show-dialog-box";
-import type { HomeAssistant } from "../../../../types";
-import { isMac } from "../../../../util/is_mac";
-import "../action/ha-automation-action";
-import type HaAutomationAction from "../action/ha-automation-action";
-import "../condition/ha-automation-condition";
-import type HaAutomationCondition from "../condition/ha-automation-condition";
-import {
-  editorStyles,
-  indentStyle,
-  overflowStyles,
-  rowStyles,
-} from "../styles";
-import { showToast } from "../../../../util/toast";
+} from '../../../../data/automation'
+import { describeCondition } from '../../../../data/automation_i18n'
+import { fullEntitiesContext } from '../../../../data/context'
+import type { EntityRegistryEntry } from '../../../../data/entity_registry'
+import type { Action, Option } from '../../../../data/script'
+import { showPromptDialog } from '../../../../dialogs/generic/show-dialog-box'
+import type { HomeAssistant } from '../../../../types'
+import { isMac } from '../../../../util/is_mac'
+import '../action/ha-automation-action'
+import type HaAutomationAction from '../action/ha-automation-action'
+import '../condition/ha-automation-condition'
+import type HaAutomationCondition from '../condition/ha-automation-condition'
+import { editorStyles, indentStyle, overflowStyles, rowStyles } from '../styles'
+import { showToast } from '../../../../util/toast'
 
-@customElement("ha-automation-option-row")
+@customElement('ha-automation-option-row')
 export default class HaAutomationOptionRow extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public option?: Option;
+  @property({ attribute: false }) public option?: Option
 
-  @property({ attribute: false }) public defaultActions?: Action[];
+  @property({ attribute: false }) public defaultActions?: Action[]
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Number }) public index!: number;
+  @property({ type: Number }) public index!: number
 
-  @property({ type: Boolean }) public first = false;
+  @property({ type: Boolean }) public first = false
 
-  @property({ type: Boolean }) public last = false;
+  @property({ type: Boolean }) public last = false
 
-  @property({ type: Boolean, attribute: "sidebar" })
-  public optionsInSidebar = false;
+  @property({ type: Boolean, attribute: 'sidebar' })
+  public optionsInSidebar = false
 
-  @property({ type: Boolean, attribute: "sort-selected" })
-  public sortSelected = false;
+  @property({ type: Boolean, attribute: 'sort-selected' })
+  public sortSelected = false
 
-  @state() private _expanded = false;
+  @state() private _expanded = false
 
-  @state() private _selected = false;
+  @state() private _selected = false
 
-  @state() private _collapsed = true;
+  @state() private _collapsed = true
 
   @state()
   @consume({ context: fullEntitiesContext, subscribe: true })
-  _entityReg!: EntityRegistryEntry[];
+  _entityReg!: EntityRegistryEntry[]
 
-  @query("ha-automation-condition")
-  private _conditionElement?: HaAutomationCondition;
+  @query('ha-automation-condition')
+  private _conditionElement?: HaAutomationCondition
 
-  @query("ha-automation-action")
-  private _actionElement?: HaAutomationAction;
+  @query('ha-automation-action')
+  private _actionElement?: HaAutomationAction
 
-  @query("ha-automation-row")
-  private _automationRowElement?: HaAutomationRow;
+  @query('ha-automation-row')
+  private _automationRowElement?: HaAutomationRow
 
   get selected() {
-    return this._selected;
+    return this._selected
   }
 
   private _expandedChanged(ev) {
-    if (ev.currentTarget.id !== "option") {
-      return;
+    if (ev.currentTarget.id !== 'option') {
+      return
     }
-    this._expanded = ev.detail.expanded;
+    this._expanded = ev.detail.expanded
   }
 
   private _getDescription() {
-    const conditions = ensureArray<Condition | string>(this.option!.conditions);
+    const conditions = ensureArray<Condition | string>(this.option!.conditions)
     if (!conditions || conditions.length === 0) {
       return this.hass.localize(
-        "ui.panel.config.automation.editor.actions.type.choose.no_conditions"
-      );
+        'ui.panel.config.automation.editor.actions.type.choose.no_conditions'
+      )
     }
-    let str = "";
-    if (typeof conditions[0] === "string") {
-      str += conditions[0];
+    let str = ''
+    if (typeof conditions[0] === 'string') {
+      str += conditions[0]
     } else {
-      str += describeCondition(conditions[0], this.hass, this._entityReg);
+      str += describeCondition(conditions[0], this.hass, this._entityReg)
     }
     if (conditions.length > 1) {
       str += this.hass.localize(
-        "ui.panel.config.automation.editor.actions.type.choose.option_description_additional",
+        'ui.panel.config.automation.editor.actions.type.choose.option_description_additional',
         { numberOfAdditionalConditions: conditions.length - 1 }
-      );
+      )
     }
-    return str;
+    return str
   }
 
   private _renderOverflowLabel(label: string, shortcut?: TemplateResult) {
@@ -131,11 +126,11 @@ export default class HaAutomationOptionRow extends LitElement {
         ${this.optionsInSidebar && !this.narrow
           ? shortcut ||
             html`<span
-              class="shortcut-placeholder ${isMac ? "mac" : ""}"
+              class="shortcut-placeholder ${isMac ? 'mac' : ''}"
             ></span>`
           : nothing}
       </div>
-    `;
+    `
   }
 
   private _renderRow() {
@@ -143,15 +138,18 @@ export default class HaAutomationOptionRow extends LitElement {
       <h3 slot="header">
         ${this.option
           ? `${this.hass.localize(
-              "ui.panel.config.automation.editor.actions.type.choose.option",
+              'ui.panel.config.automation.editor.actions.type.choose.option',
               { number: this.index + 1 }
-            )}: ${this.option.alias || (this._expanded ? "" : this._getDescription())}`
+            )}: ${this.option.alias || (this._expanded ? '' : this._getDescription())}`
           : this.hass.localize(
-              "ui.panel.config.automation.editor.actions.type.choose.default"
+              'ui.panel.config.automation.editor.actions.type.choose.default'
             )}
       </h3>
 
-      <slot name="icons" slot="icons"></slot>
+      <slot
+        name="icons"
+        slot="icons"
+      ></slot>
 
       ${this.option
         ? html`
@@ -167,7 +165,7 @@ export default class HaAutomationOptionRow extends LitElement {
             >
               <ha-icon-button
                 slot="trigger"
-                .label=${this.hass.localize("ui.common.menu")}
+                .label=${this.hass.localize('ui.common.menu')}
                 .path=${mdiDotsVertical}
               ></ha-icon-button>
 
@@ -175,10 +173,13 @@ export default class HaAutomationOptionRow extends LitElement {
                 @click=${this._renameOption}
                 .disabled=${this.disabled}
               >
-                <ha-svg-icon slot="start" .path=${mdiRenameBox}></ha-svg-icon>
+                <ha-svg-icon
+                  slot="start"
+                  .path=${mdiRenameBox}
+                ></ha-svg-icon>
                 ${this._renderOverflowLabel(
                   this.hass.localize(
-                    "ui.panel.config.automation.editor.triggers.rename"
+                    'ui.panel.config.automation.editor.triggers.rename'
                   )
                 )}
               </ha-md-menu-item>
@@ -194,7 +195,7 @@ export default class HaAutomationOptionRow extends LitElement {
 
                 ${this._renderOverflowLabel(
                   this.hass.localize(
-                    "ui.panel.config.automation.editor.actions.duplicate"
+                    'ui.panel.config.automation.editor.actions.duplicate'
                   )
                 )}
               </ha-md-menu-item>
@@ -206,7 +207,7 @@ export default class HaAutomationOptionRow extends LitElement {
                       .disabled=${this.disabled || !!this.first}
                     >
                       ${this.hass.localize(
-                        "ui.panel.config.automation.editor.move_up"
+                        'ui.panel.config.automation.editor.move_up'
                       )}
                       <ha-svg-icon
                         slot="start"
@@ -218,7 +219,7 @@ export default class HaAutomationOptionRow extends LitElement {
                       .disabled=${this.disabled || !!this.last}
                     >
                       ${this.hass.localize(
-                        "ui.panel.config.automation.editor.move_down"
+                        'ui.panel.config.automation.editor.move_down'
                       )}
                       <ha-svg-icon
                         slot="start"
@@ -240,7 +241,7 @@ export default class HaAutomationOptionRow extends LitElement {
                 ></ha-svg-icon>
                 ${this._renderOverflowLabel(
                   this.hass.localize(
-                    "ui.panel.config.automation.editor.actions.type.choose.remove_option"
+                    'ui.panel.config.automation.editor.actions.type.choose.remove_option'
                   ),
                   html`<span class="shortcut">
                     <span
@@ -250,13 +251,13 @@ export default class HaAutomationOptionRow extends LitElement {
                             .path=${mdiAppleKeyboardCommand}
                           ></ha-svg-icon>`
                         : this.hass.localize(
-                            "ui.panel.config.automation.editor.ctrl"
+                            'ui.panel.config.automation.editor.ctrl'
                           )}</span
                     >
                     <span>+</span>
                     <span
                       >${this.hass.localize(
-                        "ui.panel.config.automation.editor.del"
+                        'ui.panel.config.automation.editor.del'
                       )}</span
                     >
                   </span>`
@@ -266,13 +267,13 @@ export default class HaAutomationOptionRow extends LitElement {
           `
         : nothing}
       ${!this.optionsInSidebar ? this._renderContent() : nothing}
-    `;
+    `
   }
 
   private _renderContent() {
     return html`<div
       class=${classMap({
-        "card-content": true,
+        'card-content': true,
         card: !this.optionsInSidebar,
         indent: this.optionsInSidebar,
         selected: this._selected,
@@ -283,7 +284,7 @@ export default class HaAutomationOptionRow extends LitElement {
         ? html`
             <h4 class="top">
               ${this.hass.localize(
-                "ui.panel.config.automation.editor.actions.type.choose.conditions"
+                'ui.panel.config.automation.editor.actions.type.choose.conditions'
               )}:
             </h4>
             <ha-automation-condition
@@ -298,9 +299,9 @@ export default class HaAutomationOptionRow extends LitElement {
             ></ha-automation-condition>
           `
         : nothing}
-      <h4 class=${this.option ? "" : "top"}>
+      <h4 class=${this.option ? '' : 'top'}>
         ${this.hass.localize(
-          "ui.panel.config.automation.editor.actions.type.choose.sequence"
+          'ui.panel.config.automation.editor.actions.type.choose.sequence'
         )}:
       </h4>
       <ha-automation-action
@@ -315,14 +316,17 @@ export default class HaAutomationOptionRow extends LitElement {
         @value-changed=${this._actionChanged}
         .optionsInSidebar=${this.optionsInSidebar}
       ></ha-automation-action>
-    </div>`;
+    </div>`
   }
 
   protected render() {
-    if (!this.option && !this.defaultActions) return nothing;
+    if (!this.option && !this.defaultActions) return nothing
 
     return html`
-      <ha-card outlined class=${this._selected ? "selected" : ""}>
+      <ha-card
+        outlined
+        class=${this._selected ? 'selected' : ''}
+      >
         ${this.optionsInSidebar
           ? html`<ha-automation-row
               left-chevron
@@ -346,164 +350,164 @@ export default class HaAutomationOptionRow extends LitElement {
       </ha-card>
 
       ${this.optionsInSidebar ? this._renderContent() : nothing}
-    `;
+    `
   }
 
   private _duplicateOption = () => {
-    fireEvent(this, "duplicate");
-  };
+    fireEvent(this, 'duplicate')
+  }
 
   private _moveUp() {
-    fireEvent(this, "move-up");
+    fireEvent(this, 'move-up')
   }
 
   private _moveDown() {
-    fireEvent(this, "move-down");
+    fireEvent(this, 'move-down')
   }
 
   private _removeOption = () => {
     if (this.option) {
-      fireEvent(this, "value-changed", {
+      fireEvent(this, 'value-changed', {
         value: null,
-      });
+      })
       if (this._selected) {
-        fireEvent(this, "close-sidebar");
+        fireEvent(this, 'close-sidebar')
       }
 
       showToast(this, {
-        message: this.hass.localize("ui.common.successfully_deleted"),
+        message: this.hass.localize('ui.common.successfully_deleted'),
         duration: 4000,
         action: {
-          text: this.hass.localize("ui.common.undo"),
+          text: this.hass.localize('ui.common.undo'),
           action: () => {
-            fireEvent(window, "undo-change");
+            fireEvent(window, 'undo-change')
           },
         },
-      });
+      })
     }
-  };
+  }
 
   private _renameOption = async () => {
     const alias = await showPromptDialog(this, {
       title: this.hass.localize(
-        "ui.panel.config.automation.editor.actions.type.choose.change_alias"
+        'ui.panel.config.automation.editor.actions.type.choose.change_alias'
       ),
       inputLabel: this.hass.localize(
-        "ui.panel.config.automation.editor.actions.type.choose.alias"
+        'ui.panel.config.automation.editor.actions.type.choose.alias'
       ),
-      inputType: "string",
+      inputType: 'string',
       placeholder: capitalizeFirstLetter(this._getDescription()),
       defaultValue: this.option!.alias,
-      confirmText: this.hass.localize("ui.common.submit"),
-    });
+      confirmText: this.hass.localize('ui.common.submit'),
+    })
     if (alias !== null) {
-      const value = { ...this.option };
-      if (alias === "") {
-        delete value.alias;
+      const value = { ...this.option }
+      if (alias === '') {
+        delete value.alias
       } else {
-        value.alias = alias;
+        value.alias = alias
       }
-      fireEvent(this, "value-changed", {
+      fireEvent(this, 'value-changed', {
         value,
-      });
+      })
     }
-  };
+  }
 
   private _conditionChanged(ev: CustomEvent) {
-    ev.stopPropagation();
-    const conditions = ev.detail.value as Condition[];
-    const value = { ...this.option, conditions: conditions };
-    fireEvent(this, "value-changed", {
+    ev.stopPropagation()
+    const conditions = ev.detail.value as Condition[]
+    const value = { ...this.option, conditions: conditions }
+    fireEvent(this, 'value-changed', {
       value,
-    });
+    })
   }
 
   private _actionChanged(ev: CustomEvent) {
     if (this.defaultActions) {
-      return;
+      return
     }
-    ev.stopPropagation();
-    const actions = ev.detail.value as Action[];
-    const value = { ...this.option, sequence: actions };
-    fireEvent(this, "value-changed", {
+    ev.stopPropagation()
+    const actions = ev.detail.value as Action[]
+    const value = { ...this.option, sequence: actions }
+    fireEvent(this, 'value-changed', {
       value,
-    });
+    })
   }
 
   private _toggleSidebar(ev: Event) {
-    ev?.stopPropagation();
+    ev?.stopPropagation()
 
     if (this._selected) {
-      fireEvent(this, "request-close-sidebar");
-      return;
+      fireEvent(this, 'request-close-sidebar')
+      return
     }
-    this.openSidebar();
+    this.openSidebar()
   }
 
   public openSidebar(): void {
-    fireEvent(this, "open-sidebar", {
+    fireEvent(this, 'open-sidebar', {
       close: (focus?: boolean) => {
-        this._selected = false;
-        fireEvent(this, "close-sidebar");
+        this._selected = false
+        fireEvent(this, 'close-sidebar')
         if (focus) {
-          this.focus();
+          this.focus()
         }
       },
       rename: () => {
-        this._renameOption();
+        this._renameOption()
       },
       delete: this._removeOption,
       duplicate: this._duplicateOption,
       defaultOption: !!this.defaultActions,
-    } satisfies OptionSidebarConfig);
-    this._selected = true;
-    this._collapsed = false;
+    } satisfies OptionSidebarConfig)
+    this._selected = true
+    this._collapsed = false
 
     if (this.narrow) {
       window.setTimeout(() => {
         this.scrollIntoView({
-          block: "start",
-          behavior: "smooth",
-        });
-      }, 180); // duration of transition of added padding for bottom sheet
+          block: 'start',
+          behavior: 'smooth',
+        })
+      }, 180) // duration of transition of added padding for bottom sheet
     }
   }
 
   public expand() {
     if (this.optionsInSidebar) {
-      this._collapsed = false;
-      return;
+      this._collapsed = false
+      return
     }
 
     this.updateComplete.then(() => {
-      this.shadowRoot!.querySelector("ha-expansion-panel")!.expanded = true;
-    });
+      this.shadowRoot!.querySelector('ha-expansion-panel')!.expanded = true
+    })
   }
 
   public collapse() {
-    this._collapsed = true;
+    this._collapsed = true
   }
 
   public expandAll() {
-    this.expand();
+    this.expand()
 
-    this._conditionElement?.expandAll();
-    this._actionElement?.expandAll();
+    this._conditionElement?.expandAll()
+    this._actionElement?.expandAll()
   }
 
   public collapseAll() {
-    this.collapse();
+    this.collapse()
 
-    this._conditionElement?.collapseAll();
-    this._actionElement?.collapseAll();
+    this._conditionElement?.collapseAll()
+    this._actionElement?.collapseAll()
   }
 
   private _toggleCollapse() {
-    this._collapsed = !this._collapsed;
+    this._collapsed = !this._collapsed
   }
 
   public focus() {
-    this._automationRowElement?.focus();
+    this._automationRowElement?.focus()
   }
 
   static get styles(): CSSResultGroup {
@@ -513,7 +517,7 @@ export default class HaAutomationOptionRow extends LitElement {
       overflowStyles,
       indentStyle,
       css`
-        li[role="separator"] {
+        li[role='separator'] {
           border-bottom-color: var(--divider-color);
         }
         h4 {
@@ -526,12 +530,12 @@ export default class HaAutomationOptionRow extends LitElement {
           margin-top: 0;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-option-row": HaAutomationOptionRow;
+    'ha-automation-option-row': HaAutomationOptionRow
   }
 }

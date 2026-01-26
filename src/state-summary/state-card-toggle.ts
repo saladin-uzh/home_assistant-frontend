@@ -1,19 +1,19 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../components/entity/ha-entity-toggle";
-import "../components/entity/state-info";
-import type { HomeAssistant } from "../types";
-import { haStyle } from "../resources/styles";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../components/entity/ha-entity-toggle'
+import '../components/entity/state-info'
+import type { HomeAssistant } from '../types'
+import { haStyle } from '../resources/styles'
 
-@customElement("state-card-toggle")
+@customElement('state-card-toggle')
 class StateCardToggle extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj!: HassEntity;
+  @property({ attribute: false }) public stateObj!: HassEntity
 
-  @property({ attribute: "in-dialog", type: Boolean }) public inDialog = false;
+  @property({ attribute: 'in-dialog', type: Boolean }) public inDialog = false
 
   protected render(): TemplateResult {
     return html`
@@ -29,7 +29,7 @@ class StateCardToggle extends LitElement {
           .stateObj=${this.stateObj}
         ></ha-entity-toggle>
       </div>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -43,12 +43,12 @@ class StateCardToggle extends LitElement {
           padding: 4px 16px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "state-card-toggle": StateCardToggle;
+    'state-card-toggle': StateCardToggle
   }
 }

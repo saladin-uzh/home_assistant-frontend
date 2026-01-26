@@ -4,31 +4,31 @@ import {
   html,
   LitElement,
   type TemplateResult,
-} from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "../../../../src/components/ha-spinner";
-import type { HassioAddonDetails } from "../../../../src/data/hassio/addon";
-import type { Supervisor } from "../../../../src/data/supervisor/supervisor";
-import { haStyle } from "../../../../src/resources/styles";
-import type { HomeAssistant } from "../../../../src/types";
-import { hassioStyle } from "../../resources/hassio-style";
-import "../../../../src/panels/config/logs/error-log-card";
-import "../../../../src/components/search-input";
-import { extractSearchParam } from "../../../../src/common/url/search-params";
+} from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import '../../../../src/components/ha-spinner'
+import type { HassioAddonDetails } from '../../../../src/data/hassio/addon'
+import type { Supervisor } from '../../../../src/data/supervisor/supervisor'
+import { haStyle } from '../../../../src/resources/styles'
+import type { HomeAssistant } from '../../../../src/types'
+import { hassioStyle } from '../../resources/hassio-style'
+import '../../../../src/panels/config/logs/error-log-card'
+import '../../../../src/components/search-input'
+import { extractSearchParam } from '../../../../src/common/url/search-params'
 
-@customElement("hassio-addon-log-tab")
+@customElement('hassio-addon-log-tab')
 class HassioAddonLogDashboard extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public supervisor!: Supervisor;
+  @property({ attribute: false }) public supervisor!: Supervisor
 
-  @property({ attribute: false }) public addon?: HassioAddonDetails;
+  @property({ attribute: false }) public addon?: HassioAddonDetails
 
-  @state() private _filter = extractSearchParam("filter") || "";
+  @state() private _filter = extractSearchParam('filter') || ''
 
   protected render(): TemplateResult {
     if (!this.addon) {
-      return html` <ha-spinner></ha-spinner> `;
+      return html` <ha-spinner></ha-spinner> `
     }
     return html`
       <div class="search">
@@ -36,7 +36,7 @@ class HassioAddonLogDashboard extends LitElement {
           @value-changed=${this._filterChanged}
           .hass=${this.hass}
           .filter=${this._filter}
-          .label=${this.supervisor.localize("ui.panel.config.logs.search")}
+          .label=${this.supervisor.localize('ui.panel.config.logs.search')}
         ></search-input>
       </div>
       <div class="content">
@@ -49,11 +49,11 @@ class HassioAddonLogDashboard extends LitElement {
         >
         </error-log-card>
       </div>
-    `;
+    `
   }
 
   private async _filterChanged(ev) {
-    this._filter = ev.detail.value;
+    this._filter = ev.detail.value
   }
 
   static get styles(): CSSResultGroup {
@@ -81,12 +81,12 @@ class HassioAddonLogDashboard extends LitElement {
           }
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hassio-addon-log-tab": HassioAddonLogDashboard;
+    'hassio-addon-log-tab': HassioAddonLogDashboard
   }
 }

@@ -1,28 +1,28 @@
-import type { PropertyValues, TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, state } from "lit/decorators";
-import { DOMAINS_TOGGLE } from "../../../common/const";
-import { applyThemesOnElement } from "../../../common/dom/apply_themes_on_element";
-import { computeDomain } from "../../../common/entity/compute_domain";
-import "../../../components/ha-card";
-import type { HomeAssistant } from "../../../types";
-import { computeCardSize } from "../common/compute-card-size";
-import { findEntities } from "../common/find-entities";
-import { processConfigEntities } from "../common/process-config-entities";
-import "../components/hui-entities-toggle";
-import { createHeaderFooterElement } from "../create-element/create-header-footer-element";
-import { createRowElement } from "../create-element/create-row-element";
+import type { PropertyValues, TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, state } from 'lit/decorators'
+import { DOMAINS_TOGGLE } from '../../../common/const'
+import { applyThemesOnElement } from '../../../common/dom/apply_themes_on_element'
+import { computeDomain } from '../../../common/entity/compute_domain'
+import '../../../components/ha-card'
+import type { HomeAssistant } from '../../../types'
+import { computeCardSize } from '../common/compute-card-size'
+import { findEntities } from '../common/find-entities'
+import { processConfigEntities } from '../common/process-config-entities'
+import '../components/hui-entities-toggle'
+import { createHeaderFooterElement } from '../create-element/create-header-footer-element'
+import { createRowElement } from '../create-element/create-row-element'
 import type {
   EntityConfig,
   LovelaceRow,
   LovelaceRowConfig,
-} from "../entity-rows/types";
+} from '../entity-rows/types'
 import type {
   LovelaceCard,
   LovelaceCardEditor,
   LovelaceHeaderFooter,
-} from "../types";
-import type { EntitiesCardConfig } from "./types";
+} from '../types'
+import type { EntitiesCardConfig } from './types'
 
 export const computeShowHeaderToggle = <
   T extends EntityConfig | LovelaceRowConfig,
@@ -32,26 +32,26 @@ export const computeShowHeaderToggle = <
 ): boolean => {
   if (config.title !== undefined && config.show_header_toggle === undefined) {
     // Default value is show toggle if we can at least toggle 2 entities.
-    let toggleable = 0;
+    let toggleable = 0
     for (const rowConf of entities) {
-      if (!("entity" in rowConf)) {
-        continue;
+      if (!('entity' in rowConf)) {
+        continue
       }
-      toggleable += Number(DOMAINS_TOGGLE.has(computeDomain(rowConf.entity)));
+      toggleable += Number(DOMAINS_TOGGLE.has(computeDomain(rowConf.entity)))
       if (toggleable === 2) {
-        break;
+        break
       }
     }
-    return toggleable === 2;
+    return toggleable === 2
   }
-  return !!config.show_header_toggle;
-};
+  return !!config.show_header_toggle
+}
 
-@customElement("hui-entities-card")
+@customElement('hui-entities-card')
 class HuiEntitiesCard extends LitElement implements LovelaceCard {
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import("../editor/config-elements/hui-entities-card-editor");
-    return document.createElement("hui-entities-card-editor");
+    await import('../editor/config-elements/hui-entities-card-editor')
+    return document.createElement('hui-entities-card-editor')
   }
 
   public static getStubConfig(
@@ -59,153 +59,151 @@ class HuiEntitiesCard extends LitElement implements LovelaceCard {
     entities: string[],
     entitiesFallback: string[]
   ): EntitiesCardConfig {
-    const maxEntities = 3;
+    const maxEntities = 3
     const foundEntities = findEntities(
       hass,
       maxEntities,
       entities,
       entitiesFallback,
-      ["light", "switch", "sensor"]
-    );
+      ['light', 'switch', 'sensor']
+    )
 
-    return { type: "entities", entities: foundEntities };
+    return { type: 'entities', entities: foundEntities }
   }
 
-  @state() private _config?: EntitiesCardConfig;
+  @state() private _config?: EntitiesCardConfig
 
-  private _hass?: HomeAssistant;
+  private _hass?: HomeAssistant
 
-  private _configEntities?: LovelaceRowConfig[];
+  private _configEntities?: LovelaceRowConfig[]
 
-  private _showHeaderToggle?: boolean;
+  private _showHeaderToggle?: boolean
 
-  private _headerElement?: LovelaceHeaderFooter;
+  private _headerElement?: LovelaceHeaderFooter
 
-  private _footerElement?: LovelaceHeaderFooter;
+  private _footerElement?: LovelaceHeaderFooter
 
   connectedCallback(): void {
-    super.connectedCallback();
-    this.addEventListener("row-visibility-changed", (ev) =>
+    super.connectedCallback()
+    this.addEventListener('row-visibility-changed', ev =>
       this._updateRowVisibility(ev)
-    );
+    )
   }
 
   disconnectedCallback(): void {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
     this.removeEventListener(
-      "row-visibility-changed",
+      'row-visibility-changed',
       this._updateRowVisibility
-    );
+    )
   }
 
   set hass(hass: HomeAssistant) {
-    this._hass = hass;
+    this._hass = hass
     this.shadowRoot
-      ?.querySelectorAll("#states > div > *")
+      ?.querySelectorAll('#states > div > *')
       .forEach((element: unknown) => {
-        (element as LovelaceRow).hass = hass;
-      });
+        ;(element as LovelaceRow).hass = hass
+      })
     if (this._headerElement) {
-      this._headerElement.hass = hass;
+      this._headerElement.hass = hass
     }
     if (this._footerElement) {
-      this._footerElement.hass = hass;
+      this._footerElement.hass = hass
     }
-    const entitiesToggle = this.shadowRoot?.querySelector(
-      "hui-entities-toggle"
-    );
+    const entitiesToggle = this.shadowRoot?.querySelector('hui-entities-toggle')
     if (entitiesToggle) {
-      (entitiesToggle as any).hass = hass;
+      ;(entitiesToggle as any).hass = hass
     }
   }
 
   public async getCardSize(): Promise<number> {
     if (!this._config) {
-      return 0;
+      return 0
     }
     // +1 for the header
     let size =
       (this._config.title || this._showHeaderToggle ? 2 : 0) +
-      (this._config.entities.length || 1);
+      (this._config.entities.length || 1)
     if (this._headerElement) {
-      const headerSize = computeCardSize(this._headerElement);
-      size += headerSize instanceof Promise ? await headerSize : headerSize;
+      const headerSize = computeCardSize(this._headerElement)
+      size += headerSize instanceof Promise ? await headerSize : headerSize
     }
     if (this._footerElement) {
-      const footerSize = computeCardSize(this._footerElement);
-      size += footerSize instanceof Promise ? await footerSize : footerSize;
+      const footerSize = computeCardSize(this._footerElement)
+      size += footerSize instanceof Promise ? await footerSize : footerSize
     }
 
-    return size;
+    return size
   }
 
   public setConfig(config: EntitiesCardConfig): void {
     if (!config.entities || !Array.isArray(config.entities)) {
-      throw new Error("Entities must be specified");
+      throw new Error('Entities must be specified')
     }
 
-    const entities = processConfigEntities(config.entities);
+    const entities = processConfigEntities(config.entities)
 
-    this._config = config;
-    this._configEntities = entities;
-    this._showHeaderToggle = computeShowHeaderToggle(config, entities);
+    this._config = config
+    this._configEntities = entities
+    this._showHeaderToggle = computeShowHeaderToggle(config, entities)
     if (this._config.header) {
       this._headerElement = createHeaderFooterElement(
         this._config.header
-      ) as LovelaceHeaderFooter;
-      this._headerElement.type = "header";
+      ) as LovelaceHeaderFooter
+      this._headerElement.type = 'header'
       if (this._hass) {
-        this._headerElement.hass = this._hass;
+        this._headerElement.hass = this._hass
       }
     } else {
-      this._headerElement = undefined;
+      this._headerElement = undefined
     }
 
     if (this._config.footer) {
       this._footerElement = createHeaderFooterElement(
         this._config.footer
-      ) as LovelaceHeaderFooter;
-      this._footerElement.type = "footer";
+      ) as LovelaceHeaderFooter
+      this._footerElement.type = 'footer'
       if (this._hass) {
-        this._footerElement.hass = this._hass;
+        this._footerElement.hass = this._hass
       }
     } else {
-      this._footerElement = undefined;
+      this._footerElement = undefined
     }
   }
 
   protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
+    super.updated(changedProps)
     if (!this._config || !this._hass) {
-      return;
+      return
     }
-    const oldHass = changedProps.get("_hass") as HomeAssistant | undefined;
-    const oldConfig = changedProps.get("_config") as
+    const oldHass = changedProps.get('_hass') as HomeAssistant | undefined
+    const oldConfig = changedProps.get('_config') as
       | EntitiesCardConfig
-      | undefined;
+      | undefined
 
     if (
-      (changedProps.has("_hass") &&
+      (changedProps.has('_hass') &&
         (!oldHass || oldHass.themes !== this._hass.themes)) ||
-      (changedProps.has("_config") &&
+      (changedProps.has('_config') &&
         (!oldConfig || oldConfig.theme !== this._config.theme))
     ) {
-      applyThemesOnElement(this, this._hass.themes, this._config.theme);
+      applyThemesOnElement(this, this._hass.themes, this._config.theme)
     }
   }
 
   protected render() {
     if (!this._config || !this._hass) {
-      return nothing;
+      return nothing
     }
 
     return html`
       <ha-card>
         ${this._headerElement
           ? html`<div class="header-footer header">${this._headerElement}</div>`
-          : ""}
+          : ''}
         ${!this._config.title && !this._showHeaderToggle && !this._config.icon
-          ? ""
+          ? ''
           : html`
               <h1 class="card-header">
                 <div class="name">
@@ -216,7 +214,7 @@ class HuiEntitiesCard extends LitElement implements LovelaceCard {
                           .icon=${this._config.icon}
                         ></ha-icon>
                       `
-                    : ""}
+                    : ''}
                   ${this._config.title}
                 </div>
                 ${!this._showHeaderToggle
@@ -226,24 +224,27 @@ class HuiEntitiesCard extends LitElement implements LovelaceCard {
                         .hass=${this._hass}
                         .entities=${(
                           this._configEntities!.filter(
-                            (conf) => "entity" in conf
+                            conf => 'entity' in conf
                           ) as EntityConfig[]
-                        ).map((conf) => conf.entity)}
+                        ).map(conf => conf.entity)}
                       ></hui-entities-toggle>
                     `}
               </h1>
             `}
-        <div id="states" class="card-content">
-          ${this._configEntities!.map((entityConf) =>
+        <div
+          id="states"
+          class="card-content"
+        >
+          ${this._configEntities!.map(entityConf =>
             this._renderEntity(entityConf)
           )}
         </div>
 
         ${this._footerElement
           ? html`<div class="header-footer footer">${this._footerElement}</div>`
-          : ""}
+          : ''}
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -308,38 +309,38 @@ class HuiEntitiesCard extends LitElement implements LovelaceCard {
       margin-top: -16px;
       overflow: hidden;
     }
-  `;
+  `
 
   private _renderEntity(entityConf: LovelaceRowConfig): TemplateResult {
     const element = createRowElement(
-      (!("type" in entityConf) || entityConf.type === "conditional") &&
-        "state_color" in this._config!
+      (!('type' in entityConf) || entityConf.type === 'conditional') &&
+        'state_color' in this._config!
         ? ({
             state_color: this._config.state_color,
             ...(entityConf as EntityConfig),
           } as EntityConfig)
-        : entityConf.type === "perform-action"
-          ? { ...entityConf, type: "call-service" }
+        : entityConf.type === 'perform-action'
+          ? { ...entityConf, type: 'call-service' }
           : entityConf
-    );
+    )
     if (this._hass) {
-      element.hass = this._hass;
+      element.hass = this._hass
     }
 
-    return html`<div ?hidden=${element.hidden}>${element}</div>`;
+    return html`<div ?hidden=${element.hidden}>${element}</div>`
   }
 
-  private _updateRowVisibility = (ev) => {
+  private _updateRowVisibility = ev => {
     if (ev.detail?.value === false) {
-      ev.detail?.row?.parentElement!.style.setProperty("display", "none");
+      ev.detail?.row?.parentElement!.style.setProperty('display', 'none')
     } else {
-      ev.detail?.row?.parentElement!.style.setProperty("display", "");
+      ev.detail?.row?.parentElement!.style.setProperty('display', '')
     }
-  };
+  }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-entities-card": HuiEntitiesCard;
+    'hui-entities-card': HuiEntitiesCard
   }
 }

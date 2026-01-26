@@ -1,61 +1,61 @@
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { LitElement, css, html } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "../../../components/ha-yaml-editor";
-import "../../../components/ha-textfield";
-import "../../../components/ha-button";
-import "../../../components/ha-card";
-import { showAlertDialog } from "../../../dialogs/generic/show-dialog-box";
-import { documentationUrl } from "../../../util/documentation-url";
-import "./event-subscribe-card";
-import "./events-list";
-import { haStyle } from "../../../resources/styles";
-import type { HomeAssistant } from "../../../types";
-import { fireEvent } from "../../../common/dom/fire_event";
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { LitElement, css, html } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import '../../../components/ha-yaml-editor'
+import '../../../components/ha-textfield'
+import '../../../components/ha-button'
+import '../../../components/ha-card'
+import { showAlertDialog } from '../../../dialogs/generic/show-dialog-box'
+import { documentationUrl } from '../../../util/documentation-url'
+import './event-subscribe-card'
+import './events-list'
+import { haStyle } from '../../../resources/styles'
+import type { HomeAssistant } from '../../../types'
+import { fireEvent } from '../../../common/dom/fire_event'
 
-@customElement("developer-tools-event")
+@customElement('developer-tools-event')
 class HaPanelDevEvent extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @state() private _eventType = "";
+  @state() private _eventType = ''
 
-  @state() private _eventData: object = {};
+  @state() private _eventData: object = {}
 
-  @state() private _isValid = true;
+  @state() private _isValid = true
 
   protected render(): TemplateResult {
     return html`
       <div
         class=${this.narrow
-          ? "content layout vertical"
-          : "content layout horizontal"}
+          ? 'content layout vertical'
+          : 'content layout horizontal'}
       >
         <div class="flex">
           <ha-card>
             <div class="card-content">
               <p>
                 ${this.hass.localize(
-                  "ui.panel.developer-tools.tabs.events.description"
+                  'ui.panel.developer-tools.tabs.events.description'
                 )}
                 <a
                   href=${documentationUrl(
                     this.hass,
-                    "/docs/configuration/events/"
+                    '/docs/configuration/events/'
                   )}
                   target="_blank"
                   rel="noreferrer"
                 >
                   ${this.hass.localize(
-                    "ui.panel.developer-tools.tabs.events.documentation"
+                    'ui.panel.developer-tools.tabs.events.documentation'
                   )}
                 </a>
               </p>
               <div class="inputs">
                 <ha-textfield
                   .label=${this.hass.localize(
-                    "ui.panel.developer-tools.tabs.events.type"
+                    'ui.panel.developer-tools.tabs.events.type'
                   )}
                   autofocus
                   required
@@ -64,7 +64,7 @@ class HaPanelDevEvent extends LitElement {
                 ></ha-textfield>
                 <p>
                   ${this.hass.localize(
-                    "ui.panel.developer-tools.tabs.events.data"
+                    'ui.panel.developer-tools.tabs.events.data'
                   )}
                 </p>
               </div>
@@ -82,7 +82,7 @@ class HaPanelDevEvent extends LitElement {
                 appearance="filled"
                 .disabled=${!this._isValid}
                 >${this.hass.localize(
-                  "ui.panel.developer-tools.tabs.events.fire_event"
+                  'ui.panel.developer-tools.tabs.events.fire_event'
                 )}</ha-button
               >
             </div>
@@ -94,7 +94,7 @@ class HaPanelDevEvent extends LitElement {
         <div>
           <h2>
             ${this.hass.localize(
-              "ui.panel.developer-tools.tabs.events.active_listeners"
+              'ui.panel.developer-tools.tabs.events.active_listeners'
             )}
           </h2>
           <events-list
@@ -103,42 +103,42 @@ class HaPanelDevEvent extends LitElement {
           ></events-list>
         </div>
       </div>
-    `;
+    `
   }
 
   private _eventSelected(ev) {
-    this._eventType = ev.detail.eventType;
+    this._eventType = ev.detail.eventType
   }
 
   private _eventTypeChanged(ev) {
-    this._eventType = ev.target.value;
+    this._eventType = ev.target.value
   }
 
   private _yamlChanged(ev) {
-    this._eventData = ev.detail.value;
-    this._isValid = ev.detail.isValid;
+    this._eventData = ev.detail.value
+    this._isValid = ev.detail.isValid
   }
 
   private async _fireEvent() {
     if (!this._eventType) {
       showAlertDialog(this, {
         text: this.hass.localize(
-          "ui.panel.developer-tools.tabs.events.alert_event_type"
+          'ui.panel.developer-tools.tabs.events.alert_event_type'
         ),
-      });
-      return;
+      })
+      return
     }
     await this.hass.callApi(
-      "POST",
+      'POST',
       `events/${this._eventType}`,
       this._eventData
-    );
-    fireEvent(this, "hass-notification", {
+    )
+    fireEvent(this, 'hass-notification', {
       message: this.hass.localize(
-        "ui.panel.developer-tools.tabs.events.notification_event_fired",
+        'ui.panel.developer-tools.tabs.events.notification_event_fired',
         { type: this._eventType }
       ),
-    });
+    })
   }
 
   static get styles(): CSSResultGroup {
@@ -185,12 +185,12 @@ class HaPanelDevEvent extends LitElement {
           color: var(--primary-color);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "developer-tools-event": HaPanelDevEvent;
+    'developer-tools-event': HaPanelDevEvent
   }
 }

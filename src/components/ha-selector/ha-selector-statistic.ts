@@ -1,24 +1,24 @@
-import { html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { StatisticSelector } from "../../data/selector";
-import type { HomeAssistant } from "../../types";
-import "../entity/ha-statistics-picker";
+import { html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { StatisticSelector } from '../../data/selector'
+import type { HomeAssistant } from '../../types'
+import '../entity/ha-statistics-picker'
 
-@customElement("ha-selector-statistic")
+@customElement('ha-selector-statistic')
 export class HaStatisticSelector extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: StatisticSelector;
+  @property({ attribute: false }) public selector!: StatisticSelector
 
-  @property() public value?: any;
+  @property() public value?: any
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = true;
+  @property({ type: Boolean }) public required = true
 
   protected render() {
     if (!this.selector.statistic.multiple) {
@@ -30,11 +30,11 @@ export class HaStatisticSelector extends LitElement {
         .disabled=${this.disabled}
         .required=${this.required}
         allow-custom-entity
-      ></ha-statistic-picker>`;
+      ></ha-statistic-picker>`
     }
 
     return html`
-      ${this.label ? html`<label>${this.label}</label>` : ""}
+      ${this.label ? html`<label>${this.label}</label>` : ''}
       <ha-statistics-picker
         .hass=${this.hass}
         .value=${this.value}
@@ -42,12 +42,12 @@ export class HaStatisticSelector extends LitElement {
         .disabled=${this.disabled}
         .required=${this.required}
       ></ha-statistics-picker>
-    `;
+    `
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-statistic": HaStatisticSelector;
+    'ha-selector-statistic': HaStatisticSelector
   }
 }

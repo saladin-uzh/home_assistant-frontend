@@ -1,135 +1,135 @@
-import "@home-assistant/webawesome/dist/components/popover/popover";
-import type { RenderItemFunction } from "@lit-labs/virtualizer/virtualize";
-import { mdiPlaylistPlus } from "@mdi/js";
-import { css, html, LitElement, nothing, type CSSResultGroup } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import { tinykeys } from "tinykeys";
-import { fireEvent } from "../common/dom/fire_event";
-import type { HomeAssistant } from "../types";
-import "./ha-bottom-sheet";
-import "./ha-button";
-import "./ha-combo-box-item";
-import "./ha-input-helper-text";
-import "./ha-picker-combo-box";
+import '@home-assistant/webawesome/dist/components/popover/popover'
+import type { RenderItemFunction } from '@lit-labs/virtualizer/virtualize'
+import { mdiPlaylistPlus } from '@mdi/js'
+import { css, html, LitElement, nothing, type CSSResultGroup } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import { tinykeys } from 'tinykeys'
+import { fireEvent } from '../common/dom/fire_event'
+import type { HomeAssistant } from '../types'
+import './ha-bottom-sheet'
+import './ha-button'
+import './ha-combo-box-item'
+import './ha-input-helper-text'
+import './ha-picker-combo-box'
 import type {
   HaPickerComboBox,
   PickerComboBoxItem,
   PickerComboBoxSearchFn,
-} from "./ha-picker-combo-box";
-import "./ha-picker-field";
-import type { PickerValueRenderer } from "./ha-picker-field";
-import "./ha-svg-icon";
+} from './ha-picker-combo-box'
+import './ha-picker-field'
+import type { PickerValueRenderer } from './ha-picker-field'
+import './ha-svg-icon'
 
-@customElement("ha-generic-picker")
+@customElement('ha-generic-picker')
 export class HaGenericPicker extends LitElement {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = false;
+  @property({ type: Boolean }) public required = false
 
-  @property({ type: Boolean, attribute: "allow-custom-value" })
-  public allowCustomValue;
+  @property({ type: Boolean, attribute: 'allow-custom-value' })
+  public allowCustomValue
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public value?: string;
+  @property() public value?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property() public placeholder?: string;
+  @property() public placeholder?: string
 
-  @property({ type: String, attribute: "search-label" })
-  public searchLabel?: string;
+  @property({ type: String, attribute: 'search-label' })
+  public searchLabel?: string
 
-  @property({ attribute: "hide-clear-icon", type: Boolean })
-  public hideClearIcon = false;
+  @property({ attribute: 'hide-clear-icon', type: Boolean })
+  public hideClearIcon = false
 
   @property({ attribute: false })
   public getItems?: (
     searchString?: string,
     section?: string
-  ) => (PickerComboBoxItem | string)[];
+  ) => (PickerComboBoxItem | string)[]
 
   @property({ attribute: false, type: Array })
-  public getAdditionalItems?: (searchString?: string) => PickerComboBoxItem[];
+  public getAdditionalItems?: (searchString?: string) => PickerComboBoxItem[]
 
   @property({ attribute: false })
-  public rowRenderer?: RenderItemFunction<PickerComboBoxItem>;
+  public rowRenderer?: RenderItemFunction<PickerComboBoxItem>
 
   @property({ attribute: false })
-  public valueRenderer?: PickerValueRenderer;
+  public valueRenderer?: PickerValueRenderer
 
   @property({ attribute: false })
-  public searchFn?: PickerComboBoxSearchFn<PickerComboBoxItem>;
+  public searchFn?: PickerComboBoxSearchFn<PickerComboBoxItem>
 
   @property({ attribute: false })
-  public notFoundLabel?: string | ((search: string) => string);
+  public notFoundLabel?: string | ((search: string) => string)
 
-  @property({ attribute: "empty-label" })
-  public emptyLabel?: string;
+  @property({ attribute: 'empty-label' })
+  public emptyLabel?: string
 
-  @property({ attribute: "popover-placement" })
+  @property({ attribute: 'popover-placement' })
   public popoverPlacement:
-    | "bottom"
-    | "top"
-    | "left"
-    | "right"
-    | "top-start"
-    | "top-end"
-    | "right-start"
-    | "right-end"
-    | "bottom-start"
-    | "bottom-end"
-    | "left-start"
-    | "left-end" = "bottom-start";
+    | 'bottom'
+    | 'top'
+    | 'left'
+    | 'right'
+    | 'top-start'
+    | 'top-end'
+    | 'right-start'
+    | 'right-end'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'left-start'
+    | 'left-end' = 'bottom-start'
 
   /** If set picker shows an add button instead of textbox when value isn't set */
-  @property({ attribute: "add-button-label" }) public addButtonLabel?: string;
+  @property({ attribute: 'add-button-label' }) public addButtonLabel?: string
 
   /** Section filter buttons for the list, section headers needs to be defined in getItems as strings */
   @property({ attribute: false }) public sections?: (
     | {
-        id: string;
-        label: string;
+        id: string
+        label: string
       }
-    | "separator"
-  )[];
+    | 'separator'
+  )[]
 
   @property({ attribute: false }) public sectionTitleFunction?: (listInfo: {
-    firstIndex: number;
-    lastIndex: number;
-    firstItem: PickerComboBoxItem | string;
-    secondItem: PickerComboBoxItem | string;
-    itemsCount: number;
-  }) => string | undefined;
+    firstIndex: number
+    lastIndex: number
+    firstItem: PickerComboBoxItem | string
+    secondItem: PickerComboBoxItem | string
+    itemsCount: number
+  }) => string | undefined
 
-  @property({ attribute: "selected-section" }) public selectedSection?: string;
+  @property({ attribute: 'selected-section' }) public selectedSection?: string
 
-  @query(".container") private _containerElement?: HTMLDivElement;
+  @query('.container') private _containerElement?: HTMLDivElement
 
-  @query("ha-picker-combo-box") private _comboBox?: HaPickerComboBox;
+  @query('ha-picker-combo-box') private _comboBox?: HaPickerComboBox
 
-  @state() private _opened = false;
+  @state() private _opened = false
 
-  @state() private _pickerWrapperOpen = false;
+  @state() private _pickerWrapperOpen = false
 
-  @state() private _popoverWidth = 0;
+  @state() private _popoverWidth = 0
 
-  @state() private _openedNarrow = false;
+  @state() private _openedNarrow = false
 
   static shadowRootOptions = {
     ...LitElement.shadowRootOptions,
     delegatesFocus: true,
-  };
+  }
 
-  private _narrow = false;
+  private _narrow = false
 
   // helper to set new value after closing picker, to avoid flicker
-  private _newValue?: string;
+  private _newValue?: string
 
-  private _unsubscribeTinyKeys?: () => void;
+  private _unsubscribeTinyKeys?: () => void
 
   protected render() {
     return html`
@@ -154,7 +154,7 @@ export class HaGenericPicker extends LitElement {
                 </ha-button>`
               : html`<ha-picker-field
                   type="button"
-                  class=${this._opened ? "opened" : ""}
+                  class=${this._opened ? 'opened' : ''}
                   compact
                   aria-label=${ifDefined(this.label)}
                   @click=${this.open}
@@ -185,7 +185,7 @@ export class HaGenericPicker extends LitElement {
                 trap-focus
                 role="dialog"
                 aria-modal="true"
-                aria-label=${this.label || "Select option"}
+                aria-label=${this.label || 'Select option'}
               >
                 ${this._renderComboBox()}
               </wa-popover>
@@ -198,19 +198,19 @@ export class HaGenericPicker extends LitElement {
                 @closed=${this._hidePicker}
                 role="dialog"
                 aria-modal="true"
-                aria-label=${this.label || "Select option"}
+                aria-label=${this.label || 'Select option'}
               >
                 ${this._renderComboBox(true)}
               </ha-bottom-sheet>`
             : nothing}
       </div>
       ${this._renderHelper()}
-    `;
+    `
   }
 
   private _renderComboBox(dialogMode = false) {
     if (!this._opened) {
-      return nothing;
+      return nothing
     }
     return html`
       <ha-picker-combo-box
@@ -225,12 +225,12 @@ export class HaGenericPicker extends LitElement {
         .getItems=${this.getItems}
         .getAdditionalItems=${this.getAdditionalItems}
         .searchFn=${this.searchFn}
-        .mode=${dialogMode ? "dialog" : "popover"}
+        .mode=${dialogMode ? 'dialog' : 'popover'}
         .sections=${this.sections}
         .sectionTitleFunction=${this.sectionTitleFunction}
         .selectedSection=${this.selectedSection}
       ></ha-picker-combo-box>
-    `;
+    `
   }
 
   private _renderHelper() {
@@ -238,86 +238,86 @@ export class HaGenericPicker extends LitElement {
       ? html`<ha-input-helper-text .disabled=${this.disabled}
           >${this.helper}</ha-input-helper-text
         >`
-      : nothing;
+      : nothing
   }
 
   private _dialogOpened = () => {
-    this._opened = true;
+    this._opened = true
     requestAnimationFrame(() => {
-      this._comboBox?.focus();
-    });
-  };
+      this._comboBox?.focus()
+    })
+  }
 
   private _hidePicker(ev) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (this._newValue) {
-      fireEvent(this, "value-changed", { value: this._newValue });
-      this._newValue = undefined;
+      fireEvent(this, 'value-changed', { value: this._newValue })
+      this._newValue = undefined
     }
 
-    this._opened = false;
-    this._pickerWrapperOpen = false;
-    this._unsubscribeTinyKeys?.();
+    this._opened = false
+    this._pickerWrapperOpen = false
+    this._unsubscribeTinyKeys?.()
   }
 
   private _valueChanged(ev: CustomEvent) {
-    ev.stopPropagation();
-    const value = ev.detail.value;
+    ev.stopPropagation()
+    const value = ev.detail.value
     if (!value) {
-      return;
+      return
     }
-    this._pickerWrapperOpen = false;
-    this._newValue = value;
+    this._pickerWrapperOpen = false
+    this._newValue = value
   }
 
   private _clear(e) {
-    e.stopPropagation();
-    this._setValue(undefined);
+    e.stopPropagation()
+    this._setValue(undefined)
   }
 
   private _setValue(value: string | undefined) {
-    this.value = value;
-    fireEvent(this, "value-changed", { value });
+    this.value = value
+    fireEvent(this, 'value-changed', { value })
   }
 
   public async open(ev?: Event) {
-    ev?.stopPropagation();
+    ev?.stopPropagation()
     if (this.disabled) {
-      return;
+      return
     }
-    this._openedNarrow = this._narrow;
-    this._popoverWidth = this._containerElement?.offsetWidth || 250;
-    this._pickerWrapperOpen = true;
+    this._openedNarrow = this._narrow
+    this._popoverWidth = this._containerElement?.offsetWidth || 250
+    this._pickerWrapperOpen = true
     this._unsubscribeTinyKeys = tinykeys(this, {
       Escape: this._handleEscClose,
-    });
+    })
   }
 
   connectedCallback() {
-    super.connectedCallback();
-    this._handleResize();
-    window.addEventListener("resize", this._handleResize);
+    super.connectedCallback()
+    this._handleResize()
+    window.addEventListener('resize', this._handleResize)
   }
 
   public disconnectedCallback() {
-    super.disconnectedCallback();
-    window.removeEventListener("resize", this._handleResize);
-    this._unsubscribeTinyKeys?.();
+    super.disconnectedCallback()
+    window.removeEventListener('resize', this._handleResize)
+    this._unsubscribeTinyKeys?.()
   }
 
   private _handleResize = () => {
     this._narrow =
-      window.matchMedia("(max-width: 870px)").matches ||
-      window.matchMedia("(max-height: 500px)").matches;
+      window.matchMedia('(max-width: 870px)').matches ||
+      window.matchMedia('(max-height: 500px)').matches
 
     if (!this._openedNarrow && this._pickerWrapperOpen) {
-      this._popoverWidth = this._containerElement?.offsetWidth || 250;
+      this._popoverWidth = this._containerElement?.offsetWidth || 250
     }
-  };
+  }
 
   private _handleEscClose = (ev: KeyboardEvent) => {
-    ev.stopPropagation();
-  };
+    ev.stopPropagation()
+  }
 
   static get styles(): CSSResultGroup {
     return [
@@ -376,12 +376,12 @@ export class HaGenericPicker extends LitElement {
           --mdc-text-field-idle-line-color: var(--primary-color);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-generic-picker": HaGenericPicker;
+    'ha-generic-picker': HaGenericPicker
   }
 }

@@ -1,6 +1,6 @@
-import type { HomeAssistant } from "../types";
+import type { HomeAssistant } from '../types'
 
-export type BootstrapIntegrationsTimings = Record<string, number>;
+export type BootstrapIntegrationsTimings = Record<string, number>
 
 export const subscribeBootstrapIntegrations = (
   hass: HomeAssistant,
@@ -8,11 +8,11 @@ export const subscribeBootstrapIntegrations = (
 ) => {
   const unsubProm =
     hass.connection.subscribeMessage<BootstrapIntegrationsTimings>(
-      (message) => callback(message),
+      message => callback(message),
       {
-        type: "subscribe_bootstrap_integrations",
+        type: 'subscribe_bootstrap_integrations',
       }
-    );
+    )
 
-  return unsubProm;
-};
+  return unsubProm
+}

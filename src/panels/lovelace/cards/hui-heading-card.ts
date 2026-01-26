@@ -1,91 +1,91 @@
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import "../../../components/ha-card";
-import "../../../components/ha-icon";
-import "../../../components/ha-icon-next";
-import "../../../components/ha-state-icon";
-import type { ActionHandlerEvent } from "../../../data/lovelace/action_handler";
-import "../../../state-display/state-display";
-import type { HomeAssistant } from "../../../types";
-import { actionHandler } from "../common/directives/action-handler-directive";
-import { handleAction } from "../common/handle-action";
-import { hasAction } from "../common/has-action";
-import "../heading-badges/hui-heading-badge";
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import '../../../components/ha-card'
+import '../../../components/ha-icon'
+import '../../../components/ha-icon-next'
+import '../../../components/ha-state-icon'
+import type { ActionHandlerEvent } from '../../../data/lovelace/action_handler'
+import '../../../state-display/state-display'
+import type { HomeAssistant } from '../../../types'
+import { actionHandler } from '../common/directives/action-handler-directive'
+import { handleAction } from '../common/handle-action'
+import { hasAction } from '../common/has-action'
+import '../heading-badges/hui-heading-badge'
 import type {
   LovelaceCard,
   LovelaceCardEditor,
   LovelaceGridOptions,
-} from "../types";
-import type { HeadingCardConfig } from "./types";
+} from '../types'
+import type { HeadingCardConfig } from './types'
 
 export const migrateHeadingCardConfig = (
   config: HeadingCardConfig
 ): HeadingCardConfig => {
-  const newConfig = { ...config };
+  const newConfig = { ...config }
   if (newConfig.entities) {
-    newConfig.badges = [...(newConfig.badges || []), ...newConfig.entities];
-    delete newConfig.entities;
+    newConfig.badges = [...(newConfig.badges || []), ...newConfig.entities]
+    delete newConfig.entities
   }
-  return newConfig;
-};
+  return newConfig
+}
 
-@customElement("hui-heading-card")
+@customElement('hui-heading-card')
 export class HuiHeadingCard extends LitElement implements LovelaceCard {
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import("../editor/config-elements/hui-heading-card-editor");
-    return document.createElement("hui-heading-card-editor");
+    await import('../editor/config-elements/hui-heading-card-editor')
+    return document.createElement('hui-heading-card-editor')
   }
 
   public static getStubConfig(hass: HomeAssistant): HeadingCardConfig {
     return {
-      type: "heading",
-      icon: "mdi:fridge",
-      heading: hass.localize("ui.panel.lovelace.cards.heading.default_heading"),
-    };
+      type: 'heading',
+      icon: 'mdi:fridge',
+      heading: hass.localize('ui.panel.lovelace.cards.heading.default_heading'),
+    }
   }
 
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ type: Boolean }) public preview = false;
+  @property({ type: Boolean }) public preview = false
 
-  @state() private _config?: HeadingCardConfig;
+  @state() private _config?: HeadingCardConfig
 
   public setConfig(config: HeadingCardConfig): void {
     this._config = {
       tap_action: {
-        action: "none",
+        action: 'none',
       },
       ...migrateHeadingCardConfig(config),
-    };
+    }
   }
 
   public getCardSize(): number {
-    return 1;
+    return 1
   }
 
   public getGridOptions(): LovelaceGridOptions {
     return {
-      columns: "full",
-      rows: this._config?.heading_style === "subtitle" ? "auto" : 1,
+      columns: 'full',
+      rows: this._config?.heading_style === 'subtitle' ? 'auto' : 1,
       min_columns: 3,
-    };
+    }
   }
 
   private _handleAction(ev: ActionHandlerEvent) {
-    handleAction(this, this.hass!, this._config!, ev.detail.action!);
+    handleAction(this, this.hass!, this._config!, ev.detail.action!)
   }
 
   protected render() {
     if (!this._config || !this.hass) {
-      return nothing;
+      return nothing
     }
 
-    const actionable = hasAction(this._config.tap_action);
+    const actionable = hasAction(this._config.tap_action)
 
-    const style = this._config.heading_style || "title";
+    const style = this._config.heading_style || 'title'
 
-    const badges = this._config.badges;
+    const badges = this._config.badges
 
     return html`
       <ha-card>
@@ -94,8 +94,8 @@ export class HuiHeadingCard extends LitElement implements LovelaceCard {
             class="content ${style}"
             @action=${this._handleAction}
             .actionHandler=${actionHandler()}
-            role=${ifDefined(actionable ? "button" : undefined)}
-            tabindex=${ifDefined(actionable ? "0" : undefined)}
+            role=${ifDefined(actionable ? 'button' : undefined)}
+            tabindex=${ifDefined(actionable ? '0' : undefined)}
           >
             ${this._config.icon
               ? html`<ha-icon .icon=${this._config.icon}></ha-icon>`
@@ -109,7 +109,7 @@ export class HuiHeadingCard extends LitElement implements LovelaceCard {
             ? html`
                 <div class="badges">
                   ${badges.map(
-                    (config) => html`
+                    config => html`
                       <hui-heading-badge
                         .config=${config}
                         .hass=${this.hass}
@@ -123,7 +123,7 @@ export class HuiHeadingCard extends LitElement implements LovelaceCard {
             : nothing}
         </div>
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -140,7 +140,7 @@ export class HuiHeadingCard extends LitElement implements LovelaceCard {
       height: 100%;
       min-height: 24px;
     }
-    [role="button"] {
+    [role='button'] {
       cursor: pointer;
     }
     ha-icon-next {
@@ -223,11 +223,11 @@ export class HuiHeadingCard extends LitElement implements LovelaceCard {
       justify-content: flex-end;
       gap: 4px 10px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-heading-card": HuiHeadingCard;
+    'hui-heading-card': HuiHeadingCard
   }
 }

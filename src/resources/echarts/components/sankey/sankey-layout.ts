@@ -1,87 +1,87 @@
-import type GlobalModel from "echarts/types/src/model/Global";
-import type SankeySeriesModel from "echarts/types/src/chart/sankey/SankeySeries";
+import type GlobalModel from 'echarts/types/src/model/Global'
+import type SankeySeriesModel from 'echarts/types/src/chart/sankey/SankeySeries'
 import type {
   SankeyEdgeItemOption,
   SankeyNodeItemOption,
-} from "echarts/types/src/chart/sankey/SankeySeries";
-import type { GraphNode, GraphEdge } from "echarts/types/src/data/Graph";
-import type ExtensionAPI from "echarts/types/src/core/ExtensionAPI";
-import { createBoxLayoutReference } from "echarts/lib/util/layout";
-import type { SankeyPathShape } from "./sankey-path";
+} from 'echarts/types/src/chart/sankey/SankeySeries'
+import type { GraphNode, GraphEdge } from 'echarts/types/src/data/Graph'
+import type ExtensionAPI from 'echarts/types/src/core/ExtensionAPI'
+import { createBoxLayoutReference } from 'echarts/lib/util/layout'
+import type { SankeyPathShape } from './sankey-path'
 
 interface PassThroughNode {
-  passThrough: boolean;
-  id: string;
-  value: number;
-  depth: number;
-  sourceId: string;
-  targetId: string;
+  passThrough: boolean
+  id: string
+  value: number
+  depth: number
+  sourceId: string
+  targetId: string
 }
 
 interface GraphLink extends GraphEdge {
-  passThroughNodeIds: string[];
+  passThroughNodeIds: string[]
 }
 
-type Node = GraphNode | PassThroughNode;
+type Node = GraphNode | PassThroughNode
 
 interface SectionNode {
-  node: Node;
-  id: string;
-  value: number;
-  x: number;
-  y: number;
-  dx: number;
-  dy: number;
-  size: number;
+  node: Node
+  id: string
+  value: number
+  x: number
+  y: number
+  dx: number
+  dy: number
+  size: number
 }
 
 export function isPassThroughNode(node: Node): node is PassThroughNode {
-  return "passThrough" in node;
+  return 'passThrough' in node
 }
 
-const MIN_SIZE = 1;
+const MIN_SIZE = 1
 
 interface CoordinateSystem {
-  breadth: "x" | "y";
-  depth: "x" | "y";
-  breadthSize: "dx" | "dy";
-  depthSize: "dx" | "dy";
+  breadth: 'x' | 'y'
+  depth: 'x' | 'y'
+  breadthSize: 'dx' | 'dy'
+  depthSize: 'dx' | 'dy'
 }
 
 export function getCoordinateSystem(
-  orient: "vertical" | "horizontal"
+  orient: 'vertical' | 'horizontal'
 ): CoordinateSystem {
-  return orient === "vertical"
-    ? { breadth: "x", depth: "y", breadthSize: "dx", depthSize: "dy" }
-    : { breadth: "y", depth: "x", breadthSize: "dy", depthSize: "dx" };
+  return orient === 'vertical'
+    ? { breadth: 'x', depth: 'y', breadthSize: 'dx', depthSize: 'dy' }
+    : { breadth: 'y', depth: 'x', breadthSize: 'dy', depthSize: 'dx' }
 }
 
 export default function sankeyLayout(ecModel: GlobalModel, _api: ExtensionAPI) {
-  ecModel.eachSeriesByType("sankey", ((seriesModel: SankeySeriesModel) => {
-    if (seriesModel.get("nodeAlign") !== "justify") {
+  ecModel.eachSeriesByType('sankey', ((seriesModel: SankeySeriesModel) => {
+    if (seriesModel.get('nodeAlign') !== 'justify') {
       // Only handle justify nodes for now
-      return;
+      return
     }
 
-    const nodeWidth = seriesModel.get("nodeWidth")!;
-    const nodeGap = seriesModel.get("nodeGap")!;
+    const nodeWidth = seriesModel.get('nodeWidth')!
+    const nodeGap = seriesModel.get('nodeGap')!
 
     const refContainer = createBoxLayoutReference(
       seriesModel,
       _api
-    ).refContainer;
+    ).refContainer
 
-    const { width, height } = refContainer;
+    const { width, height } = refContainer
 
-    const graph = seriesModel.getGraph();
+    const graph = seriesModel.getGraph()
 
-    const nodes = graph.nodes;
-    const edges = graph.edges;
+    const nodes = graph.nodes
+    const edges = graph.edges
 
-    const orient = seriesModel.get("orient")!;
+    const orient = seriesModel.get('orient')!
 
-    layoutSankey(nodes, edges, nodeWidth, nodeGap, width, height, orient);
-  }) as any);
+    layoutSankey(nodes, edges, nodeWidth, nodeGap, width, height, orient)
+  }) as any)
 }
 
 function layoutSankey(
@@ -91,19 +91,19 @@ function layoutSankey(
   nodeGap: number,
   width: number,
   height: number,
-  orient: "vertical" | "horizontal"
+  orient: 'vertical' | 'horizontal'
 ) {
-  const filteredNodes = nodes.filter((node) => node.getLayout().value > 0);
+  const filteredNodes = nodes.filter(node => node.getLayout().value > 0)
   const depths = [
     ...new Set(
       filteredNodes.map(
-        (n) =>
+        n =>
           (n.hostGraph.data.getRawDataItem(n.dataIndex) as SankeyNodeItemOption)
             .depth || 0
       )
     ),
-  ].sort();
-  const passThroughNodes = generatePassThroughNodes(depths, edges);
+  ].sort()
+  const passThroughNodes = generatePassThroughNodes(depths, edges)
   const processedNodes = processNodes(
     filteredNodes,
     passThroughNodes,
@@ -112,8 +112,8 @@ function layoutSankey(
     height,
     orient,
     nodeGap
-  );
-  applyLayout(processedNodes, nodeWidth, orient);
+  )
+  applyLayout(processedNodes, nodeWidth, orient)
 }
 
 export function getNodeDepthInfo(
@@ -122,17 +122,17 @@ export function getNodeDepthInfo(
 ): { depth: number; depthIndex: number } {
   const nodeItem = node.hostGraph.data.getRawDataItem(
     node.dataIndex
-  ) as SankeyNodeItemOption;
-  const depth = nodeItem.depth || 0;
-  const depthIndex = depths.findIndex((i) => i === depth);
-  return { depth, depthIndex };
+  ) as SankeyNodeItemOption
+  const depth = nodeItem.depth || 0
+  const depthIndex = depths.findIndex(i => i === depth)
+  return { depth, depthIndex }
 }
 
 export function getEdgeValue(edge: GraphEdge): number {
   const edgeItem = edge.hostGraph.edgeData.getRawDataItem(
     edge.dataIndex
-  ) as SankeyEdgeItemOption;
-  return edgeItem.value as number;
+  ) as SankeyEdgeItemOption
+  return edgeItem.value as number
 }
 
 export function getPassThroughSections(
@@ -140,7 +140,7 @@ export function getPassThroughSections(
   targetDepthIndex: number,
   depths: number[]
 ): number[] {
-  return depths.slice(sourceDepthIndex + 1, targetDepthIndex);
+  return depths.slice(sourceDepthIndex + 1, targetDepthIndex)
 }
 
 export function createPassThroughNode(
@@ -156,7 +156,7 @@ export function createPassThroughNode(
     depth,
     sourceId,
     targetId,
-  };
+  }
 }
 
 function processEdgeForPassThrough(
@@ -165,153 +165,153 @@ function processEdgeForPassThrough(
   passThroughNodes: PassThroughNode[]
 ): string[] {
   if (edge.getLayout().value === 0) {
-    return [];
+    return []
   }
 
-  const sourceInfo = getNodeDepthInfo(edge.node1, depths);
-  const targetInfo = getNodeDepthInfo(edge.node2, depths);
-  const edgeValue = getEdgeValue(edge);
+  const sourceInfo = getNodeDepthInfo(edge.node1, depths)
+  const targetInfo = getNodeDepthInfo(edge.node2, depths)
+  const edgeValue = getEdgeValue(edge)
 
   const passThroughSections = getPassThroughSections(
     sourceInfo.depthIndex,
     targetInfo.depthIndex,
     depths
-  );
+  )
 
   const sourceNode = edge.node1.hostGraph.data.getRawDataItem(
     edge.node1.dataIndex
-  ) as SankeyNodeItemOption;
+  ) as SankeyNodeItemOption
   const targetNode = edge.node2.hostGraph.data.getRawDataItem(
     edge.node2.dataIndex
-  ) as SankeyNodeItemOption;
+  ) as SankeyNodeItemOption
 
-  const passThroughNodeIds = passThroughSections.map((depth) => {
+  const passThroughNodeIds = passThroughSections.map(depth => {
     const node = createPassThroughNode(
       sourceNode.id as string,
       targetNode.id as string,
       depth,
       edgeValue
-    );
-    passThroughNodes.push(node);
-    return node.id;
-  });
+    )
+    passThroughNodes.push(node)
+    return node.id
+  })
 
-  return passThroughNodeIds;
+  return passThroughNodeIds
 }
 
 function generatePassThroughNodes(depths: number[], edges: GraphEdge[]) {
-  const passThroughNodes: PassThroughNode[] = [];
+  const passThroughNodes: PassThroughNode[] = []
 
-  edges.forEach((edge) => {
+  edges.forEach(edge => {
     const passThroughNodeIds = processEdgeForPassThrough(
       edge,
       depths,
       passThroughNodes
-    );
-    const link = edge as GraphLink;
-    link.passThroughNodeIds = passThroughNodeIds;
-  });
+    )
+    const link = edge as GraphLink
+    link.passThroughNodeIds = passThroughNodeIds
+  })
 
-  return passThroughNodes;
+  return passThroughNodes
 }
 
 export function groupNodesBySection(
   nodes: GraphNode[],
   passThroughNodes: PassThroughNode[]
 ): Record<number, Node[]> {
-  const nodesPerSection: Record<number, Node[]> = {};
+  const nodesPerSection: Record<number, Node[]> = {}
 
-  nodes.forEach((node) => {
-    const depth = node.getLayout().depth;
+  nodes.forEach(node => {
+    const depth = node.getLayout().depth
     if (!nodesPerSection[depth]) {
-      nodesPerSection[depth] = [node];
+      nodesPerSection[depth] = [node]
     } else {
-      nodesPerSection[depth].push(node);
+      nodesPerSection[depth].push(node)
     }
-  });
+  })
 
-  passThroughNodes.forEach((node) => {
+  passThroughNodes.forEach(node => {
     if (!nodesPerSection[node.depth]) {
-      nodesPerSection[node.depth] = [node];
+      nodesPerSection[node.depth] = [node]
     } else {
-      nodesPerSection[node.depth].push(node);
+      nodesPerSection[node.depth].push(node)
     }
-  });
+  })
 
-  return nodesPerSection;
+  return nodesPerSection
 }
 
 export function sortNodesInSections(
   nodesPerSection: Record<number, Node[]>,
   depths: number[]
 ): Record<number, Node[]> {
-  const sortedSections: Record<number, Node[]> = {};
+  const sortedSections: Record<number, Node[]> = {}
 
   depths.forEach((depth, depthIndex) => {
-    const sectionNodes = nodesPerSection[depth] || [];
+    const sectionNodes = nodesPerSection[depth] || []
 
     // Sort nodes to minimize crossings
     const sortedNodes = [...sectionNodes].sort((a, b) => {
-      const aIsPassthrough = isPassThroughNode(a);
-      const bIsPassthrough = isPassThroughNode(b);
+      const aIsPassthrough = isPassThroughNode(a)
+      const bIsPassthrough = isPassThroughNode(b)
 
       // Both are passthrough nodes - sort by source position
       if (aIsPassthrough && bIsPassthrough) {
         // Find positions of source nodes in previous section (use already sorted section)
         if (depthIndex > 0) {
-          const prevDepth = depths[depthIndex - 1];
+          const prevDepth = depths[depthIndex - 1]
           const prevSection =
-            sortedSections[prevDepth] || nodesPerSection[prevDepth] || [];
+            sortedSections[prevDepth] || nodesPerSection[prevDepth] || []
 
-          const aSourceIndex = prevSection.findIndex((n) => {
-            const nodeId = isPassThroughNode(n) ? n.id : (n as GraphNode).id;
-            return nodeId === a.sourceId;
-          });
-          const bSourceIndex = prevSection.findIndex((n) => {
-            const nodeId = isPassThroughNode(n) ? n.id : (n as GraphNode).id;
-            return nodeId === b.sourceId;
-          });
+          const aSourceIndex = prevSection.findIndex(n => {
+            const nodeId = isPassThroughNode(n) ? n.id : (n as GraphNode).id
+            return nodeId === a.sourceId
+          })
+          const bSourceIndex = prevSection.findIndex(n => {
+            const nodeId = isPassThroughNode(n) ? n.id : (n as GraphNode).id
+            return nodeId === b.sourceId
+          })
 
           if (
             aSourceIndex !== bSourceIndex &&
             aSourceIndex !== -1 &&
             bSourceIndex !== -1
           ) {
-            return aSourceIndex - bSourceIndex;
+            return aSourceIndex - bSourceIndex
           }
         }
 
         // Fall back to target node positions in next section (not sorted yet, use original)
         if (depthIndex < depths.length - 1) {
-          const nextDepth = depths[depthIndex + 1];
-          const nextSection = nodesPerSection[nextDepth] || [];
+          const nextDepth = depths[depthIndex + 1]
+          const nextSection = nodesPerSection[nextDepth] || []
 
-          const aTargetIndex = nextSection.findIndex((n) => {
-            const nodeId = isPassThroughNode(n) ? n.id : (n as GraphNode).id;
-            return nodeId === a.targetId;
-          });
-          const bTargetIndex = nextSection.findIndex((n) => {
-            const nodeId = isPassThroughNode(n) ? n.id : (n as GraphNode).id;
-            return nodeId === b.targetId;
-          });
+          const aTargetIndex = nextSection.findIndex(n => {
+            const nodeId = isPassThroughNode(n) ? n.id : (n as GraphNode).id
+            return nodeId === a.targetId
+          })
+          const bTargetIndex = nextSection.findIndex(n => {
+            const nodeId = isPassThroughNode(n) ? n.id : (n as GraphNode).id
+            return nodeId === b.targetId
+          })
 
           if (
             aTargetIndex !== bTargetIndex &&
             aTargetIndex !== -1 &&
             bTargetIndex !== -1
           ) {
-            return aTargetIndex - bTargetIndex;
+            return aTargetIndex - bTargetIndex
           }
         }
       }
 
-      return 0;
-    });
+      return 0
+    })
 
-    sortedSections[depth] = sortedNodes;
-  });
+    sortedSections[depth] = sortedNodes
+  })
 
-  return sortedSections;
+  return sortedSections
 }
 
 export function createSectionNodes(nodes: Node[]): SectionNode[] {
@@ -326,21 +326,21 @@ export function createSectionNodes(nodes: Node[]): SectionNode[] {
       dy: 0,
       size: 0,
     })
-  );
+  )
 }
 
 export function calculateSectionDimensions(
-  orient: "vertical" | "horizontal",
+  orient: 'vertical' | 'horizontal',
   width: number,
   height: number,
   depths: number[],
   nodeGap: number
 ) {
-  const sectionSize = (orient === "vertical" ? width : height) - nodeGap * 2;
+  const sectionSize = (orient === 'vertical' ? width : height) - nodeGap * 2
   const sectionDepthSize =
-    orient === "vertical" ? height / depths.length : width / depths.length;
+    orient === 'vertical' ? height / depths.length : width / depths.length
 
-  return { sectionSize, sectionDepthSize };
+  return { sectionSize, sectionDepthSize }
 }
 
 /**
@@ -355,45 +355,45 @@ export function calculateSectionDimensions(
  */
 function positionNodesInSection(
   section: {
-    nodes: SectionNode[];
-    depth: number;
-    totalValue: number;
-    valueToSizeRatio: number;
+    nodes: SectionNode[]
+    depth: number
+    totalValue: number
+    valueToSizeRatio: number
   },
   index: number,
   sectionSize: number,
   sectionDepthSize: number,
   globalValueToSizeRatio: number,
-  orient: "vertical" | "horizontal"
+  orient: 'vertical' | 'horizontal'
 ) {
-  let totalSize = 0;
+  let totalSize = 0
 
   if (section.valueToSizeRatio !== globalValueToSizeRatio) {
-    section.nodes.forEach((node) => {
+    section.nodes.forEach(node => {
       const size = Math.max(
         MIN_SIZE,
         Math.floor(node.value / globalValueToSizeRatio)
-      );
-      totalSize += size;
-      node.size = size;
-    });
+      )
+      totalSize += size
+      node.size = size
+    })
   } else {
-    totalSize = section.nodes.reduce((sum, node) => sum + node.size, 0);
+    totalSize = section.nodes.reduce((sum, node) => sum + node.size, 0)
   }
 
-  const emptySpace = sectionSize - totalSize;
-  let offset = emptySpace / (section.nodes.length + 1);
+  const emptySpace = sectionSize - totalSize
+  let offset = emptySpace / (section.nodes.length + 1)
 
-  section.nodes.forEach((node) => {
-    if (orient === "vertical") {
-      node.x = offset;
-      node.y = index * sectionDepthSize;
+  section.nodes.forEach(node => {
+    if (orient === 'vertical') {
+      node.x = offset
+      node.y = index * sectionDepthSize
     } else {
-      node.x = index * sectionDepthSize;
-      node.y = offset;
+      node.x = index * sectionDepthSize
+      node.y = offset
     }
-    offset += node.size + emptySpace / (section.nodes.length + 1);
-  });
+    offset += node.size + emptySpace / (section.nodes.length + 1)
+  })
 }
 
 function processNodes(
@@ -402,7 +402,7 @@ function processNodes(
   depths: number[],
   width: number,
   height: number,
-  orient: "vertical" | "horizontal",
+  orient: 'vertical' | 'horizontal',
   nodeGap: number
 ) {
   const { sectionSize, sectionDepthSize } = calculateSectionDimensions(
@@ -411,29 +411,29 @@ function processNodes(
     height,
     depths,
     nodeGap
-  );
+  )
 
-  const nodesPerSection = groupNodesBySection(nodes, passThroughNodes);
-  const sortedNodesPerSection = sortNodesInSections(nodesPerSection, depths);
-  let globalValueToSizeRatio = 0;
+  const nodesPerSection = groupNodesBySection(nodes, passThroughNodes)
+  const sortedNodesPerSection = sortNodesInSections(nodesPerSection, depths)
+  let globalValueToSizeRatio = 0
 
-  const sections = depths.map((depth) => {
-    const sectionNodes = createSectionNodes(sortedNodesPerSection[depth] || []);
-    const availableSpace = sectionSize - (sectionNodes.length + 1) * nodeGap;
+  const sections = depths.map(depth => {
+    const sectionNodes = createSectionNodes(sortedNodesPerSection[depth] || [])
+    const availableSpace = sectionSize - (sectionNodes.length + 1) * nodeGap
     const totalValue = sectionNodes.reduce(
       (acc: number, node: SectionNode) => acc + node.value,
       0
-    );
+    )
     const { nodes: sizedNodes, valueToSizeRatio: sectionValueToSizeRatio } =
       setNodeSizes(
         sectionNodes,
         availableSpace,
         totalValue,
         globalValueToSizeRatio
-      );
+      )
 
     if (sectionValueToSizeRatio > globalValueToSizeRatio) {
-      globalValueToSizeRatio = sectionValueToSizeRatio;
+      globalValueToSizeRatio = sectionValueToSizeRatio
     }
 
     return {
@@ -441,8 +441,8 @@ function processNodes(
       depth,
       totalValue,
       valueToSizeRatio: sectionValueToSizeRatio,
-    };
-  });
+    }
+  })
 
   sections.forEach((section, index) => {
     positionNodesInSection(
@@ -452,10 +452,10 @@ function processNodes(
       sectionDepthSize,
       globalValueToSizeRatio,
       orient
-    );
-  });
+    )
+  })
 
-  return sections.flatMap((section) => section.nodes);
+  return sections.flatMap(section => section.nodes)
 }
 
 export function setNodeSizes(
@@ -464,34 +464,34 @@ export function setNodeSizes(
   totalValue: number,
   prevValueToSizeRatio = 0
 ): { nodes: SectionNode[]; valueToSizeRatio: number } {
-  let valueToSizeRatio = totalValue / availableSpace;
+  let valueToSizeRatio = totalValue / availableSpace
   if (valueToSizeRatio < prevValueToSizeRatio) {
-    valueToSizeRatio = prevValueToSizeRatio;
+    valueToSizeRatio = prevValueToSizeRatio
   }
-  let deficitHeight = 0;
-  const result = nodes.map((node) => {
+  let deficitHeight = 0
+  const result = nodes.map(node => {
     if (node.size === MIN_SIZE) {
-      return node;
+      return node
     }
-    let size = Math.floor(node.value / valueToSizeRatio);
+    let size = Math.floor(node.value / valueToSizeRatio)
     if (size < MIN_SIZE) {
-      deficitHeight += MIN_SIZE - size;
-      size = MIN_SIZE;
+      deficitHeight += MIN_SIZE - size
+      size = MIN_SIZE
     }
     return {
       ...node,
       size,
-    };
-  });
+    }
+  })
   if (deficitHeight > 0) {
     return setNodeSizes(
       result,
       availableSpace - deficitHeight,
       totalValue,
       valueToSizeRatio
-    );
+    )
   }
-  return { nodes: result, valueToSizeRatio };
+  return { nodes: result, valueToSizeRatio }
 }
 
 function applyNodeDimensions(
@@ -499,166 +499,166 @@ function applyNodeDimensions(
   nodeWidth: number,
   coords: CoordinateSystem
 ) {
-  nodes.forEach((node) => {
-    node[coords.breadthSize] = node.size;
-    node[coords.depthSize] = nodeWidth;
+  nodes.forEach(node => {
+    node[coords.breadthSize] = node.size
+    node[coords.depthSize] = nodeWidth
     if (isPassThroughNode(node.node)) {
-      return;
+      return
     }
     node.node.setLayout(
       { x: node.x, y: node.y, dx: node.dx, dy: node.dy },
       true
-    );
-  });
+    )
+  })
 }
 
 function applyEdgeSizes(nodes: SectionNode[], coords: CoordinateSystem) {
-  nodes.forEach((node) => {
+  nodes.forEach(node => {
     if (isPassThroughNode(node.node)) {
-      return;
+      return
     }
-    node.node.outEdges.forEach((edge) => {
+    node.node.outEdges.forEach(edge => {
       const edgeItem = edge.hostGraph.edgeData.getRawDataItem(
         edge.dataIndex
-      ) as SankeyEdgeItemOption;
-      const edgeSize = ((edgeItem.value as number) / node.value) * node.size;
+      ) as SankeyEdgeItemOption
+      const edgeSize = ((edgeItem.value as number) / node.value) * node.size
       edge.setLayout(
         { [coords.breadthSize]: edgeSize, [coords.depthSize]: 0 },
         true
-      );
-    });
-  });
+      )
+    })
+  })
 }
 
 function sortEdgesByTargetPosition(
   nodes: SectionNode[],
   coords: CoordinateSystem
 ) {
-  nodes.forEach((node) => {
+  nodes.forEach(node => {
     if (isPassThroughNode(node.node)) {
-      return;
+      return
     }
     node.node.outEdges.sort(
       (a, b) =>
         a.node2.getLayout()[coords.breadth] -
         b.node2.getLayout()[coords.breadth]
-    );
+    )
     node.node.inEdges.sort(
       (a, b) =>
         a.node1.getLayout()[coords.breadth] -
         b.node1.getLayout()[coords.breadth]
-    );
-  });
+    )
+  })
 }
 
 function generatePassThroughPoints(
   edge: GraphLink,
   nodes: SectionNode[],
-  orient: "vertical" | "horizontal",
-  curveType: "curveVertical" | "curveHorizontal"
-): SankeyPathShape["targets"] {
-  const passthroughPoints: SankeyPathShape["targets"] = [];
+  orient: 'vertical' | 'horizontal',
+  curveType: 'curveVertical' | 'curveHorizontal'
+): SankeyPathShape['targets'] {
+  const passthroughPoints: SankeyPathShape['targets'] = []
 
-  edge.passThroughNodeIds.forEach((nodeId) => {
-    const passthroughNode = nodes.find((n) => n.id === nodeId)!;
+  edge.passThroughNodeIds.forEach(nodeId => {
+    const passthroughNode = nodes.find(n => n.id === nodeId)!
     passthroughPoints.push({
       x: passthroughNode.x,
       y: passthroughNode.y,
       type: curveType,
-    });
+    })
 
-    if (orient === "vertical") {
+    if (orient === 'vertical') {
       passthroughPoints.push({
         x: passthroughNode.x,
         y: passthroughNode.y + passthroughNode.dy,
-        type: "line",
-      });
+        type: 'line',
+      })
     } else {
       passthroughPoints.push({
         x: passthroughNode.x + passthroughNode.dx,
         y: passthroughNode.y,
-        type: "line",
-      });
+        type: 'line',
+      })
     }
-  });
+  })
 
-  return passthroughPoints;
+  return passthroughPoints
 }
 
 function positionOutEdges(
   node: SectionNode,
-  orient: "vertical" | "horizontal",
+  orient: 'vertical' | 'horizontal',
   coords: CoordinateSystem
 ) {
   if (isPassThroughNode(node.node)) {
-    return;
+    return
   }
-  let offset = 0;
-  node.node.outEdges.forEach((edge) => {
+  let offset = 0
+  node.node.outEdges.forEach(edge => {
     edge.setLayout(
       {
-        x: orient === "vertical" ? node.x + offset : node.x + node.dx,
-        y: orient === "vertical" ? node.y + node.dy : node.y + offset,
+        x: orient === 'vertical' ? node.x + offset : node.x + node.dx,
+        y: orient === 'vertical' ? node.y + node.dy : node.y + offset,
       },
       true
-    );
-    offset += edge.getLayout()[coords.breadthSize];
-  });
+    )
+    offset += edge.getLayout()[coords.breadthSize]
+  })
 }
 
 function positionInEdges(
   node: SectionNode,
   nodes: SectionNode[],
-  orient: "vertical" | "horizontal",
+  orient: 'vertical' | 'horizontal',
   coords: CoordinateSystem,
-  curveType: "curveVertical" | "curveHorizontal"
+  curveType: 'curveVertical' | 'curveHorizontal'
 ) {
   if (isPassThroughNode(node.node)) {
-    return;
+    return
   }
-  let offset = 0;
-  node.node.inEdges.forEach((edge) => {
+  let offset = 0
+  node.node.inEdges.forEach(edge => {
     const passthroughPoints = generatePassThroughPoints(
       edge as GraphLink,
       nodes,
       orient,
       curveType
-    );
+    )
 
     edge.setLayout(
       {
         targets: [
           ...passthroughPoints,
           {
-            x: orient === "vertical" ? node.x + offset : node.x,
-            y: orient === "vertical" ? node.y : node.y + offset,
+            x: orient === 'vertical' ? node.x + offset : node.x,
+            y: orient === 'vertical' ? node.y : node.y + offset,
             type: curveType,
           },
-        ] as SankeyPathShape["targets"],
+        ] as SankeyPathShape['targets'],
       },
       true
-    );
-    offset += edge.getLayout()[coords.breadthSize];
-  });
+    )
+    offset += edge.getLayout()[coords.breadthSize]
+  })
 }
 
 function applyLayout(
   nodes: SectionNode[],
   nodeWidth: number,
-  orient: "vertical" | "horizontal"
+  orient: 'vertical' | 'horizontal'
 ) {
-  const coords = getCoordinateSystem(orient);
-  const curveType = orient === "vertical" ? "curveVertical" : "curveHorizontal";
+  const coords = getCoordinateSystem(orient)
+  const curveType = orient === 'vertical' ? 'curveVertical' : 'curveHorizontal'
 
-  applyNodeDimensions(nodes, nodeWidth, coords);
-  applyEdgeSizes(nodes, coords);
-  sortEdgesByTargetPosition(nodes, coords);
+  applyNodeDimensions(nodes, nodeWidth, coords)
+  applyEdgeSizes(nodes, coords)
+  sortEdgesByTargetPosition(nodes, coords)
 
-  nodes.forEach((node) => {
+  nodes.forEach(node => {
     if (isPassThroughNode(node.node)) {
-      return;
+      return
     }
-    positionOutEdges(node, orient, coords);
-    positionInEdges(node, nodes, orient, coords, curveType);
-  });
+    positionOutEdges(node, orient, coords)
+    positionInEdges(node, nodes, orient, coords, curveType)
+  })
 }

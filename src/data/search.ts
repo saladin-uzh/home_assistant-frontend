@@ -1,39 +1,39 @@
-import type { HomeAssistant } from "../types";
+import type { HomeAssistant } from '../types'
 
 export interface RelatedResult {
-  area?: string[];
-  automation?: string[];
-  automation_blueprint?: string[];
-  config_entry?: string[];
-  device?: string[];
-  entity?: string[];
-  group?: string[];
-  integration?: string[];
-  scene?: string[];
-  script?: string[];
-  script_blueprint?: string[];
+  area?: string[]
+  automation?: string[]
+  automation_blueprint?: string[]
+  config_entry?: string[]
+  device?: string[]
+  entity?: string[]
+  group?: string[]
+  integration?: string[]
+  scene?: string[]
+  script?: string[]
+  script_blueprint?: string[]
 }
 
 export const SearchableDomains = new Set([
-  "automation",
-  "script",
-  "scene",
-  "group",
-]);
+  'automation',
+  'script',
+  'scene',
+  'group',
+])
 
 export type ItemType =
-  | "area"
-  | "automation"
-  | "config_entry"
-  | "device"
-  | "entity"
-  | "floor"
-  | "group"
-  | "label"
-  | "scene"
-  | "script"
-  | "automation_blueprint"
-  | "script_blueprint";
+  | 'area'
+  | 'automation'
+  | 'config_entry'
+  | 'device'
+  | 'entity'
+  | 'floor'
+  | 'group'
+  | 'label'
+  | 'scene'
+  | 'script'
+  | 'automation_blueprint'
+  | 'script_blueprint'
 
 export const findRelated = (
   hass: HomeAssistant,
@@ -41,7 +41,7 @@ export const findRelated = (
   itemId: string
 ): Promise<RelatedResult> =>
   hass.callWS({
-    type: "search/related",
+    type: 'search/related',
     item_type: itemType,
     item_id: itemId,
-  });
+  })

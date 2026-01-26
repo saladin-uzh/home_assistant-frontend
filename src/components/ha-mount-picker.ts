@@ -1,71 +1,74 @@
-import { mdiBackupRestore, mdiFolder, mdiHarddisk, mdiPlayBox } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { isComponentLoaded } from "../common/config/is_component_loaded";
-import { fireEvent } from "../common/dom/fire_event";
-import { stopPropagation } from "../common/dom/stop_propagation";
-import { caseInsensitiveStringCompare } from "../common/string/compare";
-import type { SupervisorMounts } from "../data/supervisor/mounts";
+import { mdiBackupRestore, mdiFolder, mdiHarddisk, mdiPlayBox } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { isComponentLoaded } from '../common/config/is_component_loaded'
+import { fireEvent } from '../common/dom/fire_event'
+import { stopPropagation } from '../common/dom/stop_propagation'
+import { caseInsensitiveStringCompare } from '../common/string/compare'
+import type { SupervisorMounts } from '../data/supervisor/mounts'
 import {
   fetchSupervisorMounts,
   SupervisorMountType,
   SupervisorMountUsage,
-} from "../data/supervisor/mounts";
-import type { HomeAssistant } from "../types";
-import "./ha-alert";
-import "./ha-list-item";
-import "./ha-select";
-import type { HaSelect } from "./ha-select";
+} from '../data/supervisor/mounts'
+import type { HomeAssistant } from '../types'
+import './ha-alert'
+import './ha-list-item'
+import './ha-select'
+import type { HaSelect } from './ha-select'
 
-const _BACKUP_DATA_DISK_ = "/backup";
+const _BACKUP_DATA_DISK_ = '/backup'
 
-@customElement("ha-mount-picker")
+@customElement('ha-mount-picker')
 class HaMountPicker extends LitElement {
-  public hass!: HomeAssistant;
+  public hass!: HomeAssistant
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public value?: string;
+  @property() public value?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = false;
+  @property({ type: Boolean }) public required = false
 
-  @property() public usage?: SupervisorMountUsage;
+  @property() public usage?: SupervisorMountUsage
 
-  @state() private _mounts?: SupervisorMounts;
+  @state() private _mounts?: SupervisorMounts
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
   protected firstUpdated() {
-    this._getMounts();
+    this._getMounts()
   }
 
   protected render() {
     if (this._error) {
-      return html`<ha-alert alert-type="error">${this._error}</ha-alert>`;
+      return html`<ha-alert alert-type="error">${this._error}</ha-alert>`
     }
     if (!this._mounts) {
-      return nothing;
+      return nothing
     }
     const dataDiskOption = html`<ha-list-item
       graphic="icon"
       .value=${_BACKUP_DATA_DISK_}
     >
       <span>
-        ${this.hass.localize("ui.components.mount-picker.use_datadisk") ||
-        "Use data disk for backup"}
+        ${this.hass.localize('ui.components.mount-picker.use_datadisk') ||
+        'Use data disk for backup'}
       </span>
-      <ha-svg-icon slot="graphic" .path=${mdiHarddisk}></ha-svg-icon>
-    </ha-list-item>`;
+      <ha-svg-icon
+        slot="graphic"
+        .path=${mdiHarddisk}
+      ></ha-svg-icon>
+    </ha-list-item>`
     return html`
       <ha-select
         .label=${this.label === undefined && this.hass
-          ? this.hass.localize("ui.components.mount-picker.mount")
+          ? this.hass.localize('ui.components.mount-picker.mount')
           : this.label}
         .value=${this._value}
         .required=${this.required}
@@ -82,8 +85,12 @@ class HaMountPicker extends LitElement {
           ? dataDiskOption
           : nothing}
         ${this._filterMounts(this._mounts, this.usage).map(
-          (mount) =>
-            html`<ha-list-item twoline graphic="icon" .value=${mount.name}>
+          mount =>
+            html`<ha-list-item
+              twoline
+              graphic="icon"
+              .value=${mount.name}
+            >
               <span>${mount.name}</span>
               <span slot="secondary"
                 >${mount.server}${mount.port
@@ -107,72 +114,72 @@ class HaMountPicker extends LitElement {
           ? dataDiskOption
           : nothing}
       </ha-select>
-    `;
+    `
   }
 
   private _filterMounts = memoizeOne(
-    (mounts: SupervisorMounts, usage: this["usage"]) => {
-      let filteredMounts = mounts.mounts.filter((mount) =>
+    (mounts: SupervisorMounts, usage: this['usage']) => {
+      let filteredMounts = mounts.mounts.filter(mount =>
         [SupervisorMountType.CIFS, SupervisorMountType.NFS].includes(mount.type)
-      );
+      )
       if (usage) {
-        filteredMounts = mounts.mounts.filter((mount) => mount.usage === usage);
+        filteredMounts = mounts.mounts.filter(mount => mount.usage === usage)
       }
       return filteredMounts.sort((mountA, mountB) => {
         if (mountA.name === mounts.default_backup_mount) {
-          return -1;
+          return -1
         }
         if (mountB.name === mounts.default_backup_mount) {
-          return 1;
+          return 1
         }
         return caseInsensitiveStringCompare(
           mountA.name,
           mountB.name,
           this.hass.locale.language
-        );
-      });
+        )
+      })
     }
-  );
+  )
 
   private async _getMounts() {
     try {
-      if (isComponentLoaded(this.hass, "hassio")) {
-        this._mounts = await fetchSupervisorMounts(this.hass);
+      if (isComponentLoaded(this.hass, 'hassio')) {
+        this._mounts = await fetchSupervisorMounts(this.hass)
         if (this.usage === SupervisorMountUsage.BACKUP && !this.value) {
-          this.value = this._mounts.default_backup_mount || _BACKUP_DATA_DISK_;
+          this.value = this._mounts.default_backup_mount || _BACKUP_DATA_DISK_
         }
       } else {
         this._error = this.hass.localize(
-          "ui.components.mount-picker.error.no_supervisor"
-        );
+          'ui.components.mount-picker.error.no_supervisor'
+        )
       }
     } catch (_err: any) {
       this._error = this.hass.localize(
-        "ui.components.mount-picker.error.fetch_mounts"
-      );
+        'ui.components.mount-picker.error.fetch_mounts'
+      )
     }
   }
 
   private get _value() {
-    return this.value || "";
+    return this.value || ''
   }
 
   private _mountChanged(ev: Event) {
-    ev.stopPropagation();
-    const target = ev.target as HaSelect;
-    const newValue = target.value;
+    ev.stopPropagation()
+    const target = ev.target as HaSelect
+    const newValue = target.value
 
     if (newValue !== this._value) {
-      this._setValue(newValue);
+      this._setValue(newValue)
     }
   }
 
   private _setValue(value: string) {
-    this.value = value;
+    this.value = value
     setTimeout(() => {
-      fireEvent(this, "value-changed", { value });
-      fireEvent(this, "change");
-    }, 0);
+      fireEvent(this, 'value-changed', { value })
+      fireEvent(this, 'change')
+    }, 0)
   }
 
   static get styles(): CSSResultGroup {
@@ -182,12 +189,12 @@ class HaMountPicker extends LitElement {
           width: 100%;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-mount-picker": HaMountPicker;
+    'ha-mount-picker': HaMountPicker
   }
 }

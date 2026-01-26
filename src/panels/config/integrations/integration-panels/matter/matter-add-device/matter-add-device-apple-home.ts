@@ -1,18 +1,18 @@
-import { LitElement, html } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../../../../common/dom/fire_event";
-import "../../../../../../components/ha-icon-next";
-import "../../../../../../components/ha-md-list-item";
-import "../../../../../../components/ha-md-list";
-import "../../../../../../components/ha-textfield";
-import type { HomeAssistant } from "../../../../../../types";
-import { sharedStyles } from "./matter-add-device-shared-styles";
+import { LitElement, html } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../../../common/dom/fire_event'
+import '../../../../../../components/ha-icon-next'
+import '../../../../../../components/ha-md-list-item'
+import '../../../../../../components/ha-md-list'
+import '../../../../../../components/ha-textfield'
+import type { HomeAssistant } from '../../../../../../types'
+import { sharedStyles } from './matter-add-device-shared-styles'
 
-@customElement("matter-add-device-apple-home")
+@customElement('matter-add-device-apple-home')
 class MatterAddDeviceAppleHome extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _code = "";
+  @state() private _code = ''
 
   render() {
     return html`
@@ -20,11 +20,11 @@ class MatterAddDeviceAppleHome extends LitElement {
         <ol>
           <li>
             ${this.hass.localize(
-              "ui.dialogs.matter-add-device.apple_home.step_1",
+              'ui.dialogs.matter-add-device.apple_home.step_1',
               {
                 accessory_settings: html`<b
                   >${this.hass.localize(
-                    "ui.dialogs.matter-add-device.apple_home.accessory_settings"
+                    'ui.dialogs.matter-add-device.apple_home.accessory_settings'
                   )}</b
                 >`,
               }
@@ -32,11 +32,11 @@ class MatterAddDeviceAppleHome extends LitElement {
           </li>
           <li>
             ${this.hass.localize(
-              "ui.dialogs.matter-add-device.apple_home.step_2",
+              'ui.dialogs.matter-add-device.apple_home.step_2',
               {
                 turn_on_pairing_mode: html`<b
                   >${this.hass.localize(
-                    "ui.dialogs.matter-add-device.apple_home.turn_on_pairing_mode"
+                    'ui.dialogs.matter-add-device.apple_home.turn_on_pairing_mode'
                   )}</b
                 >`,
               }
@@ -44,38 +44,38 @@ class MatterAddDeviceAppleHome extends LitElement {
           </li>
           <li>
             ${this.hass.localize(
-              "ui.dialogs.matter-add-device.apple_home.step_3"
+              'ui.dialogs.matter-add-device.apple_home.step_3'
             )}
           </li>
         </ol>
         <br />
         <p>
           ${this.hass.localize(
-            "ui.dialogs.matter-add-device.apple_home.code_instructions"
+            'ui.dialogs.matter-add-device.apple_home.code_instructions'
           )}
         </p>
         <ha-textfield
           label=${this.hass.localize(
-            "ui.dialogs.matter-add-device.apple_home.setup_code"
+            'ui.dialogs.matter-add-device.apple_home.setup_code'
           )}
           .value=${this._code}
           @input=${this._onCodeChanged}
         ></ha-textfield>
       </div>
-    `;
+    `
   }
 
   private _onCodeChanged(ev: any) {
-    const value = ev.currentTarget.value;
-    this._code = value;
-    fireEvent(this, "pairing-code-changed", { code: value });
+    const value = ev.currentTarget.value
+    this._code = value
+    fireEvent(this, 'pairing-code-changed', { code: value })
   }
 
-  static styles = [sharedStyles];
+  static styles = [sharedStyles]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "matter-add-device-apple-home": MatterAddDeviceAppleHome;
+    'matter-add-device-apple-home': MatterAddDeviceAppleHome
   }
 }

@@ -1,18 +1,18 @@
-import { AssistChip } from "@material/web/chips/internal/assist-chip";
-import { styles } from "@material/web/chips/internal/assist-styles";
+import { AssistChip } from '@material/web/chips/internal/assist-chip'
+import { styles } from '@material/web/chips/internal/assist-styles'
 
-import { styles as sharedStyles } from "@material/web/chips/internal/shared-styles";
-import { styles as elevatedStyles } from "@material/web/chips/internal/elevated-styles";
+import { styles as sharedStyles } from '@material/web/chips/internal/shared-styles'
+import { styles as elevatedStyles } from '@material/web/chips/internal/elevated-styles'
 
-import { css, html } from "lit";
-import { customElement, property } from "lit/decorators";
+import { css, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
-@customElement("ha-assist-chip")
+@customElement('ha-assist-chip')
 // @ts-ignore
 export class HaAssistChip extends AssistChip {
-  @property({ type: Boolean, reflect: true }) filled = false;
+  @property({ type: Boolean, reflect: true }) filled = false
 
-  @property({ type: Boolean }) active = false;
+  @property({ type: Boolean }) active = false
 
   static override styles = [
     sharedStyles,
@@ -39,8 +39,8 @@ export class HaAssistChip extends AssistChip {
         background-color: var(--ha-assist-chip-filled-container-color);
       }
       /** Set the size of mdc icons **/
-      ::slotted([slot="icon"]),
-      ::slotted([slot="trailing-icon"]) {
+      ::slotted([slot='icon']),
+      ::slotted([slot='trailing-icon']) {
         display: flex;
         --mdc-icon-size: var(--md-input-chip-icon-size, 18px);
         font-size: var(--_label-text-size) !important;
@@ -63,43 +63,49 @@ export class HaAssistChip extends AssistChip {
         font-family: var(--ha-font-family-body);
       }
     `,
-  ];
+  ]
 
   protected override renderOutline() {
     if (this.filled) {
-      return html`<span class="filled"></span>`;
+      return html`<span class="filled"></span>`
     }
 
-    return super.renderOutline();
+    return super.renderOutline()
   }
 
   protected override getContainerClasses() {
     return {
       ...super.getContainerClasses(),
       active: this.active,
-    };
+    }
   }
 
   protected override renderPrimaryContent() {
     return html`
-      <span class="leading icon" aria-hidden="true">
+      <span
+        class="leading icon"
+        aria-hidden="true"
+      >
         ${this.renderLeadingIcon()}
       </span>
       <span class="label">${this.label}</span>
       <span class="touch"></span>
-      <span class="trailing leading icon" aria-hidden="true">
+      <span
+        class="trailing leading icon"
+        aria-hidden="true"
+      >
         ${this.renderTrailingIcon()}
       </span>
-    `;
+    `
   }
 
   protected renderTrailingIcon() {
-    return html`<slot name="trailing-icon"></slot>`;
+    return html`<slot name="trailing-icon"></slot>`
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-assist-chip": HaAssistChip;
+    'ha-assist-chip': HaAssistChip
   }
 }

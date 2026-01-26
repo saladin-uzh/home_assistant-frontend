@@ -1,53 +1,51 @@
-import "./ha-form";
-import type { PropertyValues, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
+import './ha-form'
+import type { PropertyValues, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
 import type {
   HaFormGridSchema,
   HaFormDataContainer,
   HaFormElement,
   HaFormSchema,
-} from "./types";
-import type { HomeAssistant } from "../../types";
+} from './types'
+import type { HomeAssistant } from '../../types'
 
-@customElement("ha-form-grid")
+@customElement('ha-form-grid')
 export class HaFormGrid extends LitElement implements HaFormElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public data!: HaFormDataContainer;
+  @property({ attribute: false }) public data!: HaFormDataContainer
 
-  @property({ attribute: false }) public schema!: HaFormGridSchema;
+  @property({ attribute: false }) public schema!: HaFormGridSchema
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
   @property({ attribute: false }) public computeLabel?: (
     schema: HaFormSchema,
     data?: HaFormDataContainer
-  ) => string;
+  ) => string
 
   @property({ attribute: false }) public computeHelper?: (
     schema: HaFormSchema
-  ) => string;
+  ) => string
 
-  @property({ attribute: false }) public localizeValue?: (
-    key: string
-  ) => string;
+  @property({ attribute: false }) public localizeValue?: (key: string) => string
 
   public async focus() {
-    await this.updateComplete;
-    this.renderRoot.querySelector("ha-form")?.focus();
+    await this.updateComplete
+    this.renderRoot.querySelector('ha-form')?.focus()
   }
 
   protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
-    if (changedProps.has("schema")) {
+    super.updated(changedProps)
+    if (changedProps.has('schema')) {
       if (this.schema.column_min_width) {
         this.style.setProperty(
-          "--form-grid-min-width",
+          '--form-grid-min-width',
           this.schema.column_min_width
-        );
+        )
       } else {
-        this.style.setProperty("--form-grid-min-width", "");
+        this.style.setProperty('--form-grid-min-width', '')
       }
     }
   }
@@ -55,7 +53,7 @@ export class HaFormGrid extends LitElement implements HaFormElement {
   protected render(): TemplateResult {
     return html`
       ${this.schema.schema.map(
-        (item) => html`
+        item => html`
           <ha-form
             .hass=${this.hass}
             .data=${this.data}
@@ -67,7 +65,7 @@ export class HaFormGrid extends LitElement implements HaFormElement {
           ></ha-form>
         `
       )}
-    `;
+    `
   }
 
   static styles = css`
@@ -83,11 +81,11 @@ export class HaFormGrid extends LitElement implements HaFormElement {
     :host > ha-form {
       display: block;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-form-grid": HaFormGrid;
+    'ha-form-grid': HaFormGrid
   }
 }

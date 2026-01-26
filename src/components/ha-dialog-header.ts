@@ -1,22 +1,22 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
-@customElement("ha-dialog-header")
+@customElement('ha-dialog-header')
 export class HaDialogHeader extends LitElement {
-  @property({ type: String, attribute: "subtitle-position" })
-  public subtitlePosition: "above" | "below" = "below";
+  @property({ type: String, attribute: 'subtitle-position' })
+  public subtitlePosition: 'above' | 'below' = 'below'
 
-  @property({ type: Boolean, reflect: true, attribute: "show-border" })
-  public showBorder = false;
+  @property({ type: Boolean, reflect: true, attribute: 'show-border' })
+  public showBorder = false
 
   protected render() {
     const titleSlot = html`<div class="header-title">
       <slot name="title"></slot>
-    </div>`;
+    </div>`
 
     const subtitleSlot = html`<div class="header-subtitle">
       <slot name="subtitle"></slot>
-    </div>`;
+    </div>`
 
     return html`
       <header class="header">
@@ -25,7 +25,7 @@ export class HaDialogHeader extends LitElement {
             <slot name="navigationIcon"></slot>
           </section>
           <section class="header-content">
-            ${this.subtitlePosition === "above"
+            ${this.subtitlePosition === 'above'
               ? html`${subtitleSlot}${titleSlot}`
               : html`${titleSlot}${subtitleSlot}`}
           </section>
@@ -35,7 +35,7 @@ export class HaDialogHeader extends LitElement {
         </div>
         <slot></slot>
       </header>
-    `;
+    `
   }
 
   static get styles() {
@@ -105,12 +105,12 @@ export class HaDialogHeader extends LitElement {
           flex-direction: row;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-dialog-header": HaDialogHeader;
+    'ha-dialog-header': HaDialogHeader
   }
 }

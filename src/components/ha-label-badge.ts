@@ -1,20 +1,23 @@
-import type { CSSResultGroup, PropertyValues, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
+import type { CSSResultGroup, PropertyValues, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
 
-@customElement("ha-label-badge")
+@customElement('ha-label-badge')
 class HaLabelBadge extends LitElement {
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public description?: string;
+  @property() public description?: string
 
-  @property() public image?: string;
+  @property() public image?: string
 
   protected render(): TemplateResult {
     return html`
       <div class="badge-container">
-        <div class="label-badge" id="badge">
+        <div
+          class="label-badge"
+          id="badge"
+        >
           <div class="value">
             <slot></slot>
           </div>
@@ -29,13 +32,13 @@ class HaLabelBadge extends LitElement {
                   <span>${this.label}</span>
                 </div>
               `
-            : ""}
+            : ''}
         </div>
         ${this.description
           ? html`<div class="title">${this.description}</div>`
-          : ""}
+          : ''}
       </div>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -111,22 +114,22 @@ class HaLabelBadge extends LitElement {
           line-height: normal;
         }
       `,
-    ];
+    ]
   }
 
   protected updated(changedProperties: PropertyValues): void {
-    super.updated(changedProperties);
-    if (changedProperties.has("image")) {
-      this.shadowRoot!.getElementById("badge")!.style.backgroundImage = this
+    super.updated(changedProperties)
+    if (changedProperties.has('image')) {
+      this.shadowRoot!.getElementById('badge')!.style.backgroundImage = this
         .image
         ? `url(${this.image})`
-        : "";
+        : ''
     }
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-label-badge": HaLabelBadge;
+    'ha-label-badge': HaLabelBadge
   }
 }

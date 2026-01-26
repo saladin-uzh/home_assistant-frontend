@@ -11,26 +11,26 @@
  * parseAnimationDuration("invalid") // Returns 0
  */
 export const parseAnimationDuration = (duration: string): number => {
-  const trimmed = duration.trim();
+  const trimmed = duration.trim()
 
-  let value: number;
-  let multiplier: number;
+  let value: number
+  let multiplier: number
 
-  if (trimmed.endsWith("ms")) {
-    value = parseFloat(trimmed.slice(0, -2));
-    multiplier = 1;
-  } else if (trimmed.endsWith("s")) {
-    value = parseFloat(trimmed.slice(0, -1));
-    multiplier = 1000;
+  if (trimmed.endsWith('ms')) {
+    value = parseFloat(trimmed.slice(0, -2))
+    multiplier = 1
+  } else if (trimmed.endsWith('s')) {
+    value = parseFloat(trimmed.slice(0, -1))
+    multiplier = 1000
   } else {
     // No recognized unit, try parsing as number (assume ms)
-    value = parseFloat(trimmed);
-    multiplier = 1;
+    value = parseFloat(trimmed)
+    multiplier = 1
   }
 
   if (!isFinite(value) || value < 0) {
-    return 0;
+    return 0
   }
 
-  return value * multiplier;
-};
+  return value * multiplier
+}

@@ -1,44 +1,44 @@
-import type { HassServiceTarget } from "home-assistant-js-websocket";
-import { computeDomain } from "../common/entity/compute_domain";
-import type { HaDevicePickerDeviceFilterFunc } from "../components/device/ha-device-picker";
-import type { PickerComboBoxItem } from "../components/ha-picker-combo-box";
-import type { HomeAssistant } from "../types";
-import type { FloorComboBoxItem } from "./area_floor";
-import type { AreaRegistryEntry } from "./area_registry";
-import type { DevicePickerItem, DeviceRegistryEntry } from "./device_registry";
-import type { HaEntityPickerEntityFilterFunc } from "./entity";
+import type { HassServiceTarget } from 'home-assistant-js-websocket'
+import { computeDomain } from '../common/entity/compute_domain'
+import type { HaDevicePickerDeviceFilterFunc } from '../components/device/ha-device-picker'
+import type { PickerComboBoxItem } from '../components/ha-picker-combo-box'
+import type { HomeAssistant } from '../types'
+import type { FloorComboBoxItem } from './area_floor'
+import type { AreaRegistryEntry } from './area_registry'
+import type { DevicePickerItem, DeviceRegistryEntry } from './device_registry'
+import type { HaEntityPickerEntityFilterFunc } from './entity'
 import type {
   EntityComboBoxItem,
   EntityRegistryDisplayEntry,
-} from "./entity_registry";
+} from './entity_registry'
 
-export const TARGET_SEPARATOR = "________";
+export const TARGET_SEPARATOR = '________'
 
-export type TargetType = "entity" | "device" | "area" | "label" | "floor";
-export type TargetTypeFloorless = Exclude<TargetType, "floor">;
+export type TargetType = 'entity' | 'device' | 'area' | 'label' | 'floor'
+export type TargetTypeFloorless = Exclude<TargetType, 'floor'>
 
 export interface SingleHassServiceTarget {
-  entity_id?: string;
-  device_id?: string;
-  area_id?: string;
-  floor_id?: string;
-  label_id?: string;
+  entity_id?: string
+  device_id?: string
+  area_id?: string
+  floor_id?: string
+  label_id?: string
 }
 
 export interface ExtractFromTargetResult {
-  missing_areas: string[];
-  missing_devices: string[];
-  missing_floors: string[];
-  missing_labels: string[];
-  referenced_areas: string[];
-  referenced_devices: string[];
-  referenced_entities: string[];
+  missing_areas: string[]
+  missing_devices: string[]
+  missing_floors: string[]
+  missing_labels: string[]
+  referenced_areas: string[]
+  referenced_devices: string[]
+  referenced_entities: string[]
 }
 
 export interface ExtractFromTargetResultReferenced {
-  referenced_areas: string[];
-  referenced_devices: string[];
-  referenced_entities: string[];
+  referenced_areas: string[]
+  referenced_devices: string[]
+  referenced_entities: string[]
 }
 
 export const extractFromTarget = async (
@@ -46,59 +46,59 @@ export const extractFromTarget = async (
   target: HassServiceTarget
 ) =>
   hass.callWS<ExtractFromTargetResult>({
-    type: "extract_from_target",
+    type: 'extract_from_target',
     target,
-  });
+  })
 
 export const getTriggersForTarget = async (
-  callWS: HomeAssistant["callWS"],
+  callWS: HomeAssistant['callWS'],
   target: HassServiceTarget,
   expandGroup = true
 ) =>
   callWS<string[]>({
-    type: "get_triggers_for_target",
+    type: 'get_triggers_for_target',
     target,
     expand_group: expandGroup,
-  });
+  })
 
 export const getConditionsForTarget = async (
-  callWS: HomeAssistant["callWS"],
+  callWS: HomeAssistant['callWS'],
   target: HassServiceTarget,
   expandGroup = true
 ) =>
   callWS<string[]>({
-    type: "get_conditions_for_target",
+    type: 'get_conditions_for_target',
     target,
     expand_group: expandGroup,
-  });
+  })
 
 export const getServicesForTarget = async (
-  callWS: HomeAssistant["callWS"],
+  callWS: HomeAssistant['callWS'],
   target: HassServiceTarget,
   expandGroup = true
 ) =>
   callWS<string[]>({
-    type: "get_services_for_target",
+    type: 'get_services_for_target',
     target,
     expand_group: expandGroup,
-  });
+  })
 
 export const areaMeetsFilter = (
   area: AreaRegistryEntry,
-  devices: HomeAssistant["devices"],
-  entities: HomeAssistant["entities"],
+  devices: HomeAssistant['devices'],
+  entities: HomeAssistant['entities'],
   deviceFilter?: HaDevicePickerDeviceFilterFunc,
   includeDomains?: string[],
   includeDeviceClasses?: string[],
-  states?: HomeAssistant["states"],
+  states?: HomeAssistant['states'],
   entityFilter?: HaEntityPickerEntityFilterFunc
 ): boolean => {
   const areaDevices = Object.values(devices).filter(
-    (device) => device.area_id === area.area_id
-  );
+    device => device.area_id === area.area_id
+  )
 
   if (
-    areaDevices.some((device) =>
+    areaDevices.some(device =>
       deviceMeetsFilter(
         device,
         entities,
@@ -110,15 +110,15 @@ export const areaMeetsFilter = (
       )
     )
   ) {
-    return true;
+    return true
   }
 
   const areaEntities = Object.values(entities).filter(
-    (entity) => entity.area_id === area.area_id
-  );
+    entity => entity.area_id === area.area_id
+  )
 
   if (
-    areaEntities.some((entity) =>
+    areaEntities.some(entity =>
       entityRegMeetsFilter(
         entity,
         false,
@@ -129,27 +129,27 @@ export const areaMeetsFilter = (
       )
     )
   ) {
-    return true;
+    return true
   }
 
-  return false;
-};
+  return false
+}
 
 export const deviceMeetsFilter = (
   device: DeviceRegistryEntry,
-  entities: HomeAssistant["entities"],
+  entities: HomeAssistant['entities'],
   deviceFilter?: HaDevicePickerDeviceFilterFunc,
   includeDomains?: string[],
   includeDeviceClasses?: string[],
-  states?: HomeAssistant["states"],
+  states?: HomeAssistant['states'],
   entityFilter?: HaEntityPickerEntityFilterFunc
 ): boolean => {
   const devEntities = Object.values(entities).filter(
-    (entity) => entity.device_id === device.id
-  );
+    entity => entity.device_id === device.id
+  )
 
   if (
-    !devEntities.some((entity) =>
+    !devEntities.some(entity =>
       entityRegMeetsFilter(
         entity,
         false,
@@ -160,56 +160,56 @@ export const deviceMeetsFilter = (
       )
     )
   ) {
-    return false;
+    return false
   }
 
   if (deviceFilter) {
-    return deviceFilter(device);
+    return deviceFilter(device)
   }
 
-  return true;
-};
+  return true
+}
 
 export const entityRegMeetsFilter = (
   entity: EntityRegistryDisplayEntry,
   includeSecondary = false,
   includeDomains?: string[],
   includeDeviceClasses?: string[],
-  states?: HomeAssistant["states"],
+  states?: HomeAssistant['states'],
   entityFilter?: HaEntityPickerEntityFilterFunc
 ): boolean => {
   if (entity.hidden || (entity.entity_category && !includeSecondary)) {
-    return false;
+    return false
   }
 
   if (
     includeDomains &&
     !includeDomains.includes(computeDomain(entity.entity_id))
   ) {
-    return false;
+    return false
   }
   if (includeDeviceClasses) {
-    const stateObj = states?.[entity.entity_id];
+    const stateObj = states?.[entity.entity_id]
     if (!stateObj) {
-      return false;
+      return false
     }
     if (
       !stateObj.attributes.device_class ||
       !includeDeviceClasses!.includes(stateObj.attributes.device_class)
     ) {
-      return false;
+      return false
     }
   }
 
   if (entityFilter) {
-    const stateObj = states?.[entity.entity_id];
+    const stateObj = states?.[entity.entity_id]
     if (!stateObj) {
-      return false;
+      return false
     }
-    return entityFilter!(stateObj);
+    return entityFilter!(stateObj)
   }
-  return true;
-};
+  return true
+}
 
 export const getTargetComboBoxItemType = (
   item:
@@ -219,23 +219,23 @@ export const getTargetComboBoxItemType = (
     | DevicePickerItem
 ) => {
   if (
-    (item as FloorComboBoxItem).type === "area" ||
-    (item as FloorComboBoxItem).type === "floor"
+    (item as FloorComboBoxItem).type === 'area' ||
+    (item as FloorComboBoxItem).type === 'floor'
   ) {
-    return (item as FloorComboBoxItem).type;
+    return (item as FloorComboBoxItem).type
   }
 
-  if ("domain" in item) {
-    return "device";
+  if ('domain' in item) {
+    return 'device'
   }
 
-  if ("stateObj" in item) {
-    return "entity";
+  if ('stateObj' in item) {
+    return 'entity'
   }
 
-  if (item.id === "___EMPTY_SEARCH___") {
-    return "empty";
+  if (item.id === '___EMPTY_SEARCH___') {
+    return 'empty'
   }
 
-  return "label";
-};
+  return 'label'
+}

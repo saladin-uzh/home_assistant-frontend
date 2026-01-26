@@ -1,10 +1,10 @@
-import EchartsSankeyView from "echarts/lib/chart/sankey/SankeyView";
-import type GlobalModel from "echarts/types/src/model/Global";
-import type SankeySeriesModel from "echarts/types/src/chart/sankey/SankeySeries";
-import type ExtensionAPI from "echarts/types/src/core/ExtensionAPI";
-import type { SankeyEdgeItemOption } from "echarts/types/src/chart/sankey/SankeySeries";
-import type { Path } from "echarts/types/src/util/graphic";
-import { buildPath } from "./sankey-path";
+import EchartsSankeyView from 'echarts/lib/chart/sankey/SankeyView'
+import type GlobalModel from 'echarts/types/src/model/Global'
+import type SankeySeriesModel from 'echarts/types/src/chart/sankey/SankeySeries'
+import type ExtensionAPI from 'echarts/types/src/core/ExtensionAPI'
+import type { SankeyEdgeItemOption } from 'echarts/types/src/chart/sankey/SankeySeries'
+import type { Path } from 'echarts/types/src/util/graphic'
+import { buildPath } from './sankey-path'
 
 class SankeyView extends EchartsSankeyView {
   render(
@@ -12,17 +12,17 @@ class SankeyView extends EchartsSankeyView {
     ecModel: GlobalModel,
     api: ExtensionAPI
   ) {
-    super.render(seriesModel, ecModel, api);
-    const edgeData = seriesModel.getData("edge");
-    const graph = seriesModel.getGraph();
+    super.render(seriesModel, ecModel, api)
+    const edgeData = seriesModel.getData('edge')
+    const graph = seriesModel.getGraph()
 
-    graph.eachEdge((edge) => {
-      const edgeLayout = edge.getLayout();
-      const edgeModel = edge.getModel<SankeyEdgeItemOption>();
-      const lineStyleModel = edgeModel.getModel("lineStyle");
-      const curveness = lineStyleModel.get("curveness" as any);
+    graph.eachEdge(edge => {
+      const edgeLayout = edge.getLayout()
+      const edgeModel = edge.getModel<SankeyEdgeItemOption>()
+      const lineStyleModel = edgeModel.getModel('lineStyle')
+      const curveness = lineStyleModel.get('curveness' as any)
 
-      const echartsCurve = edgeData.getItemGraphicEl(edge.dataIndex) as Path;
+      const echartsCurve = edgeData.getItemGraphicEl(edge.dataIndex) as Path
       /**
        * Monkey patching warning:
        * This code overrides the `buildPath` method of the ECharts internal Path object for Sankey edges.
@@ -39,10 +39,10 @@ class SankeyView extends EchartsSankeyView {
        *                 Track ECharts issues: https://github.com/apache/echarts/issues?q=sankey+edge+custom
        */
       echartsCurve.buildPath = (ctx: CanvasRenderingContext2D) =>
-        buildPath(ctx, edgeLayout, curveness);
-      echartsCurve.dirtyShape();
-    });
+        buildPath(ctx, edgeLayout, curveness)
+      echartsCurve.dirtyShape()
+    })
   }
 }
 
-export default SankeyView;
+export default SankeyView

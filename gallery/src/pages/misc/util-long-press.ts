@@ -1,12 +1,12 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators";
-import "../../../../src/components/ha-button";
-import "../../../../src/components/ha-card";
-import type { ActionHandlerEvent } from "../../../../src/data/lovelace/action_handler";
-import { actionHandler } from "../../../../src/panels/lovelace/common/directives/action-handler-directive";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import '../../../../src/components/ha-button'
+import '../../../../src/components/ha-card'
+import type { ActionHandlerEvent } from '../../../../src/data/lovelace/action_handler'
+import { actionHandler } from '../../../../src/panels/lovelace/common/directives/action-handler-directive'
 
-@customElement("demo-misc-util-long-press")
+@customElement('demo-misc-util-long-press')
 export class DemoUtilLongPress extends LitElement {
   protected render(): TemplateResult {
     return html`
@@ -30,19 +30,19 @@ export class DemoUtilLongPress extends LitElement {
           </ha-card>
         `
       )}
-    `;
+    `
   }
 
   private _handleAction(ev: ActionHandlerEvent) {
-    this._addValue(ev, ev.detail.action!);
+    this._addValue(ev, ev.detail.action!)
   }
 
   private _addValue(ev: Event, value: string) {
     const area = (ev.currentTarget as HTMLElement)
-      .nextElementSibling! as HTMLTextAreaElement;
-    const now = new Date().toTimeString().split(" ")[0];
-    area.value += `${now}: ${value}\n`;
-    area.scrollTop = area.scrollHeight;
+      .nextElementSibling! as HTMLTextAreaElement
+    const now = new Date().toTimeString().split(' ')[0]
+    area.value += `${now}: ${value}\n`
+    area.scrollTop = area.scrollHeight
   }
 
   static styles = css`
@@ -62,11 +62,11 @@ export class DemoUtilLongPress extends LitElement {
     textarea {
       height: 50px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-misc-util-long-press": DemoUtilLongPress;
+    'demo-misc-util-long-press': DemoUtilLongPress
   }
 }

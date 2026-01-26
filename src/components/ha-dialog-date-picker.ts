@@ -1,47 +1,50 @@
-import "app-datepicker";
-import { format } from "date-fns";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../common/dom/fire_event";
-import { nextRender } from "../common/util/render-status";
-import { haStyleDialog } from "../resources/styles";
-import type { HomeAssistant } from "../types";
-import type { DatePickerDialogParams } from "./ha-date-input";
-import "./ha-dialog";
-import "./ha-button";
+import 'app-datepicker'
+import { format } from 'date-fns'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../common/dom/fire_event'
+import { nextRender } from '../common/util/render-status'
+import { haStyleDialog } from '../resources/styles'
+import type { HomeAssistant } from '../types'
+import type { DatePickerDialogParams } from './ha-date-input'
+import './ha-dialog'
+import './ha-button'
 
-@customElement("ha-dialog-date-picker")
+@customElement('ha-dialog-date-picker')
 export class HaDialogDatePicker extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property() public value?: string;
+  @property() public value?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @state() private _params?: DatePickerDialogParams;
+  @state() private _params?: DatePickerDialogParams
 
-  @state() private _value?: string;
+  @state() private _value?: string
 
   public async showDialog(params: DatePickerDialogParams): Promise<void> {
     // app-datepicker has a bug, that it removes its handlers when disconnected, but doesn't add them back when reconnected.
     // So we need to wait for the next render to make sure the element is removed and re-created so the handlers are added.
-    await nextRender();
-    this._params = params;
-    this._value = params.value;
+    await nextRender()
+    this._params = params
+    this._value = params.value
   }
 
   public closeDialog() {
-    this._params = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
-    return html`<ha-dialog open @closed=${this.closeDialog}>
+    return html`<ha-dialog
+      open
+      @closed=${this.closeDialog}
+    >
       <app-datepicker
         .value=${this._value}
         .min=${this._params.min}
@@ -57,7 +60,7 @@ export class HaDialogDatePicker extends LitElement {
             variant="danger"
             appearance="plain"
           >
-            ${this.hass.localize("ui.dialogs.date-picker.clear")}
+            ${this.hass.localize('ui.dialogs.date-picker.clear')}
           </ha-button>`
         : nothing}
       <ha-button
@@ -65,7 +68,7 @@ export class HaDialogDatePicker extends LitElement {
         slot="secondaryAction"
         @click=${this._setToday}
       >
-        ${this.hass.localize("ui.dialogs.date-picker.today")}
+        ${this.hass.localize('ui.dialogs.date-picker.today')}
       </ha-button>
       <ha-button
         appearance="plain"
@@ -73,36 +76,39 @@ export class HaDialogDatePicker extends LitElement {
         dialogaction="cancel"
         class="cancel-btn"
       >
-        ${this.hass.localize("ui.common.cancel")}
+        ${this.hass.localize('ui.common.cancel')}
       </ha-button>
-      <ha-button slot="primaryAction" @click=${this._setValue}>
-        ${this.hass.localize("ui.common.ok")}
+      <ha-button
+        slot="primaryAction"
+        @click=${this._setValue}
+      >
+        ${this.hass.localize('ui.common.ok')}
       </ha-button>
-    </ha-dialog>`;
+    </ha-dialog>`
   }
 
   private _valueChanged(ev: CustomEvent) {
-    this._value = ev.detail.value;
+    this._value = ev.detail.value
   }
 
   private _clear() {
-    this._params?.onChange(undefined);
-    this.closeDialog();
+    this._params?.onChange(undefined)
+    this.closeDialog()
   }
 
   private _setToday() {
-    const today = new Date();
-    this._value = format(today, "yyyy-MM-dd");
+    const today = new Date()
+    this._value = format(today, 'yyyy-MM-dd')
   }
 
   private _setValue() {
     if (!this._value) {
       // Date picker opens to today if value is undefined. If user click OK
       // without changing the date, should return todays date, not undefined.
-      this._setToday();
+      this._setToday()
     }
-    this._params?.onChange(this._value!);
-    this.closeDialog();
+    this._params?.onChange(this._value!)
+    this.closeDialog()
   }
 
   static styles = [
@@ -140,11 +146,11 @@ export class HaDialogDatePicker extends LitElement {
         }
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-dialog-date-picker": HaDialogDatePicker;
+    'ha-dialog-date-picker': HaDialogDatePicker
   }
 }

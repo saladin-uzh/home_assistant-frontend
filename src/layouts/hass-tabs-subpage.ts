@@ -1,68 +1,68 @@
-import type { CSSResultGroup, PropertyValues, TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, eventOptions, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import memoizeOne from "memoize-one";
-import { canShowPage } from "../common/config/can_show_page";
-import { goBack } from "../common/navigate";
-import { restoreScroll } from "../common/decorators/restore-scroll";
-import type { LocalizeFunc } from "../common/translations/localize";
-import "../components/ha-icon-button-arrow-prev";
-import "../components/ha-menu-button";
-import "../components/ha-svg-icon";
-import "../components/ha-tab";
-import { haStyleScrollbar } from "../resources/styles";
-import type { HomeAssistant, Route } from "../types";
+import type { CSSResultGroup, PropertyValues, TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, eventOptions, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import memoizeOne from 'memoize-one'
+import { canShowPage } from '../common/config/can_show_page'
+import { goBack } from '../common/navigate'
+import { restoreScroll } from '../common/decorators/restore-scroll'
+import type { LocalizeFunc } from '../common/translations/localize'
+import '../components/ha-icon-button-arrow-prev'
+import '../components/ha-menu-button'
+import '../components/ha-svg-icon'
+import '../components/ha-tab'
+import { haStyleScrollbar } from '../resources/styles'
+import type { HomeAssistant, Route } from '../types'
 
 export interface PageNavigation {
-  path: string;
-  translationKey?: string;
-  component?: string | string[];
-  name?: string;
-  not_component?: string | string[];
-  core?: boolean;
-  advancedOnly?: boolean;
-  iconPath?: string;
-  description?: string;
-  iconColor?: string;
-  info?: any;
+  path: string
+  translationKey?: string
+  component?: string | string[]
+  name?: string
+  not_component?: string | string[]
+  core?: boolean
+  advancedOnly?: boolean
+  iconPath?: string
+  description?: string
+  iconColor?: string
+  info?: any
 }
 
-@customElement("hass-tabs-subpage")
+@customElement('hass-tabs-subpage')
 class HassTabsSubpage extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public supervisor = false;
+  @property({ type: Boolean }) public supervisor = false
 
-  @property({ attribute: false }) public localizeFunc?: LocalizeFunc;
+  @property({ attribute: false }) public localizeFunc?: LocalizeFunc
 
-  @property({ type: String, attribute: "back-path" }) public backPath?: string;
+  @property({ type: String, attribute: 'back-path' }) public backPath?: string
 
-  @property({ attribute: false }) public backCallback?: () => void;
+  @property({ attribute: false }) public backCallback?: () => void
 
-  @property({ type: Boolean, attribute: "main-page" }) public mainPage = false;
+  @property({ type: Boolean, attribute: 'main-page' }) public mainPage = false
 
-  @property({ attribute: false }) public route!: Route;
+  @property({ attribute: false }) public route!: Route
 
-  @property({ attribute: false }) public tabs!: PageNavigation[];
+  @property({ attribute: false }) public tabs!: PageNavigation[]
 
-  @property({ type: Boolean, reflect: true }) public narrow = false;
+  @property({ type: Boolean, reflect: true }) public narrow = false
 
-  @property({ type: Boolean, reflect: true, attribute: "is-wide" })
-  public isWide = false;
+  @property({ type: Boolean, reflect: true, attribute: 'is-wide' })
+  public isWide = false
 
-  @property({ type: Boolean }) public pane = false;
+  @property({ type: Boolean }) public pane = false
 
   /**
    * Do we need to add padding for a fab.
    * @type {Boolean}
    */
-  @property({ type: Boolean, attribute: "has-fab" }) public hasFab = false;
+  @property({ type: Boolean, attribute: 'has-fab' }) public hasFab = false
 
-  @state() private _activeTab?: PageNavigation;
+  @state() private _activeTab?: PageNavigation
 
   // @ts-ignore
-  @restoreScroll(".content") private _savedScrollPos?: number;
+  @restoreScroll('.content') private _savedScrollPos?: number
 
   private _getTabs = memoizeOne(
     (
@@ -74,20 +74,20 @@ class HassTabsSubpage extends LitElement {
       _narrow,
       localizeFunc
     ) => {
-      const shownTabs = tabs.filter((page) => canShowPage(this.hass, page));
+      const shownTabs = tabs.filter(page => canShowPage(this.hass, page))
 
       if (shownTabs.length < 2) {
         if (shownTabs.length === 1) {
-          const page = shownTabs[0];
+          const page = shownTabs[0]
           return [
             page.translationKey ? localizeFunc(page.translationKey) : page.name,
-          ];
+          ]
         }
-        return [""];
+        return ['']
       }
 
       return shownTabs.map(
-        (page) => html`
+        page => html`
           <a href=${page.path}>
             <ha-tab
               .hass=${this.hass}
@@ -102,21 +102,21 @@ class HassTabsSubpage extends LitElement {
                     slot="icon"
                     .path=${page.iconPath}
                   ></ha-svg-icon>`
-                : ""}
+                : ''}
             </ha-tab>
           </a>
         `
-      );
+      )
     }
-  );
+  )
 
   public willUpdate(changedProperties: PropertyValues) {
-    if (changedProperties.has("route")) {
-      this._activeTab = this.tabs.find((tab) =>
+    if (changedProperties.has('route')) {
+      this._activeTab = this.tabs.find(tab =>
         `${this.route.prefix}${this.route.path}`.includes(tab.path)
-      );
+      )
     }
-    super.willUpdate(changedProperties);
+    super.willUpdate(changedProperties)
   }
 
   protected render(): TemplateResult {
@@ -128,8 +128,8 @@ class HassTabsSubpage extends LitElement {
       this.hass.userData,
       this.narrow,
       this.localizeFunc || this.hass.localize
-    );
-    const showTabs = tabs.length > 1;
+    )
+    const showTabs = tabs.length > 1
     return html`
       <div class="toolbar">
         <slot name="toolbar">
@@ -158,20 +158,25 @@ class HassTabsSubpage extends LitElement {
                   `}
             ${this.narrow || !showTabs
               ? html`<div class="main-title">
-                  <slot name="header">${!showTabs ? tabs[0] : ""}</slot>
+                  <slot name="header">${!showTabs ? tabs[0] : ''}</slot>
                 </div>`
-              : ""}
+              : ''}
             ${showTabs && !this.narrow
               ? html`<div id="tabbar">${tabs}</div>`
-              : ""}
+              : ''}
             <div id="toolbar-icon">
               <slot name="toolbar-icon"></slot>
             </div>
           </div>
         </slot>
         ${showTabs && this.narrow
-          ? html`<div id="tabbar" class="bottom-bar">${tabs}</div>`
-          : ""}
+          ? html`<div
+              id="tabbar"
+              class="bottom-bar"
+            >
+              ${tabs}
+            </div>`
+          : ''}
       </div>
       <div
         class=${classMap({ container: true, tabs: showTabs && this.narrow })}
@@ -192,23 +197,26 @@ class HassTabsSubpage extends LitElement {
           ${this.hasFab ? html`<div class="fab-bottom-space"></div>` : nothing}
         </div>
       </div>
-      <div id="fab" class=${classMap({ tabs: showTabs })}>
+      <div
+        id="fab"
+        class=${classMap({ tabs: showTabs })}
+      >
         <slot name="fab"></slot>
       </div>
-    `;
+    `
   }
 
   @eventOptions({ passive: true })
   private _saveScrollPos(e: Event) {
-    this._savedScrollPos = (e.target as HTMLDivElement).scrollTop;
+    this._savedScrollPos = (e.target as HTMLDivElement).scrollTop
   }
 
   private _backTapped(): void {
     if (this.backCallback) {
-      this.backCallback();
-      return;
+      this.backCallback()
+      return
     }
-    goBack();
+    goBack()
   }
 
   static get styles(): CSSResultGroup {
@@ -309,7 +317,7 @@ class HassTabsSubpage extends LitElement {
 
         ha-menu-button,
         ha-icon-button-arrow-prev,
-        ::slotted([slot="toolbar-icon"]) {
+        ::slotted([slot='toolbar-icon']) {
           display: flex;
           flex-shrink: 0;
           pointer-events: auto;
@@ -389,12 +397,12 @@ class HassTabsSubpage extends LitElement {
           flex: 1;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hass-tabs-subpage": HassTabsSubpage;
+    'hass-tabs-subpage': HassTabsSubpage
   }
 }

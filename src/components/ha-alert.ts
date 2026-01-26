@@ -4,41 +4,41 @@ import {
   mdiCheckboxMarkedCircleOutline,
   mdiClose,
   mdiInformationOutline,
-} from "@mdi/js";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { fireEvent } from "../common/dom/fire_event";
-import "./ha-icon-button";
-import "./ha-svg-icon";
+} from '@mdi/js'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { fireEvent } from '../common/dom/fire_event'
+import './ha-icon-button'
+import './ha-svg-icon'
 
 const ALERT_ICONS = {
   info: mdiInformationOutline,
   warning: mdiAlertOutline,
   error: mdiAlertCircleOutline,
   success: mdiCheckboxMarkedCircleOutline,
-};
+}
 
 declare global {
   interface HASSDomEvents {
-    "alert-dismissed-clicked": undefined;
+    'alert-dismissed-clicked': undefined
   }
 }
 
-@customElement("ha-alert")
+@customElement('ha-alert')
 class HaAlert extends LitElement {
   // eslint-disable-next-line lit/no-native-attributes
-  @property() public title = "";
+  @property() public title = ''
 
-  @property({ attribute: "alert-type" }) public alertType:
-    | "info"
-    | "warning"
-    | "error"
-    | "success" = "info";
+  @property({ attribute: 'alert-type' }) public alertType:
+    | 'info'
+    | 'warning'
+    | 'error'
+    | 'success' = 'info'
 
-  @property({ type: Boolean }) public dismissable = false;
+  @property({ type: Boolean }) public dismissable = false
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
   public render() {
     return html`
@@ -48,7 +48,7 @@ class HaAlert extends LitElement {
         })}"
         role="alert"
       >
-        <div class="icon ${this.title ? "" : "no-title"}">
+        <div class="icon ${this.title ? '' : 'no-title'}">
           <slot name="icon">
             <ha-svg-icon .path=${ALERT_ICONS[this.alertType]}></ha-svg-icon>
           </slot>
@@ -73,11 +73,11 @@ class HaAlert extends LitElement {
           </div>
         </div>
       </div>
-    `;
+    `
   }
 
   private _dismissClicked() {
-    fireEvent(this, "alert-dismissed-clicked");
+    fireEvent(this, 'alert-dismissed-clicked')
   }
 
   static styles = css`
@@ -98,7 +98,7 @@ class HaAlert extends LitElement {
       left: 0;
       opacity: 0.12;
       pointer-events: none;
-      content: "";
+      content: '';
       border-radius: var(--ha-border-radius-sm);
     }
     .icon.no-title {
@@ -168,11 +168,11 @@ class HaAlert extends LitElement {
       margin: 0;
       padding-inline-start: 20px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-alert": HaAlert;
+    'ha-alert': HaAlert
   }
 }

@@ -1,59 +1,62 @@
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { UNAVAILABLE } from "../../../data/entity";
-import type { HomeAssistant } from "../../../types";
-import { hasConfigOrEntityChanged } from "../common/has-changed";
-import "../components/hui-generic-entity-row";
-import "../../../components/ha-button";
-import { createEntityNotFoundWarning } from "../components/hui-warning";
-import type { ActionRowConfig, LovelaceRow } from "./types";
-import { confirmAction } from "../common/confirm-action";
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { UNAVAILABLE } from '../../../data/entity'
+import type { HomeAssistant } from '../../../types'
+import { hasConfigOrEntityChanged } from '../common/has-changed'
+import '../components/hui-generic-entity-row'
+import '../../../components/ha-button'
+import { createEntityNotFoundWarning } from '../components/hui-warning'
+import type { ActionRowConfig, LovelaceRow } from './types'
+import { confirmAction } from '../common/confirm-action'
 
-@customElement("hui-button-entity-row")
+@customElement('hui-button-entity-row')
 class HuiButtonEntityRow extends LitElement implements LovelaceRow {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _config?: ActionRowConfig;
+  @state() private _config?: ActionRowConfig
 
   public setConfig(config: ActionRowConfig): void {
     if (!config) {
-      throw new Error("Invalid configuration");
+      throw new Error('Invalid configuration')
     }
-    this._config = config;
+    this._config = config
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    return hasConfigOrEntityChanged(this, changedProps);
+    return hasConfigOrEntityChanged(this, changedProps)
   }
 
   protected render() {
     if (!this._config || !this.hass) {
-      return nothing;
+      return nothing
     }
 
-    const stateObj = this.hass.states[this._config.entity];
+    const stateObj = this.hass.states[this._config.entity]
 
     if (!stateObj) {
       return html`
         <hui-warning .hass=${this.hass}>
           ${createEntityNotFoundWarning(this.hass, this._config.entity)}
         </hui-warning>
-      `;
+      `
     }
 
     return html`
-      <hui-generic-entity-row .hass=${this.hass} .config=${this._config}>
+      <hui-generic-entity-row
+        .hass=${this.hass}
+        .config=${this._config}
+      >
         <ha-button
           appearance="plain"
           size="small"
           @click=${this._pressButton}
           .disabled=${stateObj.state === UNAVAILABLE}
         >
-          ${this.hass.localize("ui.card.button.press")}
+          ${this.hass.localize('ui.card.button.press')}
         </ha-button>
       </hui-generic-entity-row>
-    `;
+    `
   }
 
   static styles = css`
@@ -62,28 +65,28 @@ class HuiButtonEntityRow extends LitElement implements LovelaceRow {
       margin-inline-end: -0.57em;
       margin-inline-start: initial;
     }
-  `;
+  `
 
   private async _pressButton(ev): Promise<void> {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (
       !this._config?.confirmation ||
       (await confirmAction(
         this,
         this.hass,
         this._config.confirmation,
-        this.hass.localize("ui.card.button.press")
+        this.hass.localize('ui.card.button.press')
       ))
     ) {
-      this.hass.callService("button", "press", {
+      this.hass.callService('button', 'press', {
         entity_id: this._config!.entity,
-      });
+      })
     }
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-button-entity-row": HuiButtonEntityRow;
+    'hui-button-entity-row': HuiButtonEntityRow
   }
 }

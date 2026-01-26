@@ -1,31 +1,31 @@
-import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators";
-import { formatDateNumeric } from "../../../../src/common/datetime/format_date";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-list";
-import type { FrontendLocaleData } from "../../../../src/data/translation";
+import { css, html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import { formatDateNumeric } from '../../../../src/common/datetime/format_date'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-list'
+import type { FrontendLocaleData } from '../../../../src/data/translation'
 import {
   DateFormat,
   FirstWeekday,
   NumberFormat,
   TimeFormat,
   TimeZone,
-} from "../../../../src/data/translation";
-import { demoConfig } from "../../../../src/fake_data/demo_config";
-import { translationMetadata } from "../../../../src/resources/translations-metadata";
+} from '../../../../src/data/translation'
+import { demoConfig } from '../../../../src/fake_data/demo_config'
+import { translationMetadata } from '../../../../src/resources/translations-metadata'
 
-@customElement("demo-date-time-date")
+@customElement('demo-date-time-date')
 export class DemoDateTimeDate extends LitElement {
   protected render() {
     const defaultLocale: FrontendLocaleData = {
-      language: "en",
+      language: 'en',
       number_format: NumberFormat.language,
       time_format: TimeFormat.language,
       date_format: DateFormat.language,
       time_zone: TimeZone.local,
       first_weekday: FirstWeekday.language,
-    };
-    const date = new Date();
+    }
+    const date = new Date()
     return html`
       <ha-list>
         <div class="container header">
@@ -87,7 +87,7 @@ export class DemoDateTimeDate extends LitElement {
           `
         )}
       </ha-list>
-    `;
+    `
   }
 
   static styles = css`
@@ -109,11 +109,11 @@ export class DemoDateTimeDate extends LitElement {
       flex-grow: 1;
       width: 20%;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-date-time-date": DemoDateTimeDate;
+    'demo-date-time-date': DemoDateTimeDate
   }
 }

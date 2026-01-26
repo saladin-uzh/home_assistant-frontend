@@ -1,44 +1,44 @@
-import { mdiOpenInNew } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { state } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { createCloseHeading } from "../../../../components/ha-dialog";
-import { showConfirmationDialog } from "../../../../dialogs/generic/show-dialog-box";
-import { haStyle, haStyleDialog } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import { documentationUrl } from "../../../../util/documentation-url";
-import type { WebhookDialogParams } from "./show-dialog-manage-cloudhook";
+import { mdiOpenInNew } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { state } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { createCloseHeading } from '../../../../components/ha-dialog'
+import { showConfirmationDialog } from '../../../../dialogs/generic/show-dialog-box'
+import { haStyle, haStyleDialog } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import { documentationUrl } from '../../../../util/documentation-url'
+import type { WebhookDialogParams } from './show-dialog-manage-cloudhook'
 
-import "../../../../components/ha-button";
-import "../../../../components/ha-copy-textfield";
+import '../../../../components/ha-button'
+import '../../../../components/ha-copy-textfield'
 
 export class DialogManageCloudhook extends LitElement {
-  protected hass?: HomeAssistant;
+  protected hass?: HomeAssistant
 
-  @state() private _params?: WebhookDialogParams;
+  @state() private _params?: WebhookDialogParams
 
   public showDialog(params: WebhookDialogParams) {
-    this._params = params;
+    this._params = params
   }
 
   public closeDialog() {
-    this._params = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
-    const { webhook, cloudhook } = this._params;
+    const { webhook, cloudhook } = this._params
     const docsUrl =
-      webhook.domain === "automation"
+      webhook.domain === 'automation'
         ? documentationUrl(
             this.hass!,
-            "/docs/automation/trigger/#webhook-trigger"
+            '/docs/automation/trigger/#webhook-trigger'
           )
-        : documentationUrl(this.hass!, `/integrations/${webhook.domain}/`);
+        : documentationUrl(this.hass!, `/integrations/${webhook.domain}/`)
     return html`
       <ha-dialog
         open
@@ -47,7 +47,7 @@ export class DialogManageCloudhook extends LitElement {
         .heading=${createCloseHeading(
           this.hass!,
           this.hass!.localize(
-            "ui.panel.config.cloud.dialog_cloudhook.webhook_for",
+            'ui.panel.config.cloud.dialog_cloudhook.webhook_for',
             { name: webhook.name }
           )
         )}
@@ -57,23 +57,30 @@ export class DialogManageCloudhook extends LitElement {
             ${!cloudhook.managed
               ? html`
                   ${this.hass!.localize(
-                    "ui.panel.config.cloud.dialog_cloudhook.managed_by_integration"
+                    'ui.panel.config.cloud.dialog_cloudhook.managed_by_integration'
                   )}
                 `
               : html`
                   ${this.hass!.localize(
-                    "ui.panel.config.cloud.dialog_cloudhook.info_disable_webhook"
+                    'ui.panel.config.cloud.dialog_cloudhook.info_disable_webhook'
                   )}
-                  <button class="link" @click=${this._disableWebhook}>
+                  <button
+                    class="link"
+                    @click=${this._disableWebhook}
+                  >
                     ${this.hass!.localize(
-                      "ui.panel.config.cloud.dialog_cloudhook.link_disable_webhook"
+                      'ui.panel.config.cloud.dialog_cloudhook.link_disable_webhook'
                     )}</button
                   >.
                 `}
             <br />
-            <a href=${docsUrl} target="_blank" rel="noreferrer">
+            <a
+              href=${docsUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
               ${this.hass!.localize(
-                "ui.panel.config.cloud.dialog_cloudhook.view_documentation"
+                'ui.panel.config.cloud.dialog_cloudhook.view_documentation'
               )}
               <ha-svg-icon .path=${mdiOpenInNew}></ha-svg-icon>
             </a>
@@ -82,7 +89,7 @@ export class DialogManageCloudhook extends LitElement {
           <ha-copy-textfield
             .hass=${this.hass}
             .value=${cloudhook.cloudhook_url}
-            .label=${this.hass!.localize("ui.panel.config.common.copy_link")}
+            .label=${this.hass!.localize('ui.panel.config.common.copy_link')}
           ></ha-copy-textfield>
         </div>
 
@@ -94,32 +101,35 @@ export class DialogManageCloudhook extends LitElement {
           appearance="plain"
         >
           ${this.hass!.localize(
-            "ui.panel.config.cloud.dialog_cloudhook.view_documentation"
+            'ui.panel.config.cloud.dialog_cloudhook.view_documentation'
           )}
         </ha-button>
-        <ha-button @click=${this.closeDialog} slot="primaryAction">
-          ${this.hass!.localize("ui.panel.config.cloud.dialog_cloudhook.close")}
+        <ha-button
+          @click=${this.closeDialog}
+          slot="primaryAction"
+        >
+          ${this.hass!.localize('ui.panel.config.cloud.dialog_cloudhook.close')}
         </ha-button>
       </ha-dialog>
-    `;
+    `
   }
 
   private async _disableWebhook() {
     const confirmed = await showConfirmationDialog(this, {
       title: this.hass!.localize(
-        "ui.panel.config.cloud.dialog_cloudhook.confirm_disable_title"
+        'ui.panel.config.cloud.dialog_cloudhook.confirm_disable_title'
       ),
       text: this.hass!.localize(
-        "ui.panel.config.cloud.dialog_cloudhook.confirm_disable_text",
+        'ui.panel.config.cloud.dialog_cloudhook.confirm_disable_text',
         { name: this._params!.webhook.name }
       ),
-      dismissText: this.hass!.localize("ui.common.cancel"),
-      confirmText: this.hass!.localize("ui.common.disable"),
+      dismissText: this.hass!.localize('ui.common.cancel'),
+      confirmText: this.hass!.localize('ui.common.disable'),
       destructive: true,
-    });
+    })
     if (confirmed) {
-      this._params!.disableHook();
-      this.closeDialog();
+      this._params!.disableHook()
+      this.closeDialog()
     }
   }
 
@@ -146,14 +156,14 @@ export class DialogManageCloudhook extends LitElement {
           margin-bottom: 16px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-manage-cloudhook": DialogManageCloudhook;
+    'dialog-manage-cloudhook': DialogManageCloudhook
   }
 }
 
-customElements.define("dialog-manage-cloudhook", DialogManageCloudhook);
+customElements.define('dialog-manage-cloudhook', DialogManageCloudhook)

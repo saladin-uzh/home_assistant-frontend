@@ -1,118 +1,116 @@
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { storage } from "../../../../../common/decorators/storage";
-import type { LocalizeFunc } from "../../../../../common/translations/localize";
-import type { DataTableColumnContainer } from "../../../../../components/data-table/ha-data-table";
-import "../../../../../components/ha-fab";
-import "../../../../../components/ha-icon-button";
-import "../../../../../components/ha-relative-time";
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { storage } from '../../../../../common/decorators/storage'
+import type { LocalizeFunc } from '../../../../../common/translations/localize'
+import type { DataTableColumnContainer } from '../../../../../components/data-table/ha-data-table'
+import '../../../../../components/ha-fab'
+import '../../../../../components/ha-icon-button'
+import '../../../../../components/ha-relative-time'
 import type {
   BluetoothScannersDetails,
   BluetoothConnectionData,
   BluetoothAllocationsData,
-} from "../../../../../data/bluetooth";
+} from '../../../../../data/bluetooth'
 import {
   subscribeBluetoothScannersDetails,
   subscribeBluetoothConnectionAllocations,
   subscribeBluetoothAdvertisements,
-} from "../../../../../data/bluetooth";
-import type { DeviceRegistryEntry } from "../../../../../data/device_registry";
-import "../../../../../layouts/hass-tabs-subpage-data-table";
-import { haStyle } from "../../../../../resources/styles";
-import type { HomeAssistant, Route } from "../../../../../types";
-import "../../../../../components/ha-metric";
+} from '../../../../../data/bluetooth'
+import type { DeviceRegistryEntry } from '../../../../../data/device_registry'
+import '../../../../../layouts/hass-tabs-subpage-data-table'
+import { haStyle } from '../../../../../resources/styles'
+import type { HomeAssistant, Route } from '../../../../../types'
+import '../../../../../components/ha-metric'
 
-@customElement("bluetooth-connection-monitor")
+@customElement('bluetooth-connection-monitor')
 export class BluetoothConnectionMonitorPanel extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public route!: Route;
+  @property({ attribute: false }) public route!: Route
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ attribute: "is-wide", type: Boolean }) public isWide = false;
+  @property({ attribute: 'is-wide', type: Boolean }) public isWide = false
 
-  @state() private _data: BluetoothConnectionData[] = [];
+  @state() private _data: BluetoothConnectionData[] = []
 
-  @state() private _scanners: BluetoothScannersDetails = {};
+  @state() private _scanners: BluetoothScannersDetails = {}
 
-  @state() private _addressNames: Record<string, string> = {};
+  @state() private _addressNames: Record<string, string> = {}
 
-  @state() private _sourceDevices: Record<string, DeviceRegistryEntry> = {};
+  @state() private _sourceDevices: Record<string, DeviceRegistryEntry> = {}
 
   @storage({
-    key: "bluetooth-connection-table-grouping",
+    key: 'bluetooth-connection-table-grouping',
     state: false,
     subscribe: false,
   })
-  private _activeGrouping?: string = "source";
+  private _activeGrouping?: string = 'source'
 
   @storage({
-    key: "bluetooth-connection-table-collapsed",
+    key: 'bluetooth-connection-table-collapsed',
     state: false,
     subscribe: false,
   })
-  private _activeCollapsed: string[] = [];
+  private _activeCollapsed: string[] = []
 
-  private _unsubConnectionAllocations?: (() => Promise<void>) | undefined;
+  private _unsubConnectionAllocations?: (() => Promise<void>) | undefined
 
-  private _unsubScanners?: UnsubscribeFunc;
+  private _unsubScanners?: UnsubscribeFunc
 
-  private _unsub_advertisements?: UnsubscribeFunc;
+  private _unsub_advertisements?: UnsubscribeFunc
 
   @state() private _connectionAllocationData: Record<
     string,
     BluetoothAllocationsData
-  > = {};
+  > = {}
 
   public connectedCallback(): void {
-    super.connectedCallback();
+    super.connectedCallback()
     if (this.hass) {
       this._unsubScanners = subscribeBluetoothScannersDetails(
         this.hass.connection,
-        (scanners) => {
-          this._scanners = scanners;
+        scanners => {
+          this._scanners = scanners
         }
-      );
+      )
       this._unsub_advertisements = subscribeBluetoothAdvertisements(
         this.hass.connection,
-        (data) => {
+        data => {
           for (const device of data) {
-            this._addressNames[device.address] = device.name;
+            this._addressNames[device.address] = device.name
           }
         }
-      );
-      const devices = Object.values(this.hass.devices);
-      const bluetoothDevices = devices.filter((device) =>
-        device.connections.find((connection) => connection[0] === "bluetooth")
-      );
+      )
+      const devices = Object.values(this.hass.devices)
+      const bluetoothDevices = devices.filter(device =>
+        device.connections.find(connection => connection[0] === 'bluetooth')
+      )
       this._sourceDevices = Object.fromEntries(
-        bluetoothDevices.map((device) => {
-          const connection = device.connections.find(
-            (c) => c[0] === "bluetooth"
-          )!;
-          return [connection[1], device];
+        bluetoothDevices.map(device => {
+          const connection = device.connections.find(c => c[0] === 'bluetooth')!
+          return [connection[1], device]
         })
-      );
-      this._subscribeBluetoothConnectionAllocations();
+      )
+      this._subscribeBluetoothConnectionAllocations()
     }
   }
 
   private async _subscribeBluetoothConnectionAllocations(): Promise<void> {
     if (this._unsubConnectionAllocations) {
-      return;
+      return
     }
     this._unsubConnectionAllocations =
       await subscribeBluetoothConnectionAllocations(
         this.hass.connection,
-        (data) => {
+        data => {
           for (const allocation of data) {
-            this._connectionAllocationData[allocation.source] = allocation;
+            this._connectionAllocationData[allocation.source] = allocation
           }
-          const newData: BluetoothConnectionData[] = [];
+          const newData: BluetoothConnectionData[] = []
           for (const allocation of Object.values(
             this._connectionAllocationData
           )) {
@@ -120,27 +118,27 @@ export class BluetoothConnectionMonitorPanel extends LitElement {
               newData.push({
                 address: address,
                 source: allocation.source,
-              });
+              })
             }
           }
-          this._data = newData;
+          this._data = newData
         }
-      );
+      )
   }
 
   public disconnectedCallback() {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
     if (this._unsub_advertisements) {
-      this._unsub_advertisements();
-      this._unsub_advertisements = undefined;
+      this._unsub_advertisements()
+      this._unsub_advertisements = undefined
     }
     if (this._unsubConnectionAllocations) {
-      this._unsubConnectionAllocations();
-      this._unsubConnectionAllocations = undefined;
+      this._unsubConnectionAllocations()
+      this._unsubConnectionAllocations = undefined
     }
     if (this._unsubScanners) {
-      this._unsubScanners();
-      this._unsubScanners = undefined;
+      this._unsubScanners()
+      this._unsubScanners = undefined
     }
   }
 
@@ -148,51 +146,51 @@ export class BluetoothConnectionMonitorPanel extends LitElement {
     (localize: LocalizeFunc): DataTableColumnContainer => {
       const columns: DataTableColumnContainer<BluetoothConnectionData> = {
         address: {
-          title: localize("ui.panel.config.bluetooth.address"),
+          title: localize('ui.panel.config.bluetooth.address'),
           sortable: true,
           filterable: true,
           showNarrow: true,
           main: true,
           hideable: false,
           moveable: false,
-          direction: "asc",
+          direction: 'asc',
           flex: 1,
         },
         name: {
-          title: localize("ui.panel.config.bluetooth.name"),
+          title: localize('ui.panel.config.bluetooth.name'),
           filterable: true,
           sortable: true,
         },
         device: {
-          title: localize("ui.panel.config.bluetooth.device"),
+          title: localize('ui.panel.config.bluetooth.device'),
           filterable: true,
           sortable: true,
-          template: (data) => html`${data.device || "-"}`,
+          template: data => html`${data.device || '-'}`,
         },
         source: {
-          title: localize("ui.panel.config.bluetooth.source"),
+          title: localize('ui.panel.config.bluetooth.source'),
           filterable: true,
           sortable: true,
           groupable: true,
         },
         source_address: {
-          title: localize("ui.panel.config.bluetooth.source_address"),
+          title: localize('ui.panel.config.bluetooth.source_address'),
           filterable: true,
           sortable: true,
           defaultHidden: true,
         },
-      };
+      }
 
-      return columns;
+      return columns
     }
-  );
+  )
 
-  private _dataWithNamedSourceAndIds = memoizeOne((data) =>
-    data.map((row) => {
-      const device = this._sourceDevices[row.address];
-      const scannerDevice = this._sourceDevices[row.source];
-      const scanner = this._scanners[row.source];
-      const name = this._addressNames[row.address] || row.address;
+  private _dataWithNamedSourceAndIds = memoizeOne(data =>
+    data.map(row => {
+      const device = this._sourceDevices[row.address]
+      const scannerDevice = this._sourceDevices[row.source]
+      const scanner = this._scanners[row.source]
+      const name = this._addressNames[row.address] || row.address
       return {
         ...row,
         id: row.address,
@@ -204,9 +202,9 @@ export class BluetoothConnectionMonitorPanel extends LitElement {
           scanner?.name ||
           row.source,
         device: device?.name_by_user || device?.name || undefined,
-      };
+      }
     })
-  );
+  )
 
   protected render(): TemplateResult {
     return html`
@@ -219,27 +217,27 @@ export class BluetoothConnectionMonitorPanel extends LitElement {
         .initialGroupColumn=${this._activeGrouping}
         .initialCollapsedGroups=${this._activeCollapsed}
         .noDataText=${this.hass.localize(
-          "ui.panel.config.bluetooth.no_connections"
+          'ui.panel.config.bluetooth.no_connections'
         )}
         @grouping-changed=${this._handleGroupingChanged}
         @collapsed-changed=${this._handleCollapseChanged}
       ></hass-tabs-subpage-data-table>
-    `;
+    `
   }
 
   private _handleGroupingChanged(ev: CustomEvent) {
-    this._activeGrouping = ev.detail.value;
+    this._activeGrouping = ev.detail.value
   }
 
   private _handleCollapseChanged(ev: CustomEvent) {
-    this._activeCollapsed = ev.detail.value;
+    this._activeCollapsed = ev.detail.value
   }
 
-  static styles: CSSResultGroup = haStyle;
+  static styles: CSSResultGroup = haStyle
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "bluetooth-connection-monitor": BluetoothConnectionMonitorPanel;
+    'bluetooth-connection-monitor': BluetoothConnectionMonitorPanel
   }
 }

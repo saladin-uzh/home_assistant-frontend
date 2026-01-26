@@ -1,5 +1,5 @@
 ---
-title: "Our story"
+title: 'Our story'
 ---
 
 ## Open source home automation that puts local control and privacy first

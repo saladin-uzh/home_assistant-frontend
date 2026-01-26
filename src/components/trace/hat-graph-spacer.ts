@@ -1,14 +1,14 @@
-import { css, LitElement, html } from "lit";
-import { customElement, property } from "lit/decorators";
-import { SPACING, NODE_SIZE } from "./hat-graph-const";
+import { css, LitElement, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { SPACING, NODE_SIZE } from './hat-graph-const'
 
 /**
  * @attribute active
  * @attribute track
  */
-@customElement("hat-graph-spacer")
+@customElement('hat-graph-spacer')
 export class HatGraphSpacer extends LitElement {
-  @property({ reflect: true, type: Boolean }) public disabled = false;
+  @property({ reflect: true, type: Boolean }) public disabled = false
 
   render() {
     return html`
@@ -22,7 +22,7 @@ export class HatGraphSpacer extends LitElement {
         />
         }
       </svg>
-    `;
+    `
   }
 
   static styles = css`
@@ -46,11 +46,11 @@ export class HatGraphSpacer extends LitElement {
       stroke-width: 2;
       fill: none;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hat-graph-spacer": HatGraphSpacer;
+    'hat-graph-spacer': HatGraphSpacer
   }
 }

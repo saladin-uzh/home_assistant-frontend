@@ -1,30 +1,30 @@
-import { css, html, LitElement } from "lit";
-import { customElement, state } from "lit/decorators";
-import { mdiCog, mdiHelp } from "@mdi/js";
-import "../../../../src/components/ha-button";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-dialog-footer";
-import "../../../../src/components/ha-form/ha-form";
-import "../../../../src/components/ha-icon-button";
-import "../../../../src/components/ha-wa-dialog";
-import type { HaFormSchema } from "../../../../src/components/ha-form/types";
+import { css, html, LitElement } from 'lit'
+import { customElement, state } from 'lit/decorators'
+import { mdiCog, mdiHelp } from '@mdi/js'
+import '../../../../src/components/ha-button'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-dialog-footer'
+import '../../../../src/components/ha-form/ha-form'
+import '../../../../src/components/ha-icon-button'
+import '../../../../src/components/ha-wa-dialog'
+import type { HaFormSchema } from '../../../../src/components/ha-form/types'
 
 const SCHEMA: HaFormSchema[] = [
-  { type: "string", name: "Name", default: "", autofocus: true },
-  { type: "string", name: "Email", default: "" },
-];
+  { type: 'string', name: 'Name', default: '', autofocus: true },
+  { type: 'string', name: 'Email', default: '' },
+]
 
 type DialogType =
   | false
-  | "basic"
-  | "basic-subtitle-below"
-  | "basic-subtitle-above"
-  | "form"
-  | "actions";
+  | 'basic'
+  | 'basic-subtitle-below'
+  | 'basic-subtitle-above'
+  | 'form'
+  | 'actions'
 
-@customElement("demo-components-ha-wa-dialog")
+@customElement('demo-components-ha-wa-dialog')
 export class DemoHaWaDialog extends LitElement {
-  @state() private _openDialog: DialogType = false;
+  @state() private _openDialog: DialogType = false
 
   protected render() {
     return html`
@@ -36,25 +36,25 @@ export class DemoHaWaDialog extends LitElement {
         <h2>Demos</h2>
 
         <div class="buttons">
-          <ha-button @click=${this._handleOpenDialog("basic")}
+          <ha-button @click=${this._handleOpenDialog('basic')}
             >Basic dialog</ha-button
           >
-          <ha-button @click=${this._handleOpenDialog("basic-subtitle-below")}
+          <ha-button @click=${this._handleOpenDialog('basic-subtitle-below')}
             >Basic dialog with subtitle below</ha-button
           >
-          <ha-button @click=${this._handleOpenDialog("basic-subtitle-above")}
+          <ha-button @click=${this._handleOpenDialog('basic-subtitle-above')}
             >Basic dialog with subtitle above</ha-button
           >
-          <ha-button @click=${this._handleOpenDialog("form")}
+          <ha-button @click=${this._handleOpenDialog('form')}
             >Dialog with form</ha-button
           >
-          <ha-button @click=${this._handleOpenDialog("actions")}
+          <ha-button @click=${this._handleOpenDialog('actions')}
             >Dialog with actions</ha-button
           >
         </div>
 
         <ha-wa-dialog
-          .open=${this._openDialog === "basic"}
+          .open=${this._openDialog === 'basic'}
           header-title="Basic dialog"
           @closed=${this._handleClosed}
         >
@@ -62,7 +62,7 @@ export class DemoHaWaDialog extends LitElement {
         </ha-wa-dialog>
 
         <ha-wa-dialog
-          .open=${this._openDialog === "basic-subtitle-below"}
+          .open=${this._openDialog === 'basic-subtitle-below'}
           header-title="Basic dialog with subtitle"
           header-subtitle="This is a basic dialog with a subtitle below"
           @closed=${this._handleClosed}
@@ -71,7 +71,7 @@ export class DemoHaWaDialog extends LitElement {
         </ha-wa-dialog>
 
         <ha-wa-dialog
-          .open=${this._openDialog === "basic-subtitle-above"}
+          .open=${this._openDialog === 'basic-subtitle-above'}
           header-title="Dialog with subtitle above"
           header-subtitle="This is a basic dialog with a subtitle above"
           header-subtitle-position="above"
@@ -81,13 +81,16 @@ export class DemoHaWaDialog extends LitElement {
         </ha-wa-dialog>
 
         <ha-wa-dialog
-          .open=${this._openDialog === "form"}
+          .open=${this._openDialog === 'form'}
           header-title="Dialog with form"
           header-subtitle="This is a dialog with a form and a footer"
           prevent-scrim-close
           @closed=${this._handleClosed}
         >
-          <ha-form autofocus .schema=${SCHEMA}></ha-form>
+          <ha-form
+            autofocus
+            .schema=${SCHEMA}
+          ></ha-form>
           <ha-dialog-footer slot="footer">
             <ha-button
               data-dialog="close"
@@ -95,21 +98,30 @@ export class DemoHaWaDialog extends LitElement {
               variant="plain"
               >Cancel</ha-button
             >
-            <ha-button data-dialog="close" slot="primaryAction" variant="accent"
+            <ha-button
+              data-dialog="close"
+              slot="primaryAction"
+              variant="accent"
               >Submit</ha-button
             >
           </ha-dialog-footer>
         </ha-wa-dialog>
 
         <ha-wa-dialog
-          .open=${this._openDialog === "actions"}
+          .open=${this._openDialog === 'actions'}
           header-title="Dialog with actions"
           header-subtitle="This is a dialog with header actions"
           @closed=${this._handleClosed}
         >
           <div slot="headerActionItems">
-            <ha-icon-button label="Settings" path=${mdiCog}></ha-icon-button>
-            <ha-icon-button label="Help" path=${mdiHelp}></ha-icon-button>
+            <ha-icon-button
+              label="Settings"
+              path=${mdiCog}
+            ></ha-icon-button>
+            <ha-icon-button
+              label="Help"
+              path=${mdiHelp}
+            ></ha-icon-button>
           </div>
 
           <div>Dialog content</div>
@@ -413,16 +425,16 @@ export class DemoHaWaDialog extends LitElement {
           </tbody>
         </table>
       </div>
-    `;
+    `
   }
 
   private _handleOpenDialog = (dialog: DialogType) => () => {
-    this._openDialog = dialog;
-  };
+    this._openDialog = dialog
+  }
 
   private _handleClosed = () => {
-    this._openDialog = false;
-  };
+    this._openDialog = false
+  }
 
   static styles = [
     css`
@@ -513,11 +525,11 @@ export class DemoHaWaDialog extends LitElement {
         color: var(--primary-color);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-components-ha-wa-dialog": DemoHaWaDialog;
+    'demo-components-ha-wa-dialog': DemoHaWaDialog
   }
 }

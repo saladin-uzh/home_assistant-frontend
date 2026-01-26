@@ -1,19 +1,19 @@
-import { ResizeController } from "@lit-labs/observers/resize-controller";
-import type { CSSResultGroup, PropertyValues } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import { classMap } from "lit/directives/class-map";
-import { formatDateWeekdayShort } from "../../../common/datetime/format_date";
-import { formatTime } from "../../../common/datetime/format_time";
-import { applyThemesOnElement } from "../../../common/dom/apply_themes_on_element";
-import { isValidEntityId } from "../../../common/entity/valid_entity_id";
-import { formatNumber } from "../../../common/number/format_number";
-import "../../../components/ha-card";
-import "../../../components/ha-svg-icon";
-import { UNAVAILABLE } from "../../../data/entity";
-import type { ActionHandlerEvent } from "../../../data/lovelace/action_handler";
-import type { ForecastEvent, WeatherEntity } from "../../../data/weather";
+import { ResizeController } from '@lit-labs/observers/resize-controller'
+import type { CSSResultGroup, PropertyValues } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import { classMap } from 'lit/directives/class-map'
+import { formatDateWeekdayShort } from '../../../common/datetime/format_date'
+import { formatTime } from '../../../common/datetime/format_time'
+import { applyThemesOnElement } from '../../../common/dom/apply_themes_on_element'
+import { isValidEntityId } from '../../../common/entity/valid_entity_id'
+import { formatNumber } from '../../../common/number/format_number'
+import '../../../components/ha-card'
+import '../../../components/ha-svg-icon'
+import { UNAVAILABLE } from '../../../data/entity'
+import type { ActionHandlerEvent } from '../../../data/lovelace/action_handler'
+import type { ForecastEvent, WeatherEntity } from '../../../data/weather'
 import {
   getForecast,
   getSecondaryWeatherAttribute,
@@ -23,28 +23,28 @@ import {
   subscribeForecast,
   weatherAttrIcons,
   weatherSVGStyles,
-} from "../../../data/weather";
-import type { HomeAssistant } from "../../../types";
-import { actionHandler } from "../common/directives/action-handler-directive";
-import { computeLovelaceEntityName } from "../common/entity/compute-lovelace-entity-name";
-import { findEntities } from "../common/find-entities";
-import { handleAction } from "../common/handle-action";
-import { hasAction } from "../common/has-action";
-import { hasConfigOrEntityChanged } from "../common/has-changed";
-import { createEntityNotFoundWarning } from "../components/hui-warning";
+} from '../../../data/weather'
+import type { HomeAssistant } from '../../../types'
+import { actionHandler } from '../common/directives/action-handler-directive'
+import { computeLovelaceEntityName } from '../common/entity/compute-lovelace-entity-name'
+import { findEntities } from '../common/find-entities'
+import { handleAction } from '../common/handle-action'
+import { hasAction } from '../common/has-action'
+import { hasConfigOrEntityChanged } from '../common/has-changed'
+import { createEntityNotFoundWarning } from '../components/hui-warning'
 import type {
   LovelaceCard,
   LovelaceCardEditor,
   LovelaceGridOptions,
-} from "../types";
-import type { WeatherForecastCardConfig } from "./types";
-import { isComponentLoaded } from "../../../common/config/is_component_loaded";
+} from '../types'
+import type { WeatherForecastCardConfig } from './types'
+import { isComponentLoaded } from '../../../common/config/is_component_loaded'
 
-@customElement("hui-weather-forecast-card")
+@customElement('hui-weather-forecast-card')
 class HuiWeatherForecastCard extends LitElement implements LovelaceCard {
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import("../editor/config-elements/hui-weather-forecast-card-editor");
-    return document.createElement("hui-weather-forecast-card-editor");
+    await import('../editor/config-elements/hui-weather-forecast-card-editor')
+    return document.createElement('hui-weather-forecast-card-editor')
   }
 
   public static getStubConfig(
@@ -52,219 +52,222 @@ class HuiWeatherForecastCard extends LitElement implements LovelaceCard {
     entities: string[],
     entitiesFallback: string[]
   ): WeatherForecastCardConfig {
-    const includeDomains = ["weather"];
-    const maxEntities = 1;
+    const includeDomains = ['weather']
+    const maxEntities = 1
     const foundEntities = findEntities(
       hass,
       maxEntities,
       entities,
       entitiesFallback,
       includeDomains
-    );
+    )
 
-    return { type: "weather-forecast", entity: foundEntities[0] || "" };
+    return { type: 'weather-forecast', entity: foundEntities[0] || '' }
   }
 
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: WeatherForecastCardConfig;
+  @state() private _config?: WeatherForecastCardConfig
 
-  @state() private _forecastEvent?: ForecastEvent;
+  @state() private _forecastEvent?: ForecastEvent
 
-  @state() private _subscribed?: Promise<() => void>;
+  @state() private _subscribed?: Promise<() => void>
 
   private _sizeController = new ResizeController(this, {
-    callback: (entries) => {
+    callback: entries => {
       const result = {
-        width: "regular",
-        height: "tall",
-      };
+        width: 'regular',
+        height: 'tall',
+      }
 
-      const width = entries[0]?.contentRect.width;
+      const width = entries[0]?.contentRect.width
       if (width < 245) {
-        result.width = "very-very-narrow";
+        result.width = 'very-very-narrow'
       } else if (width < 300) {
-        result.width = "very-narrow";
+        result.width = 'very-narrow'
       } else if (width < 375) {
-        result.width = "narrow";
+        result.width = 'narrow'
       }
 
-      const height = entries[0]?.contentRect.height;
+      const height = entries[0]?.contentRect.height
       if (height < 235) {
-        result.height = "short";
+        result.height = 'short'
       }
-      return result;
+      return result
     },
-  });
+  })
 
   private _needForecastSubscription() {
     return (
-      this._config!.forecast_type && this._config!.forecast_type !== "legacy"
-    );
+      this._config!.forecast_type && this._config!.forecast_type !== 'legacy'
+    )
   }
 
   private _unsubscribeForecastEvents() {
     if (this._subscribed) {
-      this._subscribed.then((unsub) => unsub());
-      this._subscribed = undefined;
+      this._subscribed.then(unsub => unsub())
+      this._subscribed = undefined
     }
   }
 
   private async _subscribeForecastEvents() {
-    this._unsubscribeForecastEvents();
+    this._unsubscribeForecastEvents()
     if (
       !this.isConnected ||
       !this.hass ||
       !this._config ||
       !this._needForecastSubscription() ||
-      !isComponentLoaded(this.hass, "weather") ||
+      !isComponentLoaded(this.hass, 'weather') ||
       !this.hass.states[this._config!.entity]
     ) {
-      return;
+      return
     }
 
     this._subscribed = subscribeForecast(
       this.hass!,
       this._config!.entity,
-      this._config!.forecast_type as "daily" | "hourly" | "twice_daily",
-      (event) => {
-        this._forecastEvent = event;
+      this._config!.forecast_type as 'daily' | 'hourly' | 'twice_daily',
+      event => {
+        this._forecastEvent = event
       }
-    ).catch((e) => {
-      if (e.code === "invalid_entity_id") {
+    ).catch(e => {
+      if (e.code === 'invalid_entity_id') {
         setTimeout(() => {
-          this._subscribed = undefined;
-        }, 2000);
+          this._subscribed = undefined
+        }, 2000)
       }
-      throw e;
-    });
+      throw e
+    })
   }
 
   public connectedCallback(): void {
-    super.connectedCallback();
+    super.connectedCallback()
     if (this.hasUpdated && this._config && this.hass) {
-      this._subscribeForecastEvents();
+      this._subscribeForecastEvents()
     }
   }
 
   public disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this._unsubscribeForecastEvents();
+    super.disconnectedCallback()
+    this._unsubscribeForecastEvents()
   }
 
   public getCardSize(): number {
-    let cardSize = 1;
+    let cardSize = 1
     if (this._config?.show_current !== false) {
-      cardSize += 1;
+      cardSize += 1
     }
     if (this._config?.show_forecast !== false) {
-      cardSize += 1;
+      cardSize += 1
     }
-    if (this._config?.forecast_type === "daily") {
-      cardSize += 1;
+    if (this._config?.forecast_type === 'daily') {
+      cardSize += 1
     }
-    return cardSize;
+    return cardSize
   }
 
   public setConfig(config: WeatherForecastCardConfig): void {
     if (!config.entity) {
-      throw new Error("Entity must be specified");
+      throw new Error('Entity must be specified')
     }
     if (!isValidEntityId(config.entity)) {
-      throw new Error("Invalid entity");
+      throw new Error('Invalid entity')
     }
 
-    this._config = config;
+    this._config = config
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     return (
       hasConfigOrEntityChanged(this, changedProps) ||
       changedProps.size > 1 ||
-      !changedProps.has("hass")
-    );
+      !changedProps.has('hass')
+    )
   }
 
   protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
+    super.updated(changedProps)
     if (!this._config || !this.hass) {
-      return;
+      return
     }
 
-    if (changedProps.has("_config") || !this._subscribed) {
-      this._subscribeForecastEvents();
+    if (changedProps.has('_config') || !this._subscribed) {
+      this._subscribeForecastEvents()
     }
 
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
-    const oldConfig = changedProps.get("_config") as
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined
+    const oldConfig = changedProps.get('_config') as
       | WeatherForecastCardConfig
-      | undefined;
+      | undefined
 
     if (
-      (changedProps.has("hass") && !oldHass) ||
-      (changedProps.has("_config") && !oldConfig) ||
-      (changedProps.has("hass") && oldHass!.themes !== this.hass.themes) ||
-      (changedProps.has("_config") && oldConfig!.theme !== this._config.theme)
+      (changedProps.has('hass') && !oldHass) ||
+      (changedProps.has('_config') && !oldConfig) ||
+      (changedProps.has('hass') && oldHass!.themes !== this.hass.themes) ||
+      (changedProps.has('_config') && oldConfig!.theme !== this._config.theme)
     ) {
-      applyThemesOnElement(this, this.hass.themes, this._config.theme);
+      applyThemesOnElement(this, this.hass.themes, this._config.theme)
     }
   }
 
   protected render() {
     if (!this._config || !this.hass) {
-      return nothing;
+      return nothing
     }
 
-    const stateObj = this.hass.states[this._config.entity] as WeatherEntity;
+    const stateObj = this.hass.states[this._config.entity] as WeatherEntity
 
     if (!stateObj) {
       return html`
         <hui-warning .hass=${this.hass}>
           ${createEntityNotFoundWarning(this.hass, this._config.entity)}
         </hui-warning>
-      `;
+      `
     }
 
     if (stateObj.state === UNAVAILABLE) {
       return html`
-        <ha-card class="unavailable" @click=${this._handleAction}>
-          ${this.hass.localize("ui.panel.lovelace.warning.entity_unavailable", {
+        <ha-card
+          class="unavailable"
+          @click=${this._handleAction}
+        >
+          ${this.hass.localize('ui.panel.lovelace.warning.entity_unavailable', {
             entity: `${computeLovelaceEntityName(this.hass, stateObj, this._config.name)} (${this._config.entity})`,
           })}
         </ha-card>
-      `;
+      `
     }
 
     const forecastData = getForecast(
       stateObj.attributes,
       this._forecastEvent,
       this._config?.forecast_type
-    );
+    )
 
-    let itemsToShow = this._config?.forecast_slots ?? 5;
-    if (this._sizeController.value?.width === "very-very-narrow") {
-      itemsToShow = Math.min(3, itemsToShow);
-    } else if (this._sizeController.value?.width === "very-narrow") {
-      itemsToShow = Math.min(5, itemsToShow);
-    } else if (this._sizeController.value?.width === "narrow") {
-      itemsToShow = Math.min(7, itemsToShow);
+    let itemsToShow = this._config?.forecast_slots ?? 5
+    if (this._sizeController.value?.width === 'very-very-narrow') {
+      itemsToShow = Math.min(3, itemsToShow)
+    } else if (this._sizeController.value?.width === 'very-narrow') {
+      itemsToShow = Math.min(5, itemsToShow)
+    } else if (this._sizeController.value?.width === 'narrow') {
+      itemsToShow = Math.min(7, itemsToShow)
     }
 
     const forecast =
       this._config?.show_forecast !== false && forecastData?.forecast?.length
         ? forecastData.forecast.slice(0, itemsToShow)
-        : undefined;
-    const weather = !forecast || this._config?.show_current !== false;
+        : undefined
+    const weather = !forecast || this._config?.show_current !== false
 
-    const hourly = forecastData?.type === "hourly";
-    const dayNight = forecastData?.type === "twice_daily";
+    const hourly = forecastData?.type === 'hourly'
+    const dayNight = forecastData?.type === 'twice_daily'
 
-    const weatherStateIcon = getWeatherStateIcon(stateObj.state, this);
+    const weatherStateIcon = getWeatherStateIcon(stateObj.state, this)
     const name = computeLovelaceEntityName(
       this.hass,
       stateObj,
       this._config.name
-    );
+    )
 
     return html`
       <ha-card
@@ -282,7 +285,7 @@ class HuiWeatherForecastCard extends LitElement implements LovelaceCard {
           hasDoubleClick: hasAction(this._config!.double_tap_action),
         })}
         tabindex=${ifDefined(
-          hasAction(this._config.tap_action) ? "0" : undefined
+          hasAction(this._config.tap_action) ? '0' : undefined
         )}
       >
         ${weather
@@ -303,7 +306,12 @@ class HuiWeatherForecastCard extends LitElement implements LovelaceCard {
                     <div class="state">
                       ${this.hass.formatEntityState(stateObj)}
                     </div>
-                    <div class="name" .title=${name}>${name}</div>
+                    <div
+                      class="name"
+                      .title=${name}
+                    >
+                      ${name}
+                    </div>
                   </div>
                   <div class="temp-attribute">
                     <div class="temp">
@@ -317,7 +325,7 @@ class HuiWeatherForecastCard extends LitElement implements LovelaceCard {
                               >${getWeatherUnit(
                                 this.hass.config,
                                 stateObj,
-                                "temperature"
+                                'temperature'
                               )}</span
                             >
                           `
@@ -340,7 +348,7 @@ class HuiWeatherForecastCard extends LitElement implements LovelaceCard {
                                   `ui.card.weather.attributes.${this._config.secondary_info_attribute}`
                                 )}
                             ${this._config.secondary_info_attribute ===
-                            "wind_speed"
+                            'wind_speed'
                               ? getWind(
                                   this.hass,
                                   stateObj,
@@ -364,11 +372,11 @@ class HuiWeatherForecastCard extends LitElement implements LovelaceCard {
                 </div>
               </div>
             `
-          : ""}
+          : ''}
         ${forecast
           ? html`
               <div class="forecast">
-                ${forecast.map((item) =>
+                ${forecast.map(item =>
                   this._showValue(item.templow) ||
                   this._showValue(item.temperature)
                     ? html`
@@ -384,10 +392,10 @@ class HuiWeatherForecastCard extends LitElement implements LovelaceCard {
                                   <div class="daynight">
                                     ${item.is_daytime !== false
                                       ? this.hass!.localize(
-                                          "ui.card.weather.day"
+                                          'ui.card.weather.day'
                                         )
                                       : this.hass!.localize(
-                                          "ui.card.weather.night"
+                                          'ui.card.weather.night'
                                         )}<br />
                                   </div>
                                 `
@@ -420,14 +428,14 @@ class HuiWeatherForecastCard extends LitElement implements LovelaceCard {
                                   )}
                                 </div>
                               `
-                            : ""}
+                            : ''}
                           <div class="temp">
                             ${this._showValue(item.temperature)
                               ? html`${formatNumber(
                                   item.temperature,
                                   this.hass!.locale
                                 )}°`
-                              : "—"}
+                              : '—'}
                           </div>
                           <div class="templow">
                             ${this._showValue(item.templow)
@@ -436,40 +444,40 @@ class HuiWeatherForecastCard extends LitElement implements LovelaceCard {
                                   this.hass!.locale
                                 )}°`
                               : hourly
-                                ? ""
-                                : "—"}
+                                ? ''
+                                : '—'}
                           </div>
                         </div>
                       `
-                    : ""
+                    : ''
                 )}
               </div>
             `
-          : ""}
+          : ''}
       </ha-card>
-    `;
+    `
   }
 
   private _handleAction(ev: ActionHandlerEvent) {
-    handleAction(this, this.hass!, this._config!, ev.detail.action!);
+    handleAction(this, this.hass!, this._config!, ev.detail.action!)
   }
 
   private _showValue(item?: any): boolean {
-    return typeof item !== "undefined" && item !== null;
+    return typeof item !== 'undefined' && item !== null
   }
 
   public getGridOptions(): LovelaceGridOptions {
-    let rows = 1;
-    let min_rows = 1;
+    let rows = 1
+    let min_rows = 1
     if (this._config?.show_current !== false) {
-      rows += 1;
-      min_rows += 1;
+      rows += 1
+      min_rows += 1
     }
     if (this._config?.show_forecast !== false) {
-      rows += 1;
-      min_rows += 1;
-      if (this._config?.forecast_type === "daily") {
-        rows += 1;
+      rows += 1
+      min_rows += 1
+      if (this._config?.forecast_type === 'daily') {
+        rows += 1
       }
     }
 
@@ -478,7 +486,7 @@ class HuiWeatherForecastCard extends LitElement implements LovelaceCard {
       rows: rows,
       min_columns: 6,
       min_rows: min_rows,
-    };
+    }
   }
 
   static get styles(): CSSResultGroup {
@@ -645,48 +653,48 @@ class HuiWeatherForecastCard extends LitElement implements LovelaceCard {
 
         /* ============= NARROW ============= */
 
-        [class*="narrow"] .icon-image {
+        [class*='narrow'] .icon-image {
           min-width: 52px;
         }
 
-        [class*="narrow"] .weather-image {
+        [class*='narrow'] .weather-image {
           flex: 0 0 52px;
           width: 52px;
         }
 
-        [class*="narrow"] .icon-image .weather-icon {
+        [class*='narrow'] .icon-image .weather-icon {
           --mdc-icon-size: 52px;
         }
 
-        [class*="narrow"] .state,
-        [class*="narrow"] .temp-attribute .temp {
+        [class*='narrow'] .state,
+        [class*='narrow'] .temp-attribute .temp {
           font-size: var(--ha-font-size-xl);
         }
 
-        [class*="narrow"] .temp-attribute .temp {
+        [class*='narrow'] .temp-attribute .temp {
           margin-right: 16px;
           margin-inline-end: 16px;
           margin-inline-start: initial;
         }
 
-        [class*="narrow"] .temp span {
+        [class*='narrow'] .temp span {
           top: 1px;
           font-size: var(--ha-font-size-l);
         }
 
         /* ============= VERY NARROW ============= */
 
-        [class*="very-narrow"] .name,
-        [class*="very-narrow"] .attribute {
+        [class*='very-narrow'] .name,
+        [class*='very-narrow'] .attribute {
           display: none;
         }
 
-        [class*="very-narrow"] .info {
+        [class*='very-narrow'] .info {
           flex-direction: column;
           align-items: flex-start;
         }
 
-        [class*="very-narrow"] .name-state {
+        [class*='very-narrow'] .name-state {
           padding-right: 0;
           padding-inline-end: 0;
           padding-inline-start: initial;
@@ -694,31 +702,31 @@ class HuiWeatherForecastCard extends LitElement implements LovelaceCard {
 
         /* ============= VERY VERY NARROW ============= */
 
-        [class*="very-very-narrow"] .info {
+        [class*='very-very-narrow'] .info {
           padding-top: 4px;
           align-items: center;
         }
 
-        [class*="very-very-narrow"] .content {
+        [class*='very-very-narrow'] .content {
           flex-wrap: wrap;
           justify-content: center;
           flex-direction: column;
         }
 
-        [class*="very-very-narrow"] .icon-image {
+        [class*='very-very-narrow'] .icon-image {
           min-width: 48px;
         }
 
-        [class*="very-very-narrow"] .icon-image > * {
+        [class*='very-very-narrow'] .icon-image > * {
           flex: 0 0 48px;
           height: 48px;
         }
 
-        [class*="very-very-narrow"] .content + .forecast {
+        [class*='very-very-narrow'] .content + .forecast {
           padding-top: 8px;
         }
 
-        [class*="very-very-narrow"] .icon-image {
+        [class*='very-very-narrow'] .icon-image {
           margin-right: 0;
           margin-inline-end: 0;
           margin-inline-start: initial;
@@ -760,12 +768,12 @@ class HuiWeatherForecastCard extends LitElement implements LovelaceCard {
           --mdc-icon-size: 32px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-weather-forecast-card": HuiWeatherForecastCard;
+    'hui-weather-forecast-card': HuiWeatherForecastCard
   }
 }

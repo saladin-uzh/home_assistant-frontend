@@ -1,5 +1,5 @@
-import { mdiTextureBox } from "@mdi/js";
-import type { HassEntity } from "home-assistant-js-websocket";
+import { mdiTextureBox } from '@mdi/js'
+import type { HassEntity } from 'home-assistant-js-websocket'
 import {
   css,
   html,
@@ -7,158 +7,157 @@ import {
   nothing,
   type PropertyValues,
   type TemplateResult,
-} from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { ifDefined } from "lit/directives/if-defined";
-import { styleMap } from "lit/directives/style-map";
-import memoizeOne from "memoize-one";
-import { computeCssColor } from "../../../common/color/compute-color";
-import { BINARY_STATE_ON } from "../../../common/const";
-import { computeAreaName } from "../../../common/entity/compute_area_name";
-import { generateEntityFilter } from "../../../common/entity/entity_filter";
-import { navigate } from "../../../common/navigate";
+} from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { ifDefined } from 'lit/directives/if-defined'
+import { styleMap } from 'lit/directives/style-map'
+import memoizeOne from 'memoize-one'
+import { computeCssColor } from '../../../common/color/compute-color'
+import { BINARY_STATE_ON } from '../../../common/const'
+import { computeAreaName } from '../../../common/entity/compute_area_name'
+import { generateEntityFilter } from '../../../common/entity/entity_filter'
+import { navigate } from '../../../common/navigate'
 import {
   formatNumber,
   isNumericState,
-} from "../../../common/number/format_number";
-import { blankBeforeUnit } from "../../../common/translations/blank_before_unit";
-import parseAspectRatio from "../../../common/util/parse-aspect-ratio";
-import "../../../components/ha-aspect-ratio";
-import "../../../components/ha-card";
-import "../../../components/ha-control-button";
-import "../../../components/ha-control-button-group";
-import "../../../components/ha-domain-icon";
-import "../../../components/ha-icon";
-import "../../../components/ha-ripple";
-import "../../../components/ha-svg-icon";
-import "../../../components/tile/ha-tile-badge";
-import "../../../components/tile/ha-tile-icon";
-import "../../../components/tile/ha-tile-info";
-import { isUnavailableState } from "../../../data/entity";
-import type { HomeAssistant } from "../../../types";
-import "../card-features/hui-card-features";
-import type { LovelaceCardFeatureContext } from "../card-features/types";
-import { actionHandler } from "../common/directives/action-handler-directive";
+} from '../../../common/number/format_number'
+import { blankBeforeUnit } from '../../../common/translations/blank_before_unit'
+import parseAspectRatio from '../../../common/util/parse-aspect-ratio'
+import '../../../components/ha-aspect-ratio'
+import '../../../components/ha-card'
+import '../../../components/ha-control-button'
+import '../../../components/ha-control-button-group'
+import '../../../components/ha-domain-icon'
+import '../../../components/ha-icon'
+import '../../../components/ha-ripple'
+import '../../../components/ha-svg-icon'
+import '../../../components/tile/ha-tile-badge'
+import '../../../components/tile/ha-tile-icon'
+import '../../../components/tile/ha-tile-info'
+import { isUnavailableState } from '../../../data/entity'
+import type { HomeAssistant } from '../../../types'
+import '../card-features/hui-card-features'
+import type { LovelaceCardFeatureContext } from '../card-features/types'
+import { actionHandler } from '../common/directives/action-handler-directive'
 import type {
   LovelaceCard,
   LovelaceCardEditor,
   LovelaceGridOptions,
-} from "../types";
-import type { AreaCardConfig } from "./types";
+} from '../types'
+import type { AreaCardConfig } from './types'
 
-export const DEFAULT_ASPECT_RATIO = "16:9";
+export const DEFAULT_ASPECT_RATIO = '16:9'
 
 export const DEVICE_CLASSES = {
-  sensor: ["temperature", "humidity"],
-  binary_sensor: ["motion", "moisture"],
-};
-
-export const SUM_DEVICE_CLASSES = [
-  "power",
-  "apparent_power",
-  "reactive_power",
-  "energy",
-  "reactive_energy",
-  "current",
-  "gas",
-  "monetary",
-  "volume",
-  "water",
-];
-
-export interface AreaCardFeatureContext extends LovelaceCardFeatureContext {
-  exclude_entities?: string[];
+  sensor: ['temperature', 'humidity'],
+  binary_sensor: ['motion', 'moisture'],
 }
 
-@customElement("hui-area-card")
+export const SUM_DEVICE_CLASSES = [
+  'power',
+  'apparent_power',
+  'reactive_power',
+  'energy',
+  'reactive_energy',
+  'current',
+  'gas',
+  'monetary',
+  'volume',
+  'water',
+]
+
+export interface AreaCardFeatureContext extends LovelaceCardFeatureContext {
+  exclude_entities?: string[]
+}
+
+@customElement('hui-area-card')
 export class HuiAreaCard extends LitElement implements LovelaceCard {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public layout?: string;
+  @property({ attribute: false }) public layout?: string
 
-  @state() private _config?: AreaCardConfig;
+  @state() private _config?: AreaCardConfig
 
-  @state() private _featureContext: AreaCardFeatureContext = {};
+  @state() private _featureContext: AreaCardFeatureContext = {}
 
   private _ratio: {
-    w: number;
-    h: number;
-  } | null = null;
+    w: number
+    h: number
+  } | null = null
 
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import("../editor/config-elements/hui-area-card-editor");
-    return document.createElement("hui-area-card-editor");
+    await import('../editor/config-elements/hui-area-card-editor')
+    return document.createElement('hui-area-card-editor')
   }
 
   public setConfig(config: AreaCardConfig): void {
     if (!config.area) {
-      throw new Error("Specify an area");
+      throw new Error('Specify an area')
     }
 
     const displayType =
-      config.display_type || (config.show_camera ? "camera" : "picture");
-    const vertical = displayType === "compact" ? config.vertical : false;
+      config.display_type || (config.show_camera ? 'camera' : 'picture')
+    const vertical = displayType === 'compact' ? config.vertical : false
     this._config = {
       ...config,
       vertical,
       display_type: displayType,
-    };
+    }
 
     this._featureContext = {
       area_id: config.area,
       exclude_entities: config.exclude_entities,
-    };
+    }
   }
 
   public static async getStubConfig(
     hass: HomeAssistant
   ): Promise<AreaCardConfig> {
-    const areas = Object.values(hass.areas);
-    return { type: "area", area: areas[0]?.area_id || "" };
+    const areas = Object.values(hass.areas)
+    return { type: 'area', area: areas[0]?.area_id || '' }
   }
 
   public getCardSize(): number {
-    const featuresPosition =
-      this._config && this._featurePosition(this._config);
-    const displayType = this._config?.display_type || "picture";
-    const featuresCount = this._config?.features?.length || 0;
+    const featuresPosition = this._config && this._featurePosition(this._config)
+    const displayType = this._config?.display_type || 'picture'
+    const featuresCount = this._config?.features?.length || 0
     return (
       1 +
-      (displayType === "compact" ? (this._config?.vertical ? 1 : 0) : 2) +
-      (featuresPosition === "inline" ? 0 : featuresCount)
-    );
+      (displayType === 'compact' ? (this._config?.vertical ? 1 : 0) : 2) +
+      (featuresPosition === 'inline' ? 0 : featuresCount)
+    )
   }
 
   public getGridOptions(): LovelaceGridOptions {
-    let columns = 6;
-    let min_columns = 6;
-    let rows = 1;
+    let columns = 6
+    let min_columns = 6
+    let rows = 1
     const featurePosition = this._config
       ? this._featurePosition(this._config)
-      : "bottom";
-    const featuresCount = this._config?.features?.length || 0;
+      : 'bottom'
+    const featuresCount = this._config?.features?.length || 0
     if (featuresCount) {
-      if (featurePosition === "inline") {
-        min_columns = 12;
-        columns = 12;
+      if (featurePosition === 'inline') {
+        min_columns = 12
+        columns = 12
       } else {
-        rows += featuresCount;
+        rows += featuresCount
       }
     }
 
-    const displayType = this._config?.display_type || "picture";
+    const displayType = this._config?.display_type || 'picture'
 
     if (this._config?.vertical) {
-      rows++;
-      min_columns = 3;
+      rows++
+      min_columns = 3
     }
 
-    if (displayType !== "compact") {
-      if (featurePosition === "inline" && featuresCount > 0) {
-        rows += 3;
+    if (displayType !== 'compact') {
+      if (featurePosition === 'inline' && featuresCount > 0) {
+        rows += 3
       } else {
-        rows += 2;
+        rows += 2
       }
     }
 
@@ -167,16 +166,16 @@ export class HuiAreaCard extends LitElement implements LovelaceCard {
       rows,
       min_columns,
       min_rows: rows,
-    };
+    }
   }
 
   private get _hasCardAction() {
-    return this._config?.navigation_path;
+    return this._config?.navigation_path
   }
 
   private _handleAction() {
     if (this._config?.navigation_path) {
-      navigate(this._config.navigation_path);
+      navigate(this._config.navigation_path)
     }
   }
 
@@ -184,134 +183,137 @@ export class HuiAreaCard extends LitElement implements LovelaceCard {
     entityIds: string[]
   ): Map<string, string[]> =>
     entityIds.reduce((acc, entityId) => {
-      const stateObj = this.hass.states[entityId];
-      const deviceClass = stateObj.attributes.device_class!;
+      const stateObj = this.hass.states[entityId]
+      const deviceClass = stateObj.attributes.device_class!
       if (!acc.has(deviceClass)) {
-        acc.set(deviceClass, []);
+        acc.set(deviceClass, [])
       }
-      acc.get(deviceClass)!.push(stateObj.entity_id);
-      return acc;
-    }, new Map<string, string[]>());
+      acc.get(deviceClass)!.push(stateObj.entity_id)
+      return acc
+    }, new Map<string, string[]>())
 
   private _groupedSensorEntityIds = memoizeOne(
     (
-      entities: HomeAssistant["entities"],
+      entities: HomeAssistant['entities'],
       areaId: string,
       sensorClasses: string[],
       excludeEntities?: string[]
     ): Map<string, string[]> => {
       const sensorFilter = generateEntityFilter(this.hass, {
         area: areaId,
-        entity_category: "none",
-        domain: "sensor",
+        entity_category: 'none',
+        domain: 'sensor',
         device_class: sensorClasses,
-      });
+      })
       const entityIds = Object.keys(entities).filter(
-        (id) => sensorFilter(id) && !excludeEntities?.includes(id)
-      );
+        id => sensorFilter(id) && !excludeEntities?.includes(id)
+      )
 
-      return this._groupEntitiesByDeviceClass(entityIds);
+      return this._groupEntitiesByDeviceClass(entityIds)
     }
-  );
+  )
 
   private _groupedBinarySensorEntityIds = memoizeOne(
     (
-      entities: HomeAssistant["entities"],
+      entities: HomeAssistant['entities'],
       areaId: string,
       binarySensorClasses: string[],
       excludeEntities?: string[]
     ): Map<string, string[]> => {
       const binarySensorFilter = generateEntityFilter(this.hass, {
         area: areaId,
-        entity_category: "none",
-        domain: "binary_sensor",
+        entity_category: 'none',
+        domain: 'binary_sensor',
         device_class: binarySensorClasses,
-      });
+      })
 
       const entityIds = Object.keys(entities).filter(
-        (id) => binarySensorFilter(id) && !excludeEntities?.includes(id)
-      );
+        id => binarySensorFilter(id) && !excludeEntities?.includes(id)
+      )
 
-      return this._groupEntitiesByDeviceClass(entityIds);
+      return this._groupEntitiesByDeviceClass(entityIds)
     }
-  );
+  )
 
   private _getCameraEntity = memoizeOne(
     (
-      entities: HomeAssistant["entities"],
+      entities: HomeAssistant['entities'],
       areaId: string
     ): string | undefined => {
       const cameraFilter = generateEntityFilter(this.hass, {
         area: areaId,
-        entity_category: "none",
-        domain: "camera",
-      });
-      const cameraEntities = Object.keys(entities).filter(cameraFilter);
-      return cameraEntities.length > 0 ? cameraEntities[0] : undefined;
+        entity_category: 'none',
+        domain: 'camera',
+      })
+      const cameraEntities = Object.keys(entities).filter(cameraFilter)
+      return cameraEntities.length > 0 ? cameraEntities[0] : undefined
     }
-  );
+  )
 
   private _computeActiveAlertStates(): HassEntity[] {
-    const areaId = this._config?.area;
-    const area = areaId ? this.hass.areas[areaId] : undefined;
-    const alertClasses = this._config?.alert_classes;
-    const excludeEntities = this._config?.exclude_entities;
+    const areaId = this._config?.area
+    const area = areaId ? this.hass.areas[areaId] : undefined
+    const alertClasses = this._config?.alert_classes
+    const excludeEntities = this._config?.exclude_entities
     if (!area || !alertClasses) {
-      return [];
+      return []
     }
     const groupedEntities = this._groupedBinarySensorEntityIds(
       this.hass.entities,
       area.area_id,
       alertClasses,
       excludeEntities
-    );
+    )
 
     return (
       alertClasses
-        .map((alertClass) => {
-          const entityIds = groupedEntities.get(alertClass) || [];
+        .map(alertClass => {
+          const entityIds = groupedEntities.get(alertClass) || []
           if (!entityIds) {
-            return [];
+            return []
           }
           return entityIds
             .map(
-              (entityId) => this.hass.states[entityId] as HassEntity | undefined
+              entityId => this.hass.states[entityId] as HassEntity | undefined
             )
-            .filter((stateObj) => stateObj?.state === BINARY_STATE_ON);
+            .filter(stateObj => stateObj?.state === BINARY_STATE_ON)
         })
-        .filter((activeAlerts) => activeAlerts.length > 0)
+        .filter(activeAlerts => activeAlerts.length > 0)
         // Only return the first active entity for each alert class
-        .map((activeAlerts) => activeAlerts[0]!)
-    );
+        .map(activeAlerts => activeAlerts[0]!)
+    )
   }
 
   private _renderAlertSensorBadge(): TemplateResult<1> | typeof nothing {
-    const states = this._computeActiveAlertStates();
+    const states = this._computeActiveAlertStates()
 
     if (states.length === 0) {
-      return nothing;
+      return nothing
     }
 
     // Only render the first one when using a badge
-    const stateObj = states[0] as HassEntity | undefined;
+    const stateObj = states[0] as HassEntity | undefined
 
     return html`
       <ha-tile-badge class="alert-badge">
-        <ha-state-icon .hass=${this.hass} .stateObj=${stateObj}></ha-state-icon>
+        <ha-state-icon
+          .hass=${this.hass}
+          .stateObj=${stateObj}
+        ></ha-state-icon>
       </ha-tile-badge>
-    `;
+    `
   }
 
   private _renderAlertSensors(): TemplateResult<1> | typeof nothing {
-    const states = this._computeActiveAlertStates();
+    const states = this._computeActiveAlertStates()
 
     if (states.length === 0) {
-      return nothing;
+      return nothing
     }
     return html`
       <div class="alerts">
         ${states.map(
-          (stateObj) => html`
+          stateObj => html`
             <div class="alert">
               <ha-state-icon
                 .hass=${this.hass}
@@ -321,16 +323,16 @@ export class HuiAreaCard extends LitElement implements LovelaceCard {
           `
         )}
       </div>
-    `;
+    `
   }
 
   private _computeSensorsDisplay(): string | undefined {
-    const areaId = this._config?.area;
-    const area = areaId ? this.hass.areas[areaId] : undefined;
-    const sensorClasses = this._config?.sensor_classes;
-    const excludeEntities = this._config?.exclude_entities;
+    const areaId = this._config?.area
+    const area = areaId ? this.hass.areas[areaId] : undefined
+    const sensorClasses = this._config?.sensor_classes
+    const excludeEntities = this._config?.exclude_entities
     if (!area || !sensorClasses) {
-      return undefined;
+      return undefined
     }
 
     const groupedEntities = this._groupedSensorEntityIds(
@@ -338,178 +340,178 @@ export class HuiAreaCard extends LitElement implements LovelaceCard {
       area.area_id,
       sensorClasses,
       excludeEntities
-    );
+    )
 
     const sensorStates = sensorClasses
-      .map((sensorClass) => {
-        if (sensorClass === "temperature" && area.temperature_entity_id) {
+      .map(sensorClass => {
+        if (sensorClass === 'temperature' && area.temperature_entity_id) {
           const stateObj = this.hass.states[area.temperature_entity_id] as
             | HassEntity
-            | undefined;
+            | undefined
           return !stateObj || isUnavailableState(stateObj.state)
-            ? ""
-            : this.hass.formatEntityState(stateObj);
+            ? ''
+            : this.hass.formatEntityState(stateObj)
         }
-        if (sensorClass === "humidity" && area.humidity_entity_id) {
+        if (sensorClass === 'humidity' && area.humidity_entity_id) {
           const stateObj = this.hass.states[area.humidity_entity_id] as
             | HassEntity
-            | undefined;
+            | undefined
           return !stateObj || isUnavailableState(stateObj.state)
-            ? ""
-            : this.hass.formatEntityState(stateObj);
+            ? ''
+            : this.hass.formatEntityState(stateObj)
         }
 
-        const entityIds = groupedEntities.get(sensorClass);
+        const entityIds = groupedEntities.get(sensorClass)
 
         if (!entityIds) {
-          return undefined;
+          return undefined
         }
 
         // Ensure all entities have state
         const entities = entityIds
-          .map((entityId) => this.hass.states[entityId])
-          .filter(Boolean);
+          .map(entityId => this.hass.states[entityId])
+          .filter(Boolean)
 
         if (entities.length === 0) {
-          return undefined;
+          return undefined
         }
 
         // If only one entity, return its formatted state
         if (entities.length === 1) {
-          const stateObj = entities[0];
+          const stateObj = entities[0]
           return isUnavailableState(stateObj.state)
-            ? ""
-            : this.hass.formatEntityState(stateObj);
+            ? ''
+            : this.hass.formatEntityState(stateObj)
         }
 
         // Use the first entity's unit_of_measurement for formatting
         const uom = entities.find(
-          (entity) => entity.attributes.unit_of_measurement
-        )?.attributes.unit_of_measurement;
+          entity => entity.attributes.unit_of_measurement
+        )?.attributes.unit_of_measurement
 
         // Ensure all entities have the same unit_of_measurement
         const validEntities = entities.filter(
-          (entity) =>
+          entity =>
             entity.attributes.unit_of_measurement === uom &&
             isNumericState(entity) &&
             !isNaN(Number(entity.state))
-        );
+        )
 
         if (validEntities.length === 0) {
-          return undefined;
+          return undefined
         }
 
         const value = SUM_DEVICE_CLASSES.includes(sensorClass)
           ? this._computeSumState(validEntities)
-          : this._computeMedianState(validEntities);
+          : this._computeMedianState(validEntities)
 
         const formattedAverage = formatNumber(value, this.hass!.locale, {
           maximumFractionDigits: 1,
-        });
+        })
         const formattedUnit = uom
           ? `${blankBeforeUnit(uom, this.hass!.locale)}${uom}`
-          : "";
+          : ''
 
-        return `${formattedAverage}${formattedUnit}`;
+        return `${formattedAverage}${formattedUnit}`
       })
       .filter(Boolean)
-      .join(" · ");
+      .join(' · ')
 
-    return sensorStates;
+    return sensorStates
   }
 
   private _computeSumState(entities: HassEntity[]): number {
-    return entities.reduce((acc, entity) => acc + Number(entity.state), 0);
+    return entities.reduce((acc, entity) => acc + Number(entity.state), 0)
   }
 
   private _computeMedianState(entities: HassEntity[]): number {
     const sortedStates = entities
-      .map((entity) => Number(entity.state))
-      .sort((a, b) => a - b);
+      .map(entity => Number(entity.state))
+      .sort((a, b) => a - b)
     if (sortedStates.length % 2 === 0) {
-      const medianIndex = sortedStates.length / 2;
-      return (sortedStates[medianIndex] + sortedStates[medianIndex - 1]) / 2;
+      const medianIndex = sortedStates.length / 2
+      return (sortedStates[medianIndex] + sortedStates[medianIndex - 1]) / 2
     }
-    const medianIndex = Math.floor(sortedStates.length / 2);
-    return sortedStates[medianIndex];
+    const medianIndex = Math.floor(sortedStates.length / 2)
+    return sortedStates[medianIndex]
   }
 
   private _featurePosition = memoizeOne((config: AreaCardConfig) => {
     if (config.vertical) {
-      return "bottom";
+      return 'bottom'
     }
-    return config.features_position || "bottom";
-  });
+    return config.features_position || 'bottom'
+  })
 
   private _displayedFeatures = memoizeOne((config: AreaCardConfig) => {
-    const features = config.features || [];
-    const featurePosition = this._featurePosition(config);
+    const features = config.features || []
+    const featurePosition = this._featurePosition(config)
 
-    if (featurePosition === "inline") {
-      return features.slice(0, 1);
+    if (featurePosition === 'inline') {
+      return features.slice(0, 1)
     }
-    return features;
-  });
+    return features
+  })
 
   public willUpdate(changedProps: PropertyValues) {
-    if (changedProps.has("_config") || this._ratio === null) {
+    if (changedProps.has('_config') || this._ratio === null) {
       this._ratio = this._config?.aspect_ratio
         ? parseAspectRatio(this._config?.aspect_ratio)
-        : null;
+        : null
 
       if (this._ratio === null || this._ratio.w <= 0 || this._ratio.h <= 0) {
-        this._ratio = parseAspectRatio(DEFAULT_ASPECT_RATIO);
+        this._ratio = parseAspectRatio(DEFAULT_ASPECT_RATIO)
       }
     }
   }
 
   protected render() {
     if (!this._config || !this.hass) {
-      return nothing;
+      return nothing
     }
 
-    const areaId = this._config?.area;
-    const area = areaId ? this.hass.areas[areaId] : undefined;
+    const areaId = this._config?.area
+    const area = areaId ? this.hass.areas[areaId] : undefined
 
     if (!area) {
       return html`
         <hui-warning .hass=${this.hass}>
-          ${this.hass.localize("ui.card.area.area_not_found")}
+          ${this.hass.localize('ui.card.area.area_not_found')}
         </hui-warning>
-      `;
+      `
     }
 
-    const contentClasses = { vertical: Boolean(this._config.vertical) };
+    const contentClasses = { vertical: Boolean(this._config.vertical) }
 
-    const icon = area.icon;
+    const icon = area.icon
 
-    const name = this._config.name || computeAreaName(area);
+    const name = this._config.name || computeAreaName(area)
 
-    const primary = name;
-    const secondary = this._computeSensorsDisplay();
+    const primary = name
+    const secondary = this._computeSensorsDisplay()
 
-    const featurePosition = this._featurePosition(this._config);
-    const features = this._displayedFeatures(this._config);
+    const featurePosition = this._featurePosition(this._config)
+    const features = this._displayedFeatures(this._config)
 
     const containerOrientationClass =
-      featurePosition === "inline" ? "horizontal" : "";
+      featurePosition === 'inline' ? 'horizontal' : ''
 
-    const displayType = this._config.display_type || "picture";
+    const displayType = this._config.display_type || 'picture'
 
     const cameraEntityId =
-      displayType === "camera"
+      displayType === 'camera'
         ? this._getCameraEntity(this.hass.entities, area.area_id)
-        : undefined;
+        : undefined
 
-    const ignoreAspectRatio = this.layout === "grid" || this.layout === "panel";
+    const ignoreAspectRatio = this.layout === 'grid' || this.layout === 'panel'
 
     const color = this._config.color
       ? computeCssColor(this._config.color)
-      : undefined;
+      : undefined
 
     const style = {
-      "--tile-color": color,
-    };
+      '--tile-color': color,
+    }
 
     return html`
       <ha-card style=${styleMap(style)}>
@@ -517,18 +519,18 @@ export class HuiAreaCard extends LitElement implements LovelaceCard {
           class="background"
           @action=${this._handleAction}
           .actionHandler=${actionHandler()}
-          role=${ifDefined(this._hasCardAction ? "button" : undefined)}
-          tabindex=${ifDefined(this._hasCardAction ? "0" : undefined)}
+          role=${ifDefined(this._hasCardAction ? 'button' : undefined)}
+          tabindex=${ifDefined(this._hasCardAction ? '0' : undefined)}
           aria-labelledby="info"
         >
           <ha-ripple .disabled=${!this._hasCardAction}></ha-ripple>
         </div>
-        ${displayType === "compact"
+        ${displayType === 'compact'
           ? nothing
           : html`
               <div class="header">
                 <div class="picture">
-                  ${(displayType === "picture" || displayType === "camera") &&
+                  ${(displayType === 'picture' || displayType === 'camera') &&
                   (cameraEntityId || area.picture)
                     ? html`
                         <hui-image
@@ -562,11 +564,14 @@ export class HuiAreaCard extends LitElement implements LovelaceCard {
         <div class="container ${containerOrientationClass}">
           <div class="content ${classMap(contentClasses)}">
             <ha-tile-icon>
-              ${displayType === "compact"
+              ${displayType === 'compact'
                 ? this._renderAlertSensorBadge()
                 : nothing}
               ${icon
-                ? html`<ha-icon slot="icon" .icon=${icon}></ha-icon>`
+                ? html`<ha-icon
+                    slot="icon"
+                    .icon=${icon}
+                  ></ha-icon>`
                 : html`
                     <ha-svg-icon
                       slot="icon"
@@ -593,7 +598,7 @@ export class HuiAreaCard extends LitElement implements LovelaceCard {
             : nothing}
         </div>
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -619,11 +624,11 @@ export class HuiAreaCard extends LitElement implements LovelaceCard {
       flex-direction: column;
       justify-content: space-between;
     }
-    [role="button"] {
+    [role='button'] {
       cursor: pointer;
       pointer-events: auto;
     }
-    [role="button"]:focus {
+    [role='button']:focus {
       outline: none;
     }
     .background {
@@ -665,7 +670,7 @@ export class HuiAreaCard extends LitElement implements LovelaceCard {
     }
     .picture .icon-container::before {
       position: absolute;
-      content: "";
+      content: '';
       width: 100%;
       height: 100%;
       background-color: var(--tile-color);
@@ -767,11 +772,11 @@ export class HuiAreaCard extends LitElement implements LovelaceCard {
       justify-content: center;
       color: white;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-area-card": HuiAreaCard;
+    'hui-area-card': HuiAreaCard
   }
 }

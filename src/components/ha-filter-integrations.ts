@@ -1,37 +1,37 @@
-import { mdiFilterVariantRemove } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { repeat } from "lit/directives/repeat";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../common/dom/fire_event";
-import { stringCompare } from "../common/string/compare";
-import type { LocalizeFunc } from "../common/translations/localize";
-import type { IntegrationManifest } from "../data/integration";
-import { domainToName, fetchIntegrationManifests } from "../data/integration";
-import { haStyleScrollbar } from "../resources/styles";
-import type { HomeAssistant } from "../types";
-import "./ha-check-list-item";
-import "./ha-domain-icon";
-import "./ha-expansion-panel";
-import "./ha-list";
-import "./search-input-outlined";
+import { mdiFilterVariantRemove } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { repeat } from 'lit/directives/repeat'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../common/dom/fire_event'
+import { stringCompare } from '../common/string/compare'
+import type { LocalizeFunc } from '../common/translations/localize'
+import type { IntegrationManifest } from '../data/integration'
+import { domainToName, fetchIntegrationManifests } from '../data/integration'
+import { haStyleScrollbar } from '../resources/styles'
+import type { HomeAssistant } from '../types'
+import './ha-check-list-item'
+import './ha-domain-icon'
+import './ha-expansion-panel'
+import './ha-list'
+import './search-input-outlined'
 
-@customElement("ha-filter-integrations")
+@customElement('ha-filter-integrations')
 export class HaFilterIntegrations extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public value?: string[];
+  @property({ attribute: false }) public value?: string[]
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ type: Boolean, reflect: true }) public expanded = false;
+  @property({ type: Boolean, reflect: true }) public expanded = false
 
-  @state() private _manifests?: IntegrationManifest[];
+  @state() private _manifests?: IntegrationManifest[]
 
-  @state() private _shouldRender = false;
+  @state() private _shouldRender = false
 
-  @state() private _filter?: string;
+  @state() private _filter?: string
 
   protected render() {
     return html`
@@ -41,8 +41,11 @@ export class HaFilterIntegrations extends LitElement {
         @expanded-will-change=${this._expandedWillChange}
         @expanded-changed=${this._expandedChanged}
       >
-        <div slot="header" class="header">
-          ${this.hass.localize("ui.panel.config.integrations.caption")}
+        <div
+          slot="header"
+          class="header"
+        >
+          ${this.hass.localize('ui.panel.config.integrations.caption')}
           ${this.value?.length
             ? html`<div class="badge">${this.value?.length}</div>
                 <ha-icon-button
@@ -70,8 +73,8 @@ export class HaFilterIntegrations extends LitElement {
                     this._filter,
                     this.value
                   ),
-                  (i) => i.domain,
-                  (integration) =>
+                  i => i.domain,
+                  integration =>
                     html`<ha-check-list-item
                       .value=${integration.domain}
                       .selected=${(this.value || []).includes(
@@ -91,30 +94,30 @@ export class HaFilterIntegrations extends LitElement {
               </ha-list> `
           : nothing}
       </ha-expansion-panel>
-    `;
+    `
   }
 
   protected updated(changed) {
-    if (changed.has("expanded") && this.expanded) {
+    if (changed.has('expanded') && this.expanded) {
       setTimeout(() => {
-        if (!this.expanded) return;
-        this.renderRoot.querySelector("ha-list")!.style.height =
-          `${this.clientHeight - 49 - 32}px`; // 32px is the height of the search input
-      }, 300);
+        if (!this.expanded) return
+        this.renderRoot.querySelector('ha-list')!.style.height =
+          `${this.clientHeight - 49 - 32}px` // 32px is the height of the search input
+      }, 300)
     }
   }
 
   private _expandedWillChange(ev) {
-    this._shouldRender = ev.detail.expanded;
+    this._shouldRender = ev.detail.expanded
   }
 
   private _expandedChanged(ev) {
-    this.expanded = ev.detail.expanded;
+    this.expanded = ev.detail.expanded
   }
 
   protected async firstUpdated() {
-    this._manifests = await fetchIntegrationManifests(this.hass);
-    this.hass.loadBackendTranslation("title");
+    this._manifests = await fetchIntegrationManifests(this.hass)
+    this.hass.loadBackendTranslation('title')
   }
 
   private _integrations = memoizeOne(
@@ -125,14 +128,14 @@ export class HaFilterIntegrations extends LitElement {
       _value
     ) =>
       manifest
-        .map((mnfst) => ({
+        .map(mnfst => ({
           ...mnfst,
           name: domainToName(localize, mnfst.domain, mnfst),
         }))
         .filter(
-          (mnfst) =>
+          mnfst =>
             (!mnfst.integration_type ||
-              !["entity", "system", "hardware"].includes(
+              !['entity', 'system', 'hardware'].includes(
                 mnfst.integration_type
               )) &&
             (!filter ||
@@ -142,38 +145,38 @@ export class HaFilterIntegrations extends LitElement {
         .sort((a, b) =>
           stringCompare(a.name, b.name, this.hass.locale.language)
         )
-  );
+  )
 
   private _handleItemClick(ev) {
-    const listItem = ev.target.closest("ha-check-list-item");
-    const value = listItem?.value;
+    const listItem = ev.target.closest('ha-check-list-item')
+    const value = listItem?.value
     if (!value) {
-      return;
+      return
     }
     if (this.value?.includes(value)) {
-      this.value = this.value?.filter((val) => val !== value);
+      this.value = this.value?.filter(val => val !== value)
     } else {
-      this.value = [...(this.value || []), value];
+      this.value = [...(this.value || []), value]
     }
-    listItem.selected = this.value?.includes(value);
+    listItem.selected = this.value?.includes(value)
 
-    fireEvent(this, "data-table-filter-changed", {
+    fireEvent(this, 'data-table-filter-changed', {
       value: this.value,
       items: undefined,
-    });
+    })
   }
 
   private _clearFilter(ev) {
-    ev.preventDefault();
-    this.value = undefined;
-    fireEvent(this, "data-table-filter-changed", {
+    ev.preventDefault()
+    this.value = undefined
+    fireEvent(this, 'data-table-filter-changed', {
       value: undefined,
       items: undefined,
-    });
+    })
   }
 
   private _handleSearchChange(ev: CustomEvent) {
-    this._filter = ev.detail.value.toLowerCase();
+    this._filter = ev.detail.value.toLowerCase()
   }
 
   static get styles(): CSSResultGroup {
@@ -220,12 +223,12 @@ export class HaFilterIntegrations extends LitElement {
           padding: var(--ha-space-1) var(--ha-space-2) 0;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-filter-integrations": HaFilterIntegrations;
+    'ha-filter-integrations': HaFilterIntegrations
   }
 }

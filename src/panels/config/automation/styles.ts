@@ -1,7 +1,7 @@
-import { css } from "lit";
+import { css } from 'lit'
 
-export const SIDEBAR_MIN_WIDTH = 375;
-export const CONTENT_MIN_WIDTH = 350;
+export const SIDEBAR_MIN_WIDTH = 375
+export const CONTENT_MIN_WIDTH = 350
 
 export const rowStyles = css`
   ha-icon-button {
@@ -43,7 +43,7 @@ export const rowStyles = css`
   .hidden {
     display: none;
   }
-`;
+`
 
 export const editorStyles = css`
   .disabled {
@@ -58,7 +58,7 @@ export const editorStyles = css`
     border-top: 1px solid var(--divider-color);
     border-bottom: 1px solid var(--divider-color);
   }
-`;
+`
 
 export const indentStyle = css`
   .card-content.indent,
@@ -87,7 +87,7 @@ export const indentStyle = css`
       rgba(var(--rgb-primary-color), 0) 100%
     );
   }
-`;
+`
 
 export const saveFabStyles = css`
   :host {
@@ -102,7 +102,7 @@ export const saveFabStyles = css`
   ha-fab.dirty {
     bottom: calc(16px + var(--safe-area-inset-bottom, 0px));
   }
-`;
+`
 
 export const manualEditorStyles = css`
   :host {
@@ -177,7 +177,7 @@ export const manualEditorStyles = css`
   .header a {
     color: var(--secondary-text-color);
   }
-`;
+`
 
 export const automationRowsStyles = css`
   .rows {
@@ -223,7 +223,7 @@ export const automationRowsStyles = css`
     gap: var(--ha-space-2);
     order: 1;
   }
-`;
+`
 
 export const sidebarEditorStyles = css`
   .sidebar-editor {
@@ -233,7 +233,7 @@ export const sidebarEditorStyles = css`
   .description {
     padding-top: 16px;
   }
-`;
+`
 
 export const overflowStyles = css`
   .overflow-label {
@@ -269,4 +269,4 @@ export const overflowStyles = css`
   ha-md-menu-item {
     --mdc-icon-size: 24px;
   }
-`;
+`

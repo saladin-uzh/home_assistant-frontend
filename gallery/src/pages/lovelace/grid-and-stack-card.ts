@@ -1,52 +1,52 @@
-import type { PropertyValues, TemplateResult } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, query } from "lit/decorators";
-import { mockHistory } from "../../../../demo/src/stubs/history";
-import { getEntity } from "../../../../src/fake_data/entity";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import "../../components/demo-cards";
-import { mockIcons } from "../../../../demo/src/stubs/icons";
+import type { PropertyValues, TemplateResult } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, query } from 'lit/decorators'
+import { mockHistory } from '../../../../demo/src/stubs/history'
+import { getEntity } from '../../../../src/fake_data/entity'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import '../../components/demo-cards'
+import { mockIcons } from '../../../../demo/src/stubs/icons'
 
 const ENTITIES = [
-  getEntity("light", "kitchen_lights", "on", {
-    friendly_name: "Kitchen Lights",
+  getEntity('light', 'kitchen_lights', 'on', {
+    friendly_name: 'Kitchen Lights',
   }),
-  getEntity("light", "bed_light", "on", {
-    friendly_name: "Bed Lights",
+  getEntity('light', 'bed_light', 'on', {
+    friendly_name: 'Bed Lights',
   }),
-  getEntity("device_tracker", "demo_paulus", "work", {
-    source_type: "gps",
+  getEntity('device_tracker', 'demo_paulus', 'work', {
+    source_type: 'gps',
     latitude: 32.877105,
     longitude: 117.232185,
     gps_accuracy: 91,
     battery: 71,
-    friendly_name: "Paulus",
+    friendly_name: 'Paulus',
   }),
-  getEntity("device_tracker", "demo_anne_therese", "school", {
-    source_type: "gps",
+  getEntity('device_tracker', 'demo_anne_therese', 'school', {
+    source_type: 'gps',
     latitude: 32.877105,
     longitude: 117.232185,
     gps_accuracy: 91,
     battery: 71,
-    friendly_name: "Anne Therese",
+    friendly_name: 'Anne Therese',
   }),
-  getEntity("device_tracker", "demo_home_boy", "home", {
-    source_type: "gps",
+  getEntity('device_tracker', 'demo_home_boy', 'home', {
+    source_type: 'gps',
     latitude: 32.877105,
     longitude: 117.232185,
     gps_accuracy: 91,
     battery: 71,
-    friendly_name: "Home Boy",
+    friendly_name: 'Home Boy',
   }),
-  getEntity("sensor", "illumination", "23", {
-    friendly_name: "Illumination",
-    unit_of_measurement: "lx",
+  getEntity('sensor', 'illumination', '23', {
+    friendly_name: 'Illumination',
+    unit_of_measurement: 'lx',
   }),
-];
+]
 
 const CONFIGS = [
   {
-    heading: "Default Grid",
+    heading: 'Default Grid',
     config: `
 - type: grid
   cards:
@@ -64,7 +64,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Non-square Grid with 2 columns",
+    heading: 'Non-square Grid with 2 columns',
     config: `
 - type: grid
   columns: 2
@@ -82,7 +82,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Default Grid with title",
+    heading: 'Default Grid with title',
     config: `
 - type: grid
   title: Kitchen
@@ -101,7 +101,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Columns 4",
+    heading: 'Columns 4',
     config: `
 - type: grid
   columns: 4
@@ -118,7 +118,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Columns 2",
+    heading: 'Columns 2',
     config: `
 - type: grid
   columns: 2
@@ -130,7 +130,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Columns 1",
+    heading: 'Columns 1',
     config: `
 - type: grid
   columns: 1
@@ -140,7 +140,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Size for single card",
+    heading: 'Size for single card',
     config: `
 - type: grid
   cards:
@@ -150,7 +150,7 @@ const CONFIGS = [
   },
 
   {
-    heading: "Vertical Stack",
+    heading: 'Vertical Stack',
     config: `
 - type: vertical-stack
   cards:
@@ -165,7 +165,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Horizontal Stack",
+    heading: 'Horizontal Stack',
     config: `
 - type: horizontal-stack
   cards:
@@ -180,7 +180,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Combination of both",
+    heading: 'Combination of both',
     config: `
 - type: vertical-stack
   cards:
@@ -199,29 +199,32 @@ const CONFIGS = [
       entity: light.bed_light
     `,
   },
-];
+]
 
-@customElement("demo-lovelace-grid-and-stack-card")
+@customElement('demo-lovelace-grid-and-stack-card')
 class DemoStack extends LitElement {
-  @query("#demos") private _demoRoot!: HTMLElement;
+  @query('#demos') private _demoRoot!: HTMLElement
 
   protected render(): TemplateResult {
-    return html`<demo-cards id="demos" .configs=${CONFIGS}></demo-cards>`;
+    return html`<demo-cards
+      id="demos"
+      .configs=${CONFIGS}
+    ></demo-cards>`
   }
 
   protected firstUpdated(changedProperties: PropertyValues) {
-    super.firstUpdated(changedProperties);
-    const hass = provideHass(this._demoRoot);
-    hass.updateTranslations(null, "en");
-    hass.updateTranslations("lovelace", "en");
-    hass.addEntities(ENTITIES);
-    mockHistory(hass);
-    mockIcons(hass);
+    super.firstUpdated(changedProperties)
+    const hass = provideHass(this._demoRoot)
+    hass.updateTranslations(null, 'en')
+    hass.updateTranslations('lovelace', 'en')
+    hass.addEntities(ENTITIES)
+    mockHistory(hass)
+    mockIcons(hass)
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-lovelace-grid-and-stack-card": DemoStack;
+    'demo-lovelace-grid-and-stack-card': DemoStack
   }
 }

@@ -1,36 +1,36 @@
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../common/dom/fire_event";
-import "./ha-icon";
-import "./ha-input-helper-text";
-import "./ha-slider";
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../common/dom/fire_event'
+import './ha-icon'
+import './ha-input-helper-text'
+import './ha-slider'
 
-@customElement("ha-labeled-slider")
+@customElement('ha-labeled-slider')
 class HaLabeledSlider extends LitElement {
-  @property({ type: Boolean }) public labeled = false;
+  @property({ type: Boolean }) public labeled = false
 
-  @property() public caption?: string;
+  @property() public caption?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = true;
+  @property({ type: Boolean }) public required = true
 
-  @property({ type: Number }) public min = 0;
+  @property({ type: Number }) public min = 0
 
-  @property({ type: Number }) public max = 100;
+  @property({ type: Number }) public max = 100
 
-  @property({ type: Number }) public step = 1;
+  @property({ type: Number }) public step = 1
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean }) public extra = false;
+  @property({ type: Boolean }) public extra = false
 
-  @property() public icon?: string;
+  @property() public icon?: string
 
-  @property({ type: Number }) public value?: number;
+  @property({ type: Number }) public value?: number
 
   protected render() {
-    const title = this._getTitle();
+    const title = this._getTitle()
     return html`
       ${title ? html`<div class="title">${title}</div>` : nothing}
       <div class="extra-container"><slot name="extra"></slot></div>
@@ -53,17 +53,17 @@ class HaLabeledSlider extends LitElement {
             ${this.helper}
           </ha-input-helper-text>`
         : nothing}
-    `;
+    `
   }
 
   private _getTitle(): string {
-    return `${this.caption}${this.caption && this.required ? " *" : ""}`;
+    return `${this.caption}${this.caption && this.required ? ' *' : ''}`
   }
 
   private _inputChanged(ev) {
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: Number((ev.target as any).value),
-    });
+    })
   }
 
   static styles = css`
@@ -98,11 +98,11 @@ class HaLabeledSlider extends LitElement {
     ha-slider {
       width: 100%;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-labeled-slider": HaLabeledSlider;
+    'ha-labeled-slider': HaLabeledSlider
   }
 }

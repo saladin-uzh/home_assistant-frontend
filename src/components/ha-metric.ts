@@ -1,38 +1,41 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { roundWithOneDecimal } from "../util/calculate";
-import "./ha-bar";
-import "./ha-settings-row";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { roundWithOneDecimal } from '../util/calculate'
+import './ha-bar'
+import './ha-settings-row'
 
-@customElement("ha-metric")
+@customElement('ha-metric')
 class HaMetric extends LitElement {
-  @property({ type: Number }) public value!: number;
+  @property({ type: Number }) public value!: number
 
-  @property({ type: String }) public heading!: string;
+  @property({ type: String }) public heading!: string
 
-  @property({ type: String }) public tooltip?: string;
+  @property({ type: String }) public tooltip?: string
 
   protected render(): TemplateResult {
-    const roundedValue = roundWithOneDecimal(this.value);
+    const roundedValue = roundWithOneDecimal(this.value)
     return html`
       <ha-settings-row>
         <span slot="heading"> ${this.heading} </span>
-        <div slot="description" .title=${this.tooltip ?? ""}>
+        <div
+          slot="description"
+          .title=${this.tooltip ?? ''}
+        >
           <span class="value">
             <div>${roundedValue} %</div>
           </span>
           <ha-bar
             class=${classMap({
-              "target-warning": roundedValue > 50,
-              "target-critical": roundedValue > 85,
+              'target-warning': roundedValue > 50,
+              'target-critical': roundedValue > 85,
             })}
             .value=${this.value}
           ></ha-bar>
         </div>
       </ha-settings-row>
-    `;
+    `
   }
 
   static styles = css`
@@ -41,7 +44,7 @@ class HaMetric extends LitElement {
       height: 54px;
       width: 100%;
     }
-    ha-settings-row > div[slot="description"] {
+    ha-settings-row > div[slot='description'] {
       white-space: normal;
       color: var(--secondary-text-color);
       display: flex;
@@ -73,11 +76,11 @@ class HaMetric extends LitElement {
       direction: ltr;
       text-align: var(--float-start);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-metric": HaMetric;
+    'ha-metric': HaMetric
   }
 }

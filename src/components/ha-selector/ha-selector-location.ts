@@ -1,55 +1,55 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../common/dom/fire_event";
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../common/dom/fire_event'
 import type {
   LocationSelector,
   LocationSelectorValue,
-} from "../../data/selector";
-import type { HomeAssistant } from "../../types";
-import type { SchemaUnion } from "../ha-form/types";
-import type { MarkerLocation } from "../map/ha-locations-editor";
-import "../map/ha-locations-editor";
-import "../ha-form/ha-form";
-import type { LocalizeFunc } from "../../common/translations/localize";
+} from '../../data/selector'
+import type { HomeAssistant } from '../../types'
+import type { SchemaUnion } from '../ha-form/types'
+import type { MarkerLocation } from '../map/ha-locations-editor'
+import '../map/ha-locations-editor'
+import '../ha-form/ha-form'
+import type { LocalizeFunc } from '../../common/translations/localize'
 
-@customElement("ha-selector-location")
+@customElement('ha-selector-location')
 export class HaLocationSelector extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: LocationSelector;
+  @property({ attribute: false }) public selector!: LocationSelector
 
-  @property({ type: Object }) public value?: LocationSelectorValue;
+  @property({ type: Object }) public value?: LocationSelectorValue
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean, reflect: true }) public disabled = false;
+  @property({ type: Boolean, reflect: true }) public disabled = false
 
   private _schema = memoizeOne(
     (localize: LocalizeFunc, radius?: boolean, radius_readonly?: boolean) =>
       [
         {
-          name: "",
-          type: "grid",
+          name: '',
+          type: 'grid',
           schema: [
             {
-              name: "latitude",
+              name: 'latitude',
               required: true,
-              selector: { number: { step: "any", unit_of_measurement: "°" } },
+              selector: { number: { step: 'any', unit_of_measurement: '°' } },
             },
             {
-              name: "longitude",
+              name: 'longitude',
               required: true,
-              selector: { number: { step: "any", unit_of_measurement: "°" } },
+              selector: { number: { step: 'any', unit_of_measurement: '°' } },
             },
           ],
         },
         ...(radius
           ? [
               {
-                name: "radius",
+                name: 'radius',
                 required: true,
                 default: 1000,
                 disabled: !!radius_readonly,
@@ -57,9 +57,9 @@ export class HaLocationSelector extends LitElement {
                   number: {
                     min: 0,
                     step: 1,
-                    mode: "box",
+                    mode: 'box',
                     unit_of_measurement: localize(
-                      "ui.components.selectors.location.radius_meters"
+                      'ui.components.selectors.location.radius_meters'
                     ),
                   } as const,
                 },
@@ -67,7 +67,7 @@ export class HaLocationSelector extends LitElement {
             ]
           : []),
       ] as const
-  );
+  )
 
   protected willUpdate() {
     if (!this.value) {
@@ -75,13 +75,13 @@ export class HaLocationSelector extends LitElement {
         latitude: this.hass.config.latitude,
         longitude: this.hass.config.longitude,
         radius: this.selector.location?.radius ? 1000 : undefined,
-      };
+      }
     }
   }
 
   protected render() {
     return html`
-      <p>${this.label ? this.label : ""}</p>
+      <p>${this.label ? this.label : ''}</p>
       <ha-locations-editor
         class="flex"
         .hass=${this.hass}
@@ -103,7 +103,7 @@ export class HaLocationSelector extends LitElement {
         .disabled=${this.disabled}
         @value-changed=${this._valueChanged}
       ></ha-form>
-    `;
+    `
   }
 
   private _location = memoizeOne(
@@ -111,14 +111,14 @@ export class HaLocationSelector extends LitElement {
       selector: LocationSelector,
       value?: LocationSelectorValue
     ): MarkerLocation[] => {
-      const computedStyles = getComputedStyle(this);
+      const computedStyles = getComputedStyle(this)
       const zoneRadiusColor = selector.location?.radius
-        ? computedStyles.getPropertyValue("--zone-radius-color") ||
-          computedStyles.getPropertyValue("--accent-color")
-        : undefined;
+        ? computedStyles.getPropertyValue('--zone-radius-color') ||
+          computedStyles.getPropertyValue('--accent-color')
+        : undefined
       return [
         {
-          id: "location",
+          id: 'location',
           latitude:
             !value || isNaN(value.latitude)
               ? this.hass.config.latitude
@@ -131,34 +131,34 @@ export class HaLocationSelector extends LitElement {
           radius_color: zoneRadiusColor,
           icon:
             selector.location?.icon || selector.location?.radius
-              ? "mdi:map-marker-radius"
-              : "mdi:map-marker",
+              ? 'mdi:map-marker-radius'
+              : 'mdi:map-marker',
           location_editable: true,
           radius_editable:
             !!selector.location?.radius && !selector.location?.radius_readonly,
         },
-      ];
+      ]
     }
-  );
+  )
 
   private _locationChanged(ev: CustomEvent) {
-    const [latitude, longitude] = ev.detail.location;
-    fireEvent(this, "value-changed", {
+    const [latitude, longitude] = ev.detail.location
+    fireEvent(this, 'value-changed', {
       value: { ...this.value, latitude, longitude },
-    });
+    })
   }
 
   private _radiusChanged(ev: CustomEvent) {
-    const radius = Math.round(ev.detail.radius);
-    fireEvent(this, "value-changed", { value: { ...this.value, radius } });
+    const radius = Math.round(ev.detail.radius)
+    fireEvent(this, 'value-changed', { value: { ...this.value, radius } })
   }
 
   private _valueChanged(ev: CustomEvent) {
-    ev.stopPropagation();
-    const value = ev.detail.value;
-    const radius = Math.round(ev.detail.value.radius);
+    ev.stopPropagation()
+    const value = ev.detail.value
+    const radius = Math.round(ev.detail.value.radius)
 
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: {
         latitude: value.latitude,
         longitude: value.longitude,
@@ -169,7 +169,7 @@ export class HaLocationSelector extends LitElement {
             }
           : {}),
       },
-    });
+    })
   }
 
   private _computeLabel = (
@@ -178,10 +178,10 @@ export class HaLocationSelector extends LitElement {
     if (entry.name) {
       return this.hass.localize(
         `ui.components.selectors.location.${entry.name}`
-      );
+      )
     }
-    return "";
-  };
+    return ''
+  }
 
   static styles = css`
     ha-locations-editor {
@@ -192,11 +192,11 @@ export class HaLocationSelector extends LitElement {
     p {
       margin-top: 0;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-location": HaLocationSelector;
+    'ha-selector-location': HaLocationSelector
   }
 }

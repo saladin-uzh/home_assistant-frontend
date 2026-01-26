@@ -1,39 +1,39 @@
-import type { TemplateResult } from "lit";
-import { LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators";
-import { isComponentLoaded } from "../../common/config/is_component_loaded";
-import { pushSupported } from "../../components/ha-push-notifications-toggle";
-import "../../components/ha-settings-row";
-import { documentationUrl } from "../../util/documentation-url";
-import type { HomeAssistant } from "../../types";
+import type { TemplateResult } from 'lit'
+import { LitElement, css, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { isComponentLoaded } from '../../common/config/is_component_loaded'
+import { pushSupported } from '../../components/ha-push-notifications-toggle'
+import '../../components/ha-settings-row'
+import { documentationUrl } from '../../util/documentation-url'
+import type { HomeAssistant } from '../../types'
 
-@customElement("ha-push-notifications-row")
+@customElement('ha-push-notifications-row')
 class HaPushNotificationsRow extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
   protected render(): TemplateResult {
-    const platformLoaded = isComponentLoaded(this.hass, "html5.notify");
+    const platformLoaded = isComponentLoaded(this.hass, 'html5.notify')
     let descriptionKey:
-      | "error_use_https"
-      | "error_load_platform"
-      | "description";
+      | 'error_use_https'
+      | 'error_load_platform'
+      | 'description'
     if (!pushSupported) {
-      descriptionKey = "error_use_https";
+      descriptionKey = 'error_use_https'
     } else if (!platformLoaded) {
-      descriptionKey = "error_load_platform";
+      descriptionKey = 'error_load_platform'
     } else {
-      descriptionKey = "description";
+      descriptionKey = 'description'
     }
 
-    const isDisabled = !platformLoaded || !pushSupported;
+    const isDisabled = !platformLoaded || !pushSupported
 
     return html`
       <ha-settings-row .narrow=${this.narrow}>
         <span slot="heading"
           >${this.hass.localize(
-            "ui.panel.profile.push_notifications.header"
+            'ui.panel.profile.push_notifications.header'
           )}</span
         >
         <span slot="description">
@@ -41,11 +41,11 @@ class HaPushNotificationsRow extends LitElement {
             `ui.panel.profile.push_notifications.${descriptionKey}`
           )}
           <a
-            href=${documentationUrl(this.hass, "/integrations/html5")}
+            href=${documentationUrl(this.hass, '/integrations/html5')}
             target="_blank"
             rel="noreferrer"
             >${this.hass.localize(
-              "ui.panel.profile.push_notifications.link_promo"
+              'ui.panel.profile.push_notifications.link_promo'
             )}</a
           >
         </span>
@@ -54,18 +54,18 @@ class HaPushNotificationsRow extends LitElement {
           .disabled=${isDisabled}
         ></ha-push-notifications-toggle>
       </ha-settings-row>
-    `;
+    `
   }
 
   static styles = css`
     a {
       color: var(--primary-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-push-notifications-row": HaPushNotificationsRow;
+    'ha-push-notifications-row': HaPushNotificationsRow
   }
 }

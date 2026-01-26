@@ -1,34 +1,34 @@
-import type { TemplateResult } from "lit";
-import { LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../components/ha-card";
-import "../components/ha-ripple";
-import "../components/ha-svg-icon";
+import type { TemplateResult } from 'lit'
+import { LitElement, css, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../components/ha-card'
+import '../components/ha-ripple'
+import '../components/ha-svg-icon'
 
-@customElement("onboarding-welcome-link")
+@customElement('onboarding-welcome-link')
 class OnboardingWelcomeLink extends LitElement {
-  @property() public label!: string;
+  @property() public label!: string
 
-  @property({ attribute: false }) public iconPath!: string;
+  @property({ attribute: false }) public iconPath!: string
 
-  @property({ type: Boolean }) public noninteractive = false;
+  @property({ type: Boolean }) public noninteractive = false
 
   protected render(): TemplateResult {
     return html`
       <ha-card
-        .tabIndex=${this.noninteractive ? "-1" : "0"}
+        .tabIndex=${this.noninteractive ? '-1' : '0'}
         @keydown=${this._handleKeyDown}
       >
         <ha-svg-icon .path=${this.iconPath}></ha-svg-icon>
         ${this.label}
         <ha-ripple></ha-ripple>
       </ha-card>
-    `;
+    `
   }
 
   private _handleKeyDown(ev: KeyboardEvent): void {
-    if (ev.key === "Enter" || ev.key === " ") {
-      (ev.target as HTMLElement).click();
+    if (ev.key === 'Enter' || ev.key === ' ') {
+      ;(ev.target as HTMLElement).click()
     }
   }
 
@@ -56,16 +56,16 @@ class OnboardingWelcomeLink extends LitElement {
     ha-card:focus-visible:before {
       position: absolute;
       display: block;
-      content: "";
+      content: '';
       inset: 0;
       background-color: var(--secondary-text-color);
       opacity: 0.08;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "onboarding-welcome-link": OnboardingWelcomeLink;
+    'onboarding-welcome-link': OnboardingWelcomeLink
   }
 }

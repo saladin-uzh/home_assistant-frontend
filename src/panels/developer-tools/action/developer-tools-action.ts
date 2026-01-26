@@ -1,150 +1,150 @@
-import { mdiHelpCircle } from "@mdi/js";
-import type { HassService } from "home-assistant-js-websocket";
-import { ERR_CONNECTION_LOST } from "home-assistant-js-websocket";
-import { load } from "js-yaml";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { until } from "lit/directives/until";
-import memoizeOne from "memoize-one";
-import { storage } from "../../../common/decorators/storage";
-import { computeDomain } from "../../../common/entity/compute_domain";
-import { computeObjectId } from "../../../common/entity/compute_object_id";
-import { hasTemplate, isTemplate } from "../../../common/string/has-template";
-import type { LocalizeFunc } from "../../../common/translations/localize";
-import { extractSearchParam } from "../../../common/url/search-params";
-import { copyToClipboard } from "../../../common/util/copy-clipboard";
-import type { HaProgressButton } from "../../../components/buttons/ha-progress-button";
-import { showToast } from "../../../util/toast";
+import { mdiHelpCircle } from '@mdi/js'
+import type { HassService } from 'home-assistant-js-websocket'
+import { ERR_CONNECTION_LOST } from 'home-assistant-js-websocket'
+import { load } from 'js-yaml'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { until } from 'lit/directives/until'
+import memoizeOne from 'memoize-one'
+import { storage } from '../../../common/decorators/storage'
+import { computeDomain } from '../../../common/entity/compute_domain'
+import { computeObjectId } from '../../../common/entity/compute_object_id'
+import { hasTemplate, isTemplate } from '../../../common/string/has-template'
+import type { LocalizeFunc } from '../../../common/translations/localize'
+import { extractSearchParam } from '../../../common/url/search-params'
+import { copyToClipboard } from '../../../common/util/copy-clipboard'
+import type { HaProgressButton } from '../../../components/buttons/ha-progress-button'
+import { showToast } from '../../../util/toast'
 
-import "../../../components/entity/ha-entity-picker";
-import "../../../components/ha-alert";
-import "../../../components/ha-button";
-import "../../../components/ha-card";
-import "../../../components/buttons/ha-progress-button";
-import "../../../components/ha-expansion-panel";
-import "../../../components/ha-icon-button";
-import "../../../components/ha-service-control";
-import "../../../components/ha-service-picker";
-import "../../../components/ha-yaml-editor";
-import type { HaYamlEditor } from "../../../components/ha-yaml-editor";
-import { forwardHaptic } from "../../../data/haptics";
-import type { Action, ServiceAction } from "../../../data/script";
-import { migrateAutomationAction } from "../../../data/script";
+import '../../../components/entity/ha-entity-picker'
+import '../../../components/ha-alert'
+import '../../../components/ha-button'
+import '../../../components/ha-card'
+import '../../../components/buttons/ha-progress-button'
+import '../../../components/ha-expansion-panel'
+import '../../../components/ha-icon-button'
+import '../../../components/ha-service-control'
+import '../../../components/ha-service-picker'
+import '../../../components/ha-yaml-editor'
+import type { HaYamlEditor } from '../../../components/ha-yaml-editor'
+import { forwardHaptic } from '../../../data/haptics'
+import type { Action, ServiceAction } from '../../../data/script'
+import { migrateAutomationAction } from '../../../data/script'
 import {
   callExecuteScript,
   serviceCallWillDisconnect,
-} from "../../../data/service";
-import { haStyle } from "../../../resources/styles";
-import type { HomeAssistant } from "../../../types";
-import { documentationUrl } from "../../../util/documentation-url";
-import { resolveMediaSource } from "../../../data/media_source";
+} from '../../../data/service'
+import { haStyle } from '../../../resources/styles'
+import type { HomeAssistant } from '../../../types'
+import { documentationUrl } from '../../../util/documentation-url'
+import { resolveMediaSource } from '../../../data/media_source'
 
-@customElement("developer-tools-action")
+@customElement('developer-tools-action')
 class HaPanelDevAction extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @state() private _uiAvailable = true;
+  @state() private _uiAvailable = true
 
   @state() private _response?: {
-    domain: string;
-    service: string;
-    result: Record<string, any> | null;
-    media?: Promise<TemplateResult | typeof nothing>;
-  };
+    domain: string
+    service: string
+    result: Record<string, any> | null
+    media?: Promise<TemplateResult | typeof nothing>
+  }
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
-  private _yamlValid = true;
-
-  @state()
-  @storage({
-    key: "panel-dev-action-state-service-data",
-    state: true,
-    subscribe: false,
-  })
-  private _serviceData?: ServiceAction = { action: "", target: {}, data: {} };
+  private _yamlValid = true
 
   @state()
   @storage({
-    key: "panel-dev-action-state-yaml-mode",
+    key: 'panel-dev-action-state-service-data',
     state: true,
     subscribe: false,
   })
-  private _yamlMode = false;
+  private _serviceData?: ServiceAction = { action: '', target: {}, data: {} }
 
-  @query("#yaml-editor") private _yamlEditor?: HaYamlEditor;
+  @state()
+  @storage({
+    key: 'panel-dev-action-state-yaml-mode',
+    state: true,
+    subscribe: false,
+  })
+  private _yamlMode = false
+
+  @query('#yaml-editor') private _yamlEditor?: HaYamlEditor
 
   protected willUpdate() {
     if (
       !this.hasUpdated &&
       this._serviceData?.action &&
-      typeof this._serviceData.action !== "string"
+      typeof this._serviceData.action !== 'string'
     ) {
-      this._serviceData.action = "";
+      this._serviceData.action = ''
     }
   }
 
   protected firstUpdated(params) {
-    super.firstUpdated(params);
-    this.hass.loadBackendTranslation("services");
-    this.hass.loadBackendTranslation("selector");
+    super.firstUpdated(params)
+    this.hass.loadBackendTranslation('services')
+    this.hass.loadBackendTranslation('selector')
 
-    const serviceParam = extractSearchParam("service");
+    const serviceParam = extractSearchParam('service')
     if (serviceParam) {
       this._serviceData = {
         action: serviceParam,
         target: {},
         data: {},
-      };
+      }
       if (this._yamlMode) {
         this.updateComplete.then(() =>
           this._yamlEditor?.setValue(this._serviceData)
-        );
+        )
       }
     } else if (!this._serviceData?.action) {
-      const domain = Object.keys(this.hass.services).sort()[0];
-      const service = Object.keys(this.hass.services[domain]).sort()[0];
+      const domain = Object.keys(this.hass.services).sort()[0]
+      const service = Object.keys(this.hass.services[domain]).sort()[0]
       this._serviceData = {
         action: `${domain}.${service}`,
         target: {},
         data: {},
-      };
+      }
       if (this._yamlMode) {
         this.updateComplete.then(() =>
           this._yamlEditor?.setValue(this._serviceData)
-        );
+        )
       }
     }
-    this._checkUiSupported();
+    this._checkUiSupported()
   }
 
   protected render() {
     const { target, fields } = this._fields(
       this.hass.services,
       this._serviceData?.action
-    );
+    )
 
     const domain = this._serviceData?.action
       ? computeDomain(this._serviceData?.action)
-      : undefined;
+      : undefined
 
     const serviceName = this._serviceData?.action
       ? computeObjectId(this._serviceData?.action)
-      : undefined;
+      : undefined
 
     const descriptionPlaceholders =
       domain && serviceName
         ? this.hass.services[domain][serviceName].description_placeholders
-        : undefined;
+        : undefined
 
     return html`
       <div class="content">
         <p>
           ${this.hass.localize(
-            "ui.panel.developer-tools.tabs.actions.description"
+            'ui.panel.developer-tools.tabs.actions.description'
           )}
         </p>
         <ha-card>
@@ -189,23 +189,26 @@ class HaPanelDevAction extends LitElement {
             >
               ${this._yamlMode
                 ? this.hass.localize(
-                    "ui.panel.developer-tools.tabs.actions.ui_mode"
+                    'ui.panel.developer-tools.tabs.actions.ui_mode'
                   )
                 : this.hass.localize(
-                    "ui.panel.developer-tools.tabs.actions.yaml_mode"
+                    'ui.panel.developer-tools.tabs.actions.yaml_mode'
                   )}
             </ha-button>
             ${!this._uiAvailable
               ? html`<span class="error"
                   >${this.hass.localize(
-                    "ui.panel.developer-tools.tabs.actions.no_template_ui_support"
+                    'ui.panel.developer-tools.tabs.actions.no_template_ui_support'
                   )}</span
                 >`
-              : ""}
+              : ''}
           </div>
-          <ha-progress-button raised @click=${this._callService}>
+          <ha-progress-button
+            raised
+            @click=${this._callService}
+          >
             ${this.hass.localize(
-              "ui.panel.developer-tools.tabs.actions.call_service"
+              'ui.panel.developer-tools.tabs.actions.call_service'
             )}
           </ha-progress-button>
         </div>
@@ -214,7 +217,7 @@ class HaPanelDevAction extends LitElement {
         ? html`<div class="content response">
             <ha-card
               .header=${this.hass.localize(
-                "ui.panel.developer-tools.tabs.actions.response"
+                'ui.panel.developer-tools.tabs.actions.response'
               )}
             >
               <div class="card-content">
@@ -230,7 +233,7 @@ class HaPanelDevAction extends LitElement {
                     slot="extra-actions"
                     @click=${this._copyTemplate}
                     >${this.hass.localize(
-                      "ui.panel.developer-tools.tabs.actions.copy_clipboard_template"
+                      'ui.panel.developer-tools.tabs.actions.copy_clipboard_template'
                     )}</ha-button
                   >
                 </ha-yaml-editor>
@@ -244,10 +247,10 @@ class HaPanelDevAction extends LitElement {
             <ha-expansion-panel
               .header=${this._yamlMode
                 ? this.hass.localize(
-                    "ui.panel.developer-tools.tabs.actions.all_parameters"
+                    'ui.panel.developer-tools.tabs.actions.all_parameters'
                   )
                 : this.hass.localize(
-                    "ui.panel.developer-tools.tabs.actions.yaml_parameters"
+                    'ui.panel.developer-tools.tabs.actions.yaml_parameters'
                   )}
               outlined
               .expanded=${this._yamlMode}
@@ -258,20 +261,20 @@ class HaPanelDevAction extends LitElement {
                       ${target
                         ? html`
                             ${this.hass.localize(
-                              "ui.panel.developer-tools.tabs.actions.accepts_target"
+                              'ui.panel.developer-tools.tabs.actions.accepts_target'
                             )}
                           `
-                        : ""}
+                        : ''}
                     </h3>
                     ${this._serviceData?.action
                       ? html` <a
                           href=${documentationUrl(
                             this.hass,
-                            "/integrations/" +
+                            '/integrations/' +
                               computeDomain(this._serviceData?.action)
                           )}
                           title=${this.hass.localize(
-                            "ui.components.service-control.integration_doc"
+                            'ui.components.service-control.integration_doc'
                           )}
                           target="_blank"
                           rel="noreferrer"
@@ -279,27 +282,27 @@ class HaPanelDevAction extends LitElement {
                           <ha-icon-button
                             class="help-icon"
                             .path=${mdiHelpCircle}
-                            .label=${this.hass!.localize("ui.common.help")}
+                            .label=${this.hass!.localize('ui.common.help')}
                           ></ha-icon-button>
                         </a>`
-                      : ""}
+                      : ''}
                   </div>`
-                : ""}
+                : ''}
               <table class="attributes">
                 <tr>
                   <th>
                     ${this.hass.localize(
-                      "ui.panel.developer-tools.tabs.actions.column_parameter"
+                      'ui.panel.developer-tools.tabs.actions.column_parameter'
                     )}
                   </th>
                   <th>
                     ${this.hass.localize(
-                      "ui.panel.developer-tools.tabs.actions.column_description"
+                      'ui.panel.developer-tools.tabs.actions.column_description'
                     )}
                   </th>
                   <th>
                     ${this.hass.localize(
-                      "ui.panel.developer-tools.tabs.actions.column_example"
+                      'ui.panel.developer-tools.tabs.actions.column_example'
                     )}
                   </th>
                 </tr>
@@ -307,7 +310,7 @@ class HaPanelDevAction extends LitElement {
                   ? fields
                   : this._filterSelectorFields(fields)
                 ).map(
-                  (field) =>
+                  field =>
                     html` <tr>
                       <td><pre>${field.key}</pre></td>
                       <td>
@@ -330,28 +333,28 @@ class HaPanelDevAction extends LitElement {
                     appearance="plain"
                     @click=${this._fillExampleData}
                     >${this.hass.localize(
-                      "ui.panel.developer-tools.tabs.actions.fill_example_data"
+                      'ui.panel.developer-tools.tabs.actions.fill_example_data'
                     )}</ha-button
                   >`
-                : ""}
+                : ''}
             </ha-expansion-panel>
           </div>`
-        : ""}
-    `;
+        : ''}
+    `
   }
 
   private async _copyTemplate(): Promise<void> {
     await copyToClipboard(
-      `{% set ${this._serviceData?.response_variable || "action_response"} = ${JSON.stringify(this._response!.result)} %}`
-    );
+      `{% set ${this._serviceData?.response_variable || 'action_response'} = ${JSON.stringify(this._response!.result)} %}`
+    )
     showToast(this, {
-      message: this.hass.localize("ui.common.copied_clipboard"),
-    });
+      message: this.hass.localize('ui.common.copied_clipboard'),
+    })
   }
 
-  private _filterSelectorFields = memoizeOne((fields) =>
-    fields.filter((field) => !field.selector)
-  );
+  private _filterSelectorFields = memoizeOne(fields =>
+    fields.filter(field => !field.selector)
+  )
 
   private _validateServiceData = (
     serviceData: ServiceAction | undefined,
@@ -360,21 +363,21 @@ class HaPanelDevAction extends LitElement {
     yamlMode: boolean,
     localize: LocalizeFunc
   ): string | undefined => {
-    const errorCategory = yamlMode ? "yaml" : "ui";
+    const errorCategory = yamlMode ? 'yaml' : 'ui'
     if (!serviceData?.action) {
       return localize(
         `ui.panel.developer-tools.tabs.actions.errors.${errorCategory}.no_action`
-      );
+      )
     }
-    const domain = computeDomain(serviceData.action);
-    const service = computeObjectId(serviceData.action);
+    const domain = computeDomain(serviceData.action)
+    const service = computeObjectId(serviceData.action)
     if (!domain || !service) {
       return localize(
         `ui.panel.developer-tools.tabs.actions.errors.${errorCategory}.invalid_action`
-      );
+      )
     }
     const dataIsTemplate =
-      typeof serviceData.data === "string" && isTemplate(serviceData.data);
+      typeof serviceData.data === 'string' && isTemplate(serviceData.data)
     if (
       target &&
       !dataIsTemplate &&
@@ -385,7 +388,7 @@ class HaPanelDevAction extends LitElement {
     ) {
       return localize(
         `ui.panel.developer-tools.tabs.actions.errors.${errorCategory}.no_target`
-      );
+      )
     }
     for (const field of fields) {
       if (
@@ -396,72 +399,72 @@ class HaPanelDevAction extends LitElement {
         return localize(
           `ui.panel.developer-tools.tabs.actions.errors.${errorCategory}.missing_required_field`,
           { key: field.key }
-        );
+        )
       }
     }
-    return undefined;
-  };
+    return undefined
+  }
 
   private _fields = memoizeOne(
     (
-      serviceDomains: HomeAssistant["services"],
+      serviceDomains: HomeAssistant['services'],
       domainService: string | undefined
     ): { target: boolean; fields: any[] } => {
       if (!domainService) {
-        return { target: false, fields: [] };
+        return { target: false, fields: [] }
       }
-      const domain = computeDomain(domainService);
-      const service = computeObjectId(domainService);
+      const domain = computeDomain(domainService)
+      const service = computeObjectId(domainService)
       if (!(domain in serviceDomains)) {
-        return { target: false, fields: [] };
+        return { target: false, fields: [] }
       }
       if (!(service in serviceDomains[domain])) {
-        return { target: false, fields: [] };
+        return { target: false, fields: [] }
       }
-      const target = "target" in serviceDomains[domain][service];
-      const fields = serviceDomains[domain][service].fields;
-      const result: (HassService["fields"] & { key: string })[] = [];
+      const target = 'target' in serviceDomains[domain][service]
+      const fields = serviceDomains[domain][service].fields
+      const result: (HassService['fields'] & { key: string })[] = []
 
       // TODO: replace any by proper type when updated in home-assistant-js-websocket
       const getFields = (flds: any) => {
-        Object.keys(flds).forEach((field) => {
-          const fieldData = flds[field];
+        Object.keys(flds).forEach(field => {
+          const fieldData = flds[field]
           if (fieldData.fields) {
-            getFields(fieldData.fields);
+            getFields(fieldData.fields)
           } else {
             result.push({
               key: field,
               ...fieldData,
-            });
+            })
           }
-        });
-      };
+        })
+      }
 
-      getFields(fields);
+      getFields(fields)
 
       return {
         target,
         fields: result,
-      };
+      }
     }
-  );
+  )
 
   private async _callService(ev) {
-    const button = ev.currentTarget as HaProgressButton;
+    const button = ev.currentTarget as HaProgressButton
 
     if (this._yamlMode && !this._yamlValid) {
-      forwardHaptic(this, "failure");
-      button.actionError();
+      forwardHaptic(this, 'failure')
+      button.actionError()
       this._error = this.hass.localize(
-        "ui.panel.developer-tools.tabs.actions.errors.yaml.invalid_yaml"
-      );
-      return;
+        'ui.panel.developer-tools.tabs.actions.errors.yaml.invalid_yaml'
+      )
+      return
     }
 
     const { target, fields } = this._fields(
       this.hass.services,
       this._serviceData?.action
-    );
+    )
 
     this._error = this._validateServiceData(
       this._serviceData,
@@ -469,41 +472,44 @@ class HaPanelDevAction extends LitElement {
       target,
       this._yamlMode,
       this.hass.localize
-    );
+    )
 
     if (this._error !== undefined) {
-      forwardHaptic(this, "failure");
-      button.actionError();
-      return;
+      forwardHaptic(this, 'failure')
+      button.actionError()
+      return
     }
-    const [domain, service] = this._serviceData!.action!.split(".", 2);
-    const script: Action[] = [];
+    const [domain, service] = this._serviceData!.action!.split('.', 2)
+    const script: Action[] = []
     if (
       this.hass.services?.[domain]?.[service] &&
-      "response" in this.hass.services[domain][service]
+      'response' in this.hass.services[domain][service]
     ) {
       script.push({
         ...this._serviceData!,
-        response_variable: "service_result",
-      });
-      script.push({ stop: "done", response_variable: "service_result" });
+        response_variable: 'service_result',
+      })
+      script.push({ stop: 'done', response_variable: 'service_result' })
     } else {
-      script.push(this._serviceData!);
+      script.push(this._serviceData!)
     }
-    button.progress = true;
+    button.progress = true
     try {
-      const result = (await callExecuteScript(this.hass, script)).response;
+      const result = (await callExecuteScript(this.hass, script)).response
       this._response = {
         domain,
         service,
         result,
         media:
-          result && "media_source_id" in result
+          result && 'media_source_id' in result
             ? resolveMediaSource(this.hass, result.media_source_id).then(
-                (resolved) =>
-                  resolved.mime_type.startsWith("image/")
-                    ? html`<img src=${resolved.url} alt="Media content" />`
-                    : resolved.mime_type.startsWith("video/")
+                resolved =>
+                  resolved.mime_type.startsWith('image/')
+                    ? html`<img
+                        src=${resolved.url}
+                        alt="Media content"
+                      />`
+                    : resolved.mime_type.startsWith('video/')
                       ? html`
                           <video
                             controls
@@ -511,7 +517,7 @@ class HaPanelDevAction extends LitElement {
                             alt="Video content"
                           ></video>
                         `
-                      : resolved.mime_type.startsWith("audio/")
+                      : resolved.mime_type.startsWith('audio/')
                         ? html`
                             <audio
                               controls
@@ -526,127 +532,127 @@ class HaPanelDevAction extends LitElement {
                               rel="noreferrer"
                               ><ha-button>
                                 ${this.hass.localize(
-                                  "ui.panel.developer-tools.tabs.actions.open_media"
+                                  'ui.panel.developer-tools.tabs.actions.open_media'
                                 )}
                               </ha-button></a
                             >
                           `
               )
             : undefined,
-      };
+      }
     } catch (err: any) {
       if (
         err.error?.code === ERR_CONNECTION_LOST &&
         serviceCallWillDisconnect(domain, service)
       ) {
-        return;
+        return
       }
-      forwardHaptic(this, "failure");
-      button.actionError();
+      forwardHaptic(this, 'failure')
+      button.actionError()
 
-      let localizedErrorMessage: string | undefined;
+      let localizedErrorMessage: string | undefined
       if (err.translation_domain && err.translation_key) {
         const localize = await this.hass.loadBackendTranslation(
-          "exceptions",
+          'exceptions',
           err.translation_domain
-        );
+        )
         localizedErrorMessage = localize(
           `component.${err.translation_domain}.exceptions.${err.translation_key}.message`,
           err.translation_placeholders
-        );
+        )
       }
       this._error =
         localizedErrorMessage ||
-        this.hass.localize("ui.notification_toast.action_failed", {
+        this.hass.localize('ui.notification_toast.action_failed', {
           service: this._serviceData!.action!,
-        }) + ` ${err.message}`;
-      return;
+        }) + ` ${err.message}`
+      return
     } finally {
-      button.progress = false;
+      button.progress = false
     }
-    button.actionSuccess();
+    button.actionSuccess()
   }
 
   private _toggleYaml() {
-    this._yamlMode = !this._yamlMode;
-    this._yamlValid = true;
-    this._error = undefined;
+    this._yamlMode = !this._yamlMode
+    this._yamlValid = true
+    this._error = undefined
   }
 
   private _yamlChanged(ev) {
     if (!ev.detail.isValid) {
-      this._yamlValid = false;
-      return;
+      this._yamlValid = false
+      return
     }
-    this._yamlValid = true;
+    this._yamlValid = true
 
-    if (typeof ev.detail.value !== "object") {
-      return;
+    if (typeof ev.detail.value !== 'object') {
+      return
     }
 
     if (this._serviceData?.action !== ev.detail.value.action) {
-      this._error = undefined;
+      this._error = undefined
     }
 
     this._serviceData = migrateAutomationAction(
       ev.detail.value
-    ) as ServiceAction;
+    ) as ServiceAction
 
-    this._checkUiSupported();
+    this._checkUiSupported()
   }
 
   private _checkUiSupported() {
     if (
       this._serviceData &&
       Object.entries(this._serviceData).some(
-        ([key, val]) => !["data", "target"].includes(key) && hasTemplate(val)
+        ([key, val]) => !['data', 'target'].includes(key) && hasTemplate(val)
       )
     ) {
-      this._yamlMode = true;
-      this._uiAvailable = false;
+      this._yamlMode = true
+      this._uiAvailable = false
     } else {
-      this._uiAvailable = true;
+      this._uiAvailable = true
     }
   }
 
   private _serviceDataChanged(ev) {
     if (this._serviceData?.action !== ev.detail.value.action) {
-      this._error = undefined;
+      this._error = undefined
     }
-    this._serviceData = ev.detail.value;
-    this._checkUiSupported();
+    this._serviceData = ev.detail.value
+    this._checkUiSupported()
   }
 
   private _serviceChanged(ev) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (ev.detail.value) {
-      this._serviceData = { action: ev.detail.value, data: {} };
-      this._yamlEditor?.setValue(this._serviceData);
+      this._serviceData = { action: ev.detail.value, data: {} }
+      this._yamlEditor?.setValue(this._serviceData)
     }
-    this._response = undefined;
-    this._error = undefined;
-    this._checkUiSupported();
+    this._response = undefined
+    this._error = undefined
+    this._checkUiSupported()
   }
 
   private _fillExampleData() {
     const { fields } = this._fields(
       this.hass.services,
       this._serviceData?.action
-    );
+    )
     const domain = this._serviceData?.action
       ? computeDomain(this._serviceData?.action)
-      : undefined;
+      : undefined
 
     const serviceName = this._serviceData?.action
       ? computeObjectId(this._serviceData?.action)
-      : undefined;
+      : undefined
 
-    const example = {};
-    fields.forEach((field) => {
+    const example = {}
+    fields.forEach(field => {
       if (field.example) {
-        let value: any = "";
+        let value: any = ''
         try {
-          value = load(field.example);
+          value = load(field.example)
         } catch (_err: any) {
           value =
             this.hass.localize(
@@ -655,14 +661,14 @@ class HaPanelDevAction extends LitElement {
                 ? this.hass.services[domain][serviceName]
                     .description_placeholders
                 : undefined
-            ) || field.example;
+            ) || field.example
         }
-        example[field.key] = value;
+        example[field.key] = value
       }
-    });
-    this._serviceData = { ...this._serviceData!, data: example };
-    this._yamlEditor?.setValue(this._serviceData);
-    this._checkUiSupported();
+    })
+    this._serviceData = { ...this._serviceData!, data: example }
+    this._yamlEditor?.setValue(this._serviceData)
+    this._checkUiSupported()
   }
 
   static get styles(): CSSResultGroup {
@@ -748,12 +754,12 @@ class HaPanelDevAction extends LitElement {
           margin-top: 24px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "developer-tools-action": HaPanelDevAction;
+    'developer-tools-action': HaPanelDevAction
   }
 }

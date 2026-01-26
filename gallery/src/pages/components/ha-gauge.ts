@@ -1,1 +1,1 @@
-import "../../../../src/components/ha-gauge";
+import '../../../../src/components/ha-gauge'

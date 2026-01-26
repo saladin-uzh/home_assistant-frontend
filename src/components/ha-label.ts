@@ -1,17 +1,17 @@
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { uid } from "../common/util/uid";
-import "./ha-tooltip";
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { uid } from '../common/util/uid'
+import './ha-tooltip'
 
-@customElement("ha-label")
+@customElement('ha-label')
 class HaLabel extends LitElement {
-  @property({ type: Boolean, reflect: true }) dense = false;
+  @property({ type: Boolean, reflect: true }) dense = false
 
-  @property({ attribute: "description" })
-  public description?: string;
+  @property({ attribute: 'description' })
+  public description?: string
 
-  private _elementId = "label-" + uid();
+  private _elementId = 'label-' + uid()
 
   protected render(): TemplateResult {
     return html`
@@ -21,13 +21,16 @@ class HaLabel extends LitElement {
       >
         ${this.description}
       </ha-tooltip>
-      <div class="container" .id=${this._elementId}>
+      <div
+        class="container"
+        .id=${this._elementId}
+      >
         <span class="content">
           <slot name="icon"></slot>
           <slot></slot>
         </span>
       </div>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -65,13 +68,13 @@ class HaLabel extends LitElement {
         }
         :host:before {
           position: absolute;
-          content: "";
+          content: '';
           inset: 0;
           border-radius: inherit;
           background-color: var(--ha-label-background-color);
           opacity: var(--ha-label-background-opacity);
         }
-        ::slotted([slot="icon"]) {
+        ::slotted([slot='icon']) {
           margin-right: 8px;
           margin-left: -8px;
           margin-inline-start: -8px;
@@ -98,19 +101,19 @@ class HaLabel extends LitElement {
         :host([dense]) .container {
           padding: 0 12px;
         }
-        :host([dense]) ::slotted([slot="icon"]) {
+        :host([dense]) ::slotted([slot='icon']) {
           margin-right: 4px;
           margin-left: -4px;
           margin-inline-start: -4px;
           margin-inline-end: 4px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-label": HaLabel;
+    'ha-label': HaLabel
   }
 }

@@ -1,4 +1,4 @@
-import type { HassConfig } from "home-assistant-js-websocket";
+import type { HassConfig } from 'home-assistant-js-websocket'
 import {
   differenceInMonths,
   subHours,
@@ -12,48 +12,48 @@ import {
   addHours,
   startOfDay,
   addDays,
-} from "date-fns";
+} from 'date-fns'
 import type {
   BarSeriesOption,
   CallbackDataParams,
   LineSeriesOption,
   TopLevelFormatterParams,
-} from "echarts/types/dist/shared";
-import type { LineDataItemOption } from "echarts/types/src/chart/line/LineSeries";
-import type { FrontendLocaleData } from "../../../../../data/translation";
-import { formatNumber } from "../../../../../common/number/format_number";
+} from 'echarts/types/dist/shared'
+import type { LineDataItemOption } from 'echarts/types/src/chart/line/LineSeries'
+import type { FrontendLocaleData } from '../../../../../data/translation'
+import { formatNumber } from '../../../../../common/number/format_number'
 import {
   formatDateMonthYear,
   formatDateShort,
   formatDateVeryShort,
-} from "../../../../../common/datetime/format_date";
-import { formatTime } from "../../../../../common/datetime/format_time";
-import type { ECOption } from "../../../../../resources/echarts/echarts";
-import { filterXSS } from "../../../../../common/util/xss";
+} from '../../../../../common/datetime/format_date'
+import { formatTime } from '../../../../../common/datetime/format_time'
+import type { ECOption } from '../../../../../resources/echarts/echarts'
+import { filterXSS } from '../../../../../common/util/xss'
 
 export function getSuggestedMax(dayDifference: number, end: Date): number {
-  let suggestedMax = new Date(end);
+  let suggestedMax = new Date(end)
 
   // Sometimes around DST we get a time of 0:59 instead of 23:59 as expected.
   // Correct for this when showing days/months so we don't get an extra day.
   if (dayDifference > 2 && suggestedMax.getHours() === 0) {
-    suggestedMax = subHours(suggestedMax, 1);
+    suggestedMax = subHours(suggestedMax, 1)
   }
 
-  suggestedMax.setMinutes(0, 0, 0);
+  suggestedMax.setMinutes(0, 0, 0)
   if (dayDifference > 35) {
-    suggestedMax.setDate(1);
+    suggestedMax.setDate(1)
   }
   if (dayDifference > 2) {
-    suggestedMax.setHours(0);
+    suggestedMax.setHours(0)
   }
-  return suggestedMax.getTime();
+  return suggestedMax.getTime()
 }
 
 export function getSuggestedPeriod(
   dayDifference: number
-): "month" | "day" | "hour" {
-  return dayDifference > 35 ? "month" : dayDifference > 2 ? "day" : "hour";
+): 'month' | 'day' | 'hour' {
+  return dayDifference > 35 ? 'month' : dayDifference > 2 ? 'day' : 'hour'
 }
 
 export function getCommonOptions(
@@ -66,24 +66,24 @@ export function getCommonOptions(
   compareEnd?: Date,
   formatTotal?: (total: number) => string
 ): ECOption {
-  const dayDifference = differenceInDays(end, start);
+  const dayDifference = differenceInDays(end, start)
 
-  const compare = compareStart !== undefined && compareEnd !== undefined;
+  const compare = compareStart !== undefined && compareEnd !== undefined
   const showCompareYear =
-    compare && start.getFullYear() !== compareStart.getFullYear();
+    compare && start.getFullYear() !== compareStart.getFullYear()
 
   const options: ECOption = {
     xAxis: {
-      type: "time",
+      type: 'time',
       min: start,
       max: getSuggestedMax(dayDifference, end),
     },
     yAxis: {
-      type: "value",
+      type: 'value',
       name: unit,
       nameGap: 2,
       nameTextStyle: {
-        align: "left",
+        align: 'left',
       },
       axisLabel: {
         formatter: (value: number) => formatNumber(Math.abs(value), locale),
@@ -100,21 +100,21 @@ export function getCommonOptions(
       containLabel: true,
     },
     tooltip: {
-      trigger: "axis",
+      trigger: 'axis',
       formatter: (params: TopLevelFormatterParams): string => {
         // trigger: "axis" gives an array of params, but "item" gives a single param
         if (Array.isArray(params)) {
-          const mainItems: CallbackDataParams[] = [];
-          const compareItems: CallbackDataParams[] = [];
+          const mainItems: CallbackDataParams[] = []
+          const compareItems: CallbackDataParams[] = []
           params.forEach((param: CallbackDataParams) => {
-            if (param.seriesId?.startsWith("compare-")) {
-              compareItems.push(param);
+            if (param.seriesId?.startsWith('compare-')) {
+              compareItems.push(param)
             } else {
-              mainItems.push(param);
+              mainItems.push(param)
             }
-          });
+          })
           return [mainItems, compareItems]
-            .map((items) =>
+            .map(items =>
               formatTooltip(
                 items,
                 locale,
@@ -127,7 +127,7 @@ export function getCommonOptions(
               )
             )
             .filter(Boolean)
-            .join("<br><br>");
+            .join('<br><br>')
         }
         return formatTooltip(
           [params],
@@ -138,11 +138,11 @@ export function getCommonOptions(
           showCompareYear,
           unit,
           formatTotal
-        );
+        )
       },
     },
-  };
-  return options;
+  }
+  return options
 }
 
 function formatTooltip(
@@ -156,92 +156,90 @@ function formatTooltip(
   formatTotal?: (total: number) => string
 ) {
   if (!params[0]?.value) {
-    return "";
+    return ''
   }
   // when comparing the first value is offset to match the main period
   // and the real date is in the third value
-  const date = new Date(params[0].value?.[2] ?? params[0].value?.[0]);
-  let period: string;
+  const date = new Date(params[0].value?.[2] ?? params[0].value?.[0])
+  let period: string
 
   if (dayDifference >= 89) {
-    period = `${formatDateMonthYear(date, locale, config)}`;
+    period = `${formatDateMonthYear(date, locale, config)}`
   } else if (dayDifference > 0) {
-    period = `${(showCompareYear ? formatDateShort : formatDateVeryShort)(date, locale, config)}`;
+    period = `${(showCompareYear ? formatDateShort : formatDateVeryShort)(date, locale, config)}`
   } else {
     period = `${
       compare
         ? `${(showCompareYear ? formatDateShort : formatDateVeryShort)(date, locale, config)}: `
-        : ""
-    }${formatTime(date, locale, config)}`;
-    if (params[0].componentSubType === "bar") {
-      period += ` – ${formatTime(addHours(date, 1), locale, config)}`;
+        : ''
+    }${formatTime(date, locale, config)}`
+    if (params[0].componentSubType === 'bar') {
+      period += ` – ${formatTime(addHours(date, 1), locale, config)}`
     }
   }
-  const title = `<h4 style="text-align: center; margin: 0;">${period}</h4>`;
+  const title = `<h4 style="text-align: center; margin: 0;">${period}</h4>`
 
-  let sumPositive = 0;
-  let countPositive = 0;
-  let sumNegative = 0;
-  let countNegative = 0;
+  let sumPositive = 0
+  let countPositive = 0
+  let sumNegative = 0
+  let countNegative = 0
   const values = params
-    .map((param) => {
-      const y = param.value?.[1] as number;
+    .map(param => {
+      const y = param.value?.[1] as number
       const value = formatNumber(
         y,
         locale,
         y < 0.1 ? { maximumFractionDigits: 3 } : undefined
-      );
-      if (value === "0") {
-        return false;
+      )
+      if (value === '0') {
+        return false
       }
-      if (param.componentSubType === "bar") {
+      if (param.componentSubType === 'bar') {
         if (y > 0) {
-          sumPositive += y;
-          countPositive++;
+          sumPositive += y
+          countPositive++
         } else {
-          sumNegative += y;
-          countNegative++;
+          sumNegative += y
+          countNegative++
         }
       }
-      return `${param.marker} ${filterXSS(param.seriesName!)}: <div style="direction:ltr; display: inline;">${value} ${unit}</div>`;
+      return `${param.marker} ${filterXSS(param.seriesName!)}: <div style="direction:ltr; display: inline;">${value} ${unit}</div>`
     })
-    .filter(Boolean);
-  let footer = "";
+    .filter(Boolean)
+  let footer = ''
   if (sumPositive !== 0 && countPositive > 1 && formatTotal) {
-    footer += `<br><b>${formatTotal(sumPositive)}</b>`;
+    footer += `<br><b>${formatTotal(sumPositive)}</b>`
   }
   if (sumNegative !== 0 && countNegative > 1 && formatTotal) {
-    footer += `<br><b>${formatTotal(sumNegative)}</b>`;
+    footer += `<br><b>${formatTotal(sumNegative)}</b>`
   }
-  return values.length > 0 ? `${title}${values.join("<br>")}${footer}` : "";
+  return values.length > 0 ? `${title}${values.join('<br>')}${footer}` : ''
 }
 
 export function fillDataGapsAndRoundCaps(datasets: BarSeriesOption[]) {
   const buckets = Array.from(
     new Set(
       datasets
-        .map((dataset) =>
-          dataset.data!.map((datapoint) => Number(datapoint![0]))
-        )
+        .map(dataset => dataset.data!.map(datapoint => Number(datapoint![0])))
         .flat()
     )
-  ).sort((a, b) => a - b);
+  ).sort((a, b) => a - b)
 
   // make sure all datasets have the same buckets
   // otherwise the chart will render incorrectly in some cases
   buckets.forEach((bucket, index) => {
-    const capRounded = {};
-    const capRoundedNegative = {};
+    const capRounded = {}
+    const capRoundedNegative = {}
     for (let i = datasets.length - 1; i >= 0; i--) {
-      const dataPoint = datasets[i].data![index];
+      const dataPoint = datasets[i].data![index]
       const item: any =
-        dataPoint && typeof dataPoint === "object" && "value" in dataPoint
+        dataPoint && typeof dataPoint === 'object' && 'value' in dataPoint
           ? dataPoint
-          : { value: dataPoint };
-      const x = item.value?.[0];
-      const stack = datasets[i].stack ?? "";
+          : { value: dataPoint }
+      const x = item.value?.[0]
+      const stack = datasets[i].stack ?? ''
       if (x === undefined) {
-        continue;
+        continue
       }
       if (Number(x) !== bucket) {
         datasets[i].data?.splice(index, 0, {
@@ -249,7 +247,7 @@ export function fillDataGapsAndRoundCaps(datasets: BarSeriesOption[]) {
           itemStyle: {
             borderWidth: 0,
           },
-        });
+        })
       } else if (item.value?.[1] === 0) {
         // remove the border for zero values or it will be rendered
         datasets[i].data![index] = {
@@ -258,7 +256,7 @@ export function fillDataGapsAndRoundCaps(datasets: BarSeriesOption[]) {
             ...item.itemStyle,
             borderWidth: 0,
           },
-        };
+        }
       } else if (!capRounded[stack] && item.value?.[1] > 0) {
         datasets[i].data![index] = {
           ...item,
@@ -266,8 +264,8 @@ export function fillDataGapsAndRoundCaps(datasets: BarSeriesOption[]) {
             ...item.itemStyle,
             borderRadius: [4, 4, 0, 0],
           },
-        };
-        capRounded[stack] = true;
+        }
+        capRounded[stack] = true
       } else if (!capRoundedNegative[stack] && item.value?.[1] < 0) {
         datasets[i].data![index] = {
           ...item,
@@ -275,64 +273,62 @@ export function fillDataGapsAndRoundCaps(datasets: BarSeriesOption[]) {
             ...item.itemStyle,
             borderRadius: [0, 0, 4, 4],
           },
-        };
-        capRoundedNegative[stack] = true;
+        }
+        capRoundedNegative[stack] = true
       }
     }
-  });
+  })
 }
 
 export function fillLineGaps(datasets: LineSeriesOption[]) {
   const buckets = Array.from(
     new Set(
       datasets
-        .map((dataset) =>
-          dataset.data!.map((datapoint) => Number(datapoint![0]))
-        )
+        .map(dataset => dataset.data!.map(datapoint => Number(datapoint![0])))
         .flat()
     )
-  ).sort((a, b) => a - b);
+  ).sort((a, b) => a - b)
   buckets.forEach((bucket, index) => {
     for (let i = datasets.length - 1; i >= 0; i--) {
-      const dataPoint = datasets[i].data![index];
+      const dataPoint = datasets[i].data![index]
       const item: LineDataItemOption =
-        dataPoint && typeof dataPoint === "object" && "value" in dataPoint
+        dataPoint && typeof dataPoint === 'object' && 'value' in dataPoint
           ? dataPoint
-          : ({ value: dataPoint } as LineDataItemOption);
-      const x = item.value?.[0];
+          : ({ value: dataPoint } as LineDataItemOption)
+      const x = item.value?.[0]
       if (x === undefined) {
-        continue;
+        continue
       }
       if (Number(x) !== bucket) {
-        datasets[i].data?.splice(index, 0, [bucket, 0]);
+        datasets[i].data?.splice(index, 0, [bucket, 0])
       }
     }
-  });
-  return datasets;
+  })
+  return datasets
 }
 
 export function getCompareTransform(start: Date, compareStart?: Date) {
   if (!compareStart) {
-    return (ts: Date) => ts;
+    return (ts: Date) => ts
   }
-  const compareYearDiff = differenceInYears(start, compareStart);
+  const compareYearDiff = differenceInYears(start, compareStart)
   if (
     compareYearDiff !== 0 &&
     start.getTime() === startOfYear(start).getTime()
   ) {
-    return (ts: Date) => addYears(ts, compareYearDiff);
+    return (ts: Date) => addYears(ts, compareYearDiff)
   }
-  const compareMonthDiff = differenceInMonths(start, compareStart);
+  const compareMonthDiff = differenceInMonths(start, compareStart)
   if (
     compareMonthDiff !== 0 &&
     start.getTime() === startOfMonth(start).getTime()
   ) {
-    return (ts: Date) => addMonths(ts, compareMonthDiff);
+    return (ts: Date) => addMonths(ts, compareMonthDiff)
   }
-  const compareDayDiff = differenceInDays(start, compareStart);
+  const compareDayDiff = differenceInDays(start, compareStart)
   if (compareDayDiff !== 0 && start.getTime() === startOfDay(start).getTime()) {
-    return (ts: Date) => addDays(ts, compareDayDiff);
+    return (ts: Date) => addDays(ts, compareDayDiff)
   }
-  const compareOffset = start.getTime() - compareStart.getTime();
-  return (ts: Date) => addMilliseconds(ts, compareOffset);
+  const compareOffset = start.getTime() - compareStart.getTime()
+  return (ts: Date) => addMilliseconds(ts, compareOffset)
 }

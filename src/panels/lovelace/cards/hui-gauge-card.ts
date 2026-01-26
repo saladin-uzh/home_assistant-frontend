@@ -1,43 +1,43 @@
-import type { HassEntity } from "home-assistant-js-websocket/dist/types";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { ifDefined } from "lit/directives/if-defined";
-import { styleMap } from "lit/directives/style-map";
-import { applyThemesOnElement } from "../../../common/dom/apply_themes_on_element";
-import { isValidEntityId } from "../../../common/entity/valid_entity_id";
-import { getNumberFormatOptions } from "../../../common/number/format_number";
-import "../../../components/ha-card";
-import "../../../components/ha-gauge";
-import { UNAVAILABLE } from "../../../data/entity";
-import type { ActionHandlerEvent } from "../../../data/lovelace/action_handler";
-import type { HomeAssistant } from "../../../types";
-import { actionHandler } from "../common/directives/action-handler-directive";
-import { computeLovelaceEntityName } from "../common/entity/compute-lovelace-entity-name";
-import { findEntities } from "../common/find-entities";
-import { handleAction } from "../common/handle-action";
-import { hasAction, hasAnyAction } from "../common/has-action";
-import { hasConfigOrEntityChanged } from "../common/has-changed";
-import { createEntityNotFoundWarning } from "../components/hui-warning";
-import type { LovelaceCard, LovelaceCardEditor } from "../types";
-import type { GaugeCardConfig } from "./types";
+import type { HassEntity } from 'home-assistant-js-websocket/dist/types'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { ifDefined } from 'lit/directives/if-defined'
+import { styleMap } from 'lit/directives/style-map'
+import { applyThemesOnElement } from '../../../common/dom/apply_themes_on_element'
+import { isValidEntityId } from '../../../common/entity/valid_entity_id'
+import { getNumberFormatOptions } from '../../../common/number/format_number'
+import '../../../components/ha-card'
+import '../../../components/ha-gauge'
+import { UNAVAILABLE } from '../../../data/entity'
+import type { ActionHandlerEvent } from '../../../data/lovelace/action_handler'
+import type { HomeAssistant } from '../../../types'
+import { actionHandler } from '../common/directives/action-handler-directive'
+import { computeLovelaceEntityName } from '../common/entity/compute-lovelace-entity-name'
+import { findEntities } from '../common/find-entities'
+import { handleAction } from '../common/handle-action'
+import { hasAction, hasAnyAction } from '../common/has-action'
+import { hasConfigOrEntityChanged } from '../common/has-changed'
+import { createEntityNotFoundWarning } from '../components/hui-warning'
+import type { LovelaceCard, LovelaceCardEditor } from '../types'
+import type { GaugeCardConfig } from './types'
 
-export const DEFAULT_MIN = 0;
-export const DEFAULT_MAX = 100;
+export const DEFAULT_MIN = 0
+export const DEFAULT_MAX = 100
 
 export const severityMap = {
-  red: "var(--error-color)",
-  green: "var(--success-color)",
-  yellow: "var(--warning-color)",
-  normal: "var(--info-color)",
-};
+  red: 'var(--error-color)',
+  green: 'var(--success-color)',
+  yellow: 'var(--warning-color)',
+  normal: 'var(--info-color)',
+}
 
-@customElement("hui-gauge-card")
+@customElement('hui-gauge-card')
 class HuiGaugeCard extends LitElement implements LovelaceCard {
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import("../editor/config-elements/hui-gauge-card-editor");
-    return document.createElement("hui-gauge-card-editor");
+    await import('../editor/config-elements/hui-gauge-card-editor')
+    return document.createElement('hui-gauge-card-editor')
   }
 
   public static getStubConfig(
@@ -45,10 +45,10 @@ class HuiGaugeCard extends LitElement implements LovelaceCard {
     entities: string[],
     entitiesFallback: string[]
   ): GaugeCardConfig {
-    const includeDomains = ["counter", "input_number", "number", "sensor"];
-    const maxEntities = 1;
+    const includeDomains = ['counter', 'input_number', 'number', 'sensor']
+    const maxEntities = 1
     const entityFilter = (stateObj: HassEntity): boolean =>
-      !isNaN(Number(stateObj.state));
+      !isNaN(Number(stateObj.state))
 
     const foundEntities = findEntities(
       hass,
@@ -57,80 +57,80 @@ class HuiGaugeCard extends LitElement implements LovelaceCard {
       entitiesFallback,
       includeDomains,
       entityFilter
-    );
+    )
 
-    return { type: "gauge", entity: foundEntities[0] || "" };
+    return { type: 'gauge', entity: foundEntities[0] || '' }
   }
 
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: GaugeCardConfig;
+  @state() private _config?: GaugeCardConfig
 
   public getCardSize(): number {
-    return 4;
+    return 4
   }
 
   public setConfig(config: GaugeCardConfig): void {
     if (!config.entity) {
-      throw new Error("Entity must be specified");
+      throw new Error('Entity must be specified')
     }
     if (!isValidEntityId(config.entity)) {
-      throw new Error("Invalid entity");
+      throw new Error('Invalid entity')
     }
 
-    this._config = { min: DEFAULT_MIN, max: DEFAULT_MAX, ...config };
+    this._config = { min: DEFAULT_MIN, max: DEFAULT_MAX, ...config }
   }
 
   protected render() {
     if (!this._config || !this.hass) {
-      return nothing;
+      return nothing
     }
 
-    const stateObj = this.hass.states[this._config.entity];
+    const stateObj = this.hass.states[this._config.entity]
 
     if (!stateObj) {
       return html`
         <hui-warning .hass=${this.hass}>
           ${createEntityNotFoundWarning(this.hass, this._config.entity)}
         </hui-warning>
-      `;
+      `
     }
 
-    const entityState = Number(stateObj.state);
+    const entityState = Number(stateObj.state)
 
     if (stateObj.state === UNAVAILABLE) {
       return html`
         <hui-warning
           >${this.hass.localize(
-            "ui.panel.lovelace.warning.entity_unavailable",
+            'ui.panel.lovelace.warning.entity_unavailable',
             { entity: this._config.entity }
           )}</hui-warning
         >
-      `;
+      `
     }
 
     const valueToDisplay = this._config.attribute
       ? stateObj.attributes[this._config.attribute]
-      : stateObj.state;
+      : stateObj.state
 
     if (isNaN(valueToDisplay)) {
       return html`
         <hui-warning
           >${this.hass.localize(
             this._config.attribute
-              ? "ui.panel.lovelace.warning.attribute_not_numeric"
-              : "ui.panel.lovelace.warning.entity_non_numeric",
+              ? 'ui.panel.lovelace.warning.attribute_not_numeric'
+              : 'ui.panel.lovelace.warning.entity_non_numeric',
             { entity: this._config.entity, attribute: this._config.attribute }
           )}</hui-warning
         >
-      `;
+      `
     }
 
     const name = computeLovelaceEntityName(
       this.hass,
       stateObj,
       this._config.name
-    );
+    )
 
     // Use `stateObj.state` as value to keep formatting (e.g trailing zeros)
     // for consistent value display across gauge, entity, entity-row, etc.
@@ -146,7 +146,7 @@ class HuiGaugeCard extends LitElement implements LovelaceCard {
         })}
         tabindex=${ifDefined(
           !this._config.tap_action || hasAction(this._config.tap_action)
-            ? "0"
+            ? '0'
             : undefined
         )}
       >
@@ -162,32 +162,35 @@ class HuiGaugeCard extends LitElement implements LovelaceCard {
           .label=${this._config!.unit ||
           this.hass?.states[this._config!.entity].attributes
             .unit_of_measurement ||
-          ""}
+          ''}
           style=${styleMap({
-            "--gauge-color": this._computeSeverity(entityState),
+            '--gauge-color': this._computeSeverity(entityState),
           })}
           .needle=${this._config!.needle}
           .levels=${this._config!.needle ? this._severityLevels() : undefined}
         ></ha-gauge>
-        <div class="name" .title=${name}>${name}</div>
+        <div
+          class="name"
+          .title=${name}
+        >
+          ${name}
+        </div>
       </ha-card>
-    `;
+    `
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    return hasConfigOrEntityChanged(this, changedProps);
+    return hasConfigOrEntityChanged(this, changedProps)
   }
 
   protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
+    super.updated(changedProps)
     if (!this._config || !this.hass) {
-      return;
+      return
     }
 
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
-    const oldConfig = changedProps.get("_config") as
-      | GaugeCardConfig
-      | undefined;
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined
+    const oldConfig = changedProps.get('_config') as GaugeCardConfig | undefined
 
     if (
       !oldHass ||
@@ -195,92 +198,92 @@ class HuiGaugeCard extends LitElement implements LovelaceCard {
       oldHass.themes !== this.hass.themes ||
       oldConfig.theme !== this._config.theme
     ) {
-      applyThemesOnElement(this, this.hass.themes, this._config.theme);
+      applyThemesOnElement(this, this.hass.themes, this._config.theme)
     }
   }
 
   private _computeSeverity(numberValue: number): string | undefined {
     if (this._config!.needle) {
-      return undefined;
+      return undefined
     }
 
     // new format
-    let segments = this._config!.segments;
+    let segments = this._config!.segments
     if (segments) {
-      segments = [...segments].sort((a, b) => a.from - b.from);
+      segments = [...segments].sort((a, b) => a.from - b.from)
 
       for (let i = 0; i < segments.length; i++) {
-        const segment = segments[i];
+        const segment = segments[i]
         if (
           segment &&
           numberValue >= segment.from &&
           (i + 1 === segments.length || numberValue < segments[i + 1]?.from)
         ) {
-          return segment.color;
+          return segment.color
         }
       }
-      return severityMap.normal;
+      return severityMap.normal
     }
 
     // old format
-    const sections = this._config!.severity;
+    const sections = this._config!.severity
 
     if (!sections) {
-      return severityMap.normal;
+      return severityMap.normal
     }
 
-    const sectionsArray = Object.keys(sections);
-    const sortable = sectionsArray.map((severity) => [
+    const sectionsArray = Object.keys(sections)
+    const sortable = sectionsArray.map(severity => [
       severity,
       sections[severity],
-    ]);
+    ])
 
     for (const severity of sortable) {
       if (severityMap[severity[0]] == null || isNaN(severity[1])) {
-        return severityMap.normal;
+        return severityMap.normal
       }
     }
-    sortable.sort((a, b) => a[1] - b[1]);
+    sortable.sort((a, b) => a[1] - b[1])
 
     if (numberValue >= sortable[0][1] && numberValue < sortable[1][1]) {
-      return severityMap[sortable[0][0]];
+      return severityMap[sortable[0][0]]
     }
     if (numberValue >= sortable[1][1] && numberValue < sortable[2][1]) {
-      return severityMap[sortable[1][0]];
+      return severityMap[sortable[1][0]]
     }
     if (numberValue >= sortable[2][1]) {
-      return severityMap[sortable[2][0]];
+      return severityMap[sortable[2][0]]
     }
-    return severityMap.normal;
+    return severityMap.normal
   }
 
   private _severityLevels() {
     // new format
-    const segments = this._config!.segments;
+    const segments = this._config!.segments
     if (segments) {
-      return segments.map((segment) => ({
+      return segments.map(segment => ({
         level: segment?.from,
         stroke: segment?.color,
         label: segment?.label,
-      }));
+      }))
     }
 
     // old format
-    const sections = this._config!.severity;
+    const sections = this._config!.severity
 
     if (!sections) {
-      return [{ level: 0, stroke: severityMap.normal }];
+      return [{ level: 0, stroke: severityMap.normal }]
     }
 
-    const sectionsArray = Object.keys(sections);
-    return sectionsArray.map((severity) => ({
+    const sectionsArray = Object.keys(sections)
+    return sectionsArray.map(severity => ({
       level: sections[severity],
       stroke: severityMap[severity],
-    }));
+    }))
   }
 
   private _handleAction(ev: ActionHandlerEvent) {
-    handleAction(this, this.hass!, this._config!, ev.detail.action!);
+    handleAction(this, this.hass!, this._config!, ev.detail.action!)
   }
 
   static styles = css`
@@ -316,11 +319,11 @@ class HuiGaugeCard extends LitElement implements LovelaceCard {
       font-size: var(--ha-font-size-m);
       margin-top: 8px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-gauge-card": HuiGaugeCard;
+    'hui-gauge-card': HuiGaugeCard
   }
 }

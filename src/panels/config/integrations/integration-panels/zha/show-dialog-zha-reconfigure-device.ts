@@ -1,20 +1,20 @@
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import type { ZHADevice } from "../../../../../data/zha";
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import type { ZHADevice } from '../../../../../data/zha'
 
 export interface ZHAReconfigureDeviceDialogParams {
-  device: ZHADevice;
+  device: ZHADevice
 }
 
 export const loadZHAReconfigureDeviceDialog = () =>
-  import("./dialog-zha-reconfigure-device");
+  import('./dialog-zha-reconfigure-device')
 
 export const showZHAReconfigureDeviceDialog = (
   element: HTMLElement,
   zhaReconfigureDeviceParams: ZHAReconfigureDeviceDialogParams
 ): void => {
-  fireEvent(element, "show-dialog", {
-    dialogTag: "dialog-zha-reconfigure-device",
+  fireEvent(element, 'show-dialog', {
+    dialogTag: 'dialog-zha-reconfigure-device',
     dialogImport: loadZHAReconfigureDeviceDialog,
     dialogParams: zhaReconfigureDeviceParams,
-  });
-};
+  })
+}

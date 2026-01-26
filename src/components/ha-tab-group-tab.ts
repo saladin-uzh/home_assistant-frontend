@@ -1,8 +1,8 @@
-import Tab from "@home-assistant/webawesome/dist/components/tab/tab";
-import { css, type CSSResultGroup } from "lit";
-import { customElement } from "lit/decorators";
+import Tab from '@home-assistant/webawesome/dist/components/tab/tab'
+import { css, type CSSResultGroup } from 'lit'
+import { customElement } from 'lit/decorators'
 
-@customElement("ha-tab-group-tab")
+@customElement('ha-tab-group-tab')
 export class HaTabGroupTab extends Tab {
   static get styles(): CSSResultGroup {
     return [
@@ -32,12 +32,12 @@ export class HaTabGroupTab extends Tab {
           }
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-tab-group-tab": HaTabGroupTab;
+    'ha-tab-group-tab': HaTabGroupTab
   }
 }

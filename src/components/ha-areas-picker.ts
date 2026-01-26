@@ -1,76 +1,76 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../common/dom/fire_event";
-import { SubscribeMixin } from "../mixins/subscribe-mixin";
-import type { HomeAssistant } from "../types";
-import type { HaDevicePickerDeviceFilterFunc } from "./device/ha-device-picker";
-import "./ha-area-picker";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../common/dom/fire_event'
+import { SubscribeMixin } from '../mixins/subscribe-mixin'
+import type { HomeAssistant } from '../types'
+import type { HaDevicePickerDeviceFilterFunc } from './device/ha-device-picker'
+import './ha-area-picker'
 
-@customElement("ha-areas-picker")
+@customElement('ha-areas-picker')
 export class HaAreasPicker extends SubscribeMixin(LitElement) {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property({ type: Array }) public value?: string[];
+  @property({ type: Array }) public value?: string[]
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property() public placeholder?: string;
+  @property() public placeholder?: string
 
-  @property({ type: Boolean, attribute: "no-add" })
-  public noAdd = false;
+  @property({ type: Boolean, attribute: 'no-add' })
+  public noAdd = false
 
   /**
    * Show only areas with entities from specific domains.
    * @type {Array}
    * @attr include-domains
    */
-  @property({ type: Array, attribute: "include-domains" })
-  public includeDomains?: string[];
+  @property({ type: Array, attribute: 'include-domains' })
+  public includeDomains?: string[]
 
   /**
    * Show no areas with entities of these domains.
    * @type {Array}
    * @attr exclude-domains
    */
-  @property({ type: Array, attribute: "exclude-domains" })
-  public excludeDomains?: string[];
+  @property({ type: Array, attribute: 'exclude-domains' })
+  public excludeDomains?: string[]
 
   /**
    * Show only areas with entities of these device classes.
    * @type {Array}
    * @attr include-device-classes
    */
-  @property({ type: Array, attribute: "include-device-classes" })
-  public includeDeviceClasses?: string[];
+  @property({ type: Array, attribute: 'include-device-classes' })
+  public includeDeviceClasses?: string[]
 
   @property({ attribute: false })
-  public deviceFilter?: HaDevicePickerDeviceFilterFunc;
+  public deviceFilter?: HaDevicePickerDeviceFilterFunc
 
   @property({ attribute: false })
-  public entityFilter?: (entity: HassEntity) => boolean;
+  public entityFilter?: (entity: HassEntity) => boolean
 
-  @property({ attribute: "picked-area-label" })
-  public pickedAreaLabel?: string;
+  @property({ attribute: 'picked-area-label' })
+  public pickedAreaLabel?: string
 
-  @property({ attribute: "pick-area-label" })
-  public pickAreaLabel?: string;
+  @property({ attribute: 'pick-area-label' })
+  public pickAreaLabel?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = false;
+  @property({ type: Boolean }) public required = false
 
   protected render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
 
-    const currentAreas = this._currentAreas;
+    const currentAreas = this._currentAreas
     return html`
       ${currentAreas.map(
-        (area) => html`
+        area => html`
           <div>
             <ha-area-picker
               .curValue=${area}
@@ -107,63 +107,63 @@ export class HaAreasPicker extends SubscribeMixin(LitElement) {
           .excludeAreas=${currentAreas}
         ></ha-area-picker>
       </div>
-    `;
+    `
   }
 
   private get _currentAreas(): string[] {
-    return this.value || [];
+    return this.value || []
   }
 
   private async _updateAreas(areas) {
-    this.value = areas;
+    this.value = areas
 
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: areas,
-    });
+    })
   }
 
   private _areaChanged(ev: CustomEvent) {
-    ev.stopPropagation();
-    const curValue = (ev.currentTarget as any).curValue;
-    const newValue = ev.detail.value;
+    ev.stopPropagation()
+    const curValue = (ev.currentTarget as any).curValue
+    const newValue = ev.detail.value
     if (newValue === curValue) {
-      return;
+      return
     }
-    const currentAreas = this._currentAreas;
+    const currentAreas = this._currentAreas
     if (!newValue || currentAreas.includes(newValue)) {
-      this._updateAreas(currentAreas.filter((ent) => ent !== curValue));
-      return;
+      this._updateAreas(currentAreas.filter(ent => ent !== curValue))
+      return
     }
     this._updateAreas(
-      currentAreas.map((ent) => (ent === curValue ? newValue : ent))
-    );
+      currentAreas.map(ent => (ent === curValue ? newValue : ent))
+    )
   }
 
   private _addArea(ev: CustomEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
 
-    const toAdd = ev.detail.value;
+    const toAdd = ev.detail.value
     if (!toAdd) {
-      return;
+      return
     }
-    (ev.currentTarget as any).value = "";
-    const currentAreas = this._currentAreas;
+    ;(ev.currentTarget as any).value = ''
+    const currentAreas = this._currentAreas
     if (currentAreas.includes(toAdd)) {
-      return;
+      return
     }
 
-    this._updateAreas([...currentAreas, toAdd]);
+    this._updateAreas([...currentAreas, toAdd])
   }
 
   static override styles = css`
     div {
       margin-top: 8px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-areas-picker": HaAreasPicker;
+    'ha-areas-picker': HaAreasPicker
   }
 }

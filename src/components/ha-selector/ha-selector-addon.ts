@@ -1,24 +1,24 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { AddonSelector } from "../../data/selector";
-import type { HomeAssistant } from "../../types";
-import "../ha-addon-picker";
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { AddonSelector } from '../../data/selector'
+import type { HomeAssistant } from '../../types'
+import '../ha-addon-picker'
 
-@customElement("ha-selector-addon")
+@customElement('ha-selector-addon')
 export class HaAddonSelector extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: AddonSelector;
+  @property({ attribute: false }) public selector!: AddonSelector
 
-  @property() public value?: any;
+  @property() public value?: any
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = true;
+  @property({ type: Boolean }) public required = true
 
   protected render() {
     return html`<ha-addon-picker
@@ -29,18 +29,18 @@ export class HaAddonSelector extends LitElement {
       .disabled=${this.disabled}
       .required=${this.required}
       allow-custom-entity
-    ></ha-addon-picker>`;
+    ></ha-addon-picker>`
   }
 
   static styles = css`
     ha-addon-picker {
       width: 100%;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-addon": HaAddonSelector;
+    'ha-selector-addon': HaAddonSelector
   }
 }

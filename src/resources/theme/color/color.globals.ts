@@ -1,6 +1,6 @@
-import { css } from "lit";
-import { extractVar } from "../../../common/style/derived-css-vars";
-import { coreColorVariables } from "./core.globals";
+import { css } from 'lit'
+import { extractVar } from '../../../common/style/derived-css-vars'
+import { coreColorVariables } from './core.globals'
 
 export const colorStyles = css`
   html {
@@ -346,7 +346,7 @@ export const colorStyles = css`
     --material-secondary-background-color: var(--secondary-background-color);
     --material-secondary-text-color: var(--secondary-text-color);
   }
-`;
+`
 
 export const darkColorStyles = css`
   html {
@@ -411,7 +411,7 @@ export const darkColorStyles = css`
 
     --bar-box-shadow: 0 2px 12px var(--shadow-color);
   }
-`;
+`
 
-export const DefaultPrimaryColor = extractVar(colorStyles, "primary-color", coreColorVariables);
-export const DefaultAccentColor = extractVar(colorStyles, "accent-color");
+export const DefaultPrimaryColor = extractVar(colorStyles, 'primary-color', coreColorVariables)
+export const DefaultAccentColor = extractVar(colorStyles, 'accent-color')

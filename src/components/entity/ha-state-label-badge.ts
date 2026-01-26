@@ -1,95 +1,95 @@
-import { mdiAlert } from "@mdi/js";
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { PropertyValues, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { arrayLiteralIncludes } from "../../common/array/literal-includes";
-import secondsToDuration from "../../common/datetime/seconds_to_duration";
-import { computeStateDomain } from "../../common/entity/compute_state_domain";
-import { computeStateName } from "../../common/entity/compute_state_name";
-import { FIXED_DOMAIN_STATES } from "../../common/entity/get_states";
+import { mdiAlert } from '@mdi/js'
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { PropertyValues, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { arrayLiteralIncludes } from '../../common/array/literal-includes'
+import secondsToDuration from '../../common/datetime/seconds_to_duration'
+import { computeStateDomain } from '../../common/entity/compute_state_domain'
+import { computeStateName } from '../../common/entity/compute_state_name'
+import { FIXED_DOMAIN_STATES } from '../../common/entity/get_states'
 import {
   formatNumber,
   getNumberFormatOptions,
   isNumericState,
-} from "../../common/number/format_number";
-import { isUnavailableState, UNAVAILABLE, UNKNOWN } from "../../data/entity";
-import type { EntityRegistryDisplayEntry } from "../../data/entity_registry";
-import { timerTimeRemaining } from "../../data/timer";
-import type { HomeAssistant } from "../../types";
-import "../ha-label-badge";
-import "../ha-state-icon";
+} from '../../common/number/format_number'
+import { isUnavailableState, UNAVAILABLE, UNKNOWN } from '../../data/entity'
+import type { EntityRegistryDisplayEntry } from '../../data/entity_registry'
+import { timerTimeRemaining } from '../../data/timer'
+import type { HomeAssistant } from '../../types'
+import '../ha-label-badge'
+import '../ha-state-icon'
 
 // Define the domains whose states have special truncated strings
 const TRUNCATED_DOMAINS = [
-  "alarm_control_panel",
-  "device_tracker",
-  "person",
-] as const satisfies readonly (keyof typeof FIXED_DOMAIN_STATES)[];
+  'alarm_control_panel',
+  'device_tracker',
+  'person',
+] as const satisfies readonly (keyof typeof FIXED_DOMAIN_STATES)[]
 
-type TruncatedDomain = (typeof TRUNCATED_DOMAINS)[number];
+type TruncatedDomain = (typeof TRUNCATED_DOMAINS)[number]
 type TruncatedKey = {
-  [T in TruncatedDomain]: `${T}.${(typeof FIXED_DOMAIN_STATES)[T][number]}`;
-}[TruncatedDomain];
+  [T in TruncatedDomain]: `${T}.${(typeof FIXED_DOMAIN_STATES)[T][number]}`
+}[TruncatedDomain]
 
 const getTruncatedKey = (domainKey: string, stateKey: string) => {
   if (
     arrayLiteralIncludes(TRUNCATED_DOMAINS)(domainKey) &&
     arrayLiteralIncludes(FIXED_DOMAIN_STATES[domainKey])(stateKey)
   ) {
-    return `${domainKey}.${stateKey}` as TruncatedKey;
+    return `${domainKey}.${stateKey}` as TruncatedKey
   }
-  return null;
-};
+  return null
+}
 
-@customElement("ha-state-label-badge")
+@customElement('ha-state-label-badge')
 export class HaStateLabelBadge extends LitElement {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ attribute: false }) public state?: HassEntity;
+  @property({ attribute: false }) public state?: HassEntity
 
-  @property() public name?: string;
+  @property() public name?: string
 
-  @property() public icon?: string;
+  @property() public icon?: string
 
-  @property() public image?: string;
+  @property() public image?: string
 
-  @property({ attribute: "show-name", type: Boolean }) public showName = false;
+  @property({ attribute: 'show-name', type: Boolean }) public showName = false
 
-  @state() private _timerTimeRemaining?: number;
+  @state() private _timerTimeRemaining?: number
 
-  private _connected?: boolean;
+  private _connected?: boolean
 
-  private _updateRemaining?: number;
+  private _updateRemaining?: number
 
   public connectedCallback(): void {
-    super.connectedCallback();
-    this._connected = true;
-    this._startInterval(this.state);
+    super.connectedCallback()
+    this._connected = true
+    this._startInterval(this.state)
   }
 
   public disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this._connected = false;
-    this._clearInterval();
+    super.disconnectedCallback()
+    this._connected = false
+    this._clearInterval()
   }
 
   protected render(): TemplateResult {
-    const entityState = this.state;
+    const entityState = this.state
 
     if (!entityState) {
       return html`
         <ha-label-badge
           class="warning"
-          label=${this.hass!.localize("state_badge.default.error")}
+          label=${this.hass!.localize('state_badge.default.error')}
           description=${this.hass!.localize(
-            "state_badge.default.entity_not_found"
+            'state_badge.default.entity_not_found'
           )}
         >
           <ha-svg-icon .path=${mdiAlert}></ha-svg-icon>
         </ha-label-badge>
-      `;
+      `
     }
 
     // Rendering priority inside badge:
@@ -98,28 +98,28 @@ export class HaStateLabelBadge extends LitElement {
     // 3. Image taken from entity picture
     // 4. Icon determined via entity state
     // 5. Value string as fallback
-    const domain = computeStateDomain(entityState);
-    const entry = this.hass?.entities[entityState.entity_id];
+    const domain = computeStateDomain(entityState)
+    const entry = this.hass?.entities[entityState.entity_id]
 
     const showIcon =
-      this.icon || this._computeShowIcon(domain, entityState, entry);
+      this.icon || this._computeShowIcon(domain, entityState, entry)
     const image = this.icon
-      ? ""
+      ? ''
       : this.image
         ? this.image
         : entityState.attributes.entity_picture_local ||
-          entityState.attributes.entity_picture;
+          entityState.attributes.entity_picture
     const value =
       !image && !showIcon
         ? this._computeValue(domain, entityState, entry)
-        : undefined;
+        : undefined
 
     return html`
       <ha-label-badge
         class=${classMap({
           [domain]: true,
-          "has-unit_of_measurement":
-            "unit_of_measurement" in entityState.attributes,
+          'has-unit_of_measurement':
+            'unit_of_measurement' in entityState.attributes,
         })}
         .image=${image}
         .label=${this._computeLabel(
@@ -137,21 +137,21 @@ export class HaStateLabelBadge extends LitElement {
               .stateObj=${entityState}
               .hass=${this.hass}
             ></ha-state-icon>`
-          : ""}
+          : ''}
         ${value && !image && !showIcon
-          ? html`<span class=${value && value.length > 4 ? "big" : ""}
+          ? html`<span class=${value && value.length > 4 ? 'big' : ''}
               >${value}</span
             >`
-          : ""}
+          : ''}
       </ha-label-badge>
-    `;
+    `
   }
 
   protected updated(changedProperties: PropertyValues): void {
-    super.updated(changedProperties);
+    super.updated(changedProperties)
 
-    if (this._connected && changedProperties.has("state")) {
-      this._startInterval(this.state);
+    if (this._connected && changedProperties.has('state')) {
+      this._startInterval(this.state)
     }
   }
 
@@ -161,31 +161,31 @@ export class HaStateLabelBadge extends LitElement {
     entry?: EntityRegistryDisplayEntry
   ) {
     switch (domain) {
-      case "alarm_control_panel":
-      case "binary_sensor":
-      case "device_tracker":
-      case "person":
-      case "scene":
-      case "sun":
-      case "timer":
-        return null;
+      case 'alarm_control_panel':
+      case 'binary_sensor':
+      case 'device_tracker':
+      case 'person':
+      case 'scene':
+      case 'sun':
+      case 'timer':
+        return null
       // @ts-expect-error we don't break and go to default
-      case "sensor":
-        if (entry?.platform === "moon") {
-          return null;
+      case 'sensor':
+        if (entry?.platform === 'moon') {
+          return null
         }
       // eslint-disable-next-line: disable=no-fallthrough
       default:
         return entityState.state === UNKNOWN ||
           entityState.state === UNAVAILABLE
-          ? "—"
+          ? '—'
           : isNumericState(entityState)
             ? formatNumber(
                 entityState.state,
                 this.hass!.locale,
                 getNumberFormatOptions(entityState, entry)
               )
-            : this.hass!.formatEntityState(entityState);
+            : this.hass!.formatEntityState(entityState)
     }
   }
 
@@ -195,22 +195,22 @@ export class HaStateLabelBadge extends LitElement {
     entry?: EntityRegistryDisplayEntry
   ): boolean {
     if (entityState.state === UNAVAILABLE) {
-      return false;
+      return false
     }
     switch (domain) {
-      case "alarm_control_panel":
-      case "binary_sensor":
-      case "device_tracker":
-      case "person":
-      case "scene":
-      case "sun":
-        return true;
-      case "timer":
-        return true;
-      case "sensor":
-        return entry?.platform === "moon";
+      case 'alarm_control_panel':
+      case 'binary_sensor':
+      case 'device_tracker':
+      case 'person':
+      case 'scene':
+      case 'sun':
+        return true
+      case 'timer':
+        return true
+      case 'sensor':
+        return entry?.platform === 'moon'
       default:
-        return false;
+        return false
     }
   }
 
@@ -221,45 +221,45 @@ export class HaStateLabelBadge extends LitElement {
   ) {
     // For unavailable states or certain domains, use a special translation that is truncated to fit within the badge label
     if (isUnavailableState(entityState.state)) {
-      return this.hass!.localize(`state_badge.default.${entityState.state}`);
+      return this.hass!.localize(`state_badge.default.${entityState.state}`)
     }
-    const domainStateKey = getTruncatedKey(domain, entityState.state);
+    const domainStateKey = getTruncatedKey(domain, entityState.state)
     if (domainStateKey) {
-      return this.hass!.localize(`state_badge.${domainStateKey}`);
+      return this.hass!.localize(`state_badge.${domainStateKey}`)
     }
     // Person and device tracker state can be zone name
-    if (domain === "person" || domain === "device_tracker") {
-      return entityState.state;
+    if (domain === 'person' || domain === 'device_tracker') {
+      return entityState.state
     }
-    if (domain === "timer") {
-      return secondsToDuration(_timerTimeRemaining);
+    if (domain === 'timer') {
+      return secondsToDuration(_timerTimeRemaining)
     }
-    return entityState.attributes.unit_of_measurement || null;
+    return entityState.attributes.unit_of_measurement || null
   }
 
   private _clearInterval() {
     if (this._updateRemaining) {
-      clearInterval(this._updateRemaining);
-      this._updateRemaining = undefined;
+      clearInterval(this._updateRemaining)
+      this._updateRemaining = undefined
     }
   }
 
   private _startInterval(stateObj) {
-    this._clearInterval();
-    if (stateObj && computeStateDomain(stateObj) === "timer") {
-      this._calculateTimerRemaining(stateObj);
+    this._clearInterval()
+    if (stateObj && computeStateDomain(stateObj) === 'timer') {
+      this._calculateTimerRemaining(stateObj)
 
-      if (stateObj.state === "active") {
+      if (stateObj.state === 'active') {
         this._updateRemaining = window.setInterval(
           () => this._calculateTimerRemaining(this.state),
           1000
-        );
+        )
       }
     }
   }
 
   private _calculateTimerRemaining(stateObj) {
-    this._timerTimeRemaining = timerTimeRemaining(stateObj);
+    this._timerTimeRemaining = timerTimeRemaining(stateObj)
   }
 
   static styles = css`
@@ -303,11 +303,11 @@ export class HaStateLabelBadge extends LitElement {
     .warning {
       --ha-label-badge-color: var(--label-badge-yellow);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-state-label-badge": HaStateLabelBadge;
+    'ha-state-label-badge': HaStateLabelBadge
   }
 }

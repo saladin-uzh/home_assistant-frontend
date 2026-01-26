@@ -1,34 +1,34 @@
-import { mdiFilterVariantRemove } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { repeat } from "lit/directives/repeat";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../common/dom/fire_event";
-import { computeDomain } from "../common/entity/compute_domain";
-import { stringCompare } from "../common/string/compare";
-import { domainToName } from "../data/integration";
-import { haStyleScrollbar } from "../resources/styles";
-import type { HomeAssistant } from "../types";
-import "./ha-check-list-item";
-import "./ha-domain-icon";
-import "./ha-expansion-panel";
-import "./ha-list";
-import "./search-input-outlined";
+import { mdiFilterVariantRemove } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { repeat } from 'lit/directives/repeat'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../common/dom/fire_event'
+import { computeDomain } from '../common/entity/compute_domain'
+import { stringCompare } from '../common/string/compare'
+import { domainToName } from '../data/integration'
+import { haStyleScrollbar } from '../resources/styles'
+import type { HomeAssistant } from '../types'
+import './ha-check-list-item'
+import './ha-domain-icon'
+import './ha-expansion-panel'
+import './ha-list'
+import './search-input-outlined'
 
-@customElement("ha-filter-domains")
+@customElement('ha-filter-domains')
 export class HaFilterDomains extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public value?: string[];
+  @property({ attribute: false }) public value?: string[]
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ type: Boolean, reflect: true }) public expanded = false;
+  @property({ type: Boolean, reflect: true }) public expanded = false
 
-  @state() private _shouldRender = false;
+  @state() private _shouldRender = false
 
-  @state() private _filter?: string;
+  @state() private _filter?: string
 
   protected render() {
     return html`
@@ -38,9 +38,12 @@ export class HaFilterDomains extends LitElement {
         @expanded-will-change=${this._expandedWillChange}
         @expanded-changed=${this._expandedChanged}
       >
-        <div slot="header" class="header">
+        <div
+          slot="header"
+          class="header"
+        >
           ${this.hass.localize(
-            "ui.panel.config.entities.picker.headers.domain"
+            'ui.panel.config.entities.picker.headers.domain'
           )}
           ${this.value?.length
             ? html`<div class="badge">${this.value?.length}</div>
@@ -64,8 +67,8 @@ export class HaFilterDomains extends LitElement {
               >
                 ${repeat(
                   this._domains(this.hass.states, this._filter),
-                  (i) => i,
-                  (domain) =>
+                  i => i,
+                  domain =>
                     html`<ha-check-list-item
                       .value=${domain}
                       .selected=${(this.value || []).includes(domain)}
@@ -83,79 +86,79 @@ export class HaFilterDomains extends LitElement {
               </ha-list> `
           : nothing}
       </ha-expansion-panel>
-    `;
+    `
   }
 
   private _domains = memoizeOne((states, filter) => {
-    const domains = new Set<string>();
-    Object.keys(states).forEach((entityId) => {
-      domains.add(computeDomain(entityId));
-    });
+    const domains = new Set<string>()
+    Object.keys(states).forEach(entityId => {
+      domains.add(computeDomain(entityId))
+    })
 
     return Array.from(domains.values())
-      .map((domain) => ({
+      .map(domain => ({
         domain,
         name: domainToName(this.hass.localize, domain),
       }))
       .filter(
-        (entry) =>
+        entry =>
           !filter ||
           entry.domain.toLowerCase().includes(filter) ||
           entry.name.toLowerCase().includes(filter)
       )
       .sort((a, b) => stringCompare(a.name, b.name, this.hass.locale.language))
-      .map((entry) => entry.domain);
-  });
+      .map(entry => entry.domain)
+  })
 
   protected updated(changed) {
-    if (changed.has("expanded") && this.expanded) {
+    if (changed.has('expanded') && this.expanded) {
       setTimeout(() => {
-        if (!this.expanded) return;
-        this.renderRoot.querySelector("ha-list")!.style.height =
-          `${this.clientHeight - 49 - 32}px`; // 32px is the height of the search input
-      }, 300);
+        if (!this.expanded) return
+        this.renderRoot.querySelector('ha-list')!.style.height =
+          `${this.clientHeight - 49 - 32}px` // 32px is the height of the search input
+      }, 300)
     }
   }
 
   private _expandedWillChange(ev) {
-    this._shouldRender = ev.detail.expanded;
+    this._shouldRender = ev.detail.expanded
   }
 
   private _expandedChanged(ev) {
-    this.expanded = ev.detail.expanded;
+    this.expanded = ev.detail.expanded
   }
 
   private _handleItemClick(ev) {
-    const listItem = ev.target.closest("ha-check-list-item");
-    const value = listItem?.value;
+    const listItem = ev.target.closest('ha-check-list-item')
+    const value = listItem?.value
     if (!value) {
-      return;
+      return
     }
     if (this.value?.includes(value)) {
-      this.value = this.value?.filter((val) => val !== value);
+      this.value = this.value?.filter(val => val !== value)
     } else {
-      this.value = [...(this.value || []), value];
+      this.value = [...(this.value || []), value]
     }
 
-    listItem.selected = this.value.includes(value);
+    listItem.selected = this.value.includes(value)
 
-    fireEvent(this, "data-table-filter-changed", {
+    fireEvent(this, 'data-table-filter-changed', {
       value: this.value,
       items: undefined,
-    });
+    })
   }
 
   private _clearFilter(ev) {
-    ev.preventDefault();
-    this.value = undefined;
-    fireEvent(this, "data-table-filter-changed", {
+    ev.preventDefault()
+    this.value = undefined
+    fireEvent(this, 'data-table-filter-changed', {
       value: undefined,
       items: undefined,
-    });
+    })
   }
 
   private _handleSearchChange(ev: CustomEvent) {
-    this._filter = ev.detail.value.toLowerCase();
+    this._filter = ev.detail.value.toLowerCase()
   }
 
   static get styles(): CSSResultGroup {
@@ -202,12 +205,12 @@ export class HaFilterDomains extends LitElement {
           padding: var(--ha-space-1) var(--ha-space-2) 0;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-filter-domains": HaFilterDomains;
+    'ha-filter-domains': HaFilterDomains
   }
 }

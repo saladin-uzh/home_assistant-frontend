@@ -2,14 +2,14 @@ export const groupBy = <T>(
   list: T[],
   keySelector: (item: T) => string
 ): Record<string, T[]> => {
-  const result = {};
+  const result = {}
   for (const item of list) {
-    const key = keySelector(item);
+    const key = keySelector(item)
     if (key in result) {
-      result[key].push(item);
+      result[key].push(item)
     } else {
-      result[key] = [item];
+      result[key] = [item]
     }
   }
-  return result;
-};
+  return result
+}

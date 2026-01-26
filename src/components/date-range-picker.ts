@@ -1,15 +1,15 @@
-import wrap from "@vue/web-component-wrapper";
-import { customElement } from "lit/decorators";
-import Vue from "vue";
-import DateRangePicker from "vue2-daterange-picker";
+import wrap from '@vue/web-component-wrapper'
+import { customElement } from 'lit/decorators'
+import Vue from 'vue'
+import DateRangePicker from 'vue2-daterange-picker'
 // @ts-ignore
-import dateRangePickerStyles from "vue2-daterange-picker/dist/vue2-daterange-picker.css";
+import dateRangePickerStyles from 'vue2-daterange-picker/dist/vue2-daterange-picker.css'
 import {
   localizeMonths,
   localizeWeekdays,
-} from "../common/datetime/localize_date";
-import { fireEvent } from "../common/dom/fire_event";
-import { mainWindow } from "../common/dom/get_main_window";
+} from '../common/datetime/localize_date'
+import { fireEvent } from '../common/dom/fire_event'
+import { mainWindow } from '../common/dom/get_main_window'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const CustomDateRangePicker = Vue.extend({
@@ -17,12 +17,12 @@ const CustomDateRangePicker = Vue.extend({
   methods: {
     // Set the current date to the left picker instead of the right picker because the right is hidden
     selectMonthDate() {
-      const dt: Date = this.end || new Date();
+      const dt: Date = this.end || new Date()
       // @ts-ignore
       this.changeLeftMonth({
         year: dt.getFullYear(),
         month: dt.getMonth() + 1,
-      });
+      })
     },
     // Fix the start/end date calculation when selecting a date range. The
     // original code keeps track of the first clicked date (in_selection) but it
@@ -33,26 +33,26 @@ const CustomDateRangePicker = Vue.extend({
     // range across months. This bug doesn't seem to be present on v0.6.7 of the
     // lib
     hoverDate(value: Date) {
-      if (this.readonly) return;
+      if (this.readonly) return
 
       if (this.in_selection) {
-        const pickA = this.in_selection as Date;
-        const pickB = value;
+        const pickA = this.in_selection as Date
+        const pickB = value
 
         this.start = this.normalizeDatetime(
           Math.min(pickA.valueOf(), pickB.valueOf()),
           this.start
-        );
+        )
         this.end = this.normalizeDatetime(
           Math.max(pickA.valueOf(), pickB.valueOf()),
           this.end
-        );
+        )
       }
 
-      this.$emit("hover-date", value);
+      this.$emit('hover-date', value)
     },
   },
-});
+})
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const Component = Vue.extend({
@@ -67,7 +67,7 @@ const Component = Vue.extend({
     },
     openingDirection: {
       type: String,
-      default: "right",
+      default: 'right',
     },
     disabled: {
       type: Boolean,
@@ -80,13 +80,13 @@ const Component = Vue.extend({
     startDate: {
       type: [String, Date],
       default() {
-        return new Date();
+        return new Date()
       },
     },
     endDate: {
       type: [String, Date],
       default() {
-        return new Date();
+        return new Date()
       },
     },
     firstDay: {
@@ -99,21 +99,21 @@ const Component = Vue.extend({
     },
     language: {
       type: String,
-      default: "en",
+      default: 'en',
     },
   },
   render(createElement) {
     // @ts-expect-error
     return createElement(CustomDateRangePicker, {
       props: {
-        "time-picker": this.timePicker,
-        "auto-apply": this.autoApply,
+        'time-picker': this.timePicker,
+        'auto-apply': this.autoApply,
         opens: this.openingDirection,
-        "show-dropdowns": false,
-        "time-picker24-hour": this.twentyfourHours,
+        'show-dropdowns': false,
+        'time-picker24-hour': this.twentyfourHours,
         disabled: this.disabled,
         ranges: this.ranges ? {} : false,
-        "locale-data": {
+        'locale-data': {
           firstDay: this.firstDay,
           daysOfWeek: localizeWeekdays(this.language, true),
           monthNames: localizeMonths(this.language, false),
@@ -124,49 +124,49 @@ const Component = Vue.extend({
           startDate: this.startDate,
           endDate: this.endDate,
         },
-        callback: (value) => {
-          fireEvent(this.$el as HTMLElement, "change", value);
+        callback: value => {
+          fireEvent(this.$el as HTMLElement, 'change', value)
         },
-        expression: "dateRange",
+        expression: 'dateRange',
       },
       scopedSlots: {
         input() {
-          return createElement("slot", {
-            domProps: { name: "input" },
-          });
+          return createElement('slot', {
+            domProps: { name: 'input' },
+          })
         },
         header() {
-          return createElement("slot", {
-            domProps: { name: "header" },
-          });
+          return createElement('slot', {
+            domProps: { name: 'header' },
+          })
         },
         ranges() {
-          return createElement("slot", {
-            domProps: { name: "ranges" },
-          });
+          return createElement('slot', {
+            domProps: { name: 'ranges' },
+          })
         },
         footer() {
-          return createElement("slot", {
-            domProps: { name: "footer" },
-          });
+          return createElement('slot', {
+            domProps: { name: 'footer' },
+          })
         },
       },
-    });
+    })
   },
-});
+})
 
 // Assertion corrects HTMLElement type from package
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const WrappedElement = wrap(
   Vue,
   Component
-) as unknown as CustomElementConstructor;
+) as unknown as CustomElementConstructor
 
-@customElement("date-range-picker")
+@customElement('date-range-picker')
 class DateRangePickerElement extends WrappedElement {
   constructor() {
-    super();
-    const style = document.createElement("style");
+    super()
+    const style = document.createElement('style')
     style.innerHTML = `
           ${dateRangePickerStyles}
           .calendars {
@@ -309,8 +309,8 @@ class DateRangePickerElement extends WrappedElement {
             min-width: unset !important;
             display: block !important;
           }
-        `;
-    if (mainWindow.document.dir === "rtl") {
+        `
+    if (mainWindow.document.dir === 'rtl') {
       style.innerHTML += `
             .daterangepicker .calendar-table .next span {
               transform: rotate(135deg);
@@ -326,18 +326,18 @@ class DateRangePickerElement extends WrappedElement {
             .daterangepicker td.end-date {
               border-radius: var(--ha-border-radius-circle) var(--ha-border-radius-square) var(--ha-border-radius-square) var(--ha-border-radius-circle);
             }
-            `;
+            `
     }
 
-    const shadowRoot = this.shadowRoot!;
-    shadowRoot.appendChild(style);
+    const shadowRoot = this.shadowRoot!
+    shadowRoot.appendChild(style)
     // Stop click events from reaching the document, otherwise it will close the picker immediately.
-    shadowRoot.addEventListener("click", (ev) => ev.stopPropagation());
+    shadowRoot.addEventListener('click', ev => ev.stopPropagation())
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "date-range-picker": DateRangePickerElement;
+    'date-range-picker': DateRangePickerElement
   }
 }

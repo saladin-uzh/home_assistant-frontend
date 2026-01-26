@@ -1,21 +1,21 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { applyThemesOnElement } from "../../../../src/common/dom/apply_themes_on_element";
-import "../../../../src/components/ha-bar";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-spinner";
-import "../../../../src/components/ha-slider";
-import type { HomeAssistant } from "../../../../src/types";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { applyThemesOnElement } from '../../../../src/common/dom/apply_themes_on_element'
+import '../../../../src/components/ha-bar'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-spinner'
+import '../../../../src/components/ha-slider'
+import type { HomeAssistant } from '../../../../src/types'
 
-@customElement("demo-components-ha-slider")
+@customElement('demo-components-ha-slider')
 export class DemoHaSlider extends LitElement {
-  @property({ attribute: false }) hass!: HomeAssistant;
+  @property({ attribute: false }) hass!: HomeAssistant
 
   protected render(): TemplateResult {
     return html`
-      ${["light", "dark"].map(
-        (mode) => html`
+      ${['light', 'dark'].map(
+        mode => html`
           <div class=${mode}>
             <ha-card header="ha-slider ${mode} demo">
               <div class="card-content">
@@ -48,24 +48,24 @@ export class DemoHaSlider extends LitElement {
           </div>
         `
       )}
-    `;
+    `
   }
 
   firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
+    super.firstUpdated(changedProps)
     applyThemesOnElement(
-      this.shadowRoot!.querySelector(".dark"),
+      this.shadowRoot!.querySelector('.dark'),
       {
-        default_theme: "default",
-        default_dark_theme: "default",
+        default_theme: 'default',
+        default_dark_theme: 'default',
         themes: {},
         darkMode: true,
-        theme: "default",
+        theme: 'default',
       },
       undefined,
       undefined,
       true
-    );
+    )
   }
 
   static styles = css`
@@ -90,11 +90,11 @@ export class DemoHaSlider extends LitElement {
       align-items: center;
       gap: var(--ha-space-6);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-components-ha-slider": DemoHaSlider;
+    'demo-components-ha-slider': DemoHaSlider
   }
 }

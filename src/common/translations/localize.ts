@@ -1,14 +1,14 @@
-import type { IntlMessageFormat } from "intl-messageformat";
-import type { HTMLTemplateResult } from "lit";
-import { polyfillLocaleData } from "../../resources/polyfills/locale-data-polyfill";
-import type { Resources, TranslationDict } from "../../types";
-import { fireEvent } from "../dom/fire_event";
+import type { IntlMessageFormat } from 'intl-messageformat'
+import type { HTMLTemplateResult } from 'lit'
+import { polyfillLocaleData } from '../../resources/polyfills/locale-data-polyfill'
+import type { Resources, TranslationDict } from '../../types'
+import { fireEvent } from '../dom/fire_event'
 
 // Exclude some patterns from key type checking for now
 // These are intended to be removed as errors are fixed
 // Fixing component category will require tighter definition of types from backend and/or web socket
 export type LocalizeKeys =
-  | FlattenObjectKeys<Omit<TranslationDict, "supervisor">>
+  | FlattenObjectKeys<Omit<TranslationDict, 'supervisor'>>
   | `panel.${string}`
   | `ui.card.alarm_control_panel.${string}`
   | `ui.card.weather.attributes.${string}`
@@ -25,7 +25,7 @@ export type LocalizeKeys =
   | `ui.dialogs.quick-bar.commands.${string}`
   | `ui.dialogs.unhealthy.reasons.${string}`
   | `ui.dialogs.unsupported.reasons.${string}`
-  | `ui.panel.config.${string}.${"caption" | "description"}`
+  | `ui.panel.config.${string}.${'caption' | 'description'}`
   | `ui.panel.config.dashboard.${string}`
   | `ui.panel.config.storage.segments.${string}`
   | `ui.panel.config.zha.${string}`
@@ -33,11 +33,9 @@ export type LocalizeKeys =
   | `ui.panel.lovelace.card.${string}`
   | `ui.panel.lovelace.editor.${string}`
   | `ui.panel.page-authorize.form.${string}`
-  | `component.${string}`;
+  | `component.${string}`
 
-export type LandingPageKeys = FlattenObjectKeys<
-  TranslationDict["landing-page"]
->;
+export type LandingPageKeys = FlattenObjectKeys<TranslationDict['landing-page']>
 
 // Tweaked from https://www.raygesualdo.com/posts/flattening-object-keys-with-typescript-types
 export type FlattenObjectKeys<
@@ -47,7 +45,7 @@ export type FlattenObjectKeys<
   ? T[Key] extends Record<string, unknown>
     ? `${Key}.${FlattenObjectKeys<T[Key]>}`
     : `${Key}`
-  : never;
+  : never
 
 // Later, don't return string when HTML is passed, and don't allow undefined
 export type LocalizeFunc<Keys extends string = LocalizeKeys> = (
@@ -56,13 +54,13 @@ export type LocalizeFunc<Keys extends string = LocalizeKeys> = (
     string,
     string | number | HTMLTemplateResult | null | undefined
   >
-) => string;
+) => string
 
-type FormatType = Record<string, any>;
+type FormatType = Record<string, any>
 export interface FormatsType {
-  number: FormatType;
-  date: FormatType;
-  time: FormatType;
+  number: FormatType
+  date: FormatType
+  time: FormatType
 }
 
 /**
@@ -88,36 +86,36 @@ export interface FormatsType {
 
 export const computeLocalize = async <Keys extends string = LocalizeKeys>(
   cache: HTMLElement & {
-    _localizationCache?: Record<string, IntlMessageFormat>;
+    _localizationCache?: Record<string, IntlMessageFormat>
   },
   language: string,
   resources: Resources,
   formats?: FormatsType
 ): Promise<LocalizeFunc<Keys>> => {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { IntlMessageFormat } = await import("intl-messageformat");
-  await polyfillLocaleData(language);
+  const { IntlMessageFormat } = await import('intl-messageformat')
+  await polyfillLocaleData(language)
 
   // Every time any of the parameters change, invalidate the strings cache.
-  cache._localizationCache = {};
+  cache._localizationCache = {}
 
   return (key, ...args) => {
     if (!key || !resources || !language || !resources[language]) {
-      return "";
+      return ''
     }
 
     // Cache the key/value pairs for the same language, so that we don't
     // do extra work if we're just reusing strings across an application.
-    const translatedValue = resources[language][key];
+    const translatedValue = resources[language][key]
 
     if (!translatedValue) {
-      return "";
+      return ''
     }
 
-    const messageKey = key + translatedValue;
+    const messageKey = key + translatedValue
     let translatedMessage = cache._localizationCache![messageKey] as
       | IntlMessageFormat
-      | undefined;
+      | undefined
 
     if (!translatedMessage) {
       try {
@@ -125,33 +123,33 @@ export const computeLocalize = async <Keys extends string = LocalizeKeys>(
           translatedValue,
           language,
           formats
-        );
+        )
       } catch (err: any) {
-        return "Translation error: " + err.message;
+        return 'Translation error: ' + err.message
       }
-      cache._localizationCache![messageKey] = translatedMessage;
+      cache._localizationCache![messageKey] = translatedMessage
     }
 
-    let argObject = {};
-    if (args.length === 1 && typeof args[0] === "object") {
-      argObject = args[0];
+    let argObject = {}
+    if (args.length === 1 && typeof args[0] === 'object') {
+      argObject = args[0]
     } else {
       for (let i = 0; i < args.length; i += 2) {
         // @ts-expect-error in some places the old format (key, value, key, value) is used
-        argObject[args[i]] = args[i + 1];
+        argObject[args[i]] = args[i + 1]
       }
     }
 
     try {
-      return translatedMessage.format<string>(argObject) as string;
+      return translatedMessage.format<string>(argObject) as string
     } catch (err: any) {
       // eslint-disable-next-line no-console
-      console.error("Translation error", key, language, err);
-      fireEvent(cache, "write_log", {
-        level: "error",
+      console.error('Translation error', key, language, err)
+      fireEvent(cache, 'write_log', {
+        level: 'error',
         message: `Failed to format translation for key '${key}' in language '${language}'. ${err}`,
-      });
-      return "Translation " + err;
+      })
+      return 'Translation ' + err
     }
-  };
-};
+  }
+}

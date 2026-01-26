@@ -1,73 +1,72 @@
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "../../components/ha-alert";
-import "../../components/ha-icon";
-import "../../components/ha-md-list-item";
-import "../../components/ha-spinner";
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import '../../components/ha-alert'
+import '../../components/ha-icon'
+import '../../components/ha-md-list-item'
+import '../../components/ha-spinner'
 import type {
   ExternalEntityAddToAction,
   ExternalEntityAddToActions,
-} from "../../external_app/external_messaging";
-import { showToast } from "../../util/toast";
+} from '../../external_app/external_messaging'
+import { showToast } from '../../util/toast'
 
-import { fireEvent } from "../../common/dom/fire_event";
-import type { HomeAssistant } from "../../types";
+import { fireEvent } from '../../common/dom/fire_event'
+import type { HomeAssistant } from '../../types'
 
-@customElement("ha-more-info-add-to")
+@customElement('ha-more-info-add-to')
 export class HaMoreInfoAddTo extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public entityId!: string;
+  @property({ attribute: false }) public entityId!: string
 
   @state() private _externalActions?: ExternalEntityAddToActions = {
     actions: [],
-  };
+  }
 
-  @state() private _loading = true;
+  @state() private _loading = true
 
   private async _loadExternalActions() {
     if (this.hass.auth.external?.config.hasEntityAddTo) {
       this._externalActions =
-        await this.hass.auth.external?.sendMessage<"entity/add_to/get_actions">(
+        await this.hass.auth.external?.sendMessage<'entity/add_to/get_actions'>(
           {
-            type: "entity/add_to/get_actions",
+            type: 'entity/add_to/get_actions',
             payload: { entity_id: this.entityId },
           }
-        );
+        )
     }
   }
 
   private async _actionSelected(ev: CustomEvent) {
-    const action = (ev.currentTarget as any)
-      .action as ExternalEntityAddToAction;
+    const action = (ev.currentTarget as any).action as ExternalEntityAddToAction
     if (!action.enabled) {
-      return;
+      return
     }
 
     try {
       await this.hass.auth.external!.fireMessage({
-        type: "entity/add_to",
+        type: 'entity/add_to',
         payload: {
           entity_id: this.entityId,
           app_payload: action.app_payload,
         },
-      });
-      fireEvent(this, "add-to-action-selected");
+      })
+      fireEvent(this, 'add-to-action-selected')
     } catch (err: any) {
       showToast(this, {
         message: this.hass.localize(
-          "ui.dialogs.more_info_control.add_to.action_failed",
+          'ui.dialogs.more_info_control.add_to.action_failed',
           {
             error: err.message || err,
           }
         ),
-      });
+      })
     }
   }
 
   protected async firstUpdated() {
-    await this._loadExternalActions();
-    this._loading = false;
+    await this._loadExternalActions()
+    this._loading = false
   }
 
   protected render() {
@@ -76,30 +75,33 @@ export class HaMoreInfoAddTo extends LitElement {
         <div class="loading">
           <ha-spinner></ha-spinner>
         </div>
-      `;
+      `
     }
 
     if (!this._externalActions?.actions.length) {
       return html`
         <ha-alert alert-type="info">
           ${this.hass.localize(
-            "ui.dialogs.more_info_control.add_to.no_actions"
+            'ui.dialogs.more_info_control.add_to.no_actions'
           )}
         </ha-alert>
-      `;
+      `
     }
 
     return html`
       <div class="actions-list">
         ${this._externalActions.actions.map(
-          (action) => html`
+          action => html`
             <ha-md-list-item
               type="button"
               .disabled=${!action.enabled}
               .action=${action}
               @click=${this._actionSelected}
             >
-              <ha-icon slot="start" .icon=${action.mdi_icon}></ha-icon>
+              <ha-icon
+                slot="start"
+                .icon=${action.mdi_icon}
+              ></ha-icon>
               <span>${action.name}</span>
               ${action.details
                 ? html`<span slot="supporting-text">${action.details}</span>`
@@ -108,7 +110,7 @@ export class HaMoreInfoAddTo extends LitElement {
           `
         )}
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -134,15 +136,15 @@ export class HaMoreInfoAddTo extends LitElement {
       display: flex;
       align-items: center;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-more-info-add-to": HaMoreInfoAddTo;
+    'ha-more-info-add-to': HaMoreInfoAddTo
   }
 
   interface HASSDomEvents {
-    "add-to-action-selected": undefined;
+    'add-to-action-selected': undefined
   }
 }

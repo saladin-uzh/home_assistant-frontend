@@ -1,25 +1,25 @@
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { LocalizeFunc } from "../../common/translations/localize";
-import { fireEvent } from "../../common/dom/fire_event";
-import { createCloseHeading } from "../../components/ha-dialog";
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { LocalizeFunc } from '../../common/translations/localize'
+import { fireEvent } from '../../common/dom/fire_event'
+import { createCloseHeading } from '../../components/ha-dialog'
 
-@customElement("app-dialog")
+@customElement('app-dialog')
 class DialogApp extends LitElement {
-  @property({ attribute: false }) public localize?: LocalizeFunc;
+  @property({ attribute: false }) public localize?: LocalizeFunc
 
   public async showDialog(params): Promise<void> {
-    this.localize = params.localize;
+    this.localize = params.localize
   }
 
   public async closeDialog(): Promise<void> {
-    this.localize = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this.localize = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this.localize) {
-      return nothing;
+      return nothing
     }
     return html`<ha-dialog
       open
@@ -27,8 +27,8 @@ class DialogApp extends LitElement {
       @closed=${this.closeDialog}
       .heading=${createCloseHeading(
         undefined,
-        this.localize("ui.panel.page-onboarding.welcome.download_app") ||
-          "Click here to download the app"
+        this.localize('ui.panel.page-onboarding.welcome.download_app') ||
+          'Click here to download the app'
       )}
     >
       <div>
@@ -41,13 +41,13 @@ class DialogApp extends LitElement {
             <img
               loading="lazy"
               src="/static/images/appstore.svg"
-              alt=${this.localize("ui.panel.page-onboarding.welcome.appstore")}
+              alt=${this.localize('ui.panel.page-onboarding.welcome.appstore')}
               class="icon"
             />
             <img
               loading="lazy"
               src="/static/images/qr-appstore.svg"
-              alt=${this.localize("ui.panel.page-onboarding.welcome.appstore")}
+              alt=${this.localize('ui.panel.page-onboarding.welcome.appstore')}
             />
           </a>
           <a
@@ -58,18 +58,18 @@ class DialogApp extends LitElement {
             <img
               loading="lazy"
               src="/static/images/playstore.svg"
-              alt=${this.localize("ui.panel.page-onboarding.welcome.playstore")}
+              alt=${this.localize('ui.panel.page-onboarding.welcome.playstore')}
               class="icon"
             />
             <img
               loading="lazy"
               src="/static/images/qr-playstore.svg"
-              alt=${this.localize("ui.panel.page-onboarding.welcome.playstore")}
+              alt=${this.localize('ui.panel.page-onboarding.welcome.playstore')}
             />
           </a>
         </div>
       </div>
-    </ha-dialog>`;
+    </ha-dialog>`
   }
 
   static styles = css`
@@ -88,11 +88,11 @@ class DialogApp extends LitElement {
       flex: 1;
       max-width: 180px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "app-dialog": DialogApp;
+    'app-dialog': DialogApp
   }
 }

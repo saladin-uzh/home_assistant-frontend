@@ -1,29 +1,29 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
 import {
   domainToName,
   type IntegrationManifest,
-} from "../../../data/integration";
-import type { HomeAssistant } from "../../../types";
-import "./ha-integration-header";
-import "../../../components/ha-card";
-import { brandsUrl } from "../../../util/brands-url";
-import { haStyle } from "../../../resources/styles";
+} from '../../../data/integration'
+import type { HomeAssistant } from '../../../types'
+import './ha-integration-header'
+import '../../../components/ha-card'
+import { brandsUrl } from '../../../util/brands-url'
+import { haStyle } from '../../../resources/styles'
 
-@customElement("ha-integration-action-card")
+@customElement('ha-integration-action-card')
 export class HaIntegrationActionCard extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property() public banner!: string;
+  @property() public banner!: string
 
-  @property({ attribute: false }) public localizedDomainName?: string;
+  @property({ attribute: false }) public localizedDomainName?: string
 
-  @property() public domain!: string;
+  @property() public domain!: string
 
-  @property() public label!: string;
+  @property() public label!: string
 
-  @property({ attribute: false }) public manifest?: IntegrationManifest;
+  @property({ attribute: false }) public manifest?: IntegrationManifest
 
   protected render(): TemplateResult {
     return html`
@@ -33,7 +33,7 @@ export class HaIntegrationActionCard extends LitElement {
             alt=""
             src=${brandsUrl({
               domain: this.domain,
-              type: "icon",
+              type: 'icon',
               darkOptimized: this.hass.themes?.darkMode,
             })}
             crossorigin="anonymous"
@@ -51,15 +51,15 @@ export class HaIntegrationActionCard extends LitElement {
         <div class="card-actions"><slot></slot></div>
         <div class="header-button"><slot name="header-button"></slot></div>
       </ha-card>
-    `;
+    `
   }
 
   private _onImageLoad(ev) {
-    ev.target.style.visibility = "initial";
+    ev.target.style.visibility = 'initial'
   }
 
   private _onImageError(ev) {
-    ev.target.style.visibility = "hidden";
+    ev.target.style.visibility = 'hidden'
   }
 
   static styles = [
@@ -125,11 +125,11 @@ export class HaIntegrationActionCard extends LitElement {
         margin-inline-start: initial;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-integration-action-card": HaIntegrationActionCard;
+    'ha-integration-action-card': HaIntegrationActionCard
   }
 }

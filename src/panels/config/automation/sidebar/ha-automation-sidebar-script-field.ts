@@ -1,45 +1,45 @@
-import { mdiAppleKeyboardCommand, mdiDelete, mdiPlaylistEdit } from "@mdi/js";
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { keyed } from "lit/directives/keyed";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import type { ScriptFieldSidebarConfig } from "../../../../data/automation";
-import type { HomeAssistant } from "../../../../types";
-import { isMac } from "../../../../util/is_mac";
-import "../../script/ha-script-field-editor";
-import type HaAutomationConditionEditor from "../action/ha-automation-action-editor";
-import { overflowStyles, sidebarEditorStyles } from "../styles";
-import "./ha-automation-sidebar-card";
+import { mdiAppleKeyboardCommand, mdiDelete, mdiPlaylistEdit } from '@mdi/js'
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { keyed } from 'lit/directives/keyed'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import type { ScriptFieldSidebarConfig } from '../../../../data/automation'
+import type { HomeAssistant } from '../../../../types'
+import { isMac } from '../../../../util/is_mac'
+import '../../script/ha-script-field-editor'
+import type HaAutomationConditionEditor from '../action/ha-automation-action-editor'
+import { overflowStyles, sidebarEditorStyles } from '../styles'
+import './ha-automation-sidebar-card'
 
-@customElement("ha-automation-sidebar-script-field")
+@customElement('ha-automation-sidebar-script-field')
 export default class HaAutomationSidebarScriptField extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public config!: ScriptFieldSidebarConfig;
+  @property({ attribute: false }) public config!: ScriptFieldSidebarConfig
 
-  @property({ type: Boolean, attribute: "wide" }) public isWide = false;
+  @property({ type: Boolean, attribute: 'wide' }) public isWide = false
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean, attribute: "yaml-mode" }) public yamlMode = false;
+  @property({ type: Boolean, attribute: 'yaml-mode' }) public yamlMode = false
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ type: Number, attribute: "sidebar-key" })
-  public sidebarKey?: number;
+  @property({ type: Number, attribute: 'sidebar-key' })
+  public sidebarKey?: number
 
-  @state() private _warnings?: string[];
+  @state() private _warnings?: string[]
 
-  @query(".sidebar-editor")
-  public editor?: HaAutomationConditionEditor;
+  @query('.sidebar-editor')
+  public editor?: HaAutomationConditionEditor
 
   protected willUpdate(changedProperties) {
-    if (changedProperties.has("config")) {
-      this._warnings = undefined;
+    if (changedProperties.has('config')) {
+      this._warnings = undefined
       if (this.config) {
-        this.yamlMode = this.config.yamlMode;
+        this.yamlMode = this.config.yamlMode
         if (this.yamlMode) {
-          this.editor?.yamlEditor?.setValue(this.config.config);
+          this.editor?.yamlEditor?.setValue(this.config.config)
         }
       }
     }
@@ -47,8 +47,8 @@ export default class HaAutomationSidebarScriptField extends LitElement {
 
   protected render() {
     const title = this.hass.localize(
-      "ui.panel.config.script.editor.field.label"
-    );
+      'ui.panel.config.script.editor.field.label'
+    )
 
     return html`<ha-automation-sidebar-card
       .hass=${this.hass}
@@ -63,12 +63,15 @@ export default class HaAutomationSidebarScriptField extends LitElement {
         .clickAction=${this._toggleYamlMode}
         .disabled=${!!this._warnings}
       >
-        <ha-svg-icon slot="start" .path=${mdiPlaylistEdit}></ha-svg-icon>
+        <ha-svg-icon
+          slot="start"
+          .path=${mdiPlaylistEdit}
+        ></ha-svg-icon>
         <div class="overflow-label">
           ${this.hass.localize(
-            `ui.panel.config.automation.editor.edit_${!this.yamlMode ? "yaml" : "ui"}`
+            `ui.panel.config.automation.editor.edit_${!this.yamlMode ? 'yaml' : 'ui'}`
           )}
-          <span class="shortcut-placeholder ${isMac ? "mac" : ""}"></span>
+          <span class="shortcut-placeholder ${isMac ? 'mac' : ''}"></span>
         </div>
       </ha-md-menu-item>
       <ha-md-menu-item
@@ -77,10 +80,13 @@ export default class HaAutomationSidebarScriptField extends LitElement {
         .disabled=${this.disabled}
         class="warning"
       >
-        <ha-svg-icon slot="start" .path=${mdiDelete}></ha-svg-icon>
+        <ha-svg-icon
+          slot="start"
+          .path=${mdiDelete}
+        ></ha-svg-icon>
         <div class="overflow-label">
           ${this.hass.localize(
-            "ui.panel.config.automation.editor.actions.delete"
+            'ui.panel.config.automation.editor.actions.delete'
           )}
           ${!this.narrow
             ? html`<span class="shortcut">
@@ -91,13 +97,13 @@ export default class HaAutomationSidebarScriptField extends LitElement {
                         .path=${mdiAppleKeyboardCommand}
                       ></ha-svg-icon>`
                     : this.hass.localize(
-                        "ui.panel.config.automation.editor.ctrl"
+                        'ui.panel.config.automation.editor.ctrl'
                       )}</span
                 >
                 <span>+</span>
                 <span
                   >${this.hass.localize(
-                    "ui.panel.config.automation.editor.del"
+                    'ui.panel.config.automation.editor.del'
                   )}</span
                 >
               </span>`
@@ -118,20 +124,20 @@ export default class HaAutomationSidebarScriptField extends LitElement {
           @yaml-changed=${this._yamlChangedSidebar}
         ></ha-script-field-editor>`
       )}
-    </ha-automation-sidebar-card>`;
+    </ha-automation-sidebar-card>`
   }
 
   private _valueChangedSidebar(ev: CustomEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
 
     this.config?.save?.({
       ...this.config.config.field,
       key: ev.detail.value.key ?? this.config.config.key,
       ...ev.detail.value,
-    });
+    })
 
     if (this.config) {
-      fireEvent(this, "value-changed", {
+      fireEvent(this, 'value-changed', {
         value: {
           ...this.config,
           config: {
@@ -140,25 +146,25 @@ export default class HaAutomationSidebarScriptField extends LitElement {
             excludeKeys: this.config.config.excludeKeys,
           },
         },
-      });
+      })
     }
   }
 
   private _yamlChangedSidebar(ev: CustomEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
 
-    this.config?.save?.(ev.detail.value);
+    this.config?.save?.(ev.detail.value)
   }
 
   private _toggleYamlMode = () => {
-    fireEvent(this, "toggle-yaml-mode");
-  };
+    fireEvent(this, 'toggle-yaml-mode')
+  }
 
-  static styles = [sidebarEditorStyles, overflowStyles];
+  static styles = [sidebarEditorStyles, overflowStyles]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-sidebar-script-field": HaAutomationSidebarScriptField;
+    'ha-automation-sidebar-script-field': HaAutomationSidebarScriptField
   }
 }

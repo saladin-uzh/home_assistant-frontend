@@ -1,5 +1,5 @@
-import { css } from "lit";
-import { extractVars } from "../../../common/style/derived-css-vars";
+import { css } from 'lit'
+import { extractVars } from '../../../common/style/derived-css-vars'
 
 /*
  * Core color tokens are the foundational color values used throughout the design system.
@@ -79,6 +79,6 @@ export const coreColorStyles = css`
     --ha-color-shadow-light: #00000014;
     --ha-color-shadow-dark: #00000046;
   }
-`;
+`
 
-export const coreColorVariables = extractVars(coreColorStyles);
+export const coreColorVariables = extractVars(coreColorStyles)

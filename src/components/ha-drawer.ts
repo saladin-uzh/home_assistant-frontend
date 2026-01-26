@@ -1,42 +1,42 @@
-import { DrawerBase } from "@material/mwc-drawer/mwc-drawer-base";
-import { styles } from "@material/mwc-drawer/mwc-drawer.css";
-import type { PropertyValues } from "lit";
-import { css } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../common/dom/fire_event";
+import { DrawerBase } from '@material/mwc-drawer/mwc-drawer-base'
+import { styles } from '@material/mwc-drawer/mwc-drawer.css'
+import type { PropertyValues } from 'lit'
+import { css } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../common/dom/fire_event'
 
-const blockingElements = (document as any).$blockingElements;
+const blockingElements = (document as any).$blockingElements
 
-@customElement("ha-drawer")
+@customElement('ha-drawer')
 export class HaDrawer extends DrawerBase {
-  @property() public direction: "ltr" | "rtl" = "ltr";
+  @property() public direction: 'ltr' | 'rtl' = 'ltr'
 
-  private _mc?: HammerManager;
+  private _mc?: HammerManager
 
-  private _rtlStyle?: HTMLElement;
+  private _rtlStyle?: HTMLElement
 
   protected createAdapter() {
     return {
       ...super.createAdapter(),
       trapFocus: () => {
-        blockingElements.push(this);
-        this.appContent.inert = true;
-        document.body.style.overflow = "hidden";
+        blockingElements.push(this)
+        this.appContent.inert = true
+        document.body.style.overflow = 'hidden'
       },
       releaseFocus: () => {
-        blockingElements.remove(this);
-        this.appContent.inert = false;
-        document.body.style.overflow = "";
+        blockingElements.remove(this)
+        this.appContent.inert = false
+        document.body.style.overflow = ''
       },
-    };
+    }
   }
 
   protected updated(changedProps: PropertyValues) {
-    super.updated(changedProps);
-    if (changedProps.has("direction")) {
-      this.mdcRoot.dir = this.direction;
-      if (this.direction === "rtl") {
-        this._rtlStyle = document.createElement("style");
+    super.updated(changedProps)
+    if (changedProps.has('direction')) {
+      this.mdcRoot.dir = this.direction
+      if (this.direction === 'rtl') {
+        this._rtlStyle = document.createElement('style')
         this._rtlStyle.innerHTML = `
           .mdc-drawer--animate {
             transform: translateX(100%);
@@ -47,38 +47,38 @@ export class HaDrawer extends DrawerBase {
           .mdc-drawer--closing {
             transform: translateX(100%);
           }
-        `;
+        `
 
-        this.shadowRoot!.appendChild(this._rtlStyle);
+        this.shadowRoot!.appendChild(this._rtlStyle)
       } else if (this._rtlStyle) {
-        this.shadowRoot!.removeChild(this._rtlStyle);
+        this.shadowRoot!.removeChild(this._rtlStyle)
       }
     }
 
-    if (changedProps.has("open") && this.open && this.type === "modal") {
-      this._setupSwipe();
+    if (changedProps.has('open') && this.open && this.type === 'modal') {
+      this._setupSwipe()
     } else if (this._mc) {
-      this._mc.destroy();
-      this._mc = undefined;
+      this._mc.destroy()
+      this._mc = undefined
     }
   }
 
   private async _setupSwipe() {
-    const hammer = await import("../resources/hammer");
+    const hammer = await import('../resources/hammer')
     this._mc = new hammer.Manager(document, {
-      touchAction: "pan-y",
-    });
+      touchAction: 'pan-y',
+    })
     this._mc.add(
       new hammer.Swipe({
         direction:
-          this.direction === "rtl"
+          this.direction === 'rtl'
             ? hammer.DIRECTION_RIGHT
             : hammer.DIRECTION_LEFT,
       })
-    );
-    this._mc.on("swipeleft swiperight", () => {
-      fireEvent(this, "hass-toggle-menu", { open: false });
-    });
+    )
+    this._mc.on('swipeleft swiperight', () => {
+      fireEvent(this, 'hass-toggle-menu', { open: false })
+    })
   }
 
   static override styles = [
@@ -105,11 +105,11 @@ export class HaDrawer extends DrawerBase {
         box-sizing: border-box;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-drawer": HaDrawer;
+    'ha-drawer': HaDrawer
   }
 }

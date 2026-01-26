@@ -1,8 +1,8 @@
-import { ensureArray } from "../../common/array/ensure-array";
-import { computeAreaName } from "../../common/entity/compute_area_name";
-import { blankBeforeUnit } from "../../common/translations/blank_before_unit";
-import type { HomeAssistant } from "../../types";
-import type { Selector } from "../selector";
+import { ensureArray } from '../../common/array/ensure-array'
+import { computeAreaName } from '../../common/entity/compute_area_name'
+import { blankBeforeUnit } from '../../common/translations/blank_before_unit'
+import type { HomeAssistant } from '../../types'
+import type { Selector } from '../selector'
 
 export const formatSelectorValue = (
   hass: HomeAssistant,
@@ -10,93 +10,91 @@ export const formatSelectorValue = (
   selector?: Selector
 ) => {
   if (value == null) {
-    return "";
+    return ''
   }
 
   if (!selector) {
-    return ensureArray(value).join(", ");
+    return ensureArray(value).join(', ')
   }
 
-  if ("text" in selector) {
-    const { prefix, suffix } = selector.text || {};
+  if ('text' in selector) {
+    const { prefix, suffix } = selector.text || {}
 
-    const texts = ensureArray(value);
-    return texts
-      .map((text) => `${prefix || ""}${text}${suffix || ""}`)
-      .join(", ");
+    const texts = ensureArray(value)
+    return texts.map(text => `${prefix || ''}${text}${suffix || ''}`).join(', ')
   }
 
-  if ("number" in selector) {
-    const { unit_of_measurement } = selector.number || {};
-    const numbers = ensureArray(value);
+  if ('number' in selector) {
+    const { unit_of_measurement } = selector.number || {}
+    const numbers = ensureArray(value)
     return numbers
-      .map((number) => {
-        const num = Number(number);
+      .map(number => {
+        const num = Number(number)
         if (isNaN(num)) {
-          return number;
+          return number
         }
         return unit_of_measurement
           ? `${num}${blankBeforeUnit(unit_of_measurement, hass.locale)}${unit_of_measurement}`
-          : num.toString();
+          : num.toString()
       })
-      .join(", ");
+      .join(', ')
   }
 
-  if ("floor" in selector) {
-    const floors = ensureArray(value);
+  if ('floor' in selector) {
+    const floors = ensureArray(value)
     return floors
-      .map((floorId) => {
-        const floor = hass.floors[floorId];
+      .map(floorId => {
+        const floor = hass.floors[floorId]
         if (!floor) {
-          return floorId;
+          return floorId
         }
-        return floor.name || floorId;
+        return floor.name || floorId
       })
-      .join(", ");
+      .join(', ')
   }
 
-  if ("area" in selector) {
-    const areas = ensureArray(value);
+  if ('area' in selector) {
+    const areas = ensureArray(value)
     return areas
-      .map((areaId) => {
-        const area = hass.areas[areaId];
+      .map(areaId => {
+        const area = hass.areas[areaId]
         if (!area) {
-          return areaId;
+          return areaId
         }
-        return computeAreaName(area);
+        return computeAreaName(area)
       })
-      .join(", ");
+      .join(', ')
   }
 
-  if ("entity" in selector) {
-    const entities = ensureArray(value);
+  if ('entity' in selector) {
+    const entities = ensureArray(value)
     return entities
-      .map((entityId) => {
-        const stateObj = hass.states[entityId];
+      .map(entityId => {
+        const stateObj = hass.states[entityId]
         if (!stateObj) {
-          return entityId;
+          return entityId
         }
         const name = hass.formatEntityName(stateObj, [
-          { type: "device" },
-          { type: "entity" },
-        ]);
-        return name || entityId;
+          { type: 'device' },
+          { type: 'entity' },
+        ])
+        return name || entityId
       })
-      .join(", ");
+      .join(', ')
   }
 
-  if ("device" in selector) {
-    const devices = ensureArray(value);
+  if ('device' in selector) {
+    const devices = ensureArray(value)
     return devices
-      .map((deviceId) => {
-        const device = hass.devices[deviceId];
+      .map(deviceId => {
+        const device = hass.devices[deviceId]
         if (!device) {
-          return deviceId;
+          return deviceId
         }
-        return device.name || deviceId;
+        return device.name || deviceId
       })
-      .join(", ");
+      .join(', ')
   }
 
-  return ensureArray(value).join(", ");
-};
+  return ensureArray(value).join(', ')
+}

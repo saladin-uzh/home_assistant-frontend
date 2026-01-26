@@ -1,11 +1,11 @@
-import "@home-assistant/webawesome/dist/components/button-group/button-group";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../common/dom/fire_event";
-import type { ToggleButton } from "../types";
-import "./ha-button";
-import "./ha-svg-icon";
+import '@home-assistant/webawesome/dist/components/button-group/button-group'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../common/dom/fire_event'
+import type { ToggleButton } from '../types'
+import './ha-button'
+import './ha-svg-icon'
 
 /**
  * @element ha-button-toggle-group
@@ -20,39 +20,39 @@ import "./ha-svg-icon";
  *
  * @fires value-changed - Dispatched when the active button changes.
  */
-@customElement("ha-button-toggle-group")
+@customElement('ha-button-toggle-group')
 export class HaButtonToggleGroup extends LitElement {
-  @property({ attribute: false }) public buttons!: ToggleButton[];
+  @property({ attribute: false }) public buttons!: ToggleButton[]
 
-  @property() public active?: string;
+  @property() public active?: string
 
-  @property({ reflect: true }) size: "small" | "medium" = "medium";
+  @property({ reflect: true }) size: 'small' | 'medium' = 'medium'
 
-  @property({ type: Boolean, reflect: true, attribute: "no-wrap" })
-  public nowrap = false;
+  @property({ type: Boolean, reflect: true, attribute: 'no-wrap' })
+  public nowrap = false
 
-  @property({ type: Boolean, reflect: true, attribute: "full-width" })
-  public fullWidth = false;
+  @property({ type: Boolean, reflect: true, attribute: 'full-width' })
+  public fullWidth = false
 
   @property() public variant:
-    | "brand"
-    | "neutral"
-    | "success"
-    | "warning"
-    | "danger" = "brand";
+    | 'brand'
+    | 'neutral'
+    | 'success'
+    | 'warning'
+    | 'danger' = 'brand'
 
-  @property({ attribute: "active-variant" }) public activeVariant?:
-    | "brand"
-    | "neutral"
-    | "success"
-    | "warning"
-    | "danger";
+  @property({ attribute: 'active-variant' }) public activeVariant?:
+    | 'brand'
+    | 'neutral'
+    | 'success'
+    | 'warning'
+    | 'danger'
 
   protected render(): TemplateResult {
     return html`
       <wa-button-group childSelector="ha-button">
         ${this.buttons.map(
-          (button) =>
+          button =>
             html`<ha-button
               iconTag="ha-svg-icon"
               class="icon"
@@ -63,7 +63,7 @@ export class HaButtonToggleGroup extends LitElement {
               .value=${button.value}
               @click=${this._handleClick}
               .title=${button.label}
-              .appearance=${this.active === button.value ? "accent" : "filled"}
+              .appearance=${this.active === button.value ? 'accent' : 'filled'}
             >
               ${button.iconPath
                 ? html`<ha-svg-icon
@@ -74,12 +74,12 @@ export class HaButtonToggleGroup extends LitElement {
             </ha-button>`
         )}
       </wa-button-group>
-    `;
+    `
   }
 
   private _handleClick(ev): void {
-    this.active = ev.currentTarget.value;
-    fireEvent(this, "value-changed", { value: this.active });
+    this.active = ev.currentTarget.value
+    fireEvent(this, 'value-changed', { value: this.active })
   }
 
   static styles = css`
@@ -103,11 +103,11 @@ export class HaButtonToggleGroup extends LitElement {
     :host([full-width]) ha-button {
       flex: 1;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-button-toggle-group": HaButtonToggleGroup;
+    'ha-button-toggle-group': HaButtonToggleGroup
   }
 }

@@ -1,9 +1,9 @@
-import { SelectOptionEl } from "@material/web/select/internal/selectoption/select-option";
-import { styles } from "@material/web/menu/internal/menuitem/menu-item-styles";
-import { css } from "lit";
-import { customElement } from "lit/decorators";
+import { SelectOptionEl } from '@material/web/select/internal/selectoption/select-option'
+import { styles } from '@material/web/menu/internal/menuitem/menu-item-styles'
+import { css } from 'lit'
+import { customElement } from 'lit/decorators'
 
-@customElement("ha-md-select-option")
+@customElement('ha-md-select-option')
 export class HaMdSelectOption extends SelectOptionEl {
   static override styles = [
     styles,
@@ -17,11 +17,11 @@ export class HaMdSelectOption extends SelectOptionEl {
         --md-sys-color-on-surface-variant: var(--secondary-text-color);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-md-select-option": HaMdSelectOption;
+    'ha-md-select-option': HaMdSelectOption
   }
 }

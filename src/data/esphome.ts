@@ -1,7 +1,7 @@
-import type { HomeAssistant } from "../types";
+import type { HomeAssistant } from '../types'
 
 export interface ESPHomeEncryptionKey {
-  encryption_key: string;
+  encryption_key: string
 }
 
 export const fetchESPHomeEncryptionKey = (
@@ -9,6 +9,6 @@ export const fetchESPHomeEncryptionKey = (
   entry_id: string
 ): Promise<ESPHomeEncryptionKey> =>
   hass.callWS({
-    type: "esphome/get_encryption_key",
+    type: 'esphome/get_encryption_key',
     entry_id,
-  });
+  })

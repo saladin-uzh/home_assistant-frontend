@@ -1,52 +1,52 @@
-import { getColorByIndex } from "../common/color/colors";
-import { computeDomain } from "../common/entity/compute_domain";
-import { computeStateName } from "../common/entity/compute_state_name";
-import type { HomeAssistant } from "../types";
-import { isUnavailableState } from "./entity";
+import { getColorByIndex } from '../common/color/colors'
+import { computeDomain } from '../common/entity/compute_domain'
+import { computeStateName } from '../common/entity/compute_state_name'
+import type { HomeAssistant } from '../types'
+import { isUnavailableState } from './entity'
 
 export interface Calendar {
-  entity_id: string;
-  name?: string;
-  backgroundColor?: string;
+  entity_id: string
+  name?: string
+  backgroundColor?: string
 }
 
 /** Object used to render a calendar event in fullcalendar. */
 export interface CalendarEvent {
-  title: string;
-  start: string;
-  end?: string;
-  backgroundColor?: string;
-  borderColor?: string;
-  calendar: string;
-  eventData: CalendarEventData;
-  [key: string]: any;
+  title: string
+  start: string
+  end?: string
+  backgroundColor?: string
+  borderColor?: string
+  calendar: string
+  eventData: CalendarEventData
+  [key: string]: any
 }
 
 /** Data returned from the core APIs. */
 export interface CalendarEventData {
-  uid?: string;
-  recurrence_id?: string;
-  summary: string;
-  dtstart: string;
-  dtend: string;
-  rrule?: string;
-  description?: string;
-  location?: string;
+  uid?: string
+  recurrence_id?: string
+  summary: string
+  dtstart: string
+  dtend: string
+  rrule?: string
+  description?: string
+  location?: string
 }
 
 export interface CalendarEventMutableParams {
-  summary: string;
-  dtstart: string;
-  dtend: string;
-  rrule?: string;
-  description?: string;
-  location?: string;
+  summary: string
+  dtstart: string
+  dtend: string
+  rrule?: string
+  description?: string
+  location?: string
 }
 
 // The scope of a delete/update for a recurring event
 export enum RecurrenceRange {
-  THISEVENT = "",
-  THISANDFUTURE = "THISANDFUTURE",
+  THISEVENT = '',
+  THISANDFUTURE = 'THISANDFUTURE',
 }
 
 export const enum CalendarEntityFeature {
@@ -63,36 +63,36 @@ export const fetchCalendarEvents = async (
 ): Promise<{ events: CalendarEvent[]; errors: string[] }> => {
   const params = encodeURI(
     `?start=${start.toISOString()}&end=${end.toISOString()}`
-  );
+  )
 
-  const calEvents: CalendarEvent[] = [];
-  const errors: string[] = [];
-  const promises: Promise<CalendarEvent[]>[] = [];
+  const calEvents: CalendarEvent[] = []
+  const errors: string[] = []
+  const promises: Promise<CalendarEvent[]>[] = []
 
-  calendars.forEach((cal) => {
+  calendars.forEach(cal => {
     promises.push(
       hass.callApi<CalendarEvent[]>(
-        "GET",
+        'GET',
         `calendars/${cal.entity_id}${params}`
       )
-    );
-  });
+    )
+  })
 
   for (const [idx, promise] of promises.entries()) {
-    let result: CalendarEvent[];
+    let result: CalendarEvent[]
     try {
       // eslint-disable-next-line no-await-in-loop
-      result = await promise;
+      result = await promise
     } catch (_err) {
-      errors.push(calendars[idx].entity_id);
-      continue;
+      errors.push(calendars[idx].entity_id)
+      continue
     }
-    const cal = calendars[idx];
-    result.forEach((ev) => {
-      const eventStart = getCalendarDate(ev.start);
-      const eventEnd = getCalendarDate(ev.end);
+    const cal = calendars[idx]
+    result.forEach(ev => {
+      const eventStart = getCalendarDate(ev.start)
+      const eventEnd = getCalendarDate(ev.end)
       if (!eventStart || !eventEnd) {
-        return;
+        return
       }
       const eventData: CalendarEventData = {
         uid: ev.uid,
@@ -103,7 +103,7 @@ export const fetchCalendarEvents = async (
         dtend: eventEnd,
         recurrence_id: ev.recurrence_id,
         rrule: ev.rrule,
-      };
+      }
       const event: CalendarEvent = {
         start: eventStart,
         end: eventEnd,
@@ -112,40 +112,40 @@ export const fetchCalendarEvents = async (
         borderColor: cal.backgroundColor,
         calendar: cal.entity_id,
         eventData: eventData,
-      };
+      }
 
-      calEvents.push(event);
-    });
+      calEvents.push(event)
+    })
   }
 
-  return { events: calEvents, errors };
-};
+  return { events: calEvents, errors }
+}
 
 const getCalendarDate = (dateObj: any): string | undefined => {
-  if (typeof dateObj === "string") {
-    return dateObj;
+  if (typeof dateObj === 'string') {
+    return dateObj
   }
 
   if (dateObj.dateTime) {
-    return dateObj.dateTime;
+    return dateObj.dateTime
   }
 
   if (dateObj.date) {
-    return dateObj.date;
+    return dateObj.date
   }
 
-  return undefined;
-};
+  return undefined
+}
 
 export const getCalendars = (
   hass: HomeAssistant,
   element: Element
 ): Calendar[] => {
-  const computedStyles = getComputedStyle(element);
+  const computedStyles = getComputedStyle(element)
   return Object.keys(hass.states)
     .filter(
-      (eid) =>
-        computeDomain(eid) === "calendar" &&
+      eid =>
+        computeDomain(eid) === 'calendar' &&
         !isUnavailableState(hass.states[eid].state) &&
         hass.entities[eid]?.hidden !== true
     )
@@ -154,8 +154,8 @@ export const getCalendars = (
       ...hass.states[eid],
       name: computeStateName(hass.states[eid]),
       backgroundColor: getColorByIndex(idx, computedStyles),
-    }));
-};
+    }))
+}
 
 export const createCalendarEvent = (
   hass: HomeAssistant,
@@ -163,10 +163,10 @@ export const createCalendarEvent = (
   event: CalendarEventMutableParams
 ) =>
   hass.callWS<undefined>({
-    type: "calendar/event/create",
+    type: 'calendar/event/create',
     entity_id: entityId,
     event: event,
-  });
+  })
 
 export const updateCalendarEvent = (
   hass: HomeAssistant,
@@ -177,13 +177,13 @@ export const updateCalendarEvent = (
   recurrence_range?: RecurrenceRange
 ) =>
   hass.callWS<undefined>({
-    type: "calendar/event/update",
+    type: 'calendar/event/update',
     entity_id: entityId,
     uid,
     recurrence_id,
     recurrence_range,
     event,
-  });
+  })
 
 export const deleteCalendarEvent = (
   hass: HomeAssistant,
@@ -193,9 +193,9 @@ export const deleteCalendarEvent = (
   recurrence_range?: RecurrenceRange
 ) =>
   hass.callWS<undefined>({
-    type: "calendar/event/delete",
+    type: 'calendar/event/delete',
     entity_id: entityId,
     uid,
     recurrence_id,
     recurrence_range,
-  });
+  })

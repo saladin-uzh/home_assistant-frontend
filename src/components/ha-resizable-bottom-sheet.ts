@@ -1,7 +1,7 @@
-import { css, html, LitElement } from "lit";
-import { customElement, query, state } from "lit/decorators";
-import { fireEvent } from "../common/dom/fire_event";
-import { BOTTOM_SHEET_ANIMATION_DURATION_MS } from "./ha-bottom-sheet";
+import { css, html, LitElement } from 'lit'
+import { customElement, query, state } from 'lit/decorators'
+import { fireEvent } from '../common/dom/fire_event'
+import { BOTTOM_SHEET_ANIMATION_DURATION_MS } from './ha-bottom-sheet'
 
 /**
  * A bottom sheet component that slides up from the bottom of the screen.
@@ -16,21 +16,21 @@ import { BOTTOM_SHEET_ANIMATION_DURATION_MS } from "./ha-bottom-sheet";
  * @cssprop --ha-bottom-sheet-border-style - Border style for the sheet
  * @cssprop --ha-bottom-sheet-border-color - Border color for the sheet
  */
-@customElement("ha-resizable-bottom-sheet")
+@customElement('ha-resizable-bottom-sheet')
 export class HaResizableBottomSheet extends LitElement {
-  @query("dialog") private _dialog!: HTMLDialogElement;
+  @query('dialog') private _dialog!: HTMLDialogElement
 
-  private _dragging = false;
+  private _dragging = false
 
-  private _dragStartY = 0;
+  private _dragStartY = 0
 
-  private _initialSize = 0;
+  private _initialSize = 0
 
-  @state() private _dialogMaxViewpointHeight = 70;
+  @state() private _dialogMaxViewpointHeight = 70
 
-  @state() private _dialogMinViewpointHeight = 55;
+  @state() private _dialogMinViewpointHeight = 55
 
-  @state() private _dialogViewportHeight?: number;
+  @state() private _dialogViewportHeight?: number
 
   render() {
     return html`<dialog
@@ -53,132 +53,132 @@ export class HaResizableBottomSheet extends LitElement {
         ></div>
       </div>
       <slot></slot>
-    </dialog>`;
+    </dialog>`
   }
 
   protected firstUpdated(changedProperties) {
-    super.firstUpdated(changedProperties);
-    this._openSheet();
+    super.firstUpdated(changedProperties)
+    this._openSheet()
   }
 
   private _openSheet() {
     requestAnimationFrame(() => {
       // trigger opening animation
-      this._dialog.classList.add("show");
-    });
+      this._dialog.classList.add('show')
+    })
   }
 
   public closeSheet() {
     requestAnimationFrame(() => {
-      this._dialog.classList.remove("show");
-    });
+      this._dialog.classList.remove('show')
+    })
   }
 
   private _handleTransitionEnd() {
-    if (this._dialog.classList.contains("show")) {
+    if (this._dialog.classList.contains('show')) {
       // after show animation is done
       // - set the height to the natural height, to prevent content shift when switch content
       // - set max height to 90vh, so it opens at max 70vh but can be resized to 90vh
       this._dialogViewportHeight =
-        (this._dialog.offsetHeight / window.innerHeight) * 100;
-      this._dialogMaxViewpointHeight = 90;
-      this._dialogMinViewpointHeight = 20;
+        (this._dialog.offsetHeight / window.innerHeight) * 100
+      this._dialogMaxViewpointHeight = 90
+      this._dialogMinViewpointHeight = 20
     } else {
       // after close animation is done close dialog element and fire closed event
-      this._dialog.close();
-      fireEvent(this, "bottom-sheet-closed");
+      this._dialog.close()
+      fireEvent(this, 'bottom-sheet-closed')
     }
   }
 
   connectedCallback() {
-    super.connectedCallback();
+    super.connectedCallback()
 
     // register event listeners for drag handling
-    document.addEventListener("mousemove", this._handleMouseMove);
-    document.addEventListener("mouseup", this._handleMouseUp);
-    document.addEventListener("touchmove", this._handleTouchMove, {
+    document.addEventListener('mousemove', this._handleMouseMove)
+    document.addEventListener('mouseup', this._handleMouseUp)
+    document.addEventListener('touchmove', this._handleTouchMove, {
       passive: false,
-    });
-    document.addEventListener("touchend", this._handleTouchEnd);
-    document.addEventListener("touchcancel", this._handleTouchEnd);
+    })
+    document.addEventListener('touchend', this._handleTouchEnd)
+    document.addEventListener('touchcancel', this._handleTouchEnd)
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
 
     // unregister event listeners for drag handling
-    document.removeEventListener("mousemove", this._handleMouseMove);
-    document.removeEventListener("mouseup", this._handleMouseUp);
-    document.removeEventListener("touchmove", this._handleTouchMove);
-    document.removeEventListener("touchend", this._handleTouchEnd);
-    document.removeEventListener("touchcancel", this._handleTouchEnd);
+    document.removeEventListener('mousemove', this._handleMouseMove)
+    document.removeEventListener('mouseup', this._handleMouseUp)
+    document.removeEventListener('touchmove', this._handleTouchMove)
+    document.removeEventListener('touchend', this._handleTouchEnd)
+    document.removeEventListener('touchcancel', this._handleTouchEnd)
   }
 
   private _handleMouseDown = (ev: MouseEvent) => {
-    this._startDrag(ev.clientY);
-  };
+    this._startDrag(ev.clientY)
+  }
 
   private _handleTouchStart = (ev: TouchEvent) => {
     // Prevent the browser from interpreting this as a scroll/PTR gesture.
-    ev.preventDefault();
-    this._startDrag(ev.touches[0].clientY);
-  };
+    ev.preventDefault()
+    this._startDrag(ev.touches[0].clientY)
+  }
 
   private _startDrag(clientY: number) {
-    this._dragging = true;
-    this._dragStartY = clientY;
-    this._initialSize = (this._dialog.offsetHeight / window.innerHeight) * 100;
-    document.body.style.setProperty("cursor", "grabbing");
+    this._dragging = true
+    this._dragStartY = clientY
+    this._initialSize = (this._dialog.offsetHeight / window.innerHeight) * 100
+    document.body.style.setProperty('cursor', 'grabbing')
   }
 
   private _handleMouseMove = (ev: MouseEvent) => {
     if (!this._dragging) {
-      return;
+      return
     }
-    this._updateSize(ev.clientY);
-  };
+    this._updateSize(ev.clientY)
+  }
 
   private _handleTouchMove = (ev: TouchEvent) => {
     if (!this._dragging) {
-      return;
+      return
     }
-    ev.preventDefault(); // Prevent scrolling
-    this._updateSize(ev.touches[0].clientY);
-  };
+    ev.preventDefault() // Prevent scrolling
+    this._updateSize(ev.touches[0].clientY)
+  }
 
   private _updateSize(clientY: number) {
-    const deltaY = this._dragStartY - clientY;
-    const viewportHeight = window.innerHeight;
-    const deltaVh = (deltaY / viewportHeight) * 100;
+    const deltaY = this._dragStartY - clientY
+    const viewportHeight = window.innerHeight
+    const deltaVh = (deltaY / viewportHeight) * 100
 
     // Calculate new size and clamp between 10vh and 90vh
-    let newSize = this._initialSize + deltaVh;
-    newSize = Math.max(10, Math.min(90, newSize));
+    let newSize = this._initialSize + deltaVh
+    newSize = Math.max(10, Math.min(90, newSize))
 
     // on drag down and below 20vh
     if (newSize < 20 && deltaY < 0) {
-      this._endDrag();
-      this.closeSheet();
-      return;
+      this._endDrag()
+      this.closeSheet()
+      return
     }
 
-    this._dialogViewportHeight = newSize;
+    this._dialogViewportHeight = newSize
   }
 
   private _handleMouseUp = () => {
-    this._endDrag();
-  };
+    this._endDrag()
+  }
 
   private _handleTouchEnd = () => {
-    this._endDrag();
-  };
+    this._endDrag()
+  }
 
   private _endDrag() {
     if (!this._dragging) {
-      return;
+      return
     }
-    this._dragging = false;
-    document.body.style.removeProperty("cursor");
+    this._dragging = false
+    document.body.style.removeProperty('cursor')
   }
 
   static styles = css`
@@ -203,7 +203,7 @@ export class HaResizableBottomSheet extends LitElement {
       padding-bottom: 76px;
     }
     .handle-wrapper .handle::after {
-      content: "";
+      content: '';
       border-radius: var(--ha-border-radius-md);
       height: 4px;
       background: var(--divider-color, #e0e0e0);
@@ -263,15 +263,15 @@ export class HaResizableBottomSheet extends LitElement {
     dialog.show {
       transform: translateY(0);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-resizable-bottom-sheet": HaResizableBottomSheet;
+    'ha-resizable-bottom-sheet': HaResizableBottomSheet
   }
 
   interface HASSDomEvents {
-    "bottom-sheet-closed": undefined;
+    'bottom-sheet-closed': undefined
   }
 }

@@ -1,53 +1,53 @@
-import { mdiPlus } from "@mdi/js";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import "../../../../components/ha-fab";
-import "../../../../components/ha-svg-icon";
-import type { LovelaceConfig } from "../../../../data/lovelace/config/types";
-import type { HomeAssistant } from "../../../../types";
-import { computeUnusedEntities } from "../../common/compute-unused-entities";
+import { mdiPlus } from '@mdi/js'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import '../../../../components/ha-fab'
+import '../../../../components/ha-svg-icon'
+import type { LovelaceConfig } from '../../../../data/lovelace/config/types'
+import type { HomeAssistant } from '../../../../types'
+import { computeUnusedEntities } from '../../common/compute-unused-entities'
 import {
   computeCards,
   computeSection,
-} from "../../common/generate-lovelace-config";
-import type { Lovelace } from "../../types";
-import "../card-editor/hui-entity-picker-table";
-import { showSuggestCardDialog } from "../card-editor/show-suggest-card-dialog";
-import { showSelectViewDialog } from "../select-view/show-select-view-dialog";
+} from '../../common/generate-lovelace-config'
+import type { Lovelace } from '../../types'
+import '../card-editor/hui-entity-picker-table'
+import { showSuggestCardDialog } from '../card-editor/show-suggest-card-dialog'
+import { showSelectViewDialog } from '../select-view/show-select-view-dialog'
 
-@customElement("hui-unused-entities")
+@customElement('hui-unused-entities')
 export class HuiUnusedEntities extends LitElement {
-  @property({ attribute: false }) public lovelace!: Lovelace;
+  @property({ attribute: false }) public lovelace!: Lovelace
 
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @state() private _unusedEntities: string[] = [];
+  @state() private _unusedEntities: string[] = []
 
-  @state() private _selectedEntities: string[] = [];
+  @state() private _selectedEntities: string[] = []
 
   private get _config(): LovelaceConfig {
-    return this.lovelace.config;
+    return this.lovelace.config
   }
 
   protected updated(changedProperties: PropertyValues): void {
-    super.updated(changedProperties);
+    super.updated(changedProperties)
 
-    if (changedProperties.has("lovelace")) {
-      this._getUnusedEntities();
+    if (changedProperties.has('lovelace')) {
+      this._getUnusedEntities()
     }
   }
 
   protected render() {
     if (!this.hass || !this.lovelace) {
-      return nothing;
+      return nothing
     }
 
-    if (this.lovelace.mode === "storage" && this.lovelace.editMode === false) {
-      return nothing;
+    if (this.lovelace.mode === 'storage' && this.lovelace.editMode === false) {
+      return nothing
     }
 
     return html`
@@ -56,24 +56,24 @@ export class HuiUnusedEntities extends LitElement {
           ? html`
               <ha-card
                 header=${this.hass.localize(
-                  "ui.panel.lovelace.unused_entities.title"
+                  'ui.panel.lovelace.unused_entities.title'
                 )}
               >
                 <div class="card-content">
                   ${this.hass.localize(
-                    "ui.panel.lovelace.unused_entities.available_entities"
+                    'ui.panel.lovelace.unused_entities.available_entities'
                   )}
-                  ${this.lovelace.mode === "storage"
+                  ${this.lovelace.mode === 'storage'
                     ? html`
                         <br />${this.hass.localize(
-                          "ui.panel.lovelace.unused_entities.select_to_add"
+                          'ui.panel.lovelace.unused_entities.select_to_add'
                         )}
                       `
-                    : ""}
+                    : ''}
                 </div>
               </ha-card>
             `
-          : ""}
+          : ''}
         <hui-entity-picker-table
           .hass=${this.hass}
           .narrow=${this.narrow}
@@ -87,32 +87,35 @@ export class HuiUnusedEntities extends LitElement {
         })}"
       >
         <ha-fab
-          .label=${this.hass.localize("ui.panel.lovelace.editor.edit_card.add")}
+          .label=${this.hass.localize('ui.panel.lovelace.editor.edit_card.add')}
           extended
           @click=${this._addToLovelaceView}
         >
-          <ha-svg-icon slot="icon" .path=${mdiPlus}></ha-svg-icon>
+          <ha-svg-icon
+            slot="icon"
+            .path=${mdiPlus}
+          ></ha-svg-icon>
         </ha-fab>
       </div>
-    `;
+    `
   }
 
   private _getUnusedEntities(): void {
     if (!this.hass || !this.lovelace) {
-      return;
+      return
     }
-    this._selectedEntities = [];
-    const unusedEntities = computeUnusedEntities(this.hass, this._config!);
-    this._unusedEntities = [...unusedEntities].sort();
+    this._selectedEntities = []
+    const unusedEntities = computeUnusedEntities(this.hass, this._config!)
+    this._unusedEntities = [...unusedEntities].sort()
   }
 
   private _handleSelectedChanged(ev: CustomEvent): void {
-    this._selectedEntities = ev.detail.selectedEntities;
+    this._selectedEntities = ev.detail.selectedEntities
   }
 
   private _addToLovelaceView(): void {
-    const cardConfig = computeCards(this.hass, this._selectedEntities, {});
-    const sectionConfig = computeSection(this._selectedEntities, {});
+    const cardConfig = computeCards(this.hass, this._selectedEntities, {})
+    const sectionConfig = computeSection(this._selectedEntities, {})
 
     if (this.lovelace.config.views.length === 1) {
       showSuggestCardDialog(this, {
@@ -122,8 +125,8 @@ export class HuiUnusedEntities extends LitElement {
         entities: this._selectedEntities,
         cardConfig,
         sectionConfig,
-      });
-      return;
+      })
+      return
     }
     showSelectViewDialog(this, {
       lovelaceConfig: this.lovelace.config,
@@ -136,9 +139,9 @@ export class HuiUnusedEntities extends LitElement {
           entities: this._selectedEntities,
           cardConfig,
           sectionConfig,
-        });
+        })
       },
-    });
+    })
   }
 
   static styles = css`
@@ -174,11 +177,11 @@ export class HuiUnusedEntities extends LitElement {
     .fab.selected ha-fab {
       bottom: 0;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-unused-entities": HuiUnusedEntities;
+    'hui-unused-entities': HuiUnusedEntities
   }
 }

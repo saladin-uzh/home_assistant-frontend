@@ -2,22 +2,22 @@
 if (!Element.prototype.toggleAttribute) {
   Element.prototype.toggleAttribute = function (name, force) {
     if (force !== undefined) {
-      force = !!force;
+      force = !!force
     }
 
     if (this.hasAttribute(name)) {
       if (force) {
-        return true;
+        return true
       }
 
-      this.removeAttribute(name);
-      return false;
+      this.removeAttribute(name)
+      return false
     }
     if (force === false) {
-      return false;
+      return false
     }
 
-    this.setAttribute(name, "");
-    return true;
-  };
+    this.setAttribute(name, '')
+    return true
+  }
 }

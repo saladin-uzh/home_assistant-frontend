@@ -1,4 +1,4 @@
-import { css } from "lit";
+import { css } from 'lit'
 
 export const hassioStyle = css`
   .content {
@@ -52,4 +52,4 @@ export const hassioStyle = css`
     color: var(--error-color);
     margin-top: 16px;
   }
-`;
+`

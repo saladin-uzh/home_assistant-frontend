@@ -1,5 +1,5 @@
-import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators";
+import { css, html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
 
 /**
  * Home Assistant dialog footer component
@@ -19,7 +19,7 @@ import { customElement } from "lit/decorators";
  * - `primaryAction` slot: Use `variant="accent"`
  * - `secondaryAction` slot: Use `variant="plain"`
  */
-@customElement("ha-dialog-footer")
+@customElement('ha-dialog-footer')
 export class HaDialogFooter extends LitElement {
   protected render() {
     return html`
@@ -27,7 +27,7 @@ export class HaDialogFooter extends LitElement {
         <slot name="secondaryAction"></slot>
         <slot name="primaryAction"></slot>
       </footer>
-    `;
+    `
   }
 
   static get styles() {
@@ -41,12 +41,12 @@ export class HaDialogFooter extends LitElement {
           width: 100%;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-dialog-footer": HaDialogFooter;
+    'ha-dialog-footer': HaDialogFooter
   }
 }

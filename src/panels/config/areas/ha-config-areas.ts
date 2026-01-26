@@ -1,49 +1,49 @@
-import { customElement, property } from "lit/decorators";
-import type { RouterOptions } from "../../../layouts/hass-router-page";
-import { HassRouterPage } from "../../../layouts/hass-router-page";
-import type { HomeAssistant } from "../../../types";
-import "./ha-config-area-page";
-import "./ha-config-areas-dashboard";
+import { customElement, property } from 'lit/decorators'
+import type { RouterOptions } from '../../../layouts/hass-router-page'
+import { HassRouterPage } from '../../../layouts/hass-router-page'
+import type { HomeAssistant } from '../../../types'
+import './ha-config-area-page'
+import './ha-config-areas-dashboard'
 
-@customElement("ha-config-areas")
+@customElement('ha-config-areas')
 class HaConfigAreas extends HassRouterPage {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ attribute: "is-wide", type: Boolean }) public isWide = false;
+  @property({ attribute: 'is-wide', type: Boolean }) public isWide = false
 
-  @property({ attribute: false }) public showAdvanced = false;
+  @property({ attribute: false }) public showAdvanced = false
 
   protected routerOptions: RouterOptions = {
-    defaultPage: "dashboard",
+    defaultPage: 'dashboard',
     routes: {
       dashboard: {
-        tag: "ha-config-areas-dashboard",
+        tag: 'ha-config-areas-dashboard',
         cache: true,
       },
       area: {
-        tag: "ha-config-area-page",
+        tag: 'ha-config-area-page',
       },
     },
-  };
+  }
 
   protected updatePageEl(pageEl) {
-    pageEl.hass = this.hass;
+    pageEl.hass = this.hass
 
-    if (this._currentPage === "area") {
-      pageEl.areaId = this.routeTail.path.substr(1);
+    if (this._currentPage === 'area') {
+      pageEl.areaId = this.routeTail.path.substr(1)
     }
 
-    pageEl.narrow = this.narrow;
-    pageEl.isWide = this.isWide;
-    pageEl.showAdvanced = this.showAdvanced;
-    pageEl.route = this.routeTail;
+    pageEl.narrow = this.narrow
+    pageEl.isWide = this.isWide
+    pageEl.showAdvanced = this.showAdvanced
+    pageEl.route = this.routeTail
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-config-areas": HaConfigAreas;
+    'ha-config-areas': HaConfigAreas
   }
 }

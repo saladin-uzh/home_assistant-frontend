@@ -1,4 +1,4 @@
-import type { ListItem } from "@material/mwc-list/mwc-list-item";
+import type { ListItem } from '@material/mwc-list/mwc-list-item'
 import {
   mdiClose,
   mdiConsoleLine,
@@ -8,153 +8,153 @@ import {
   mdiMagnify,
   mdiReload,
   mdiServerNetwork,
-} from "@mdi/js";
-import Fuse from "fuse.js";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import { styleMap } from "lit/directives/style-map";
-import memoizeOne from "memoize-one";
-import { canShowPage } from "../../common/config/can_show_page";
-import { componentsWithService } from "../../common/config/components_with_service";
-import { isComponentLoaded } from "../../common/config/is_component_loaded";
-import { fireEvent } from "../../common/dom/fire_event";
-import { computeAreaName } from "../../common/entity/compute_area_name";
-import { computeDeviceNameDisplay } from "../../common/entity/compute_device_name";
-import { computeDomain } from "../../common/entity/compute_domain";
-import { entityUseDeviceName } from "../../common/entity/compute_entity_name";
-import { computeStateName } from "../../common/entity/compute_state_name";
-import { getDeviceContext } from "../../common/entity/context/get_device_context";
-import { navigate } from "../../common/navigate";
-import { caseInsensitiveStringCompare } from "../../common/string/compare";
-import type { ScorableTextItem } from "../../common/string/filter/sequence-matching";
-import { computeRTL } from "../../common/util/compute_rtl";
-import { debounce } from "../../common/util/debounce";
-import "../../components/ha-button";
-import "../../components/ha-icon-button";
-import "../../components/ha-label";
-import "../../components/ha-list";
-import "../../components/ha-md-list-item";
-import "../../components/ha-spinner";
-import "../../components/ha-textfield";
-import "../../components/ha-tip";
-import { getConfigEntries } from "../../data/config_entries";
-import { fetchHassioAddonsInfo } from "../../data/hassio/addon";
-import { domainToName } from "../../data/integration";
-import { getPanelNameTranslationKey } from "../../data/panel";
-import type { PageNavigation } from "../../layouts/hass-tabs-subpage";
-import { configSections } from "../../panels/config/ha-panel-config";
-import { HaFuse } from "../../resources/fuse";
+} from '@mdi/js'
+import Fuse from 'fuse.js'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import { styleMap } from 'lit/directives/style-map'
+import memoizeOne from 'memoize-one'
+import { canShowPage } from '../../common/config/can_show_page'
+import { componentsWithService } from '../../common/config/components_with_service'
+import { isComponentLoaded } from '../../common/config/is_component_loaded'
+import { fireEvent } from '../../common/dom/fire_event'
+import { computeAreaName } from '../../common/entity/compute_area_name'
+import { computeDeviceNameDisplay } from '../../common/entity/compute_device_name'
+import { computeDomain } from '../../common/entity/compute_domain'
+import { entityUseDeviceName } from '../../common/entity/compute_entity_name'
+import { computeStateName } from '../../common/entity/compute_state_name'
+import { getDeviceContext } from '../../common/entity/context/get_device_context'
+import { navigate } from '../../common/navigate'
+import { caseInsensitiveStringCompare } from '../../common/string/compare'
+import type { ScorableTextItem } from '../../common/string/filter/sequence-matching'
+import { computeRTL } from '../../common/util/compute_rtl'
+import { debounce } from '../../common/util/debounce'
+import '../../components/ha-button'
+import '../../components/ha-icon-button'
+import '../../components/ha-label'
+import '../../components/ha-list'
+import '../../components/ha-md-list-item'
+import '../../components/ha-spinner'
+import '../../components/ha-textfield'
+import '../../components/ha-tip'
+import { getConfigEntries } from '../../data/config_entries'
+import { fetchHassioAddonsInfo } from '../../data/hassio/addon'
+import { domainToName } from '../../data/integration'
+import { getPanelNameTranslationKey } from '../../data/panel'
+import type { PageNavigation } from '../../layouts/hass-tabs-subpage'
+import { configSections } from '../../panels/config/ha-panel-config'
+import { HaFuse } from '../../resources/fuse'
 import {
   haStyleDialog,
   haStyleDialogFixedTop,
   haStyleScrollbar,
-} from "../../resources/styles";
-import { loadVirtualizer } from "../../resources/virtualizer";
-import type { HomeAssistant } from "../../types";
-import { brandsUrl } from "../../util/brands-url";
-import { showConfirmationDialog } from "../generic/show-dialog-box";
-import { showShortcutsDialog } from "../shortcuts/show-shortcuts-dialog";
-import { QuickBarMode, type QuickBarParams } from "./show-dialog-quick-bar";
+} from '../../resources/styles'
+import { loadVirtualizer } from '../../resources/virtualizer'
+import type { HomeAssistant } from '../../types'
+import { brandsUrl } from '../../util/brands-url'
+import { showConfirmationDialog } from '../generic/show-dialog-box'
+import { showShortcutsDialog } from '../shortcuts/show-shortcuts-dialog'
+import { QuickBarMode, type QuickBarParams } from './show-dialog-quick-bar'
 
 interface QuickBarItem extends ScorableTextItem {
-  primaryText: string;
-  iconPath?: string;
-  action(data?: any): void;
+  primaryText: string
+  iconPath?: string
+  action(data?: any): void
 }
 
 interface CommandItem extends QuickBarItem {
-  categoryKey: "reload" | "navigation" | "server_control";
-  categoryText: string;
+  categoryKey: 'reload' | 'navigation' | 'server_control'
+  categoryText: string
 }
 
 interface EntityItem extends QuickBarItem {
-  altText: string;
-  icon?: TemplateResult;
-  translatedDomain: string;
-  entityId: string;
-  friendlyName: string;
+  altText: string
+  icon?: TemplateResult
+  translatedDomain: string
+  entityId: string
+  friendlyName: string
 }
 
 interface DeviceItem extends QuickBarItem {
-  deviceId: string;
-  domain?: string;
-  translatedDomain?: string;
-  area?: string;
+  deviceId: string
+  domain?: string
+  translatedDomain?: string
+  area?: string
 }
 
 const isCommandItem = (item: QuickBarItem): item is CommandItem =>
-  (item as CommandItem).categoryKey !== undefined;
+  (item as CommandItem).categoryKey !== undefined
 
 const isDeviceItem = (item: QuickBarItem): item is DeviceItem =>
-  (item as DeviceItem).deviceId !== undefined;
+  (item as DeviceItem).deviceId !== undefined
 
 interface QuickBarNavigationItem extends CommandItem {
-  path: string;
+  path: string
 }
 
-type NavigationInfo = PageNavigation & Pick<QuickBarItem, "primaryText">;
+type NavigationInfo = PageNavigation & Pick<QuickBarItem, 'primaryText'>
 
 type BaseNavigationCommand = Pick<
   QuickBarNavigationItem,
-  "primaryText" | "path"
->;
+  'primaryText' | 'path'
+>
 
-@customElement("ha-quick-bar")
+@customElement('ha-quick-bar')
 export class QuickBar extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _commandItems?: CommandItem[];
+  @state() private _commandItems?: CommandItem[]
 
-  @state() private _entityItems?: EntityItem[];
+  @state() private _entityItems?: EntityItem[]
 
-  @state() private _deviceItems?: DeviceItem[];
+  @state() private _deviceItems?: DeviceItem[]
 
-  @state() private _filter = "";
+  @state() private _filter = ''
 
-  @state() private _search = "";
+  @state() private _search = ''
 
-  @state() private _open = false;
+  @state() private _open = false
 
-  @state() private _opened = false;
+  @state() private _opened = false
 
-  @state() private _narrow = false;
+  @state() private _narrow = false
 
-  @state() private _hint?: string;
+  @state() private _hint?: string
 
-  @state() private _mode = QuickBarMode.Entity;
+  @state() private _mode = QuickBarMode.Entity
 
-  @query("ha-textfield", false) private _filterInputField?: HTMLElement;
+  @query('ha-textfield', false) private _filterInputField?: HTMLElement
 
-  private _focusSet = false;
+  private _focusSet = false
 
-  private _focusListElement?: ListItem | null;
+  private _focusListElement?: ListItem | null
 
   public async showDialog(params: QuickBarParams) {
-    this._mode = params.mode || QuickBarMode.Entity;
-    this._hint = params.hint;
+    this._mode = params.mode || QuickBarMode.Entity
+    this._hint = params.hint
     this._narrow = matchMedia(
-      "all and (max-width: 450px), all and (max-height: 500px)"
-    ).matches;
-    this._initializeItemsIfNeeded();
-    this._open = true;
+      'all and (max-width: 450px), all and (max-height: 500px)'
+    ).matches
+    this._initializeItemsIfNeeded()
+    this._open = true
   }
 
   public closeDialog() {
-    this._open = false;
-    this._opened = false;
-    this._focusSet = false;
-    this._filter = "";
-    this._search = "";
-    this._entityItems = undefined;
-    this._commandItems = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._open = false
+    this._opened = false
+    this._focusSet = false
+    this._filter = ''
+    this._search = ''
+    this._entityItems = undefined
+    this._commandItems = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected willUpdate() {
     if (!this.hasUpdated) {
-      loadVirtualizer();
+      loadVirtualizer()
     }
   }
 
@@ -166,24 +166,24 @@ export class QuickBar extends LitElement {
       deviceItems,
       filter: string
     ) => {
-      let items = entityItems;
+      let items = entityItems
 
       if (mode === QuickBarMode.Command) {
-        items = commandItems;
+        items = commandItems
       } else if (mode === QuickBarMode.Device) {
-        items = deviceItems;
+        items = deviceItems
       }
 
-      if (items && filter && filter !== " ") {
-        return this._filterItems(items, filter);
+      if (items && filter && filter !== ' ') {
+        return this._filterItems(items, filter)
       }
-      return items;
+      return items
     }
-  );
+  )
 
   protected render() {
     if (!this._open) {
-      return nothing;
+      return nothing
     }
 
     const items: QuickBarItem[] | undefined = this._getItems(
@@ -192,34 +192,37 @@ export class QuickBar extends LitElement {
       this._entityItems,
       this._deviceItems,
       this._filter
-    );
+    )
 
     const translationKey =
       this._mode === QuickBarMode.Device
-        ? "filter_placeholder_devices"
-        : "filter_placeholder";
+        ? 'filter_placeholder_devices'
+        : 'filter_placeholder'
     const placeholder = this.hass.localize(
       `ui.dialogs.quick-bar.${translationKey}`
-    );
+    )
 
-    const commandMode = this._mode === QuickBarMode.Command;
-    const deviceMode = this._mode === QuickBarMode.Device;
+    const commandMode = this._mode === QuickBarMode.Command
+    const deviceMode = this._mode === QuickBarMode.Device
     const icon = commandMode
       ? mdiConsoleLine
       : deviceMode
         ? mdiDevices
-        : mdiMagnify;
-    const searchPrefix = commandMode ? ">" : deviceMode ? "#" : "";
+        : mdiMagnify
+    const searchPrefix = commandMode ? '>' : deviceMode ? '#' : ''
 
     return html`
       <ha-dialog
-        .heading=${this.hass.localize("ui.dialogs.quick-bar.title")}
+        .heading=${this.hass.localize('ui.dialogs.quick-bar.title')}
         open
         @opened=${this._handleOpened}
         @closed=${this.closeDialog}
         hideActions
       >
-        <div slot="heading" class="heading">
+        <div
+          slot="heading"
+          class="heading"
+        >
           <ha-textfield
             dialogInitialFocus
             .placeholder=${placeholder}
@@ -242,7 +245,7 @@ export class QuickBar extends LitElement {
                     ${this._search &&
                     html`<ha-icon-button
                       @click=${this._clearSearch}
-                      .label=${this.hass!.localize("ui.common.clear")}
+                      .label=${this.hass!.localize('ui.common.clear')}
                       .path=${mdiClose}
                     ></ha-icon-button>`}
                     ${this._narrow
@@ -252,13 +255,13 @@ export class QuickBar extends LitElement {
                             size="small"
                             @click=${this.closeDialog}
                           >
-                            ${this.hass!.localize("ui.common.close")}
+                            ${this.hass!.localize('ui.common.close')}
                           </ha-button>
                         `
-                      : ""}
+                      : ''}
                   </div>
                 `
-              : ""}
+              : ''}
           </ha-textfield>
         </div>
         ${!items
@@ -266,7 +269,7 @@ export class QuickBar extends LitElement {
           : items.length === 0
             ? html`
                 <div class="nothing-found">
-                  ${this.hass.localize("ui.dialogs.quick-bar.nothing_found")}
+                  ${this.hass.localize('ui.dialogs.quick-bar.nothing_found')}
                 </div>
               `
             : html`
@@ -281,7 +284,7 @@ export class QuickBar extends LitElement {
                         class="ha-scrollbar"
                         style=${styleMap({
                           height: this._narrow
-                            ? "calc(100vh - 56px - var(--safe-area-inset-top, 0px) - var(--safe-area-inset-bottom, 0px))"
+                            ? 'calc(100vh - 56px - var(--safe-area-inset-top, 0px) - var(--safe-area-inset-bottom, 0px))'
                             : `calc(${Math.min(
                                 items.length * (commandMode ? 56 : 72) + 26,
                                 500
@@ -291,59 +294,59 @@ export class QuickBar extends LitElement {
                         .renderItem=${this._renderItem}
                       >
                       </lit-virtualizer>`
-                    : ""}
+                    : ''}
                 </ha-list>
               `}
         ${this._hint
           ? html`<ha-tip .hass=${this.hass}>${this._hint}</ha-tip>`
-          : ""}
+          : ''}
       </ha-dialog>
-    `;
+    `
   }
 
   private async _initializeItemsIfNeeded() {
     if (this._mode === QuickBarMode.Command) {
       this._commandItems =
-        this._commandItems || (await this._generateCommandItems());
+        this._commandItems || (await this._generateCommandItems())
     } else if (this._mode === QuickBarMode.Device) {
       this._deviceItems =
-        this._deviceItems || (await this._generateDeviceItems());
+        this._deviceItems || (await this._generateDeviceItems())
     } else {
       this._entityItems =
-        this._entityItems || (await this._generateEntityItems());
+        this._entityItems || (await this._generateEntityItems())
     }
   }
 
   private _handleOpened() {
-    this._opened = true;
+    this._opened = true
   }
 
   private async _handleRangeChanged(e) {
     if (this._focusSet) {
-      return;
+      return
     }
     if (e.firstVisible > -1) {
-      this._focusSet = true;
-      await this.updateComplete;
-      this._setFocusFirstListItem();
+      this._focusSet = true
+      await this.updateComplete
+      this._setFocusFirstListItem()
     }
   }
 
   private _renderItem = (item: QuickBarItem, index: number) => {
     if (!item) {
-      return nothing;
+      return nothing
     }
 
     if (isDeviceItem(item)) {
-      return this._renderDeviceItem(item, index);
+      return this._renderDeviceItem(item, index)
     }
 
     if (isCommandItem(item)) {
-      return this._renderCommandItem(item, index);
+      return this._renderCommandItem(item, index)
     }
 
-    return this._renderEntityItem(item as EntityItem, index);
-  };
+    return this._renderEntityItem(item as EntityItem, index)
+  }
 
   private _renderDeviceItem(item: DeviceItem, index?: number) {
     return html`
@@ -362,7 +365,7 @@ export class QuickBar extends LitElement {
               referrerpolicy="no-referrer"
               src=${brandsUrl({
                 domain: item.domain,
-                type: "icon",
+                type: 'icon',
                 darkOptimized: this.hass.themes?.darkMode,
               })}
             />`
@@ -372,20 +375,23 @@ export class QuickBar extends LitElement {
           ? html` <span slot="supporting-text">${item.area}</span> `
           : nothing}
         ${item.translatedDomain
-          ? html`<div slot="trailing-supporting-text" class="domain">
+          ? html`<div
+              slot="trailing-supporting-text"
+              class="domain"
+            >
               ${item.translatedDomain}
             </div>`
           : nothing}
       </ha-md-list-item>
-    `;
+    `
   }
 
   private _renderEntityItem(item: EntityItem, index?: number) {
-    const showEntityId = this.hass.userData?.showEntityIdPicker;
+    const showEntityId = this.hass.userData?.showEntityIdPicker
 
     return html`
       <ha-md-list-item
-        class=${showEntityId ? "three-line" : "two-line"}
+        class=${showEntityId ? 'three-line' : 'two-line'}
         .item=${item}
         index=${ifDefined(index)}
         tabindex="0"
@@ -406,16 +412,23 @@ export class QuickBar extends LitElement {
           : nothing}
         ${item.entityId && showEntityId
           ? html`
-              <span slot="supporting-text" class="code">${item.entityId}</span>
+              <span
+                slot="supporting-text"
+                class="code"
+                >${item.entityId}</span
+              >
             `
           : nothing}
         ${item.translatedDomain && !showEntityId
-          ? html`<div slot="trailing-supporting-text" class="domain">
+          ? html`<div
+              slot="trailing-supporting-text"
+              class="domain"
+            >
               ${item.translatedDomain}
             </div>`
           : nothing}
       </ha-md-list-item>
-    `;
+    `
   }
 
   private _renderCommandItem(item: CommandItem, index?: number) {
@@ -446,167 +459,167 @@ export class QuickBar extends LitElement {
 
         <span class="command-text">${item.primaryText}</span>
       </ha-md-list-item>
-    `;
+    `
   }
 
   private async _processItemAndCloseDialog(item: QuickBarItem, index: number) {
-    this._addSpinnerToCommandItem(index);
+    this._addSpinnerToCommandItem(index)
 
-    await item.action();
-    this.closeDialog();
+    await item.action()
+    this.closeDialog()
   }
 
   private _handleInputKeyDown(ev: KeyboardEvent) {
-    if (ev.code === "Enter") {
-      const firstItem = this._getItemAtIndex(0);
-      if (!firstItem || firstItem.style.display === "none") {
-        return;
+    if (ev.code === 'Enter') {
+      const firstItem = this._getItemAtIndex(0)
+      if (!firstItem || firstItem.style.display === 'none') {
+        return
       }
-      this._processItemAndCloseDialog((firstItem as any).item, 0);
-    } else if (ev.code === "ArrowDown") {
-      ev.preventDefault();
-      this._getItemAtIndex(0)?.focus();
-      this._focusSet = true;
-      this._focusListElement = this._getItemAtIndex(0);
+      this._processItemAndCloseDialog((firstItem as any).item, 0)
+    } else if (ev.code === 'ArrowDown') {
+      ev.preventDefault()
+      this._getItemAtIndex(0)?.focus()
+      this._focusSet = true
+      this._focusListElement = this._getItemAtIndex(0)
     }
   }
 
   private _getItemAtIndex(index: number): ListItem | null {
-    return this.renderRoot.querySelector(`ha-md-list-item[index="${index}"]`);
+    return this.renderRoot.querySelector(`ha-md-list-item[index="${index}"]`)
   }
 
   private _addSpinnerToCommandItem(index: number): void {
-    const div = document.createElement("div");
-    div.slot = "meta";
-    const spinner = document.createElement("ha-spinner");
-    spinner.size = "small";
-    div.appendChild(spinner);
-    this._getItemAtIndex(index)?.appendChild(div);
+    const div = document.createElement('div')
+    div.slot = 'meta'
+    const spinner = document.createElement('ha-spinner')
+    spinner.size = 'small'
+    div.appendChild(spinner)
+    this._getItemAtIndex(index)?.appendChild(div)
   }
 
   private _handleSearchChange(ev: CustomEvent): void {
-    const newFilter = (ev.currentTarget as any).value;
-    const oldMode = this._mode;
-    const oldSearch = this._search;
-    let newMode: QuickBarMode;
-    let newSearch: string;
+    const newFilter = (ev.currentTarget as any).value
+    const oldMode = this._mode
+    const oldSearch = this._search
+    let newMode: QuickBarMode
+    let newSearch: string
 
-    if (newFilter.startsWith(">")) {
-      newMode = QuickBarMode.Command;
-      newSearch = newFilter.substring(1);
-    } else if (newFilter.startsWith("#")) {
-      newMode = QuickBarMode.Device;
-      newSearch = newFilter.substring(1);
+    if (newFilter.startsWith('>')) {
+      newMode = QuickBarMode.Command
+      newSearch = newFilter.substring(1)
+    } else if (newFilter.startsWith('#')) {
+      newMode = QuickBarMode.Device
+      newSearch = newFilter.substring(1)
     } else {
-      newMode = QuickBarMode.Entity;
-      newSearch = newFilter;
+      newMode = QuickBarMode.Entity
+      newSearch = newFilter
     }
 
     if (oldMode === newMode && oldSearch === newSearch) {
-      return;
+      return
     }
 
-    this._mode = newMode;
-    this._search = newSearch;
+    this._mode = newMode
+    this._search = newSearch
 
     if (this._hint) {
-      this._hint = undefined;
+      this._hint = undefined
     }
 
     if (oldMode !== this._mode) {
-      this._focusSet = false;
-      this._initializeItemsIfNeeded();
-      this._filter = this._search;
+      this._focusSet = false
+      this._initializeItemsIfNeeded()
+      this._filter = this._search
     } else {
       if (this._focusSet && this._focusListElement) {
-        this._focusSet = false;
+        this._focusSet = false
         // @ts-ignore
-        this._focusListElement.rippleHandlers.endFocus();
+        this._focusListElement.rippleHandlers.endFocus()
       }
-      this._debouncedSetFilter(this._search);
+      this._debouncedSetFilter(this._search)
     }
   }
 
   private _clearSearch() {
-    this._search = "";
-    this._filter = "";
+    this._search = ''
+    this._filter = ''
   }
 
   private _debouncedSetFilter = debounce((filter: string) => {
-    this._filter = filter;
-  }, 100);
+    this._filter = filter
+  }, 100)
 
   private _setFocusFirstListItem() {
     // @ts-ignore
-    this._getItemAtIndex(0)?.rippleHandlers.startFocus();
-    this._focusListElement = this._getItemAtIndex(0);
+    this._getItemAtIndex(0)?.rippleHandlers.startFocus()
+    this._focusListElement = this._getItemAtIndex(0)
   }
 
   private _handleListItemKeyDown(ev: KeyboardEvent) {
-    const isSingleCharacter = ev.key.length === 1;
-    const index = (ev.target as HTMLElement).getAttribute("index");
-    const isFirstListItem = index === "0";
-    this._focusListElement = ev.target as ListItem;
-    if (ev.key === "ArrowDown") {
-      this._getItemAtIndex(Number(index) + 1)?.focus();
+    const isSingleCharacter = ev.key.length === 1
+    const index = (ev.target as HTMLElement).getAttribute('index')
+    const isFirstListItem = index === '0'
+    this._focusListElement = ev.target as ListItem
+    if (ev.key === 'ArrowDown') {
+      this._getItemAtIndex(Number(index) + 1)?.focus()
     }
-    if (ev.key === "ArrowUp") {
+    if (ev.key === 'ArrowUp') {
       if (isFirstListItem) {
-        this._filterInputField?.focus();
+        this._filterInputField?.focus()
       } else {
-        this._getItemAtIndex(Number(index) - 1)?.focus();
+        this._getItemAtIndex(Number(index) - 1)?.focus()
       }
     }
-    if (ev.key === "Enter" || ev.key === " ") {
+    if (ev.key === 'Enter' || ev.key === ' ') {
       this._processItemAndCloseDialog(
         (ev.target as any).item,
-        Number((ev.target as HTMLElement).getAttribute("index"))
-      );
+        Number((ev.target as HTMLElement).getAttribute('index'))
+      )
     }
-    if (ev.key === "Backspace" || isSingleCharacter) {
-      (ev.currentTarget as HTMLElement).scrollTop = 0;
-      this._filterInputField?.focus();
+    if (ev.key === 'Backspace' || isSingleCharacter) {
+      ;(ev.currentTarget as HTMLElement).scrollTop = 0
+      this._filterInputField?.focus()
     }
   }
 
   private _handleItemClick(ev) {
-    const listItem = ev.target.closest("ha-md-list-item");
+    const listItem = ev.target.closest('ha-md-list-item')
     this._processItemAndCloseDialog(
       listItem.item,
-      Number(listItem.getAttribute("index"))
-    );
+      Number(listItem.getAttribute('index'))
+    )
   }
 
   private async _generateDeviceItems(): Promise<DeviceItem[]> {
-    const configEntries = await getConfigEntries(this.hass);
+    const configEntries = await getConfigEntries(this.hass)
     const configEntryLookup = Object.fromEntries(
-      configEntries.map((entry) => [entry.entry_id, entry])
-    );
+      configEntries.map(entry => [entry.entry_id, entry])
+    )
 
     return Object.values(this.hass.devices)
-      .filter((device) => !device.disabled_by)
-      .map((device) => {
-        const deviceName = computeDeviceNameDisplay(device, this.hass);
+      .filter(device => !device.disabled_by)
+      .map(device => {
+        const deviceName = computeDeviceNameDisplay(device, this.hass)
 
-        const { area } = getDeviceContext(device, this.hass);
+        const { area } = getDeviceContext(device, this.hass)
 
-        const areaName = area ? computeAreaName(area) : undefined;
+        const areaName = area ? computeAreaName(area) : undefined
 
         const deviceItem = {
           primaryText: deviceName,
           deviceId: device.id,
           area: areaName,
           action: () => navigate(`/config/devices/device/${device.id}`),
-        };
+        }
 
         const configEntry = device.primary_config_entry
           ? configEntryLookup[device.primary_config_entry]
-          : undefined;
+          : undefined
 
-        const domain = configEntry?.domain;
+        const domain = configEntry?.domain
         const translatedDomain = domain
           ? domainToName(this.hass.localize, domain)
-          : undefined;
+          : undefined
 
         return {
           ...deviceItem,
@@ -615,7 +628,7 @@ export class QuickBar extends LitElement {
           strings: [deviceName, areaName, domain, domainToName].filter(
             Boolean
           ) as string[],
-        };
+        }
       })
       .sort((a, b) =>
         caseInsensitiveStringCompare(
@@ -623,47 +636,47 @@ export class QuickBar extends LitElement {
           b.primaryText,
           this.hass.locale.language
         )
-      );
+      )
   }
 
   private async _generateEntityItems(): Promise<EntityItem[]> {
-    const isRTL = computeRTL(this.hass);
+    const isRTL = computeRTL(this.hass)
 
-    await this.hass.loadBackendTranslation("title");
+    await this.hass.loadBackendTranslation('title')
 
     return Object.keys(this.hass.states)
-      .map((entityId) => {
-        const stateObj = this.hass.states[entityId];
+      .map(entityId => {
+        const stateObj = this.hass.states[entityId]
 
-        const friendlyName = computeStateName(stateObj); // Keep this for search
+        const friendlyName = computeStateName(stateObj) // Keep this for search
 
         const useDeviceName = entityUseDeviceName(
           stateObj,
           this.hass.entities,
           this.hass.devices
-        );
+        )
 
         const name = this.hass.formatEntityName(
           stateObj,
-          useDeviceName ? { type: "device" } : { type: "entity" }
-        );
+          useDeviceName ? { type: 'device' } : { type: 'entity' }
+        )
 
-        const primary = name || entityId;
+        const primary = name || entityId
 
         const secondary = this.hass.formatEntityName(
           stateObj,
           useDeviceName
-            ? [{ type: "area" }]
-            : [{ type: "area" }, { type: "device" }],
+            ? [{ type: 'area' }]
+            : [{ type: 'area' }, { type: 'device' }],
           {
-            separator: isRTL ? " ◂ " : " ▸ ",
+            separator: isRTL ? ' ◂ ' : ' ▸ ',
           }
-        );
+        )
 
         const translatedDomain = domainToName(
           this.hass.localize,
           computeDomain(entityId)
-        );
+        )
 
         const entityItem = {
           primaryText: primary,
@@ -677,13 +690,13 @@ export class QuickBar extends LitElement {
           translatedDomain: translatedDomain,
           entityId: entityId,
           friendlyName: friendlyName,
-          action: () => fireEvent(this, "hass-more-info", { entityId }),
-        };
+          action: () => fireEvent(this, 'hass-more-info', { entityId }),
+        }
 
         return {
           ...entityItem,
           strings: [entityItem.primaryText, entityItem.altText],
-        };
+        }
       })
       .sort((a, b) =>
         caseInsensitiveStringCompare(
@@ -691,7 +704,7 @@ export class QuickBar extends LitElement {
           b.primaryText,
           this.hass.locale.language
         )
-      );
+      )
   }
 
   private async _generateCommandItems(): Promise<CommandItem[]> {
@@ -701,88 +714,88 @@ export class QuickBar extends LitElement {
       ...(await this._generateNavigationCommands()),
     ].sort((a, b) =>
       caseInsensitiveStringCompare(
-        a.strings.join(" "),
-        b.strings.join(" "),
+        a.strings.join(' '),
+        b.strings.join(' '),
         this.hass.locale.language
       )
-    );
+    )
   }
 
   private async _generateReloadCommands(): Promise<CommandItem[]> {
     // Get all domains that have a direct "reload" service
-    const reloadableDomains = componentsWithService(this.hass, "reload");
+    const reloadableDomains = componentsWithService(this.hass, 'reload')
 
     const localize = await this.hass.loadBackendTranslation(
-      "title",
+      'title',
       reloadableDomains
-    );
+    )
 
-    const commands = reloadableDomains.map((domain) => ({
+    const commands = reloadableDomains.map(domain => ({
       primaryText:
         this.hass.localize(`ui.dialogs.quick-bar.commands.reload.${domain}`) ||
-        this.hass.localize("ui.dialogs.quick-bar.commands.reload.reload", {
+        this.hass.localize('ui.dialogs.quick-bar.commands.reload.reload', {
           domain: domainToName(localize, domain),
         }),
-      action: () => this.hass.callService(domain, "reload"),
+      action: () => this.hass.callService(domain, 'reload'),
       iconPath: mdiReload,
       categoryText: this.hass.localize(
         `ui.dialogs.quick-bar.commands.types.reload`
       ),
-    }));
+    }))
 
     // Add "frontend.reload_themes"
     commands.push({
       primaryText: this.hass.localize(
-        "ui.dialogs.quick-bar.commands.reload.themes"
+        'ui.dialogs.quick-bar.commands.reload.themes'
       ),
-      action: () => this.hass.callService("frontend", "reload_themes"),
+      action: () => this.hass.callService('frontend', 'reload_themes'),
       iconPath: mdiReload,
       categoryText: this.hass.localize(
-        "ui.dialogs.quick-bar.commands.types.reload"
+        'ui.dialogs.quick-bar.commands.types.reload'
       ),
-    });
+    })
 
     // Add "homeassistant.reload_core_config"
     commands.push({
       primaryText: this.hass.localize(
-        "ui.dialogs.quick-bar.commands.reload.core"
+        'ui.dialogs.quick-bar.commands.reload.core'
       ),
       action: () =>
-        this.hass.callService("homeassistant", "reload_core_config"),
+        this.hass.callService('homeassistant', 'reload_core_config'),
       iconPath: mdiReload,
       categoryText: this.hass.localize(
-        "ui.dialogs.quick-bar.commands.types.reload"
+        'ui.dialogs.quick-bar.commands.types.reload'
       ),
-    });
+    })
 
     // Add "homeassistant.reload_all"
     commands.push({
       primaryText: this.hass.localize(
-        "ui.dialogs.quick-bar.commands.reload.all"
+        'ui.dialogs.quick-bar.commands.reload.all'
       ),
-      action: () => this.hass.callService("homeassistant", "reload_all"),
+      action: () => this.hass.callService('homeassistant', 'reload_all'),
       iconPath: mdiReload,
       categoryText: this.hass.localize(
-        "ui.dialogs.quick-bar.commands.types.reload"
+        'ui.dialogs.quick-bar.commands.types.reload'
       ),
-    });
+    })
 
-    return commands.map((command) => ({
+    return commands.map(command => ({
       ...command,
-      categoryKey: "reload",
+      categoryKey: 'reload',
       strings: [`${command.categoryText} ${command.primaryText}`],
-    }));
+    }))
   }
 
   private _generateServerControlCommands(): CommandItem[] {
-    const serverActions = ["restart", "stop"] as const;
+    const serverActions = ['restart', 'stop'] as const
 
-    return serverActions.map((action) => {
-      const categoryKey: CommandItem["categoryKey"] = "server_control";
+    return serverActions.map(action => {
+      const categoryKey: CommandItem['categoryKey'] = 'server_control'
 
       const item = {
         primaryText: this.hass.localize(
-          "ui.dialogs.quick-bar.commands.server_control.perform_action",
+          'ui.dialogs.quick-bar.commands.server_control.perform_action',
           {
             action: this.hass.localize(
               `ui.dialogs.quick-bar.commands.server_control.${action}`
@@ -806,121 +819,119 @@ export class QuickBar extends LitElement {
               `ui.dialogs.restart.${action}.confirm_action`
             ),
             destructive: true,
-          });
+          })
           if (!confirmed) {
-            return;
+            return
           }
-          this.hass.callService("homeassistant", action);
+          this.hass.callService('homeassistant', action)
         },
-      };
+      }
 
       return {
         ...item,
         strings: [`${item.categoryText} ${item.primaryText}`],
-      };
-    });
+      }
+    })
   }
 
   private async _generateNavigationCommands(): Promise<CommandItem[]> {
-    const panelItems = this._generateNavigationPanelCommands();
-    const sectionItems = this._generateNavigationConfigSectionCommands();
-    const supervisorItems: BaseNavigationCommand[] = [];
-    if (isComponentLoaded(this.hass, "hassio")) {
-      const addonsInfo = await fetchHassioAddonsInfo(this.hass);
+    const panelItems = this._generateNavigationPanelCommands()
+    const sectionItems = this._generateNavigationConfigSectionCommands()
+    const supervisorItems: BaseNavigationCommand[] = []
+    if (isComponentLoaded(this.hass, 'hassio')) {
+      const addonsInfo = await fetchHassioAddonsInfo(this.hass)
       supervisorItems.push({
-        path: "/hassio/store",
+        path: '/hassio/store',
         primaryText: this.hass.localize(
-          "ui.dialogs.quick-bar.commands.navigation.addon_store"
+          'ui.dialogs.quick-bar.commands.navigation.addon_store'
         ),
-      });
+      })
       supervisorItems.push({
-        path: "/hassio/dashboard",
+        path: '/hassio/dashboard',
         primaryText: this.hass.localize(
-          "ui.dialogs.quick-bar.commands.navigation.addon_dashboard"
+          'ui.dialogs.quick-bar.commands.navigation.addon_dashboard'
         ),
-      });
-      for (const addon of addonsInfo.addons.filter((a) => a.version)) {
+      })
+      for (const addon of addonsInfo.addons.filter(a => a.version)) {
         supervisorItems.push({
           path: `/hassio/addon/${addon.slug}`,
           primaryText: this.hass.localize(
-            "ui.dialogs.quick-bar.commands.navigation.addon_info",
+            'ui.dialogs.quick-bar.commands.navigation.addon_info',
             { addon: addon.name }
           ),
-        });
+        })
       }
     }
 
     const additionalItems = [
       {
-        path: "",
+        path: '',
         primaryText: this.hass.localize(
-          "ui.dialogs.quick-bar.commands.navigation.shortcuts"
+          'ui.dialogs.quick-bar.commands.navigation.shortcuts'
         ),
         action: () => showShortcutsDialog(this),
         iconPath: mdiKeyboard,
       },
-    ];
+    ]
 
     return this._finalizeNavigationCommands([
       ...panelItems,
       ...sectionItems,
       ...supervisorItems,
       ...additionalItems,
-    ]);
+    ])
   }
 
   private _generateNavigationPanelCommands(): BaseNavigationCommand[] {
     return Object.keys(this.hass.panels)
-      .filter(
-        (panelKey) => panelKey !== "_my_redirect" && panelKey !== "hassio"
-      )
-      .map((panelKey) => {
-        const panel = this.hass.panels[panelKey];
-        const translationKey = getPanelNameTranslationKey(panel);
+      .filter(panelKey => panelKey !== '_my_redirect' && panelKey !== 'hassio')
+      .map(panelKey => {
+        const panel = this.hass.panels[panelKey]
+        const translationKey = getPanelNameTranslationKey(panel)
 
         const primaryText =
-          this.hass.localize(translationKey) || panel.title || panel.url_path;
+          this.hass.localize(translationKey) || panel.title || panel.url_path
 
         return {
           primaryText,
           path: `/${panel.url_path}`,
-        };
-      });
+        }
+      })
   }
 
   private _generateNavigationConfigSectionCommands(): BaseNavigationCommand[] {
-    const items: NavigationInfo[] = [];
+    const items: NavigationInfo[] = []
 
     for (const sectionKey of Object.keys(configSections)) {
       for (const page of configSections[sectionKey]) {
         if (!canShowPage(this.hass, page)) {
-          continue;
+          continue
         }
 
-        const info = this._getNavigationInfoFromConfig(page);
+        const info = this._getNavigationInfoFromConfig(page)
 
         if (!info) {
-          continue;
+          continue
         }
         // Add to list, but only if we do not already have an entry for the same path and component
-        if (items.some((e) => e.path === info.path)) {
-          continue;
+        if (items.some(e => e.path === info.path)) {
+          continue
         }
 
-        items.push(info);
+        items.push(info)
       }
     }
 
-    return items;
+    return items
   }
 
   private _getNavigationInfoFromConfig(
     page: PageNavigation
   ): NavigationInfo | undefined {
-    const path = page.path.substring(1);
+    const path = page.path.substring(1)
 
-    let name = path.substring(path.indexOf("/") + 1);
-    name = name.indexOf("/") > -1 ? name.substring(0, name.indexOf("/")) : name;
+    let name = path.substring(path.indexOf('/') + 1)
+    name = name.indexOf('/') > -1 ? name.substring(0, name.indexOf('/')) : name
 
     const caption =
       (name &&
@@ -928,20 +939,20 @@ export class QuickBar extends LitElement {
           `ui.dialogs.quick-bar.commands.navigation.${name}`
         )) ||
       // @ts-expect-error
-      (page.translationKey && this.hass.localize(page.translationKey));
+      (page.translationKey && this.hass.localize(page.translationKey))
 
     if (caption) {
-      return { ...page, primaryText: caption };
+      return { ...page, primaryText: caption }
     }
 
-    return undefined;
+    return undefined
   }
 
   private _finalizeNavigationCommands(
     items: BaseNavigationCommand[]
   ): CommandItem[] {
-    return items.map((item) => {
-      const categoryKey: CommandItem["categoryKey"] = "navigation";
+    return items.map(item => {
+      const categoryKey: CommandItem['categoryKey'] = 'navigation'
 
       const navItem = {
         iconPath: mdiEarth,
@@ -950,41 +961,41 @@ export class QuickBar extends LitElement {
         ),
         action: () => navigate(item.path),
         ...item,
-      };
+      }
 
       return {
         ...navItem,
         strings: [`${navItem.categoryText} ${navItem.primaryText}`],
         categoryKey,
-      };
-    });
+      }
+    })
   }
 
   private _fuseIndex = memoizeOne((items: QuickBarItem[]) =>
     Fuse.createIndex(
       [
-        "primaryText",
-        "altText",
-        "friendlyName",
-        "translatedDomain",
-        "entityId", // for technical search
+        'primaryText',
+        'altText',
+        'friendlyName',
+        'translatedDomain',
+        'entityId', // for technical search
       ],
       items
     )
-  );
+  )
 
   private _filterItems = memoizeOne(
     (items: QuickBarItem[], filter: string): QuickBarItem[] => {
-      const index = this._fuseIndex(items);
-      const fuse = new HaFuse(items, {}, index);
+      const index = this._fuseIndex(items)
+      const fuse = new HaFuse(items, {}, index)
 
-      const results = fuse.multiTermsSearch(filter.trim());
+      const results = fuse.multiTermsSearch(filter.trim())
       if (!results || !results.length) {
-        return items;
+        return items
       }
-      return results.map((result) => result.item);
+      return results.map(result => result.item)
     }
-  );
+  )
 
   static get styles() {
     return [
@@ -1117,7 +1128,7 @@ export class QuickBar extends LitElement {
           text-align: center;
         }
 
-        div[slot="trailingIcon"] {
+        div[slot='trailingIcon'] {
           display: flex;
           align-items: center;
         }
@@ -1126,12 +1137,12 @@ export class QuickBar extends LitElement {
           contain: size layout !important;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-quick-bar": QuickBar;
+    'ha-quick-bar': QuickBar
   }
 }

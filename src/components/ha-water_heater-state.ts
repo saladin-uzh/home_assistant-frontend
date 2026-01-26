@@ -1,16 +1,16 @@
-import { customElement, property } from "lit/decorators";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { LitElement, css, html } from "lit";
-import type { HassEntity } from "home-assistant-js-websocket";
-import { formatNumber } from "../common/number/format_number";
-import { haStyle } from "../resources/styles";
-import type { HomeAssistant } from "../types";
+import { customElement, property } from 'lit/decorators'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { LitElement, css, html } from 'lit'
+import type { HassEntity } from 'home-assistant-js-websocket'
+import { formatNumber } from '../common/number/format_number'
+import { haStyle } from '../resources/styles'
+import type { HomeAssistant } from '../types'
 
-@customElement("ha-water_heater-state")
+@customElement('ha-water_heater-state')
 export class HaWaterHeaterState extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj!: HassEntity;
+  @property({ attribute: false }) public stateObj!: HassEntity
 
   protected render(): TemplateResult {
     return html`
@@ -22,11 +22,11 @@ export class HaWaterHeaterState extends LitElement {
           >${this._computeTarget(this.hass, this.stateObj)}</span
         >
       </div>
-    `;
+    `
   }
 
   private _computeTarget(hass: HomeAssistant, stateObj: HassEntity) {
-    if (!hass || !stateObj) return null;
+    if (!hass || !stateObj) return null
     // We're using "!= null" on purpose so that we match both null and undefined.
 
     if (
@@ -39,16 +39,16 @@ export class HaWaterHeaterState extends LitElement {
       )} – ${formatNumber(
         stateObj.attributes.target_temp_high,
         this.hass.locale
-      )} ${hass.config.unit_system.temperature}`;
+      )} ${hass.config.unit_system.temperature}`
     }
     if (stateObj.attributes.temperature != null) {
       return `${formatNumber(
         stateObj.attributes.temperature,
         this.hass.locale
-      )} ${hass.config.unit_system.temperature}`;
+      )} ${hass.config.unit_system.temperature}`
     }
 
-    return "";
+    return ''
   }
 
   static get styles(): CSSResultGroup {
@@ -79,12 +79,12 @@ export class HaWaterHeaterState extends LitElement {
           display: inline-block;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-water_heater-state": HaWaterHeaterState;
+    'ha-water_heater-state': HaWaterHeaterState
   }
 }

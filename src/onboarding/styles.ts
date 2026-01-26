@@ -1,4 +1,4 @@
-import { css } from "lit";
+import { css } from 'lit'
 
 export const onBoardingStyles = css`
   .card-content {
@@ -24,4 +24,4 @@ export const onBoardingStyles = css`
     margin-top: 16px;
     text-align: right;
   }
-`;
+`

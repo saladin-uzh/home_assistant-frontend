@@ -1,13 +1,13 @@
 // Tasks to run rspack.
 
-import fs from "fs";
-import path from "path";
-import log from "fancy-log";
-import gulp from "gulp";
-import rspack from "@rspack/core";
-import { RspackDevServer } from "@rspack/dev-server";
-import env from "../env.cjs";
-import paths from "../paths.cjs";
+import fs from 'fs'
+import path from 'path'
+import log from 'fancy-log'
+import gulp from 'gulp'
+import rspack from '@rspack/core'
+import { RspackDevServer } from '@rspack/dev-server'
+import env from '../env.cjs'
+import paths from '../paths.cjs'
 import {
   createAppConfig,
   createCastConfig,
@@ -15,19 +15,19 @@ import {
   createGalleryConfig,
   createHassioConfig,
   createLandingPageConfig,
-} from "../rspack.cjs";
+} from '../rspack.cjs'
 
 const bothBuilds = (createConfigFunc, params) => [
   createConfigFunc({ ...params, latestBuild: true }),
   createConfigFunc({ ...params, latestBuild: false }),
-];
+]
 
 const isWsl =
-  fs.existsSync("/proc/version") &&
+  fs.existsSync('/proc/version') &&
   fs
-    .readFileSync("/proc/version", "utf-8")
+    .readFileSync('/proc/version', 'utf-8')
     .toLocaleLowerCase()
-    .includes("microsoft");
+    .includes('microsoft')
 
 /**
  * @param {{
@@ -46,7 +46,7 @@ const runDevServer = async ({
 }) => {
   if (listenHost === undefined) {
     // For dev container, we need to listen on all hosts
-    listenHost = env.isDevContainer() ? "0.0.0.0" : "localhost";
+    listenHost = env.isDevContainer() ? '0.0.0.0' : 'localhost'
   }
   const server = new RspackDevServer(
     {
@@ -61,56 +61,56 @@ const runDevServer = async ({
       proxy,
     },
     compiler
-  );
+  )
 
-  await server.start();
+  await server.start()
   // Server listening
-  log("[rspack-dev-server]", `Project is running at http://localhost:${port}`);
-};
+  log('[rspack-dev-server]', `Project is running at http://localhost:${port}`)
+}
 
-const doneHandler = (done) => (err, stats) => {
+const doneHandler = done => (err, stats) => {
   if (err) {
-    log.error(err.stack || err);
+    log.error(err.stack || err)
     if (err.details) {
-      log.error(err.details);
+      log.error(err.details)
     }
-    return;
+    return
   }
 
   if (stats.hasErrors() || stats.hasWarnings()) {
-    console.log(stats.toString("minimal"));
+    console.log(stats.toString('minimal'))
   }
 
-  log(`Build done @ ${new Date().toLocaleTimeString()}`);
+  log(`Build done @ ${new Date().toLocaleTimeString()}`)
 
   if (done) {
-    done();
+    done()
   }
-};
+}
 
-const prodBuild = (conf) =>
-  new Promise((resolve) => {
+const prodBuild = conf =>
+  new Promise(resolve => {
     rspack(
       conf,
       // Resolve promise when done. Because we pass a callback, rspack closes itself
       doneHandler(resolve)
-    );
-  });
+    )
+  })
 
-gulp.task("rspack-watch-app", () => {
+gulp.task('rspack-watch-app', () => {
   // This command will run forever because we don't close compiler
   rspack(
     process.env.ES5
       ? bothBuilds(createAppConfig, { isProdBuild: false })
       : createAppConfig({ isProdBuild: false, latestBuild: true })
-  ).watch({ poll: isWsl }, doneHandler());
+  ).watch({ poll: isWsl }, doneHandler())
   gulp.watch(
-    path.join(paths.translations_src, "en.json"),
-    gulp.series("build-translations", "copy-translations-app")
-  );
-});
+    path.join(paths.translations_src, 'en.json'),
+    gulp.series('build-translations', 'copy-translations-app')
+  )
+})
 
-gulp.task("rspack-prod-app", () =>
+gulp.task('rspack-prod-app', () =>
   prodBuild(
     bothBuilds(createAppConfig, {
       isProdBuild: true,
@@ -118,9 +118,9 @@ gulp.task("rspack-prod-app", () =>
       isTestBuild: env.isTestBuild(),
     })
   )
-);
+)
 
-gulp.task("rspack-dev-server-demo", () =>
+gulp.task('rspack-dev-server-demo', () =>
   runDevServer({
     compiler: rspack(
       createDemoConfig({ isProdBuild: false, latestBuild: true })
@@ -128,18 +128,18 @@ gulp.task("rspack-dev-server-demo", () =>
     contentBase: paths.demo_output_root,
     port: 8090,
   })
-);
+)
 
-gulp.task("rspack-prod-demo", () =>
+gulp.task('rspack-prod-demo', () =>
   prodBuild(
     bothBuilds(createDemoConfig, {
       isProdBuild: true,
       isStatsBuild: env.isStatsBuild(),
     })
   )
-);
+)
 
-gulp.task("rspack-dev-server-cast", () =>
+gulp.task('rspack-dev-server-cast', () =>
   runDevServer({
     compiler: rspack(
       createCastConfig({ isProdBuild: false, latestBuild: true })
@@ -147,34 +147,34 @@ gulp.task("rspack-dev-server-cast", () =>
     contentBase: paths.cast_output_root,
     port: 8080,
     // Accessible from the network, because that's how Cast hits it.
-    listenHost: "0.0.0.0",
+    listenHost: '0.0.0.0',
   })
-);
+)
 
-gulp.task("rspack-prod-cast", () =>
+gulp.task('rspack-prod-cast', () =>
   prodBuild(
     bothBuilds(createCastConfig, {
       isProdBuild: true,
     })
   )
-);
+)
 
-gulp.task("rspack-watch-hassio", () => {
+gulp.task('rspack-watch-hassio', () => {
   // This command will run forever because we don't close compiler
   rspack(
     createHassioConfig({
       isProdBuild: false,
       latestBuild: true,
     })
-  ).watch({ ignored: /build/, poll: isWsl }, doneHandler());
+  ).watch({ ignored: /build/, poll: isWsl }, doneHandler())
 
   gulp.watch(
-    path.join(paths.translations_src, "en.json"),
-    gulp.series("build-supervisor-translations", "copy-translations-supervisor")
-  );
-});
+    path.join(paths.translations_src, 'en.json'),
+    gulp.series('build-supervisor-translations', 'copy-translations-supervisor')
+  )
+})
 
-gulp.task("rspack-prod-hassio", () =>
+gulp.task('rspack-prod-hassio', () =>
   prodBuild(
     bothBuilds(createHassioConfig, {
       isProdBuild: true,
@@ -182,46 +182,46 @@ gulp.task("rspack-prod-hassio", () =>
       isTestBuild: env.isTestBuild(),
     })
   )
-);
+)
 
-gulp.task("rspack-dev-server-gallery", () =>
+gulp.task('rspack-dev-server-gallery', () =>
   runDevServer({
     compiler: rspack(
       createGalleryConfig({ isProdBuild: false, latestBuild: true })
     ),
     contentBase: paths.gallery_output_root,
     port: 8100,
-    listenHost: "0.0.0.0",
+    listenHost: '0.0.0.0',
   })
-);
+)
 
-gulp.task("rspack-prod-gallery", () =>
+gulp.task('rspack-prod-gallery', () =>
   prodBuild(
     createGalleryConfig({
       isProdBuild: true,
       latestBuild: true,
     })
   )
-);
+)
 
-gulp.task("rspack-watch-landing-page", () => {
+gulp.task('rspack-watch-landing-page', () => {
   // This command will run forever because we don't close compiler
   rspack(
     process.env.ES5
       ? bothBuilds(createLandingPageConfig, { isProdBuild: false })
       : createLandingPageConfig({ isProdBuild: false, latestBuild: true })
-  ).watch({ poll: isWsl }, doneHandler());
+  ).watch({ poll: isWsl }, doneHandler())
 
   gulp.watch(
-    path.join(paths.translations_src, "en.json"),
+    path.join(paths.translations_src, 'en.json'),
     gulp.series(
-      "build-landing-page-translations",
-      "copy-translations-landing-page"
+      'build-landing-page-translations',
+      'copy-translations-landing-page'
     )
-  );
-});
+  )
+})
 
-gulp.task("rspack-prod-landing-page", () =>
+gulp.task('rspack-prod-landing-page', () =>
   prodBuild(
     bothBuilds(createLandingPageConfig, {
       isProdBuild: true,
@@ -229,4 +229,4 @@ gulp.task("rspack-prod-landing-page", () =>
       isTestBuild: env.isTestBuild(),
     })
   )
-);
+)

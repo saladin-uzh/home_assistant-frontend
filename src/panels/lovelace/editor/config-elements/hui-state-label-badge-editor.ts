@@ -1,15 +1,15 @@
-import { customElement } from "lit/decorators";
-import { assert, assign, boolean, object, optional, string } from "superstruct";
-import "../../../../components/ha-form/ha-form";
+import { customElement } from 'lit/decorators'
+import { assert, assign, boolean, object, optional, string } from 'superstruct'
+import '../../../../components/ha-form/ha-form'
 import type {
   EntityBadgeConfig,
   StateLabelBadgeConfig,
-} from "../../badges/types";
-import "../hui-sub-element-editor";
-import { actionConfigStruct } from "../structs/action-struct";
-import { baseLovelaceBadgeConfig } from "../structs/base-badge-struct";
-import "./hui-card-features-editor";
-import { HuiEntityBadgeEditor } from "./hui-entity-badge-editor";
+} from '../../badges/types'
+import '../hui-sub-element-editor'
+import { actionConfigStruct } from '../structs/action-struct'
+import { baseLovelaceBadgeConfig } from '../structs/base-badge-struct'
+import './hui-card-features-editor'
+import { HuiEntityBadgeEditor } from './hui-entity-badge-editor'
 
 const badgeConfigStruct = assign(
   baseLovelaceBadgeConfig,
@@ -22,26 +22,26 @@ const badgeConfigStruct = assign(
     show_name: optional(boolean()),
     image: optional(string()),
   })
-);
+)
 
-@customElement("hui-state-label-badge-editor")
+@customElement('hui-state-label-badge-editor')
 export class HuiStateLabelBadgeEditor extends HuiEntityBadgeEditor {
   // @ts-ignore
   public override setConfig(config: StateLabelBadgeConfig): void {
-    assert(config, badgeConfigStruct);
+    assert(config, badgeConfigStruct)
 
     const entityBadgeConfig: EntityBadgeConfig = {
-      type: "entity",
+      type: 'entity',
       entity: config.entity,
       show_name: config.show_name ?? true,
-    };
+    }
 
-    super.setConfig(entityBadgeConfig);
+    super.setConfig(entityBadgeConfig)
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-state-label-badge-editor": HuiStateLabelBadgeEditor;
+    'hui-state-label-badge-editor': HuiStateLabelBadgeEditor
   }
 }

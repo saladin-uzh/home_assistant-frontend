@@ -1,67 +1,67 @@
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "../panels/lovelace/editor/card-editor/ha-grid-layout-slider";
-import "./ha-icon-button";
-import { mdiRestore } from "@mdi/js";
-import { styleMap } from "lit/directives/style-map";
-import { fireEvent } from "../common/dom/fire_event";
-import { conditionalClamp } from "../common/number/clamp";
-import type { CardGridSize } from "../panels/lovelace/common/compute-card-grid-size";
-import { DEFAULT_GRID_SIZE } from "../panels/lovelace/common/compute-card-grid-size";
-import type { HomeAssistant } from "../types";
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import '../panels/lovelace/editor/card-editor/ha-grid-layout-slider'
+import './ha-icon-button'
+import { mdiRestore } from '@mdi/js'
+import { styleMap } from 'lit/directives/style-map'
+import { fireEvent } from '../common/dom/fire_event'
+import { conditionalClamp } from '../common/number/clamp'
+import type { CardGridSize } from '../panels/lovelace/common/compute-card-grid-size'
+import { DEFAULT_GRID_SIZE } from '../panels/lovelace/common/compute-card-grid-size'
+import type { HomeAssistant } from '../types'
 
-@customElement("ha-grid-size-picker")
+@customElement('ha-grid-size-picker')
 export class HaGridSizeEditor extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public value?: CardGridSize;
+  @property({ attribute: false }) public value?: CardGridSize
 
-  @property({ attribute: false }) public rows = 8;
+  @property({ attribute: false }) public rows = 8
 
-  @property({ attribute: false }) public columns = 12;
+  @property({ attribute: false }) public columns = 12
 
-  @property({ attribute: false }) public rowMin?: number;
+  @property({ attribute: false }) public rowMin?: number
 
-  @property({ attribute: false }) public rowMax?: number;
+  @property({ attribute: false }) public rowMax?: number
 
-  @property({ attribute: false }) public columnMin?: number;
+  @property({ attribute: false }) public columnMin?: number
 
-  @property({ attribute: false }) public columnMax?: number;
+  @property({ attribute: false }) public columnMax?: number
 
-  @property({ attribute: false }) public isDefault?: boolean;
+  @property({ attribute: false }) public isDefault?: boolean
 
-  @property({ attribute: false }) public step = 1;
+  @property({ attribute: false }) public step = 1
 
-  @state() public _localValue?: CardGridSize = { rows: 1, columns: 1 };
+  @state() public _localValue?: CardGridSize = { rows: 1, columns: 1 }
 
   protected willUpdate(changedProperties) {
-    if (changedProperties.has("value")) {
-      this._localValue = this.value;
+    if (changedProperties.has('value')) {
+      this._localValue = this.value
     }
   }
 
   protected render() {
     const disabledColumns =
-      this.columnMin !== undefined && this.columnMin === this.columnMax;
+      this.columnMin !== undefined && this.columnMin === this.columnMax
     const disabledRows =
-      this.rowMin !== undefined && this.rowMin === this.rowMax;
+      this.rowMin !== undefined && this.rowMin === this.rowMax
 
-    const autoHeight = this._localValue?.rows === "auto";
-    const fullWidth = this._localValue?.columns === "full";
+    const autoHeight = this._localValue?.rows === 'auto'
+    const fullWidth = this._localValue?.columns === 'full'
 
-    const rowMin = this.rowMin ?? 1;
-    const rowMax = this.rowMax ?? this.rows;
-    const columnMin = Math.ceil((this.columnMin ?? 1) / this.step) * this.step;
+    const rowMin = this.rowMin ?? 1
+    const rowMax = this.rowMax ?? this.rows
+    const columnMin = Math.ceil((this.columnMin ?? 1) / this.step) * this.step
     const columnMax =
-      Math.ceil((this.columnMax ?? this.columns) / this.step) * this.step;
-    const rowValue = autoHeight ? rowMin : this._localValue?.rows;
-    const columnValue = this._localValue?.columns;
+      Math.ceil((this.columnMax ?? this.columns) / this.step) * this.step
+    const rowValue = autoHeight ? rowMin : this._localValue?.rows
+    const columnValue = this._localValue?.columns
 
     return html`
       <div class="grid">
         <ha-grid-layout-slider
           aria-label=${this.hass.localize(
-            "ui.components.grid-size-picker.columns"
+            'ui.components.grid-size-picker.columns'
           )}
           id="columns"
           .min=${columnMin}
@@ -77,7 +77,7 @@ export class HaGridSizeEditor extends LitElement {
 
         <ha-grid-layout-slider
           aria-label=${this.hass.localize(
-            "ui.components.grid-size-picker.rows"
+            'ui.components.grid-size-picker.rows'
           )}
           id="rows"
           .min=${rowMin}
@@ -97,10 +97,10 @@ export class HaGridSizeEditor extends LitElement {
                 class="reset"
                 .path=${mdiRestore}
                 label=${this.hass.localize(
-                  "ui.components.grid-size-picker.reset_default"
+                  'ui.components.grid-size-picker.reset_default'
                 )}
                 title=${this.hass.localize(
-                  "ui.components.grid-size-picker.reset_default"
+                  'ui.components.grid-size-picker.reset_default'
                 )}
               >
               </ha-icon-button>
@@ -111,18 +111,18 @@ export class HaGridSizeEditor extends LitElement {
             ${Array(this.rows)
               .fill(0)
               .map((_, index) => {
-                const row = index + 1;
+                const row = index + 1
                 return html`
                   <tr>
                     ${Array(this.columns)
                       .fill(0)
                       .map((__, columnIndex) => {
-                        const column = columnIndex + 1;
+                        const column = columnIndex + 1
                         if (
                           column % this.step !== 0 ||
                           (this.columns > 24 && column % 3 !== 0)
                         ) {
-                          return nothing;
+                          return nothing
                         }
                         return html`
                           <td
@@ -130,92 +130,92 @@ export class HaGridSizeEditor extends LitElement {
                             data-column=${column}
                             @click=${this._cellClick}
                           ></td>
-                        `;
+                        `
                       })}
                   </tr>
-                `;
+                `
               })}
           </table>
           <div
             class="preview-card"
             style=${styleMap({
-              "--rows": rowValue,
-              "--columns": fullWidth ? this.columns : columnValue,
-              "--total-columns": this.columns,
+              '--rows': rowValue,
+              '--columns': fullWidth ? this.columns : columnValue,
+              '--total-columns': this.columns,
             })}
           ></div>
         </div>
       </div>
-    `;
+    `
   }
 
   private _cellClick(ev) {
-    const cell = ev.currentTarget as HTMLElement;
-    const rows = Number(cell.getAttribute("data-row"));
-    const columns = Number(cell.getAttribute("data-column"));
-    const clampedRow: CardGridSize["rows"] = conditionalClamp(
+    const cell = ev.currentTarget as HTMLElement
+    const rows = Number(cell.getAttribute('data-row'))
+    const columns = Number(cell.getAttribute('data-column'))
+    const clampedRow: CardGridSize['rows'] = conditionalClamp(
       rows,
       this.rowMin,
       this.rowMax
-    );
-    let clampedColumn: CardGridSize["columns"] = conditionalClamp(
+    )
+    let clampedColumn: CardGridSize['columns'] = conditionalClamp(
       columns,
       this.columnMin,
       this.columnMax
-    );
+    )
 
-    const currentSize = this.value ?? DEFAULT_GRID_SIZE;
-    if (currentSize.columns === "full" && clampedColumn === this.columns) {
-      clampedColumn = "full";
+    const currentSize = this.value ?? DEFAULT_GRID_SIZE
+    if (currentSize.columns === 'full' && clampedColumn === this.columns) {
+      clampedColumn = 'full'
     }
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: { rows: clampedRow, columns: clampedColumn },
-    });
+    })
   }
 
   private _valueChanged(ev) {
-    ev.stopPropagation();
-    const key = ev.currentTarget.id as "rows" | "columns";
-    const currentSize = this.value ?? DEFAULT_GRID_SIZE;
-    let value = ev.detail.value as CardGridSize[typeof key];
+    ev.stopPropagation()
+    const key = ev.currentTarget.id as 'rows' | 'columns'
+    const currentSize = this.value ?? DEFAULT_GRID_SIZE
+    let value = ev.detail.value as CardGridSize[typeof key]
 
     if (
-      key === "columns" &&
-      currentSize.columns === "full" &&
+      key === 'columns' &&
+      currentSize.columns === 'full' &&
       value === this.columns
     ) {
-      value = "full";
+      value = 'full'
     }
 
     const newSize = {
       ...currentSize,
       [key]: value,
-    };
-    fireEvent(this, "value-changed", { value: newSize });
+    }
+    fireEvent(this, 'value-changed', { value: newSize })
   }
 
   private _reset(ev) {
-    ev.stopPropagation();
-    fireEvent(this, "value-changed", {
+    ev.stopPropagation()
+    fireEvent(this, 'value-changed', {
       value: {
         rows: undefined,
         columns: undefined,
       },
-    });
+    })
   }
 
   private _sliderMoved(ev) {
-    ev.stopPropagation();
-    const key = ev.currentTarget.id as "rows" | "columns";
-    const currentSize = this.value ?? DEFAULT_GRID_SIZE;
-    const value = ev.detail.value as CardGridSize[typeof key] | undefined;
+    ev.stopPropagation()
+    const key = ev.currentTarget.id as 'rows' | 'columns'
+    const currentSize = this.value ?? DEFAULT_GRID_SIZE
+    const value = ev.detail.value as CardGridSize[typeof key] | undefined
 
-    if (value === undefined) return;
+    if (value === undefined) return
 
     this._localValue = {
       ...currentSize,
       [key]: ev.detail.value,
-    };
+    }
   }
 
   static styles = [
@@ -223,8 +223,8 @@ export class HaGridSizeEditor extends LitElement {
       .grid {
         display: grid;
         grid-template-areas:
-          "reset column-slider"
-          "row-slider preview";
+          'reset column-slider'
+          'row-slider preview';
         grid-template-rows: auto auto;
         grid-template-columns: auto 1fr;
         gap: var(--ha-space-2);
@@ -273,11 +273,11 @@ export class HaGridSizeEditor extends LitElement {
           height ease-in-out 180ms;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-grid-size-picker": HaGridSizeEditor;
+    'ha-grid-size-picker': HaGridSizeEditor
   }
 }

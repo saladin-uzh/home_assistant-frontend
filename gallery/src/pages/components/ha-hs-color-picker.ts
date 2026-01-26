@@ -1,55 +1,55 @@
-import "../../../../src/components/ha-hs-color-picker";
+import '../../../../src/components/ha-hs-color-picker'
 
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, state } from "lit/decorators";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, state } from 'lit/decorators'
 
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-slider";
-import { hsv2rgb } from "../../../../src/common/color/convert-color";
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-slider'
+import { hsv2rgb } from '../../../../src/common/color/convert-color'
 
-@customElement("demo-components-ha-hs-color-picker")
+@customElement('demo-components-ha-hs-color-picker')
 export class DemoHaHsColorPicker extends LitElement {
   @state()
-  brightness = 255;
+  brightness = 255
 
   @state()
-  value: [number, number] = [0, 0];
+  value: [number, number] = [0, 0]
 
   @state()
-  liveValue?: [number, number];
+  liveValue?: [number, number]
 
   private _brightnessChanged(ev) {
-    this.brightness = Number(ev.target.value);
+    this.brightness = Number(ev.target.value)
   }
 
   private _hsColorCursor(ev) {
-    this.liveValue = ev.detail.value;
+    this.liveValue = ev.detail.value
   }
 
   private _hsColorChanged(ev) {
-    this.value = ev.detail.value;
+    this.value = ev.detail.value
   }
 
   private _hueChanged(ev) {
-    this.value = [ev.target.value, this.value[1]];
+    this.value = [ev.target.value, this.value[1]]
   }
 
   private _saturationChanged(ev) {
-    this.value = [this.value[0], ev.target.value];
+    this.value = [this.value[0], ev.target.value]
   }
 
   protected render(): TemplateResult {
-    const h = (this.liveValue ?? this.value)[0];
-    const s = (this.liveValue ?? this.value)[1];
+    const h = (this.liveValue ?? this.value)[0]
+    const s = (this.liveValue ?? this.value)[1]
 
-    const rgb = hsv2rgb([h, s, this.brightness]);
+    const rgb = hsv2rgb([h, s, this.brightness])
 
     return html`
       <ha-card>
         <div class="card-content">
           <p class="value">${h}° - ${Math.round(s * 100)}%</p>
-          <p class="value">${rgb.map((v) => Math.round(v)).join(", ")}</p>
+          <p class="value">${rgb.map(v => Math.round(v)).join(', ')}</p>
           <ha-hs-color-picker
             colorBrightness=${this.brightness}
             .value=${this.value}
@@ -88,7 +88,7 @@ export class DemoHaHsColorPicker extends LitElement {
           </ha-slider>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -109,11 +109,11 @@ export class DemoHaHsColorPicker extends LitElement {
       font-weight: var(--ha-font-weight-bold);
       margin: 0 0 12px 0;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-components-ha-hs-color-picker": DemoHaHsColorPicker;
+    'demo-components-ha-hs-color-picker': DemoHaHsColorPicker
   }
 }

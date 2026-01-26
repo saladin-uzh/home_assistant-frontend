@@ -1,7 +1,7 @@
-import memoizeOne from "memoize-one";
-import type { CSSResultGroup } from "lit";
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
+import memoizeOne from 'memoize-one'
+import type { CSSResultGroup } from 'lit'
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
 import {
   any,
   array,
@@ -12,28 +12,28 @@ import {
   string,
   type,
   union,
-} from "superstruct";
-import type { HASSDomEvent } from "../../../../common/dom/fire_event";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-card";
-import "../../../../components/ha-form/ha-form";
-import "../../../../components/ha-icon";
-import "../../../../components/ha-switch";
-import type { HomeAssistant } from "../../../../types";
-import type { PictureElementsCardConfig } from "../../cards/types";
-import type { LovelaceCardEditor } from "../../types";
-import "../hui-sub-element-editor";
-import { baseLovelaceCardConfig } from "../structs/base-card-struct";
-import type { EditDetailElementEvent, SubElementEditorConfig } from "../types";
-import { configElementStyle } from "./config-elements-style";
-import "../hui-picture-elements-card-row-editor";
-import type { LovelaceElementConfig } from "../../elements/types";
-import type { LovelaceCardConfig } from "../../../../data/lovelace/config/card";
-import type { LocalizeFunc } from "../../../../common/translations/localize";
+} from 'superstruct'
+import type { HASSDomEvent } from '../../../../common/dom/fire_event'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-card'
+import '../../../../components/ha-form/ha-form'
+import '../../../../components/ha-icon'
+import '../../../../components/ha-switch'
+import type { HomeAssistant } from '../../../../types'
+import type { PictureElementsCardConfig } from '../../cards/types'
+import type { LovelaceCardEditor } from '../../types'
+import '../hui-sub-element-editor'
+import { baseLovelaceCardConfig } from '../structs/base-card-struct'
+import type { EditDetailElementEvent, SubElementEditorConfig } from '../types'
+import { configElementStyle } from './config-elements-style'
+import '../hui-picture-elements-card-row-editor'
+import type { LovelaceElementConfig } from '../../elements/types'
+import type { LovelaceCardConfig } from '../../../../data/lovelace/config/card'
+import type { LocalizeFunc } from '../../../../common/translations/localize'
 
 const genericElementConfigStruct = type({
   type: string(),
-});
+})
 
 const cardConfigStruct = assign(
   baseLovelaceCardConfig,
@@ -48,92 +48,92 @@ const cardConfigStruct = assign(
     dark_mode_image: optional(union([string(), object()])),
     dark_mode_filter: optional(any()),
   })
-);
+)
 
-@customElement("hui-picture-elements-card-editor")
+@customElement('hui-picture-elements-card-editor')
 export class HuiPictureElementsCardEditor
   extends LitElement
   implements LovelaceCardEditor
 {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: PictureElementsCardConfig;
+  @state() private _config?: PictureElementsCardConfig
 
-  @state() private _subElementEditorConfig?: SubElementEditorConfig;
+  @state() private _subElementEditorConfig?: SubElementEditorConfig
 
   public setConfig(config: PictureElementsCardConfig): void {
-    assert(config, cardConfigStruct);
-    this._config = config;
+    assert(config, cardConfigStruct)
+    this._config = config
   }
 
   private _schema = memoizeOne(
     (localize: LocalizeFunc) =>
       [
         {
-          name: "",
-          type: "expandable",
+          name: '',
+          type: 'expandable',
           title: localize(
-            "ui.panel.lovelace.editor.card.picture-elements.card_options"
+            'ui.panel.lovelace.editor.card.picture-elements.card_options'
           ),
           schema: [
-            { name: "title", selector: { text: {} } },
+            { name: 'title', selector: { text: {} } },
             {
-              name: "image",
+              name: 'image',
               selector: {
                 media: {
-                  accept: ["image/*"] as string[],
+                  accept: ['image/*'] as string[],
                   clearable: true,
                   image_upload: true,
                   hide_content_type: true,
                   content_id_helper: localize(
-                    "ui.panel.lovelace.editor.card.picture.content_id_helper"
+                    'ui.panel.lovelace.editor.card.picture.content_id_helper'
                   ),
                 },
               },
             },
             {
-              name: "dark_mode_image",
+              name: 'dark_mode_image',
               selector: {
                 media: {
-                  accept: ["image/*"] as string[],
+                  accept: ['image/*'] as string[],
                   clearable: true,
                   image_upload: true,
                   hide_content_type: true,
                   content_id_helper: localize(
-                    "ui.panel.lovelace.editor.card.picture.content_id_helper"
+                    'ui.panel.lovelace.editor.card.picture.content_id_helper'
                   ),
                 },
               },
             },
             {
-              name: "camera_image",
-              selector: { entity: { domain: "camera" } },
+              name: 'camera_image',
+              selector: { entity: { domain: 'camera' } },
             },
             {
-              name: "camera_view",
+              name: 'camera_view',
               selector: {
                 select: {
-                  options: ["auto", "live"].map((value) => ({
+                  options: ['auto', 'live'].map(value => ({
                     value,
                     label: localize(
                       `ui.panel.lovelace.editor.card.generic.camera_view_options.${value}`
                     ),
                   })),
-                  mode: "dropdown",
+                  mode: 'dropdown',
                 },
               },
             },
-            { name: "theme", selector: { theme: {} } },
-            { name: "state_filter", selector: { object: {} } },
-            { name: "dark_mode_filter", selector: { object: {} } },
+            { name: 'theme', selector: { theme: {} } },
+            { name: 'state_filter', selector: { object: {} } },
+            { name: 'dark_mode_filter', selector: { object: {} } },
           ],
         },
       ] as const
-  );
+  )
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
     if (this._subElementEditorConfig) {
@@ -145,7 +145,7 @@ export class HuiPictureElementsCardEditor
           @config-changed=${this._handleSubElementChanged}
         >
         </hui-sub-element-editor>
-      `;
+      `
     }
 
     return html`
@@ -162,113 +162,113 @@ export class HuiPictureElementsCardEditor
         @elements-changed=${this._elementsChanged}
         @edit-detail-element=${this._editDetailElement}
       ></hui-picture-elements-card-row-editor>
-    `;
+    `
   }
 
   private _processData = memoizeOne((config: PictureElementsCardConfig) => ({
     ...config,
-    ...(typeof config.image === "string"
+    ...(typeof config.image === 'string'
       ? { image: { media_content_id: config.image } }
       : {}),
-    ...(typeof config.dark_mode_image === "string"
+    ...(typeof config.dark_mode_image === 'string'
       ? { dark_mode_image: { media_content_id: config.dark_mode_image } }
       : {}),
-  }));
+  }))
 
   private _formChanged(ev: CustomEvent): void {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!this._config || !this.hass) {
-      return;
+      return
     }
 
-    fireEvent(this, "config-changed", { config: ev.detail.value });
+    fireEvent(this, 'config-changed', { config: ev.detail.value })
   }
 
   private _elementsChanged(ev: CustomEvent): void {
-    ev.stopPropagation();
+    ev.stopPropagation()
 
-    const oldLength = this._config?.elements?.length || 0;
+    const oldLength = this._config?.elements?.length || 0
     const config = {
       ...this._config,
       elements: ev.detail.elements as LovelaceElementConfig[],
-    } as LovelaceCardConfig;
+    } as LovelaceCardConfig
 
-    fireEvent(this, "config-changed", { config });
+    fireEvent(this, 'config-changed', { config })
 
-    const newLength = ev.detail.elements?.length || 0;
+    const newLength = ev.detail.elements?.length || 0
     if (newLength === oldLength + 1) {
-      const index = newLength - 1;
+      const index = newLength - 1
       this._subElementEditorConfig = {
         index,
-        type: "element",
+        type: 'element',
         elementConfig: { ...ev.detail.elements[index] },
-      };
+      }
     }
   }
 
   private _handleSubElementChanged(ev: CustomEvent): void {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!this._config || !this.hass) {
-      return;
+      return
     }
 
-    const configValue = this._subElementEditorConfig?.type;
-    const value = ev.detail.config;
+    const configValue = this._subElementEditorConfig?.type
+    const value = ev.detail.config
 
-    if (configValue === "element") {
-      const newConfigElements = this._config.elements!.concat();
+    if (configValue === 'element') {
+      const newConfigElements = this._config.elements!.concat()
       if (!value) {
-        newConfigElements.splice(this._subElementEditorConfig!.index!, 1);
-        this._goBack();
+        newConfigElements.splice(this._subElementEditorConfig!.index!, 1)
+        this._goBack()
       } else {
-        newConfigElements[this._subElementEditorConfig!.index!] = value;
+        newConfigElements[this._subElementEditorConfig!.index!] = value
       }
 
-      this._config = { ...this._config!, elements: newConfigElements };
+      this._config = { ...this._config!, elements: newConfigElements }
     }
 
     this._subElementEditorConfig = {
       ...this._subElementEditorConfig!,
       elementConfig: value,
-    };
+    }
 
-    fireEvent(this, "config-changed", { config: this._config });
+    fireEvent(this, 'config-changed', { config: this._config })
   }
 
   private _editDetailElement(ev: HASSDomEvent<EditDetailElementEvent>): void {
-    this._subElementEditorConfig = ev.detail.subElementConfig;
+    this._subElementEditorConfig = ev.detail.subElementConfig
   }
 
   private _goBack(): void {
-    this._subElementEditorConfig = undefined;
+    this._subElementEditorConfig = undefined
   }
 
-  private _computeLabelCallback = (schema) => {
+  private _computeLabelCallback = schema => {
     switch (schema.name) {
-      case "dark_mode_image":
-      case "state_filter":
-      case "dark_mode_filter":
+      case 'dark_mode_image':
+      case 'state_filter':
+      case 'dark_mode_filter':
         return (
           this.hass!.localize(
             `ui.panel.lovelace.editor.card.picture-elements.${schema.name}`
           ) || schema.name
-        );
+        )
       default:
         return (
           this.hass!.localize(
             `ui.panel.lovelace.editor.card.generic.${schema.name}`
           ) || schema.name
-        );
+        )
     }
-  };
+  }
 
   static get styles(): CSSResultGroup {
-    return [configElementStyle];
+    return [configElementStyle]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-picture-elements-card-editor": HuiPictureElementsCardEditor;
+    'hui-picture-elements-card-editor': HuiPictureElementsCardEditor
   }
 }

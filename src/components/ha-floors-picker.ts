@@ -1,76 +1,76 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../common/dom/fire_event";
-import { SubscribeMixin } from "../mixins/subscribe-mixin";
-import type { HomeAssistant } from "../types";
-import type { HaDevicePickerDeviceFilterFunc } from "./device/ha-device-picker";
-import "./ha-floor-picker";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../common/dom/fire_event'
+import { SubscribeMixin } from '../mixins/subscribe-mixin'
+import type { HomeAssistant } from '../types'
+import type { HaDevicePickerDeviceFilterFunc } from './device/ha-device-picker'
+import './ha-floor-picker'
 
-@customElement("ha-floors-picker")
+@customElement('ha-floors-picker')
 export class HaFloorsPicker extends SubscribeMixin(LitElement) {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property({ type: Array }) public value?: string[];
+  @property({ type: Array }) public value?: string[]
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property() public placeholder?: string;
+  @property() public placeholder?: string
 
-  @property({ type: Boolean, attribute: "no-add" })
-  public noAdd = false;
+  @property({ type: Boolean, attribute: 'no-add' })
+  public noAdd = false
 
   /**
    * Show only floors with entities from specific domains.
    * @type {Array}
    * @attr include-domains
    */
-  @property({ type: Array, attribute: "include-domains" })
-  public includeDomains?: string[];
+  @property({ type: Array, attribute: 'include-domains' })
+  public includeDomains?: string[]
 
   /**
    * Show no floors with entities of these domains.
    * @type {Array}
    * @attr exclude-domains
    */
-  @property({ type: Array, attribute: "exclude-domains" })
-  public excludeDomains?: string[];
+  @property({ type: Array, attribute: 'exclude-domains' })
+  public excludeDomains?: string[]
 
   /**
    * Show only floors with entities of these device classes.
    * @type {Array}
    * @attr include-device-classes
    */
-  @property({ type: Array, attribute: "include-device-classes" })
-  public includeDeviceClasses?: string[];
+  @property({ type: Array, attribute: 'include-device-classes' })
+  public includeDeviceClasses?: string[]
 
   @property({ attribute: false })
-  public deviceFilter?: HaDevicePickerDeviceFilterFunc;
+  public deviceFilter?: HaDevicePickerDeviceFilterFunc
 
   @property({ attribute: false })
-  public entityFilter?: (entity: HassEntity) => boolean;
+  public entityFilter?: (entity: HassEntity) => boolean
 
-  @property({ attribute: "picked-floor-label" })
-  public pickedFloorLabel?: string;
+  @property({ attribute: 'picked-floor-label' })
+  public pickedFloorLabel?: string
 
-  @property({ attribute: "pick-floor-label" })
-  public pickFloorLabel?: string;
+  @property({ attribute: 'pick-floor-label' })
+  public pickFloorLabel?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = false;
+  @property({ type: Boolean }) public required = false
 
   protected render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
 
-    const currentFloors = this._currentFloors;
+    const currentFloors = this._currentFloors
     return html`
       ${currentFloors.map(
-        (floor) => html`
+        floor => html`
           <div>
             <ha-floor-picker
               .curValue=${floor}
@@ -107,63 +107,63 @@ export class HaFloorsPicker extends SubscribeMixin(LitElement) {
           .excludeFloors=${currentFloors}
         ></ha-floor-picker>
       </div>
-    `;
+    `
   }
 
   private get _currentFloors(): string[] {
-    return this.value || [];
+    return this.value || []
   }
 
   private async _updateFloors(floors) {
-    this.value = floors;
+    this.value = floors
 
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: floors,
-    });
+    })
   }
 
   private _floorChanged(ev: CustomEvent) {
-    ev.stopPropagation();
-    const curValue = (ev.currentTarget as any).curValue;
-    const newValue = ev.detail.value;
+    ev.stopPropagation()
+    const curValue = (ev.currentTarget as any).curValue
+    const newValue = ev.detail.value
     if (newValue === curValue) {
-      return;
+      return
     }
-    const currentFloors = this._currentFloors;
+    const currentFloors = this._currentFloors
     if (!newValue || currentFloors.includes(newValue)) {
-      this._updateFloors(currentFloors.filter((ent) => ent !== curValue));
-      return;
+      this._updateFloors(currentFloors.filter(ent => ent !== curValue))
+      return
     }
     this._updateFloors(
-      currentFloors.map((ent) => (ent === curValue ? newValue : ent))
-    );
+      currentFloors.map(ent => (ent === curValue ? newValue : ent))
+    )
   }
 
   private _addFloor(ev: CustomEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
 
-    const toAdd = ev.detail.value;
+    const toAdd = ev.detail.value
     if (!toAdd) {
-      return;
+      return
     }
-    (ev.currentTarget as any).value = "";
-    const currentFloors = this._currentFloors;
+    ;(ev.currentTarget as any).value = ''
+    const currentFloors = this._currentFloors
     if (currentFloors.includes(toAdd)) {
-      return;
+      return
     }
 
-    this._updateFloors([...currentFloors, toAdd]);
+    this._updateFloors([...currentFloors, toAdd])
   }
 
   static override styles = css`
     div {
       margin-top: 8px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-floors-picker": HaFloorsPicker;
+    'ha-floors-picker': HaFloorsPicker
   }
 }

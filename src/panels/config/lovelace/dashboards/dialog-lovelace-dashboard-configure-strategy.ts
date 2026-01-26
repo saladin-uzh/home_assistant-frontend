@@ -1,42 +1,42 @@
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-button";
-import { createCloseHeading } from "../../../../components/ha-dialog";
-import "../../../../components/ha-form/ha-form";
-import type { LovelaceStrategyConfig } from "../../../../data/lovelace/config/strategy";
-import { haStyleDialog } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import "../../../lovelace/editor/dashboard-strategy-editor/hui-dashboard-strategy-element-editor";
-import type { LovelaceDashboardConfigureStrategyDialogParams } from "./show-dialog-lovelace-dashboard-configure-strategy";
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-button'
+import { createCloseHeading } from '../../../../components/ha-dialog'
+import '../../../../components/ha-form/ha-form'
+import type { LovelaceStrategyConfig } from '../../../../data/lovelace/config/strategy'
+import { haStyleDialog } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import '../../../lovelace/editor/dashboard-strategy-editor/hui-dashboard-strategy-element-editor'
+import type { LovelaceDashboardConfigureStrategyDialogParams } from './show-dialog-lovelace-dashboard-configure-strategy'
 
-@customElement("dialog-lovelace-dashboard-configure-strategy")
+@customElement('dialog-lovelace-dashboard-configure-strategy')
 export class DialogLovelaceDashboardConfigureStrategy extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _params?: LovelaceDashboardConfigureStrategyDialogParams;
+  @state() private _params?: LovelaceDashboardConfigureStrategyDialogParams
 
-  @state() private _submitting = false;
+  @state() private _submitting = false
 
-  @state() private _data?: LovelaceStrategyConfig;
+  @state() private _data?: LovelaceStrategyConfig
 
   public showDialog(
     params: LovelaceDashboardConfigureStrategyDialogParams
   ): void {
-    this._params = params;
-    this._data = params.config.strategy;
+    this._params = params
+    this._data = params.config.strategy
   }
 
   public closeDialog(): void {
-    this._params = undefined;
-    this._data = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    this._data = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._params || !this._data) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -48,7 +48,7 @@ export class DialogLovelaceDashboardConfigureStrategy extends LitElement {
         .heading=${createCloseHeading(
           this.hass,
           this.hass.localize(
-            "ui.panel.config.lovelace.dashboards.detail.new_dashboard"
+            'ui.panel.config.lovelace.dashboards.detail.new_dashboard'
           )
         )}
       >
@@ -67,36 +67,36 @@ export class DialogLovelaceDashboardConfigureStrategy extends LitElement {
           @click=${this._save}
           .disabled=${this._submitting}
         >
-          ${this.hass.localize("ui.common.next")}
+          ${this.hass.localize('ui.common.next')}
         </ha-button>
       </ha-dialog>
-    `;
+    `
   }
 
   private _handleConfigChanged(ev: CustomEvent): void {
-    this._data = ev.detail.config;
+    this._data = ev.detail.config
   }
 
   private async _save() {
     if (!this._data) {
-      return;
+      return
     }
-    this._submitting = true;
+    this._submitting = true
     await this._params!.saveConfig({
       ...this._params!.config,
       strategy: this._data,
-    });
-    this._submitting = false;
-    this.closeDialog();
+    })
+    this._submitting = false
+    this.closeDialog()
   }
 
   static get styles(): CSSResultGroup {
-    return [haStyleDialog, css``];
+    return [haStyleDialog, css``]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-lovelace-dashboard-configure-strategy": DialogLovelaceDashboardConfigureStrategy;
+    'dialog-lovelace-dashboard-configure-strategy': DialogLovelaceDashboardConfigureStrategy
   }
 }

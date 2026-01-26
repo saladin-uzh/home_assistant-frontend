@@ -4,4 +4,4 @@ export const SirenEntityFeature = {
   TONES: 4,
   VOLUME_SET: 8,
   DURATION: 16,
-};
+}

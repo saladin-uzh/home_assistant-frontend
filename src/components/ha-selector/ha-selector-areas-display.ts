@@ -1,24 +1,24 @@
-import { LitElement, html } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { AreasDisplaySelector } from "../../data/selector";
-import type { HomeAssistant } from "../../types";
-import "../ha-areas-display-editor";
+import { LitElement, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { AreasDisplaySelector } from '../../data/selector'
+import type { HomeAssistant } from '../../types'
+import '../ha-areas-display-editor'
 
-@customElement("ha-selector-areas_display")
+@customElement('ha-selector-areas_display')
 export class HaAreasDisplaySelector extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: AreasDisplaySelector;
+  @property({ attribute: false }) public selector!: AreasDisplaySelector
 
-  @property() public value?: any;
+  @property() public value?: any
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = true;
+  @property({ type: Boolean }) public required = true
 
   protected render() {
     return html`
@@ -30,12 +30,12 @@ export class HaAreasDisplaySelector extends LitElement {
         .disabled=${this.disabled}
         .required=${this.required}
       ></ha-areas-display-editor>
-    `;
+    `
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-areas_display": HaAreasDisplaySelector;
+    'ha-selector-areas_display': HaAreasDisplaySelector
   }
 }

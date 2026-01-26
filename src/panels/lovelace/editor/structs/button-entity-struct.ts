@@ -1,5 +1,5 @@
-import { boolean, object, optional, string } from "superstruct";
-import { actionConfigStruct } from "./action-struct";
+import { boolean, object, optional, string } from 'superstruct'
+import { actionConfigStruct } from './action-struct'
 
 export const buttonEntityConfigStruct = object({
   entity: string(),
@@ -11,4 +11,4 @@ export const buttonEntityConfigStruct = object({
   tap_action: optional(actionConfigStruct),
   hold_action: optional(actionConfigStruct),
   double_tap_action: optional(actionConfigStruct),
-});
+})

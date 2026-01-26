@@ -1,24 +1,24 @@
-import type { PropertyValues } from "lit";
-import type { HASSDomEvent } from "../common/dom/fire_event";
-import { makeDialogManager, showDialog } from "../dialogs/make-dialog-manager";
-import type { Constructor } from "../types";
-import type { HassBaseEl } from "./hass-base-mixin";
+import type { PropertyValues } from 'lit'
+import type { HASSDomEvent } from '../common/dom/fire_event'
+import { makeDialogManager, showDialog } from '../dialogs/make-dialog-manager'
+import type { Constructor } from '../types'
+import type { HassBaseEl } from './hass-base-mixin'
 
 interface RegisterDialogParams {
-  dialogShowEvent: keyof HASSDomEvents;
-  dialogTag: keyof HTMLElementTagNameMap;
-  dialogImport: () => Promise<unknown>;
-  addHistory?: boolean;
+  dialogShowEvent: keyof HASSDomEvents
+  dialogTag: keyof HTMLElementTagNameMap
+  dialogImport: () => Promise<unknown>
+  addHistory?: boolean
 }
 
 declare global {
   // for fire event
   interface HASSDomEvents {
-    "register-dialog": RegisterDialogParams;
+    'register-dialog': RegisterDialogParams
   }
   // for add event listener
   interface HTMLElementEventMap {
-    "register-dialog": HASSDomEvent<RegisterDialogParams>;
+    'register-dialog': HASSDomEvent<RegisterDialogParams>
   }
 }
 
@@ -27,12 +27,12 @@ export const dialogManagerMixin = <T extends Constructor<HassBaseEl>>(
 ) =>
   class extends superClass {
     protected firstUpdated(changedProps: PropertyValues) {
-      super.firstUpdated(changedProps);
+      super.firstUpdated(changedProps)
       // deprecated
-      this.addEventListener("register-dialog", (e) =>
+      this.addEventListener('register-dialog', e =>
         this.registerDialog(e.detail)
-      );
-      makeDialogManager(this, this.shadowRoot!);
+      )
+      makeDialogManager(this, this.shadowRoot!)
     }
 
     protected registerDialog({
@@ -41,7 +41,7 @@ export const dialogManagerMixin = <T extends Constructor<HassBaseEl>>(
       dialogImport,
       addHistory = true,
     }: RegisterDialogParams) {
-      this.addEventListener(dialogShowEvent, (showEv) => {
+      this.addEventListener(dialogShowEvent, showEv => {
         showDialog(
           this,
           this.shadowRoot!,
@@ -49,7 +49,7 @@ export const dialogManagerMixin = <T extends Constructor<HassBaseEl>>(
           (showEv as HASSDomEvent<unknown>).detail,
           dialogImport,
           addHistory
-        );
-      });
+        )
+      })
     }
-  };
+  }

@@ -1,45 +1,45 @@
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, state } from "lit/decorators";
-import { computeDeviceNameDisplay } from "../../../../../../common/entity/compute_device_name";
-import { computeStateName } from "../../../../../../common/entity/compute_state_name";
-import "../../../../../../components/ha-dialog";
-import "../../../../../../components/ha-formfield";
-import "../../../../../../components/ha-switch";
-import "../../../../../../components/ha-button";
-import type { HaSwitch } from "../../../../../../components/ha-switch";
-import type { MQTTDeviceDebugInfo } from "../../../../../../data/mqtt";
-import { fetchMQTTDebugInfo } from "../../../../../../data/mqtt";
-import { haStyleDialog } from "../../../../../../resources/styles";
-import type { HomeAssistant } from "../../../../../../types";
-import "./mqtt-discovery-payload";
-import "./mqtt-messages";
-import type { MQTTDeviceDebugInfoDialogParams } from "./show-dialog-mqtt-device-debug-info";
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, state } from 'lit/decorators'
+import { computeDeviceNameDisplay } from '../../../../../../common/entity/compute_device_name'
+import { computeStateName } from '../../../../../../common/entity/compute_state_name'
+import '../../../../../../components/ha-dialog'
+import '../../../../../../components/ha-formfield'
+import '../../../../../../components/ha-switch'
+import '../../../../../../components/ha-button'
+import type { HaSwitch } from '../../../../../../components/ha-switch'
+import type { MQTTDeviceDebugInfo } from '../../../../../../data/mqtt'
+import { fetchMQTTDebugInfo } from '../../../../../../data/mqtt'
+import { haStyleDialog } from '../../../../../../resources/styles'
+import type { HomeAssistant } from '../../../../../../types'
+import './mqtt-discovery-payload'
+import './mqtt-messages'
+import type { MQTTDeviceDebugInfoDialogParams } from './show-dialog-mqtt-device-debug-info'
 
-@customElement("dialog-mqtt-device-debug-info")
+@customElement('dialog-mqtt-device-debug-info')
 class DialogMQTTDeviceDebugInfo extends LitElement {
-  public hass!: HomeAssistant;
+  public hass!: HomeAssistant
 
-  @state() private _params?: MQTTDeviceDebugInfoDialogParams;
+  @state() private _params?: MQTTDeviceDebugInfoDialogParams
 
-  @state() private _debugInfo?: MQTTDeviceDebugInfo;
+  @state() private _debugInfo?: MQTTDeviceDebugInfo
 
-  @state() private _showAsYaml = true;
+  @state() private _showAsYaml = true
 
-  @state() private _showDeserialized = true;
+  @state() private _showDeserialized = true
 
   public async showDialog(
     params: MQTTDeviceDebugInfoDialogParams
   ): Promise<void> {
-    this._params = params;
-    fetchMQTTDebugInfo(this.hass, params.device.id).then((results) => {
-      this._debugInfo = results;
-    });
+    this._params = params
+    fetchMQTTDebugInfo(this.hass, params.device.id).then(results => {
+      this._debugInfo = results
+    })
   }
 
   protected render() {
     if (!this._params || !this._debugInfo) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -47,19 +47,19 @@ class DialogMQTTDeviceDebugInfo extends LitElement {
         open
         @closed=${this._close}
         .heading=${this.hass!.localize(
-          "ui.dialogs.mqtt_device_debug_info.title",
+          'ui.dialogs.mqtt_device_debug_info.title',
           { device: computeDeviceNameDisplay(this._params.device, this.hass) }
         )}
       >
         <h4>
           ${this.hass!.localize(
-            "ui.dialogs.mqtt_device_debug_info.payload_display"
+            'ui.dialogs.mqtt_device_debug_info.payload_display'
           )}
         </h4>
         <div>
           <ha-formfield
             .label=${this.hass!.localize(
-              "ui.dialogs.mqtt_device_debug_info.deserialize"
+              'ui.dialogs.mqtt_device_debug_info.deserialize'
             )}
           >
             <ha-switch
@@ -73,7 +73,7 @@ class DialogMQTTDeviceDebugInfo extends LitElement {
         <div>
           <ha-formfield
             .label=${this.hass!.localize(
-              "ui.dialogs.mqtt_device_debug_info.show_as_yaml"
+              'ui.dialogs.mqtt_device_debug_info.show_as_yaml'
             )}
           >
             <ha-switch
@@ -84,53 +84,56 @@ class DialogMQTTDeviceDebugInfo extends LitElement {
           </ha-formfield>
         </div>
         <h4>
-          ${this.hass!.localize("ui.dialogs.mqtt_device_debug_info.entities")}
+          ${this.hass!.localize('ui.dialogs.mqtt_device_debug_info.entities')}
         </h4>
         <ul class="entitylist">
           ${this._debugInfo.entities.length
             ? this._renderEntities()
             : html`
                 ${this.hass!.localize(
-                  "ui.dialogs.mqtt_device_debug_info.no_entity_debug_info"
+                  'ui.dialogs.mqtt_device_debug_info.no_entity_debug_info'
                 )}
               `}
         </ul>
         <h4>
-          ${this.hass!.localize("ui.dialogs.mqtt_device_debug_info.triggers")}
+          ${this.hass!.localize('ui.dialogs.mqtt_device_debug_info.triggers')}
         </h4>
         <ul class="triggerlist">
           ${this._debugInfo.triggers.length
             ? this._renderTriggers()
             : html`
                 ${this.hass!.localize(
-                  "ui.dialogs.mqtt_device_debug_info.no_trigger_debug_info"
+                  'ui.dialogs.mqtt_device_debug_info.no_trigger_debug_info'
                 )}
               `}
         </ul>
-        <ha-button slot="primaryAction" @click=${this._close}>
-          ${this.hass!.localize("ui.common.close")}
+        <ha-button
+          slot="primaryAction"
+          @click=${this._close}
+        >
+          ${this.hass!.localize('ui.common.close')}
         </ha-button>
       </ha-dialog>
-    `;
+    `
   }
 
   private _close(): void {
-    this._params = undefined;
-    this._debugInfo = undefined;
+    this._params = undefined
+    this._debugInfo = undefined
   }
 
   private _showAsYamlChanged(ev: Event): void {
-    this._showAsYaml = (ev.target as HaSwitch).checked;
+    this._showAsYaml = (ev.target as HaSwitch).checked
   }
 
   private _showDeserializedChanged(ev: Event): void {
-    this._showDeserialized = (ev.target as HaSwitch).checked;
+    this._showDeserialized = (ev.target as HaSwitch).checked
   }
 
   private _renderEntities(): TemplateResult {
     return html`
       ${this._debugInfo!.entities.map(
-        (entity) => html`
+        entity => html`
           <li class="entitylistitem">
             ${computeStateName(this.hass.states[entity.entity_id])}
             (<code>${entity.entity_id}</code>)
@@ -145,7 +148,7 @@ class DialogMQTTDeviceDebugInfo extends LitElement {
                   .hass=${this.hass}
                   .payload=${entity.discovery_data.payload}
                   .showAsYaml=${this._showAsYaml}
-                  .summary=${"Payload"}
+                  .summary=${'Payload'}
                 >
                 </mqtt-discovery-payload>
               </li>
@@ -153,7 +156,7 @@ class DialogMQTTDeviceDebugInfo extends LitElement {
             Subscribed topics:
             <ul>
               ${entity.subscriptions.map(
-                (topic) => html`
+                topic => html`
                   <li>
                     <code>${topic.topic}</code>
                     <mqtt-messages
@@ -164,7 +167,7 @@ class DialogMQTTDeviceDebugInfo extends LitElement {
                       .showAsYaml=${this._showAsYaml}
                       .subscribedTopic=${topic.topic}
                       .summary=${this.hass!.localize(
-                        "ui.dialogs.mqtt_device_debug_info.recent_messages",
+                        'ui.dialogs.mqtt_device_debug_info.recent_messages',
                         { n: topic.messages.length }
                       )}
                     >
@@ -176,7 +179,7 @@ class DialogMQTTDeviceDebugInfo extends LitElement {
             Transmitted messages:
             <ul>
               ${entity.transmitted.map(
-                (topic) => html`
+                topic => html`
                   <li>
                     <code>${topic.topic}</code>
                     <mqtt-messages
@@ -187,7 +190,7 @@ class DialogMQTTDeviceDebugInfo extends LitElement {
                       .showAsYaml=${this._showAsYaml}
                       .subscribedTopic=${topic.topic}
                       .summary=${this.hass!.localize(
-                        "ui.dialogs.mqtt_device_debug_info.recent_tx_messages",
+                        'ui.dialogs.mqtt_device_debug_info.recent_tx_messages',
                         { n: topic.messages.length }
                       )}
                     >
@@ -199,13 +202,13 @@ class DialogMQTTDeviceDebugInfo extends LitElement {
           </li>
         `
       )}
-    `;
+    `
   }
 
   private _renderTriggers(): TemplateResult {
     return html`
       ${this._debugInfo!.triggers.map(
-        (trigger) => html`
+        trigger => html`
           <li class="triggerlistitem">
             MQTT discovery data:
             <ul class="discoverydata">
@@ -218,7 +221,7 @@ class DialogMQTTDeviceDebugInfo extends LitElement {
                   .hass=${this.hass}
                   .payload=${trigger.discovery_data.payload}
                   .showAsYaml=${this._showAsYaml}
-                  .summary=${"Payload"}
+                  .summary=${'Payload'}
                 >
                 </mqtt-discovery-payload>
               </li>
@@ -226,7 +229,7 @@ class DialogMQTTDeviceDebugInfo extends LitElement {
           </li>
         `
       )}
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -260,12 +263,12 @@ class DialogMQTTDeviceDebugInfo extends LitElement {
           margin-bottom: 12px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-mqtt-device-debug-info": DialogMQTTDeviceDebugInfo;
+    'dialog-mqtt-device-debug-info': DialogMQTTDeviceDebugInfo
   }
 }

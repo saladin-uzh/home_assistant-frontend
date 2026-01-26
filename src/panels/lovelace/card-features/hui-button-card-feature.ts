@@ -1,21 +1,21 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { computeDomain } from "../../../common/entity/compute_domain";
-import "../../../components/ha-control-button";
-import "../../../components/ha-control-button-group";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { computeDomain } from '../../../common/entity/compute_domain'
+import '../../../components/ha-control-button'
+import '../../../components/ha-control-button-group'
 import {
   hasRequiredScriptFields,
   requiredScriptFieldsFilled,
-} from "../../../data/script";
-import { showMoreInfoDialog } from "../../../dialogs/more-info/show-ha-more-info-dialog";
-import type { HomeAssistant } from "../../../types";
-import type { LovelaceCardFeature, LovelaceCardFeatureEditor } from "../types";
-import { cardFeatureStyles } from "./common/card-feature-styles";
+} from '../../../data/script'
+import { showMoreInfoDialog } from '../../../dialogs/more-info/show-ha-more-info-dialog'
+import type { HomeAssistant } from '../../../types'
+import type { LovelaceCardFeature, LovelaceCardFeatureEditor } from '../types'
+import { cardFeatureStyles } from './common/card-feature-styles'
 import type {
   ButtonCardFeatureConfig,
   LovelaceCardFeatureContext,
-} from "./types";
+} from './types'
 
 export const supportsButtonCardFeature = (
   hass: HomeAssistant,
@@ -23,36 +23,36 @@ export const supportsButtonCardFeature = (
 ) => {
   const stateObj = context.entity_id
     ? hass.states[context.entity_id]
-    : undefined;
-  if (!stateObj) return false;
-  const domain = computeDomain(stateObj.entity_id);
-  return ["button", "input_button", "scene", "script"].includes(domain);
-};
+    : undefined
+  if (!stateObj) return false
+  const domain = computeDomain(stateObj.entity_id)
+  return ['button', 'input_button', 'scene', 'script'].includes(domain)
+}
 
-@customElement("hui-button-card-feature")
+@customElement('hui-button-card-feature')
 class HuiButtonCardFeature extends LitElement implements LovelaceCardFeature {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ attribute: false }) public context?: LovelaceCardFeatureContext;
+  @property({ attribute: false }) public context?: LovelaceCardFeatureContext
 
-  @state() private _config?: ButtonCardFeatureConfig;
+  @state() private _config?: ButtonCardFeatureConfig
 
   private get _stateObj() {
     if (!this.hass || !this.context || !this.context.entity_id) {
-      return undefined;
+      return undefined
     }
-    return this.hass.states[this.context.entity_id!] as HassEntity | undefined;
+    return this.hass.states[this.context.entity_id!] as HassEntity | undefined
   }
 
   private _pressButton() {
-    if (!this.hass || !this._stateObj) return;
+    if (!this.hass || !this._stateObj) return
 
-    const domain = computeDomain(this._stateObj.entity_id);
+    const domain = computeDomain(this._stateObj.entity_id)
     const service =
-      domain === "button" || domain === "input_button" ? "press" : "turn_on";
+      domain === 'button' || domain === 'input_button' ? 'press' : 'turn_on'
 
-    if (domain === "script") {
-      const entityId = this._stateObj.entity_id;
+    if (domain === 'script') {
+      const entityId = this._stateObj.entity_id
       if (
         hasRequiredScriptFields(this.hass!, entityId) &&
         !requiredScriptFieldsFilled(this.hass!, entityId, this._config?.data)
@@ -60,8 +60,8 @@ class HuiButtonCardFeature extends LitElement implements LovelaceCardFeature {
         showMoreInfoDialog(this, {
           entityId: entityId,
           data: this._config?.data,
-        });
-        return;
+        })
+        return
       }
     }
 
@@ -72,22 +72,22 @@ class HuiButtonCardFeature extends LitElement implements LovelaceCardFeature {
             variables: this._config.data,
           }
         : {}),
-    };
+    }
 
-    this.hass.callService(domain, service, serviceData);
+    this.hass.callService(domain, service, serviceData)
   }
 
   static getStubConfig(): ButtonCardFeatureConfig {
     return {
-      type: "button",
-    };
+      type: 'button',
+    }
   }
 
   public setConfig(config: ButtonCardFeatureConfig): void {
     if (!config) {
-      throw new Error("Invalid configuration");
+      throw new Error('Invalid configuration')
     }
-    this._config = config;
+    this._config = config
   }
 
   protected render() {
@@ -98,33 +98,33 @@ class HuiButtonCardFeature extends LitElement implements LovelaceCardFeature {
       !this._stateObj ||
       !supportsButtonCardFeature(this.hass, this.context)
     ) {
-      return nothing;
+      return nothing
     }
 
     return html`
       <ha-control-button-group>
         <ha-control-button
-          .disabled=${this._stateObj.state === "unavailable"}
+          .disabled=${this._stateObj.state === 'unavailable'}
           class="press-button"
           @click=${this._pressButton}
         >
           ${this._config.action_name ??
-          this.hass.localize("ui.card.button.press")}
+          this.hass.localize('ui.card.button.press')}
         </ha-control-button>
       </ha-control-button-group>
-    `;
+    `
   }
 
-  static styles = cardFeatureStyles;
+  static styles = cardFeatureStyles
 
   public static async getConfigElement(): Promise<LovelaceCardFeatureEditor> {
-    await import("../editor/config-elements/hui-button-card-feature-editor");
-    return document.createElement("hui-button-card-feature-editor");
+    await import('../editor/config-elements/hui-button-card-feature-editor')
+    return document.createElement('hui-button-card-feature-editor')
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-button-card-feature": HuiButtonCardFeature;
+    'hui-button-card-feature': HuiButtonCardFeature
   }
 }

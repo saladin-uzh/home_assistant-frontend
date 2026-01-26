@@ -1,49 +1,49 @@
-import { LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../common/dom/fire_event";
-import { caseInsensitiveStringCompare } from "../../common/string/compare";
-import type { ButtonToggleSelector, SelectOption } from "../../data/selector";
-import type { HomeAssistant, ToggleButton } from "../../types";
-import "../ha-button-toggle-group";
+import { LitElement, css, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../common/dom/fire_event'
+import { caseInsensitiveStringCompare } from '../../common/string/compare'
+import type { ButtonToggleSelector, SelectOption } from '../../data/selector'
+import type { HomeAssistant, ToggleButton } from '../../types'
+import '../ha-button-toggle-group'
 
-@customElement("ha-selector-button_toggle")
+@customElement('ha-selector-button_toggle')
 export class HaButtonToggleSelector extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: ButtonToggleSelector;
+  @property({ attribute: false }) public selector!: ButtonToggleSelector
 
-  @property() public value?: string;
+  @property() public value?: string
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
   @property({ attribute: false })
-  public localizeValue?: (key: string) => string;
+  public localizeValue?: (key: string) => string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = true;
+  @property({ type: Boolean }) public required = true
 
   protected render() {
     const options =
-      this.selector.button_toggle?.options?.map((option) =>
-        typeof option === "object"
+      this.selector.button_toggle?.options?.map(option =>
+        typeof option === 'object'
           ? (option as SelectOption)
           : ({ value: option, label: option } as SelectOption)
-      ) || [];
+      ) || []
 
-    const translationKey = this.selector.button_toggle?.translation_key;
+    const translationKey = this.selector.button_toggle?.translation_key
 
     if (this.localizeValue && translationKey) {
-      options.forEach((option) => {
+      options.forEach(option => {
         const localizedLabel = this.localizeValue!(
           `${translationKey}.options.${option.value}`
-        );
+        )
         if (localizedLabel) {
-          option.label = localizedLabel;
+          option.label = localizedLabel
         }
-      });
+      })
     }
 
     if (this.selector.button_toggle?.sort) {
@@ -53,13 +53,13 @@ export class HaButtonToggleSelector extends LitElement {
           b.label,
           this.hass.locale.language
         )
-      );
+      )
     }
 
     const toggleButtons: ToggleButton[] = options.map((item: SelectOption) => ({
       label: item.label,
       value: item.value,
-    }));
+    }))
 
     return html`
       ${this.label}
@@ -68,19 +68,19 @@ export class HaButtonToggleSelector extends LitElement {
         .active=${this.value}
         @value-changed=${this._valueChanged}
       ></ha-button-toggle-group>
-    `;
+    `
   }
 
   private _valueChanged(ev) {
-    ev.stopPropagation();
+    ev.stopPropagation()
 
-    const value = ev.detail?.value || ev.target.value;
-    if (this.disabled || value === undefined || value === (this.value ?? "")) {
-      return;
+    const value = ev.detail?.value || ev.target.value
+    if (this.disabled || value === undefined || value === (this.value ?? '')) {
+      return
     }
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: value,
-    });
+    })
   }
 
   static styles = css`
@@ -97,11 +97,11 @@ export class HaButtonToggleSelector extends LitElement {
         flex: 1;
       }
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-button_toggle": HaButtonToggleSelector;
+    'ha-selector-button_toggle': HaButtonToggleSelector
   }
 }

@@ -3,97 +3,95 @@ import {
   mdiDelete,
   mdiDragHorizontalVariant,
   mdiPencil,
-} from "@mdi/js";
-import { css, html, LitElement, nothing, type PropertyValues } from "lit";
-import { customElement, property, query } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { ensureArray } from "../../common/array/ensure-array";
-import { fireEvent } from "../../common/dom/fire_event";
-import type { ObjectSelector } from "../../data/selector";
-import { formatSelectorValue } from "../../data/selector/format_selector_value";
-import { showFormDialog } from "../../dialogs/form/show-form-dialog";
-import type { HomeAssistant } from "../../types";
-import type { HaFormSchema } from "../ha-form/types";
-import "../ha-input-helper-text";
-import "../ha-md-list";
-import "../ha-md-list-item";
-import "../ha-sortable";
-import "../ha-yaml-editor";
-import type { HaYamlEditor } from "../ha-yaml-editor";
-import { deepEqual } from "../../common/util/deep-equal";
+} from '@mdi/js'
+import { css, html, LitElement, nothing, type PropertyValues } from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { ensureArray } from '../../common/array/ensure-array'
+import { fireEvent } from '../../common/dom/fire_event'
+import type { ObjectSelector } from '../../data/selector'
+import { formatSelectorValue } from '../../data/selector/format_selector_value'
+import { showFormDialog } from '../../dialogs/form/show-form-dialog'
+import type { HomeAssistant } from '../../types'
+import type { HaFormSchema } from '../ha-form/types'
+import '../ha-input-helper-text'
+import '../ha-md-list'
+import '../ha-md-list-item'
+import '../ha-sortable'
+import '../ha-yaml-editor'
+import type { HaYamlEditor } from '../ha-yaml-editor'
+import { deepEqual } from '../../common/util/deep-equal'
 
-@customElement("ha-selector-object")
+@customElement('ha-selector-object')
 export class HaObjectSelector extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: ObjectSelector;
+  @property({ attribute: false }) public selector!: ObjectSelector
 
-  @property() public value?: any;
+  @property() public value?: any
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property() public placeholder?: string;
+  @property() public placeholder?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = true;
+  @property({ type: Boolean }) public required = true
 
-  @property({ attribute: false }) public localizeValue?: (
-    key: string
-  ) => string;
+  @property({ attribute: false }) public localizeValue?: (key: string) => string
 
-  @query("ha-yaml-editor", true) private _yamlEditor?: HaYamlEditor;
+  @query('ha-yaml-editor', true) private _yamlEditor?: HaYamlEditor
 
-  private _valueChangedFromChild = false;
+  private _valueChangedFromChild = false
 
   private _computeLabel = (schema: HaFormSchema): string => {
-    const translationKey = this.selector.object?.translation_key;
+    const translationKey = this.selector.object?.translation_key
 
     if (this.localizeValue && translationKey) {
       const label =
         this.localizeValue(`${translationKey}.fields.${schema.name}.name`) ||
         // Fallback for backward compatibility
-        this.localizeValue(`${translationKey}.fields.${schema.name}`);
+        this.localizeValue(`${translationKey}.fields.${schema.name}`)
       if (label) {
-        return label;
+        return label
       }
     }
-    return this.selector.object?.fields?.[schema.name]?.label || schema.name;
-  };
+    return this.selector.object?.fields?.[schema.name]?.label || schema.name
+  }
 
   private _computeHelper = (schema: HaFormSchema): string => {
-    const translationKey = this.selector.object?.translation_key;
+    const translationKey = this.selector.object?.translation_key
 
     if (this.localizeValue && translationKey) {
       const helper = this.localizeValue(
         `${translationKey}.fields.${schema.name}.description`
-      );
+      )
       if (helper) {
-        return helper;
+        return helper
       }
     }
-    return this.selector.object?.fields?.[schema.name]?.description || "";
-  };
+    return this.selector.object?.fields?.[schema.name]?.description || ''
+  }
 
   private _renderItem(item: any, index: number) {
     const labelField =
       this.selector.object!.label_field ||
-      Object.keys(this.selector.object!.fields!)[0];
+      Object.keys(this.selector.object!.fields!)[0]
 
-    const labelSelector = this.selector.object!.fields![labelField].selector;
+    const labelSelector = this.selector.object!.fields![labelField].selector
 
     const label = labelSelector
       ? formatSelectorValue(this.hass, item[labelField], labelSelector)
-      : "";
+      : ''
 
-    let description = "";
+    let description = ''
 
-    const descriptionField = this.selector.object!.description_field;
+    const descriptionField = this.selector.object!.description_field
     if (descriptionField) {
       const descriptionSelector =
-        this.selector.object!.fields![descriptionField].selector;
+        this.selector.object!.fields![descriptionField].selector
 
       description = descriptionSelector
         ? formatSelectorValue(
@@ -101,11 +99,11 @@ export class HaObjectSelector extends LitElement {
             item[descriptionField],
             descriptionSelector
           )
-        : "";
+        : ''
     }
 
-    const reorderable = this.selector.object!.multiple || false;
-    const multiple = this.selector.object!.multiple || false;
+    const reorderable = this.selector.object!.multiple || false
+    const multiple = this.selector.object!.multiple || false
     return html`
       <ha-md-list-item class="item">
         ${reorderable
@@ -117,9 +115,17 @@ export class HaObjectSelector extends LitElement {
               ></ha-svg-icon>
             `
           : nothing}
-        <div slot="headline" class="label">${label}</div>
+        <div
+          slot="headline"
+          class="label"
+        >
+          ${label}
+        </div>
         ${description
-          ? html`<div slot="supporting-text" class="description">
+          ? html`<div
+              slot="supporting-text"
+              class="description"
+            >
               ${description}
             </div>`
           : nothing}
@@ -127,25 +133,25 @@ export class HaObjectSelector extends LitElement {
           slot="end"
           .item=${item}
           .index=${index}
-          .label=${this.hass.localize("ui.common.edit")}
+          .label=${this.hass.localize('ui.common.edit')}
           .path=${mdiPencil}
           @click=${this._editItem}
         ></ha-icon-button>
         <ha-icon-button
           slot="end"
           .index=${index}
-          .label=${this.hass.localize("ui.common.delete")}
+          .label=${this.hass.localize('ui.common.delete')}
           .path=${multiple ? mdiDelete : mdiClose}
           @click=${this._deleteItem}
         ></ha-icon-button>
       </ha-md-list-item>
-    `;
+    `
   }
 
   protected render() {
     if (this.selector.object?.fields) {
       if (this.selector.object.multiple) {
-        const items = ensureArray(this.value ?? []);
+        const items = ensureArray(this.value ?? [])
         return html`
           ${this.label ? html`<label>${this.label}</label>` : nothing}
           <div class="items-container">
@@ -158,11 +164,14 @@ export class HaObjectSelector extends LitElement {
                 ${items.map((item, index) => this._renderItem(item, index))}
               </ha-md-list>
             </ha-sortable>
-            <ha-button appearance="filled" @click=${this._addItem}>
-              ${this.hass.localize("ui.common.add")}
+            <ha-button
+              appearance="filled"
+              @click=${this._addItem}
+            >
+              ${this.hass.localize('ui.common.add')}
             </ha-button>
           </div>
-        `;
+        `
       }
 
       return html`
@@ -173,12 +182,15 @@ export class HaObjectSelector extends LitElement {
                 ${this._renderItem(this.value, 0)}
               </ha-md-list>`
             : html`
-                <ha-button appearance="filled" @click=${this._addItem}>
-                  ${this.hass.localize("ui.common.add")}
+                <ha-button
+                  appearance="filled"
+                  @click=${this._addItem}
+                >
+                  ${this.hass.localize('ui.common.add')}
                 </ha-button>
               `}
         </div>
-      `;
+      `
     }
 
     return html`<ha-yaml-editor
@@ -194,124 +206,124 @@ export class HaObjectSelector extends LitElement {
         ? html`<ha-input-helper-text .disabled=${this.disabled}
             >${this.helper}</ha-input-helper-text
           >`
-        : ""} `;
+        : ''} `
   }
 
   private _schema = memoizeOne((selector: ObjectSelector) => {
     if (!selector.object || !selector.object.fields) {
-      return [];
+      return []
     }
     return Object.entries(selector.object.fields).map(([key, field]) => ({
       name: key,
       selector: field.selector,
       required: field.required ?? false,
-    }));
-  });
+    }))
+  })
 
   private _itemMoved(ev) {
-    ev.stopPropagation();
-    const newIndex = ev.detail.newIndex;
-    const oldIndex = ev.detail.oldIndex;
+    ev.stopPropagation()
+    const newIndex = ev.detail.newIndex
+    const oldIndex = ev.detail.oldIndex
     if (!this.selector.object!.multiple) {
-      return;
+      return
     }
-    const newValue = ensureArray(this.value ?? []).concat();
-    const item = newValue.splice(oldIndex, 1)[0];
-    newValue.splice(newIndex, 0, item);
-    fireEvent(this, "value-changed", { value: newValue });
+    const newValue = ensureArray(this.value ?? []).concat()
+    const item = newValue.splice(oldIndex, 1)[0]
+    newValue.splice(newIndex, 0, item)
+    fireEvent(this, 'value-changed', { value: newValue })
   }
 
   private async _addItem(ev) {
-    ev.stopPropagation();
+    ev.stopPropagation()
 
     const newItem = await showFormDialog(this, {
-      title: this.hass.localize("ui.common.add"),
+      title: this.hass.localize('ui.common.add'),
       schema: this._schema(this.selector),
       data: {},
       computeLabel: this._computeLabel,
       computeHelper: this._computeHelper,
-      submitText: this.hass.localize("ui.common.add"),
-    });
+      submitText: this.hass.localize('ui.common.add'),
+    })
 
     if (newItem === null) {
-      return;
+      return
     }
 
     if (!this.selector.object!.multiple) {
-      fireEvent(this, "value-changed", { value: newItem });
-      return;
+      fireEvent(this, 'value-changed', { value: newItem })
+      return
     }
 
-    const newValue = ensureArray(this.value ?? []).concat();
-    newValue.push(newItem);
-    fireEvent(this, "value-changed", { value: newValue });
+    const newValue = ensureArray(this.value ?? []).concat()
+    newValue.push(newItem)
+    fireEvent(this, 'value-changed', { value: newValue })
   }
 
   private async _editItem(ev) {
-    ev.stopPropagation();
-    const item = ev.currentTarget.item;
-    const index = ev.currentTarget.index;
+    ev.stopPropagation()
+    const item = ev.currentTarget.item
+    const index = ev.currentTarget.index
 
     const updatedItem = await showFormDialog(this, {
-      title: this.hass.localize("ui.common.edit"),
+      title: this.hass.localize('ui.common.edit'),
       schema: this._schema(this.selector),
       data: item,
       computeLabel: this._computeLabel,
-      submitText: this.hass.localize("ui.common.save"),
-    });
+      submitText: this.hass.localize('ui.common.save'),
+    })
 
     if (updatedItem === null) {
-      return;
+      return
     }
 
     if (!this.selector.object!.multiple) {
-      fireEvent(this, "value-changed", { value: updatedItem });
-      return;
+      fireEvent(this, 'value-changed', { value: updatedItem })
+      return
     }
 
-    const newValue = ensureArray(this.value ?? []).concat();
-    newValue[index] = updatedItem;
-    fireEvent(this, "value-changed", { value: newValue });
+    const newValue = ensureArray(this.value ?? []).concat()
+    newValue[index] = updatedItem
+    fireEvent(this, 'value-changed', { value: newValue })
   }
 
   private _deleteItem(ev) {
-    ev.stopPropagation();
-    const index = ev.currentTarget.index;
+    ev.stopPropagation()
+    const index = ev.currentTarget.index
 
     if (!this.selector.object!.multiple) {
-      fireEvent(this, "value-changed", { value: undefined });
-      return;
+      fireEvent(this, 'value-changed', { value: undefined })
+      return
     }
 
-    const newValue = ensureArray(this.value ?? []).concat();
-    newValue.splice(index, 1);
-    fireEvent(this, "value-changed", { value: newValue });
+    const newValue = ensureArray(this.value ?? []).concat()
+    newValue.splice(index, 1)
+    fireEvent(this, 'value-changed', { value: newValue })
   }
 
   protected updated(changedProps: PropertyValues) {
-    super.updated(changedProps);
+    super.updated(changedProps)
     if (
-      changedProps.has("value") &&
+      changedProps.has('value') &&
       !this._valueChangedFromChild &&
       this._yamlEditor &&
-      !deepEqual(this.value, changedProps.get("value"))
+      !deepEqual(this.value, changedProps.get('value'))
     ) {
-      this._yamlEditor.setValue(this.value);
+      this._yamlEditor.setValue(this.value)
     }
-    this._valueChangedFromChild = false;
+    this._valueChangedFromChild = false
   }
 
   private _handleChange(ev) {
-    ev.stopPropagation();
-    this._valueChangedFromChild = true;
-    const value = ev.target.value;
+    ev.stopPropagation()
+    this._valueChangedFromChild = true
+    const value = ev.target.value
     if (!ev.target.isValid) {
-      return;
+      return
     }
     if (this.value === value) {
-      return;
+      return
     }
-    fireEvent(this, "value-changed", { value });
+    fireEvent(this, 'value-changed', { value })
   }
 
   static get styles() {
@@ -347,12 +359,12 @@ export class HaObjectSelector extends LitElement {
           white-space: nowrap;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-object": HaObjectSelector;
+    'ha-selector-object': HaObjectSelector
   }
 }

@@ -1,20 +1,20 @@
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { debounce } from "../../../common/util/debounce";
-import "../../../components/ha-alert";
-import "../../../components/ha-button";
-import "../../../components/ha-card";
-import "../../../components/ha-code-editor";
-import "../../../components/ha-spinner";
-import type { RenderTemplateResult } from "../../../data/ws-templates";
-import { subscribeRenderTemplate } from "../../../data/ws-templates";
-import { showConfirmationDialog } from "../../../dialogs/generic/show-dialog-box";
-import { haStyle } from "../../../resources/styles";
-import type { HomeAssistant } from "../../../types";
-import { documentationUrl } from "../../../util/documentation-url";
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { debounce } from '../../../common/util/debounce'
+import '../../../components/ha-alert'
+import '../../../components/ha-button'
+import '../../../components/ha-card'
+import '../../../components/ha-code-editor'
+import '../../../components/ha-spinner'
+import type { RenderTemplateResult } from '../../../data/ws-templates'
+import { subscribeRenderTemplate } from '../../../data/ws-templates'
+import { showConfirmationDialog } from '../../../dialogs/generic/show-dialog-box'
+import { haStyle } from '../../../resources/styles'
+import type { HomeAssistant } from '../../../types'
+import { documentationUrl } from '../../../util/documentation-url'
 
 const DEMO_TEMPLATE = `{## Imitate available variables: ##}
 {% set my_test_json = {
@@ -35,64 +35,64 @@ For loop example getting entity values in the weather domain:
 {% for state in states.weather -%}
   {%- if loop.first %}The {% elif loop.last %} and the {% else %}, the {% endif -%}
   {{ state.name | lower }} is {{state.state_with_unit}}
-{%- endfor %}.`;
+{%- endfor %}.`
 
-@customElement("developer-tools-template")
+@customElement('developer-tools-template')
 class HaPanelDevTemplate extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
-  @state() private _errorLevel?: "ERROR" | "WARNING";
+  @state() private _errorLevel?: 'ERROR' | 'WARNING'
 
-  @state() private _rendering = false;
+  @state() private _rendering = false
 
-  @state() private _templateResult?: RenderTemplateResult;
+  @state() private _templateResult?: RenderTemplateResult
 
-  @state() private _unsubRenderTemplate?: Promise<UnsubscribeFunc>;
+  @state() private _unsubRenderTemplate?: Promise<UnsubscribeFunc>
 
-  private _template = "";
+  private _template = ''
 
-  private _inited = false;
+  private _inited = false
 
   public connectedCallback() {
-    super.connectedCallback();
+    super.connectedCallback()
     if (this._template && !this._unsubRenderTemplate) {
-      this._subscribeTemplate();
+      this._subscribeTemplate()
     }
   }
 
   public disconnectedCallback() {
-    super.disconnectedCallback();
-    this._unsubscribeTemplate();
+    super.disconnectedCallback()
+    this._unsubscribeTemplate()
   }
 
   protected firstUpdated() {
-    if (localStorage && localStorage["panel-dev-template-template"]) {
-      this._template = localStorage["panel-dev-template-template"];
+    if (localStorage && localStorage['panel-dev-template-template']) {
+      this._template = localStorage['panel-dev-template-template']
     } else {
-      this._template = DEMO_TEMPLATE;
+      this._template = DEMO_TEMPLATE
     }
-    this._subscribeTemplate();
-    this._inited = true;
+    this._subscribeTemplate()
+    this._inited = true
   }
 
   protected render() {
-    const type = typeof this._templateResult?.result;
+    const type = typeof this._templateResult?.result
     const resultType =
-      type === "object"
+      type === 'object'
         ? Array.isArray(this._templateResult?.result)
-          ? "list"
-          : "dict"
-        : type;
+          ? 'list'
+          : 'dict'
+        : type
     return html`
       <div class="content">
         <div class="description">
           <p>
             ${this.hass.localize(
-              "ui.panel.developer-tools.tabs.templates.description"
+              'ui.panel.developer-tools.tabs.templates.description'
             )}
           </p>
           <ul>
@@ -102,7 +102,7 @@ class HaPanelDevTemplate extends LitElement {
                 target="_blank"
                 rel="noreferrer"
                 >${this.hass.localize(
-                  "ui.panel.developer-tools.tabs.templates.jinja_documentation"
+                  'ui.panel.developer-tools.tabs.templates.jinja_documentation'
                 )}
               </a>
             </li>
@@ -110,13 +110,13 @@ class HaPanelDevTemplate extends LitElement {
               <a
                 href=${documentationUrl(
                   this.hass,
-                  "/docs/configuration/templating/"
+                  '/docs/configuration/templating/'
                 )}
                 target="_blank"
                 rel="noreferrer"
               >
                 ${this.hass.localize(
-                  "ui.panel.developer-tools.tabs.templates.template_extensions"
+                  'ui.panel.developer-tools.tabs.templates.template_extensions'
                 )}</a
               >
             </li>
@@ -132,7 +132,7 @@ class HaPanelDevTemplate extends LitElement {
         <ha-card
           class="edit-pane"
           header=${this.hass.localize(
-            "ui.panel.developer-tools.tabs.templates.editor"
+            'ui.panel.developer-tools.tabs.templates.editor'
           )}
         >
           <div class="card-content">
@@ -149,13 +149,19 @@ class HaPanelDevTemplate extends LitElement {
             ></ha-code-editor>
           </div>
           <div class="card-actions">
-            <ha-button appearance="plain" @click=${this._restoreDemo}>
+            <ha-button
+              appearance="plain"
+              @click=${this._restoreDemo}
+            >
               ${this.hass.localize(
-                "ui.panel.developer-tools.tabs.templates.reset"
+                'ui.panel.developer-tools.tabs.templates.reset'
               )}
             </ha-button>
-            <ha-button appearance="plain" @click=${this._clear}>
-              ${this.hass.localize("ui.common.clear")}
+            <ha-button
+              appearance="plain"
+              @click=${this._clear}
+            >
+              ${this.hass.localize('ui.common.clear')}
             </ha-button>
           </div>
         </ha-card>
@@ -163,7 +169,7 @@ class HaPanelDevTemplate extends LitElement {
         <ha-card
           class="render-pane"
           header=${this.hass.localize(
-            "ui.panel.developer-tools.tabs.templates.result"
+            'ui.panel.developer-tools.tabs.templates.result'
           )}
         >
           <div class="card-content">
@@ -172,10 +178,10 @@ class HaPanelDevTemplate extends LitElement {
                   class="render-spinner"
                   size="small"
                 ></ha-spinner>`
-              : ""}
+              : ''}
             ${this._error
               ? html`<ha-alert
-                  alert-type=${this._errorLevel?.toLowerCase() || "error"}
+                  alert-type=${this._errorLevel?.toLowerCase() || 'error'}
                   >${this._error}</ha-alert
                 >`
               : nothing}
@@ -185,13 +191,13 @@ class HaPanelDevTemplate extends LitElement {
                       [resultType]: resultType,
                     })}"
                   >
-${type === "object"
+${type === 'object'
                       ? JSON.stringify(this._templateResult.result, null, 2)
                       : this._templateResult.result}</pre
                   >
                   <p>
                     ${this.hass.localize(
-                      "ui.panel.developer-tools.tabs.templates.result_type"
+                      'ui.panel.developer-tools.tabs.templates.result_type'
                     )}:
                     ${resultType}
                   </p>
@@ -199,18 +205,18 @@ ${type === "object"
                     ? html`
                         <p>
                           ${this.hass.localize(
-                            "ui.panel.developer-tools.tabs.templates.time"
+                            'ui.panel.developer-tools.tabs.templates.time'
                           )}
                         </p>
                       `
-                    : ""}
+                    : ''}
                   ${!this._templateResult.listeners
                     ? nothing
                     : this._templateResult.listeners.all
                       ? html`
                           <p class="all_listeners">
                             ${this.hass.localize(
-                              "ui.panel.developer-tools.tabs.templates.all_listeners"
+                              'ui.panel.developer-tools.tabs.templates.all_listeners'
                             )}
                           </p>
                         `
@@ -219,18 +225,18 @@ ${type === "object"
                         ? html`
                             <p>
                               ${this.hass.localize(
-                                "ui.panel.developer-tools.tabs.templates.listeners"
+                                'ui.panel.developer-tools.tabs.templates.listeners'
                               )}
                             </p>
                             <ul>
                               ${this._templateResult.listeners.domains
                                 .sort()
                                 .map(
-                                  (domain) => html`
+                                  domain => html`
                                     <li>
                                       <b
                                         >${this.hass.localize(
-                                          "ui.panel.developer-tools.tabs.templates.domain"
+                                          'ui.panel.developer-tools.tabs.templates.domain'
                                         )}</b
                                       >: ${domain}
                                     </li>
@@ -239,11 +245,11 @@ ${type === "object"
                               ${this._templateResult.listeners.entities
                                 .sort()
                                 .map(
-                                  (entity_id) => html`
+                                  entity_id => html`
                                     <li>
                                       <b
                                         >${this.hass.localize(
-                                          "ui.panel.developer-tools.tabs.templates.entity"
+                                          'ui.panel.developer-tools.tabs.templates.entity'
                                         )}</b
                                       >: ${entity_id}
                                     </li>
@@ -254,7 +260,7 @@ ${type === "object"
                         : !this._templateResult.listeners.time
                           ? html`<span class="all_listeners">
                               ${this.hass.localize(
-                                "ui.panel.developer-tools.tabs.templates.no_listeners"
+                                'ui.panel.developer-tools.tabs.templates.no_listeners'
                               )}
                             </span>`
                           : nothing}`
@@ -262,7 +268,7 @@ ${type === "object"
           </div>
         </ha-card>
       </div>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -366,45 +372,45 @@ ${type === "object"
           }
         }
       `,
-    ];
+    ]
   }
 
   private _debounceRender = debounce(
     () => {
-      this._subscribeTemplate();
-      this._storeTemplate();
+      this._subscribeTemplate()
+      this._storeTemplate()
     },
     500,
     false
-  );
+  )
 
   private _templateChanged(ev) {
-    this._template = ev.detail.value;
+    this._template = ev.detail.value
     if (this._error) {
-      this._error = undefined;
-      this._errorLevel = undefined;
+      this._error = undefined
+      this._errorLevel = undefined
     }
-    this._debounceRender();
+    this._debounceRender()
   }
 
   private async _subscribeTemplate() {
-    this._rendering = true;
-    await this._unsubscribeTemplate();
-    this._error = undefined;
-    this._errorLevel = undefined;
-    this._templateResult = undefined;
+    this._rendering = true
+    await this._unsubscribeTemplate()
+    this._error = undefined
+    this._errorLevel = undefined
+    this._templateResult = undefined
     try {
       this._unsubRenderTemplate = subscribeRenderTemplate(
         this.hass.connection,
-        (result) => {
-          if ("error" in result) {
+        result => {
+          if ('error' in result) {
             // We show the latest error, or a warning if there are no errors
-            if (result.level === "ERROR" || this._errorLevel !== "ERROR") {
-              this._error = result.error;
-              this._errorLevel = result.level;
+            if (result.level === 'ERROR' || this._errorLevel !== 'ERROR') {
+              this._error = result.error
+              this._errorLevel = result.level
             }
           } else {
-            this._templateResult = result;
+            this._templateResult = result
           }
         },
         {
@@ -412,87 +418,87 @@ ${type === "object"
           timeout: 3,
           report_errors: true,
         }
-      );
-      await this._unsubRenderTemplate;
+      )
+      await this._unsubRenderTemplate
     } catch (err: any) {
-      this._error = "Unknown error";
-      this._errorLevel = undefined;
+      this._error = 'Unknown error'
+      this._errorLevel = undefined
       if (err.message) {
-        this._error = err.message;
-        this._errorLevel = undefined;
-        this._templateResult = undefined;
+        this._error = err.message
+        this._errorLevel = undefined
+        this._templateResult = undefined
       }
-      this._unsubRenderTemplate = undefined;
+      this._unsubRenderTemplate = undefined
     } finally {
-      this._rendering = false;
+      this._rendering = false
     }
   }
 
   private async _unsubscribeTemplate(): Promise<void> {
     if (!this._unsubRenderTemplate) {
-      return;
+      return
     }
 
     try {
-      const unsub = await this._unsubRenderTemplate;
-      unsub();
-      this._unsubRenderTemplate = undefined;
+      const unsub = await this._unsubRenderTemplate
+      unsub()
+      this._unsubRenderTemplate = undefined
     } catch (err: any) {
-      if (err.code === "not_found") {
+      if (err.code === 'not_found') {
         // If we get here, the connection was probably already closed. Ignore.
       } else {
-        throw err;
+        throw err
       }
     }
   }
 
   private _storeTemplate() {
     if (!this._inited) {
-      return;
+      return
     }
-    localStorage["panel-dev-template-template"] = this._template;
+    localStorage['panel-dev-template-template'] = this._template
   }
 
   private async _restoreDemo() {
     if (
       !(await showConfirmationDialog(this, {
         text: this.hass.localize(
-          "ui.panel.developer-tools.tabs.templates.confirm_reset"
+          'ui.panel.developer-tools.tabs.templates.confirm_reset'
         ),
         warning: true,
       }))
     ) {
-      return;
+      return
     }
-    this._template = DEMO_TEMPLATE;
-    this._subscribeTemplate();
-    delete localStorage["panel-dev-template-template"];
+    this._template = DEMO_TEMPLATE
+    this._subscribeTemplate()
+    delete localStorage['panel-dev-template-template']
   }
 
   private async _clear() {
     if (
       !(await showConfirmationDialog(this, {
         text: this.hass.localize(
-          "ui.panel.developer-tools.tabs.templates.confirm_clear"
+          'ui.panel.developer-tools.tabs.templates.confirm_clear'
         ),
         warning: true,
       }))
     ) {
-      return;
+      return
     }
-    this._unsubscribeTemplate();
-    this._template = "";
+    this._unsubscribeTemplate()
+    this._template = ''
     // Reset to empty result. Setting to 'undefined' results in a different visual
     // behaviour compared to manually emptying the template input box.
     this._templateResult = {
-      result: "",
+      result: '',
       listeners: { all: false, entities: [], domains: [], time: false },
-    };
+    }
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "developer-tools-template": HaPanelDevTemplate;
+    'developer-tools-template': HaPanelDevTemplate
   }
 }

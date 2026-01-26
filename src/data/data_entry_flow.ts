@@ -1,107 +1,107 @@
-import type { Connection } from "home-assistant-js-websocket";
-import type { HaFormSchema } from "../components/ha-form/types";
-import type { ConfigEntry } from "./config_entries";
+import type { Connection } from 'home-assistant-js-websocket'
+import type { HaFormSchema } from '../components/ha-form/types'
+import type { ConfigEntry } from './config_entries'
 
 export type FlowType =
-  | "config_flow"
-  | "config_subentries_flow"
-  | "options_flow"
-  | "repair_flow";
+  | 'config_flow'
+  | 'config_subentries_flow'
+  | 'options_flow'
+  | 'repair_flow'
 
 export interface DataEntryFlowProgressedEvent {
-  type: "data_entry_flow_progressed";
+  type: 'data_entry_flow_progressed'
   data: {
-    handler: string;
-    flow_id: string;
-    refresh: boolean;
-  };
+    handler: string
+    flow_id: string
+    refresh: boolean
+  }
 }
 
 export interface DataEntryFlowProgressEvent {
-  type: "data_entry_flow_progress_update";
+  type: 'data_entry_flow_progress_update'
   data: {
-    handler: string;
-    flow_id: string;
-    progress: number;
-  };
+    handler: string
+    flow_id: string
+    progress: number
+  }
 }
 
 export interface DataEntryFlowProgress {
-  flow_id: string;
-  handler: string;
-  step_id: string;
+  flow_id: string
+  handler: string
+  step_id: string
   context: {
-    title_placeholders: Record<string, string>;
-    [key: string]: any;
-  };
+    title_placeholders: Record<string, string>
+    [key: string]: any
+  }
 }
 
 export interface DataEntryFlowStepForm {
-  type: "form";
-  flow_id: string;
-  handler: string;
-  step_id: string;
-  data_schema: HaFormSchema[];
-  errors: Record<string, string>;
-  description_placeholders?: Record<string, string>;
-  last_step: boolean | null;
-  preview?: string;
-  translation_domain?: string;
+  type: 'form'
+  flow_id: string
+  handler: string
+  step_id: string
+  data_schema: HaFormSchema[]
+  errors: Record<string, string>
+  description_placeholders?: Record<string, string>
+  last_step: boolean | null
+  preview?: string
+  translation_domain?: string
 }
 
 export interface DataEntryFlowStepExternal {
-  type: "external";
-  flow_id: string;
-  handler: string;
-  step_id: string;
-  url: string;
-  description_placeholders: Record<string, string>;
-  translation_domain?: string;
+  type: 'external'
+  flow_id: string
+  handler: string
+  step_id: string
+  url: string
+  description_placeholders: Record<string, string>
+  translation_domain?: string
 }
 
 export interface DataEntryFlowStepCreateEntry {
-  type: "create_entry";
-  version: number;
-  flow_id: string;
-  next_flow?: [FlowType, string]; // [flow_type, flow_id]
-  handler: string;
-  title: string;
-  result?: ConfigEntry;
-  description: string;
-  description_placeholders?: Record<string, string>;
-  translation_domain?: string;
+  type: 'create_entry'
+  version: number
+  flow_id: string
+  next_flow?: [FlowType, string] // [flow_type, flow_id]
+  handler: string
+  title: string
+  result?: ConfigEntry
+  description: string
+  description_placeholders?: Record<string, string>
+  translation_domain?: string
 }
 
 export interface DataEntryFlowStepAbort {
-  type: "abort";
-  flow_id: string;
-  handler: string;
-  reason: string;
-  description_placeholders?: Record<string, string>;
-  translation_domain?: string;
-  next_flow?: [FlowType, string]; // [flow_type, flow_id]
+  type: 'abort'
+  flow_id: string
+  handler: string
+  reason: string
+  description_placeholders?: Record<string, string>
+  translation_domain?: string
+  next_flow?: [FlowType, string] // [flow_type, flow_id]
 }
 
 export interface DataEntryFlowStepProgress {
-  type: "progress";
-  flow_id: string;
-  handler: string;
-  step_id: string;
-  progress_action: string;
-  description_placeholders?: Record<string, string>;
-  translation_domain?: string;
+  type: 'progress'
+  flow_id: string
+  handler: string
+  step_id: string
+  progress_action: string
+  description_placeholders?: Record<string, string>
+  translation_domain?: string
 }
 
 export interface DataEntryFlowStepMenu {
-  type: "menu";
-  flow_id: string;
-  handler: string;
-  step_id: string;
+  type: 'menu'
+  flow_id: string
+  handler: string
+  step_id: string
   /** If array, use value to lookup translations in strings.json */
-  menu_options: string[] | Record<string, string>;
-  sort?: boolean;
-  description_placeholders?: Record<string, string>;
-  translation_domain?: string;
+  menu_options: string[] | Record<string, string>
+  sort?: boolean
+  description_placeholders?: Record<string, string>
+  translation_domain?: string
 }
 
 export type DataEntryFlowStep =
@@ -110,7 +110,7 @@ export type DataEntryFlowStep =
   | DataEntryFlowStepCreateEntry
   | DataEntryFlowStepAbort
   | DataEntryFlowStepProgress
-  | DataEntryFlowStepMenu;
+  | DataEntryFlowStepMenu
 
 export const subscribeDataEntryFlowProgressed = (
   conn: Connection,
@@ -118,8 +118,8 @@ export const subscribeDataEntryFlowProgressed = (
 ) =>
   conn.subscribeEvents<DataEntryFlowProgressedEvent>(
     callback,
-    "data_entry_flow_progressed"
-  );
+    'data_entry_flow_progressed'
+  )
 
 export const subscribeDataEntryFlowProgress = (
   conn: Connection,
@@ -127,5 +127,5 @@ export const subscribeDataEntryFlowProgress = (
 ) =>
   conn.subscribeEvents<DataEntryFlowProgressEvent>(
     callback,
-    "data_entry_flow_progress_update"
-  );
+    'data_entry_flow_progress_update'
+  )

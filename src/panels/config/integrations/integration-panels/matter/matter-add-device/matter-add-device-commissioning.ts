@@ -1,12 +1,12 @@
-import { LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { HomeAssistant } from "../../../../../../types";
-import { sharedStyles } from "./matter-add-device-shared-styles";
-import "../../../../../../components/ha-spinner";
+import { LitElement, css, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { HomeAssistant } from '../../../../../../types'
+import { sharedStyles } from './matter-add-device-shared-styles'
+import '../../../../../../components/ha-spinner'
 
-@customElement("matter-add-device-commissioning")
+@customElement('matter-add-device-commissioning')
 class MatterAddDeviceCommissioning extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   render() {
     return html`
@@ -14,11 +14,11 @@ class MatterAddDeviceCommissioning extends LitElement {
         <ha-spinner size="medium"></ha-spinner>
         <p>
           ${this.hass.localize(
-            "ui.dialogs.matter-add-device.commissioning.note"
+            'ui.dialogs.matter-add-device.commissioning.note'
           )}
         </p>
       </div>
-    `;
+    `
   }
 
   static styles = [
@@ -34,11 +34,11 @@ class MatterAddDeviceCommissioning extends LitElement {
         margin-bottom: 24px;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "matter-add-device-commissioning": MatterAddDeviceCommissioning;
+    'matter-add-device-commissioning': MatterAddDeviceCommissioning
   }
 }

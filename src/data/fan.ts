@@ -4,13 +4,13 @@ import {
   mdiFanSpeed1,
   mdiFanSpeed2,
   mdiFanSpeed3,
-} from "@mdi/js";
+} from '@mdi/js'
 import type {
   HassEntityAttributeBase,
   HassEntityBase,
-} from "home-assistant-js-websocket";
-import { stateActive } from "../common/entity/state_active";
-import type { HomeAssistant } from "../types";
+} from 'home-assistant-js-websocket'
+import { stateActive } from '../common/entity/state_active'
+import type { HomeAssistant } from '../types'
 
 export const enum FanEntityFeature {
   SET_SPEED = 1,
@@ -22,81 +22,81 @@ export const enum FanEntityFeature {
 }
 
 interface FanEntityAttributes extends HassEntityAttributeBase {
-  direction?: string;
-  oscillating?: boolean;
-  percentage?: number;
-  percentage_step?: number;
-  preset_mode?: string;
-  preset_modes?: string[];
+  direction?: string
+  oscillating?: boolean
+  percentage?: number
+  percentage_step?: number
+  preset_mode?: string
+  preset_modes?: string[]
 }
 
 export interface FanEntity extends HassEntityBase {
-  attributes: FanEntityAttributes;
+  attributes: FanEntityAttributes
 }
 
-export type FanDirection = "forward" | "reverse";
+export type FanDirection = 'forward' | 'reverse'
 
-export type FanSpeed = "off" | "low" | "medium" | "high" | "on";
+export type FanSpeed = 'off' | 'low' | 'medium' | 'high' | 'on'
 
 export const FAN_SPEEDS: Partial<Record<number, FanSpeed[]>> = {
-  2: ["off", "on"],
-  3: ["off", "low", "high"],
-  4: ["off", "low", "medium", "high"],
-};
+  2: ['off', 'on'],
+  3: ['off', 'low', 'high'],
+  4: ['off', 'low', 'medium', 'high'],
+}
 
 export function fanPercentageToSpeed(
   stateObj: FanEntity,
   value: number
 ): FanSpeed {
-  const step = stateObj.attributes.percentage_step ?? 1;
-  const speedValue = Math.round(value / step);
-  const speedCount = Math.round(100 / step) + 1;
+  const step = stateObj.attributes.percentage_step ?? 1
+  const speedValue = Math.round(value / step)
+  const speedCount = Math.round(100 / step) + 1
 
-  const speeds = FAN_SPEEDS[speedCount];
-  return speeds?.[speedValue] ?? "off";
+  const speeds = FAN_SPEEDS[speedCount]
+  return speeds?.[speedValue] ?? 'off'
 }
 
 export function fanSpeedToPercentage(
   stateObj: FanEntity,
   speed: FanSpeed
 ): number {
-  const step = stateObj.attributes.percentage_step ?? 1;
-  const speedCount = Math.round(100 / step) + 1;
+  const step = stateObj.attributes.percentage_step ?? 1
+  const speedCount = Math.round(100 / step) + 1
 
-  const speeds = FAN_SPEEDS[speedCount];
+  const speeds = FAN_SPEEDS[speedCount]
 
   if (!speeds) {
-    return 0;
+    return 0
   }
 
-  const speedValue = speeds.indexOf(speed);
+  const speedValue = speeds.indexOf(speed)
   if (speedValue === -1) {
-    return 0;
+    return 0
   }
-  return Math.floor(speedValue * step);
+  return Math.floor(speedValue * step)
 }
 
 export function computeFanSpeedCount(stateObj: FanEntity): number {
-  const step = stateObj.attributes.percentage_step ?? 1;
-  const speedCount = Math.round(100 / step) + 1;
-  return speedCount;
+  const step = stateObj.attributes.percentage_step ?? 1
+  const speedCount = Math.round(100 / step) + 1
+  return speedCount
 }
 
 export function computeFanSpeedIcon(
   stateObj: FanEntity,
   speed: FanSpeed
 ): string {
-  const speedCount = computeFanSpeedCount(stateObj);
-  const speeds = FAN_SPEEDS[speedCount];
-  const index = speeds?.indexOf(speed) ?? 1;
+  const speedCount = computeFanSpeedCount(stateObj)
+  const speeds = FAN_SPEEDS[speedCount]
+  const index = speeds?.indexOf(speed) ?? 1
 
-  return speed === "on"
+  return speed === 'on'
     ? mdiFan
-    : speed === "off"
+    : speed === 'off'
       ? mdiFanOff
-      : [mdiFanSpeed1, mdiFanSpeed2, mdiFanSpeed3][index - 1];
+      : [mdiFanSpeed1, mdiFanSpeed2, mdiFanSpeed3][index - 1]
 }
-export const FAN_SPEED_COUNT_MAX_FOR_BUTTONS = 4;
+export const FAN_SPEED_COUNT_MAX_FOR_BUTTONS = 4
 
 export function computeFanSpeedStateDisplay(
   stateObj: FanEntity,
@@ -105,14 +105,14 @@ export function computeFanSpeedStateDisplay(
 ) {
   const percentage = stateActive(stateObj)
     ? stateObj.attributes.percentage
-    : undefined;
-  const currentSpeed = speed ?? percentage;
+    : undefined
+  const currentSpeed = speed ?? percentage
 
   return currentSpeed
     ? hass.formatEntityAttributeValue(
         stateObj,
-        "percentage",
+        'percentage',
         Math.round(currentSpeed)
       )
-    : "";
+    : ''
 }

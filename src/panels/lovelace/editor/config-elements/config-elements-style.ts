@@ -1,4 +1,4 @@
-import { css } from "lit";
+import { css } from 'lit'
 
 export const configElementStyle = css`
   .card-config {
@@ -43,7 +43,7 @@ export const configElementStyle = css`
   ha-expansion-panel .content {
     padding: 12px;
   }
-  ha-expansion-panel > *[slot="header"] {
+  ha-expansion-panel > *[slot='header'] {
     margin: 0;
     font-size: inherit;
     font-weight: inherit;
@@ -51,4 +51,4 @@ export const configElementStyle = css`
   ha-expansion-panel ha-svg-icon {
     color: var(--secondary-text-color);
   }
-`;
+`

@@ -1,23 +1,23 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { styleMap } from "lit/directives/style-map";
-import type { BasePerson } from "../../data/person";
-import { computeUserInitials } from "../../data/user";
-import type { HomeAssistant } from "../../types";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { styleMap } from 'lit/directives/style-map'
+import type { BasePerson } from '../../data/person'
+import { computeUserInitials } from '../../data/user'
+import type { HomeAssistant } from '../../types'
 
-@customElement("ha-person-badge")
+@customElement('ha-person-badge')
 class PersonBadge extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public person?: BasePerson;
+  @property({ attribute: false }) public person?: BasePerson
 
   protected render() {
     if (!this.person) {
-      return nothing;
+      return nothing
     }
 
-    const picture = this.person.picture;
+    const picture = this.person.picture
 
     if (picture) {
       return html`<div
@@ -25,14 +25,14 @@ class PersonBadge extends LitElement {
           backgroundImage: `url(${this.hass.hassUrl(picture)})`,
         })}
         class="picture"
-      ></div>`;
+      ></div>`
     }
-    const initials = computeUserInitials(this.person.name);
+    const initials = computeUserInitials(this.person.name)
     return html`<div
       class="initials ${classMap({ long: initials!.length > 2 })}"
     >
       ${initials}
-    </div>`;
+    </div>`
   }
 
   static styles = css`
@@ -64,11 +64,11 @@ class PersonBadge extends LitElement {
     .initials.long {
       font-size: var(--ha-person-badge-font-size-long, var(--ha-font-size-s));
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-person-badge": PersonBadge;
+    'ha-person-badge': PersonBadge
   }
 }

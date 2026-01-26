@@ -1,13 +1,13 @@
-import type { PropertyValues, TemplateResult } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, query } from "lit/decorators";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import "../../components/demo-cards";
-import { createMediaPlayerEntities } from "../../data/media_players";
+import type { PropertyValues, TemplateResult } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, query } from 'lit/decorators'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import '../../components/demo-cards'
+import { createMediaPlayerEntities } from '../../data/media_players'
 
 const CONFIGS = [
   {
-    heading: "Media Players",
+    heading: 'Media Players',
     config: `
 - type: entities
   entities:
@@ -53,27 +53,30 @@ const CONFIGS = [
       name: Receiver Off (selectable sources)
     `,
   },
-];
+]
 
-@customElement("demo-lovelace-media-player-row")
+@customElement('demo-lovelace-media-player-row')
 export class DemoLovelaceMediaPlayerRow extends LitElement {
-  @query("#demos") private _demoRoot!: HTMLElement;
+  @query('#demos') private _demoRoot!: HTMLElement
 
   protected render(): TemplateResult {
-    return html`<demo-cards id="demos" .configs=${CONFIGS}></demo-cards>`;
+    return html`<demo-cards
+      id="demos"
+      .configs=${CONFIGS}
+    ></demo-cards>`
   }
 
   protected firstUpdated(changedProperties: PropertyValues) {
-    super.firstUpdated(changedProperties);
-    const hass = provideHass(this._demoRoot);
-    hass.updateTranslations(null, "en");
-    hass.updateTranslations("lovelace", "en");
-    hass.addEntities(createMediaPlayerEntities());
+    super.firstUpdated(changedProperties)
+    const hass = provideHass(this._demoRoot)
+    hass.updateTranslations(null, 'en')
+    hass.updateTranslations('lovelace', 'en')
+    hass.addEntities(createMediaPlayerEntities())
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-lovelace-media-player-row": DemoLovelaceMediaPlayerRow;
+    'demo-lovelace-media-player-row': DemoLovelaceMediaPlayerRow
   }
 }

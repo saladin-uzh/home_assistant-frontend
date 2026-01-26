@@ -1,22 +1,22 @@
-import { css, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { HomeAssistant } from "../../types";
+import { css, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { HomeAssistant } from '../../types'
 
-@customElement("hat-logbook-note")
+@customElement('hat-logbook-note')
 class HatLogbookNote extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property() public domain: "automation" | "script" = "automation";
+  @property() public domain: 'automation' | 'script' = 'automation'
 
   render() {
-    if (this.domain === "script") {
+    if (this.domain === 'script') {
       return this.hass.localize(
-        "ui.panel.config.automation.trace.messages.not_all_entries_are_related_script_note"
-      );
+        'ui.panel.config.automation.trace.messages.not_all_entries_are_related_script_note'
+      )
     }
     return this.hass.localize(
-      "ui.panel.config.automation.trace.messages.not_all_entries_are_related_automation_note"
-    );
+      'ui.panel.config.automation.trace.messages.not_all_entries_are_related_automation_note'
+    )
   }
 
   static styles = css`
@@ -27,11 +27,11 @@ class HatLogbookNote extends LitElement {
       padding: 16px;
       margin-top: 8px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hat-logbook-note": HatLogbookNote;
+    'hat-logbook-note': HatLogbookNote
   }
 }

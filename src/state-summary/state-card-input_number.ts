@@ -1,48 +1,48 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { debounce } from "../common/util/debounce";
-import "../components/entity/state-info";
-import "../components/ha-slider";
-import "../components/ha-textfield";
-import { isUnavailableState } from "../data/entity";
-import { setValue } from "../data/input_text";
-import type { HomeAssistant } from "../types";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { debounce } from '../common/util/debounce'
+import '../components/entity/state-info'
+import '../components/ha-slider'
+import '../components/ha-textfield'
+import { isUnavailableState } from '../data/entity'
+import { setValue } from '../data/input_text'
+import type { HomeAssistant } from '../types'
 
-@customElement("state-card-input_number")
+@customElement('state-card-input_number')
 class StateCardInputNumber extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj!: HassEntity;
+  @property({ attribute: false }) public stateObj!: HassEntity
 
-  @property({ attribute: "in-dialog", type: Boolean }) public inDialog = false;
+  @property({ attribute: 'in-dialog', type: Boolean }) public inDialog = false
 
-  private _loaded?: boolean;
+  private _loaded?: boolean
 
-  private _updated?: boolean;
+  private _updated?: boolean
 
-  private _resizeObserver?: ResizeObserver;
+  private _resizeObserver?: ResizeObserver
 
   public connectedCallback(): void {
-    super.connectedCallback();
+    super.connectedCallback()
     if (this._updated && !this._loaded) {
-      this._initialLoad();
+      this._initialLoad()
     }
-    this._attachObserver();
+    this._attachObserver()
   }
 
   public disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this._resizeObserver?.disconnect();
+    super.disconnectedCallback()
+    this._resizeObserver?.disconnect()
   }
 
   protected firstUpdated(): void {
-    this._updated = true;
+    this._updated = true
     if (this.isConnected && !this._loaded) {
-      this._initialLoad();
+      this._initialLoad()
     }
-    this._attachObserver();
+    this._attachObserver()
   }
 
   protected render(): TemplateResult {
@@ -52,7 +52,7 @@ class StateCardInputNumber extends LitElement {
         .stateObj=${this.stateObj}
         .inDialog=${this.inDialog}
       ></state-info>
-      ${this.stateObj.attributes.mode === "slider"
+      ${this.stateObj.attributes.mode === 'slider'
         ? html`
             <div class="flex">
               <ha-slider
@@ -78,14 +78,14 @@ class StateCardInputNumber extends LitElement {
                 .min=${Number(this.stateObj.attributes.min)}
                 .max=${Number(this.stateObj.attributes.max)}
                 .value=${Number(this.stateObj.state).toString()}
-                .suffix=${this.stateObj.attributes.unit_of_measurement || ""}
+                .suffix=${this.stateObj.attributes.unit_of_measurement || ''}
                 type="number"
                 @change=${this._selectedValueChanged}
               >
               </ha-textfield>
             </div>
           `}
-    `;
+    `
   }
 
   static styles = css`
@@ -109,33 +109,33 @@ class StateCardInputNumber extends LitElement {
       width: 100%;
       max-width: 200px;
     }
-  `;
+  `
 
   private async _initialLoad(): Promise<void> {
-    this._loaded = true;
-    await this.updateComplete;
-    this._measureCard();
+    this._loaded = true
+    await this.updateComplete
+    this._measureCard()
   }
 
   private _measureCard() {
     if (!this.isConnected) {
-      return;
+      return
     }
-    const element = this.shadowRoot!.querySelector(".state") as HTMLElement;
+    const element = this.shadowRoot!.querySelector('.state') as HTMLElement
     if (!element) {
-      return;
+      return
     }
-    element.hidden = this.clientWidth <= 300;
+    element.hidden = this.clientWidth <= 300
   }
 
   private async _attachObserver(): Promise<void> {
     if (!this._resizeObserver) {
       this._resizeObserver = new ResizeObserver(
         debounce(() => this._measureCard(), 250, false)
-      );
+      )
     }
     if (this.isConnected) {
-      this._resizeObserver.observe(this);
+      this._resizeObserver.observe(this)
     }
   }
 
@@ -145,13 +145,13 @@ class StateCardInputNumber extends LitElement {
         this.hass!,
         this.stateObj.entity_id,
         (ev.target as HTMLInputElement).value
-      );
+      )
     }
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "state-card-input_number": StateCardInputNumber;
+    'state-card-input_number': StateCardInputNumber
   }
 }

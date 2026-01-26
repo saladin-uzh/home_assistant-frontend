@@ -1,24 +1,24 @@
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { goBack } from "../common/navigate";
-import "../components/ha-icon-button-arrow-prev";
-import "../components/ha-button";
-import "../components/ha-menu-button";
-import type { HomeAssistant } from "../types";
-import "../components/ha-alert";
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { goBack } from '../common/navigate'
+import '../components/ha-icon-button-arrow-prev'
+import '../components/ha-button'
+import '../components/ha-menu-button'
+import type { HomeAssistant } from '../types'
+import '../components/ha-alert'
 
-@customElement("hass-error-screen")
+@customElement('hass-error-screen')
 class HassErrorScreen extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public toolbar = true;
+  @property({ type: Boolean }) public toolbar = true
 
-  @property({ type: Boolean }) public rootnav = false;
+  @property({ type: Boolean }) public rootnav = false
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property() public error?: string;
+  @property() public error?: string
 
   protected render(): TemplateResult {
     return html`
@@ -38,20 +38,24 @@ class HassErrorScreen extends LitElement {
                   ></ha-icon-button-arrow-prev>
                 `}
           </div>`
-        : ""}
+        : ''}
       <div class="content">
         <ha-alert alert-type="error">${this.error}</ha-alert>
         <slot>
-          <ha-button appearance="plain" size="small" @click=${this._handleBack}>
-            ${this.hass?.localize("ui.common.back")}
+          <ha-button
+            appearance="plain"
+            size="small"
+            @click=${this._handleBack}
+          >
+            ${this.hass?.localize('ui.common.back')}
           </ha-button>
         </slot>
       </div>
-    `;
+    `
   }
 
   private _handleBack(): void {
-    goBack();
+    goBack()
   }
 
   static get styles(): CSSResultGroup {
@@ -100,12 +104,12 @@ class HassErrorScreen extends LitElement {
           margin-bottom: 16px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hass-error-screen": HassErrorScreen;
+    'hass-error-screen': HassErrorScreen
   }
 }

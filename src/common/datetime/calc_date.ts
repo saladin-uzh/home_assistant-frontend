@@ -10,11 +10,11 @@ import {
   endOfDay,
   differenceInDays,
   addDays,
-} from "date-fns";
-import { TZDate } from "@date-fns/tz";
-import type { HassConfig } from "home-assistant-js-websocket";
-import type { FrontendLocaleData } from "../../data/translation";
-import { TimeZone } from "../../data/translation";
+} from 'date-fns'
+import { TZDate } from '@date-fns/tz'
+import type { HassConfig } from 'home-assistant-js-websocket'
+import type { FrontendLocaleData } from '../../data/translation'
+import { TimeZone } from '../../data/translation'
 
 const calcZonedDate = (
   date: Date,
@@ -22,14 +22,14 @@ const calcZonedDate = (
   fn: (date: Date, options?: any) => Date | number | boolean,
   options?
 ) => {
-  const tzDate = new TZDate(date, tz);
-  const fnResult = fn(tzDate, options);
+  const tzDate = new TZDate(date, tz)
+  const fnResult = fn(tzDate, options)
   if (fnResult instanceof Date) {
     // Convert back to regular Date in the specified timezone
-    return new Date(fnResult.getTime());
+    return new Date(fnResult.getTime())
   }
-  return fnResult;
-};
+  return fnResult
+}
 
 export const calcDate = (
   date: Date,
@@ -40,7 +40,7 @@ export const calcDate = (
 ) =>
   locale.time_zone === TimeZone.server
     ? (calcZonedDate(date, config.time_zone, fn, options) as Date)
-    : fn(date, options);
+    : fn(date, options)
 
 export const calcDateProperty = (
   date: Date,
@@ -51,7 +51,7 @@ export const calcDateProperty = (
 ) =>
   locale.time_zone === TimeZone.server
     ? (calcZonedDate(date, config.time_zone, fn, options) as number | boolean)
-    : fn(date, options);
+    : fn(date, options)
 
 export const calcDateDifferenceProperty = (
   endDate: Date,
@@ -68,7 +68,7 @@ export const calcDateDifferenceProperty = (
     locale.time_zone === TimeZone.server
       ? new TZDate(startDate, config.time_zone)
       : startDate
-  );
+  )
 
 export const shiftDateRange = (
   startDate: Date,
@@ -77,8 +77,8 @@ export const shiftDateRange = (
   locale: FrontendLocaleData,
   config: any
 ): { start: Date; end: Date } => {
-  let start: Date;
-  let end: Date;
+  let start: Date
+  let end: Date
   if (
     (calcDateProperty(
       startDate,
@@ -97,24 +97,24 @@ export const shiftDateRange = (
         config
       ) as number) +
         1) *
-      (forward ? 1 : -1);
-    start = calcDate(startDate, addMonths, locale, config, difference);
+      (forward ? 1 : -1)
+    start = calcDate(startDate, addMonths, locale, config, difference)
     end = calcDate(
       calcDate(endDate, addMonths, locale, config, difference),
       endOfMonth,
       locale,
       config
-    );
+    )
   } else if (
     calcDateProperty(
       startDate,
-      (date) => startOfDay(date).getMilliseconds() === date.getMilliseconds(),
+      date => startOfDay(date).getMilliseconds() === date.getMilliseconds(),
       locale,
       config
     ) &&
     calcDateProperty(
       endDate,
-      (date) => endOfDay(date).getMilliseconds() === date.getMilliseconds(),
+      date => endOfDay(date).getMilliseconds() === date.getMilliseconds(),
       locale,
       config
     )
@@ -128,9 +128,9 @@ export const shiftDateRange = (
         config
       ) as number) +
         1) *
-      (forward ? 1 : -1);
-    start = calcDate(startDate, addDays, locale, config, difference);
-    end = calcDate(endDate, addDays, locale, config, difference);
+      (forward ? 1 : -1)
+    start = calcDate(startDate, addDays, locale, config, difference)
+    end = calcDate(endDate, addDays, locale, config, difference)
   } else {
     const difference =
       (calcDateDifferenceProperty(
@@ -139,12 +139,12 @@ export const shiftDateRange = (
         differenceInMilliseconds,
         locale,
         config
-      ) as number) * (forward ? 1 : -1);
-    start = calcDate(startDate, addMilliseconds, locale, config, difference);
-    end = calcDate(endDate, addMilliseconds, locale, config, difference);
+      ) as number) * (forward ? 1 : -1)
+    start = calcDate(startDate, addMilliseconds, locale, config, difference)
+    end = calcDate(endDate, addMilliseconds, locale, config, difference)
   }
-  return { start, end };
-};
+  return { start, end }
+}
 
 /**
  * @description Parses a date in browser display timezone
@@ -153,9 +153,9 @@ export const shiftDateRange = (
  * @returns The parsed date as a Date object
  */
 export const parseDate = (date: string, timezone: string): Date => {
-  const tzDate = new TZDate(date, timezone);
-  return new Date(tzDate.getTime());
-};
+  const tzDate = new TZDate(date, timezone)
+  return new Date(tzDate.getTime())
+}
 
 /**
  * @description Formats a date in browser display timezone
@@ -164,9 +164,9 @@ export const parseDate = (date: string, timezone: string): Date => {
  * @returns The formatted date in YYYY-MM-DD format
  */
 export const formatDate = (date: Date, timezone: string): string => {
-  const tzDate = new TZDate(date, timezone);
-  return tzDate.toISOString().split("T")[0];
-};
+  const tzDate = new TZDate(date, timezone)
+  return tzDate.toISOString().split('T')[0]
+}
 
 /**
  * @description Formats a time in browser display timezone
@@ -175,6 +175,6 @@ export const formatDate = (date: Date, timezone: string): string => {
  * @returns The formatted time in HH:mm:ss format
  */
 export const formatTime = (date: Date, timezone: string): string => {
-  const tzDate = new TZDate(date, timezone);
-  return tzDate.toISOString().split("T")[1].split(".")[0];
-};
+  const tzDate = new TZDate(date, timezone)
+  return tzDate.toISOString().split('T')[1].split('.')[0]
+}

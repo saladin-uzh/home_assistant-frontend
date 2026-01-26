@@ -1,52 +1,58 @@
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { styleMap } from "lit/directives/style-map";
-import { stateColorCss } from "../../../common/entity/state_color";
-import "../../../components/ha-control-button";
-import "../../../components/ha-state-icon";
-import type { AlarmControlPanelEntity } from "../../../data/alarm_control_panel";
-import { setProtectedAlarmControlPanelMode } from "../../../data/alarm_control_panel";
-import "../../../state-control/alarm_control_panel/ha-state-control-alarm_control_panel-modes";
-import type { HomeAssistant } from "../../../types";
-import "../components/ha-more-info-state-header";
-import { moreInfoControlStyle } from "../components/more-info-control-style";
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { styleMap } from 'lit/directives/style-map'
+import { stateColorCss } from '../../../common/entity/state_color'
+import '../../../components/ha-control-button'
+import '../../../components/ha-state-icon'
+import type { AlarmControlPanelEntity } from '../../../data/alarm_control_panel'
+import { setProtectedAlarmControlPanelMode } from '../../../data/alarm_control_panel'
+import '../../../state-control/alarm_control_panel/ha-state-control-alarm_control_panel-modes'
+import type { HomeAssistant } from '../../../types'
+import '../components/ha-more-info-state-header'
+import { moreInfoControlStyle } from '../components/more-info-control-style'
 
-@customElement("more-info-alarm_control_panel")
+@customElement('more-info-alarm_control_panel')
 class MoreInfoAlarmControlPanel extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj?: AlarmControlPanelEntity;
+  @property({ attribute: false }) public stateObj?: AlarmControlPanelEntity
 
   private async _disarm() {
     setProtectedAlarmControlPanelMode(
       this,
       this.hass,
       this.stateObj!,
-      "disarmed"
-    );
+      'disarmed'
+    )
   }
 
   protected render() {
     if (!this.hass || !this.stateObj) {
-      return nothing;
+      return nothing
     }
 
-    const color = stateColorCss(this.stateObj);
+    const color = stateColorCss(this.stateObj)
     const style = {
-      "--icon-color": color,
-    };
+      '--icon-color': color,
+    }
     return html`
       <ha-more-info-state-header
         .hass=${this.hass}
         .stateObj=${this.stateObj}
       ></ha-more-info-state-header>
-      <div class="controls" style=${styleMap(style)}>
-        ${["triggered", "arming", "pending"].includes(this.stateObj.state)
+      <div
+        class="controls"
+        style=${styleMap(style)}
+      >
+        ${['triggered', 'arming', 'pending'].includes(this.stateObj.state)
           ? html`
               <div class="status">
                 <div class="icon">
-                  <ha-state-icon .hass=${this.hass} .stateObj=${this.stateObj}>
+                  <ha-state-icon
+                    .hass=${this.hass}
+                    .stateObj=${this.stateObj}
+                  >
                   </ha-state-icon>
                 </div>
               </div>
@@ -60,15 +66,18 @@ class MoreInfoAlarmControlPanel extends LitElement {
             `}
       </div>
       <div>
-        ${["triggered", "arming", "pending"].includes(this.stateObj.state)
+        ${['triggered', 'arming', 'pending'].includes(this.stateObj.state)
           ? html`
-              <ha-control-button @click=${this._disarm} class="disarm">
-                ${this.hass.localize("ui.card.alarm_control_panel.disarm")}
+              <ha-control-button
+                @click=${this._disarm}
+                class="disarm"
+              >
+                ${this.hass.localize('ui.card.alarm_control_panel.disarm')}
               </ha-control-button>
             `
           : nothing}
       </div>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -107,7 +116,7 @@ class MoreInfoAlarmControlPanel extends LitElement {
           justify-content: center;
         }
         .status .icon::before {
-          content: "";
+          content: '';
           position: absolute;
           top: 0;
           left: 0;
@@ -126,12 +135,12 @@ class MoreInfoAlarmControlPanel extends LitElement {
           --control-button-border-radius: var(--ha-border-radius-3xl);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "more-info-alarm_control_panel": MoreInfoAlarmControlPanel;
+    'more-info-alarm_control_panel': MoreInfoAlarmControlPanel
   }
 }

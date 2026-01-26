@@ -1,13 +1,13 @@
-import { SubMenu } from "@material/web/menu/internal/submenu/sub-menu";
-import { styles } from "@material/web/menu/internal/submenu/sub-menu-styles";
-import { css } from "lit";
-import { customElement } from "lit/decorators";
+import { SubMenu } from '@material/web/menu/internal/submenu/sub-menu'
+import { styles } from '@material/web/menu/internal/submenu/sub-menu-styles'
+import { css } from 'lit'
+import { customElement } from 'lit/decorators'
 
-@customElement("ha-sub-menu")
+@customElement('ha-sub-menu')
 export class HaSubMenu extends SubMenu {
   async show() {
-    super.show();
-    this.menu.hasOverflow = false;
+    super.show()
+    this.menu.hasOverflow = false
   }
 
   static override styles = [
@@ -32,11 +32,11 @@ export class HaSubMenu extends SubMenu {
         --md-sys-color-on-secondary-container: var(--primary-text-color);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-sub-menu": HaSubMenu;
+    'ha-sub-menu': HaSubMenu
   }
 }

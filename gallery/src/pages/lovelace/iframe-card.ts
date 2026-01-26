@@ -1,19 +1,19 @@
-import type { PropertyValues, TemplateResult } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, query } from "lit/decorators";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import "../../components/demo-cards";
+import type { PropertyValues, TemplateResult } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, query } from 'lit/decorators'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import '../../components/demo-cards'
 
 const CONFIGS = [
   {
-    heading: "Without title",
+    heading: 'Without title',
     config: `
 - type: iframe
   url: https://embed.windy.com/embed2.html
     `,
   },
   {
-    heading: "With title",
+    heading: 'With title',
     config: `
 - type: iframe
   url: https://embed.windy.com/embed2.html
@@ -21,7 +21,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Height-Width 3:4",
+    heading: 'Height-Width 3:4',
     config: `
 - type: iframe
   url: https://embed.windy.com/embed2.html
@@ -29,31 +29,34 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Height-Width 1:1",
+    heading: 'Height-Width 1:1',
     config: `
 - type: iframe
   url: https://embed.windy.com/embed2.html
   aspect_ratio: 100%
     `,
   },
-];
+]
 
-@customElement("demo-lovelace-iframe-card")
+@customElement('demo-lovelace-iframe-card')
 class DemoIframe extends LitElement {
-  @query("demo-cards") private _demos!: HTMLElement;
+  @query('demo-cards') private _demos!: HTMLElement
 
   protected render(): TemplateResult {
-    return html`<demo-cards id="demos" .configs=${CONFIGS}></demo-cards>`;
+    return html`<demo-cards
+      id="demos"
+      .configs=${CONFIGS}
+    ></demo-cards>`
   }
 
   protected firstUpdated(changedProperties: PropertyValues) {
-    super.firstUpdated(changedProperties);
-    provideHass(this._demos);
+    super.firstUpdated(changedProperties)
+    provideHass(this._demos)
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-lovelace-iframe-card": DemoIframe;
+    'demo-lovelace-iframe-card': DemoIframe
   }
 }

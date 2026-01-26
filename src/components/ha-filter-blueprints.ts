@@ -1,45 +1,45 @@
-import type { SelectedDetail } from "@material/mwc-list";
-import { mdiFilterVariantRemove } from "@mdi/js";
-import type { CSSResultGroup, PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../common/dom/fire_event";
-import { deepEqual } from "../common/util/deep-equal";
-import type { Blueprints } from "../data/blueprint";
-import { fetchBlueprints } from "../data/blueprint";
-import type { RelatedResult } from "../data/search";
-import { findRelated } from "../data/search";
-import { haStyleScrollbar } from "../resources/styles";
-import type { HomeAssistant } from "../types";
-import "./ha-check-list-item";
-import "./ha-expansion-panel";
-import "./ha-icon-button";
-import "./ha-list";
+import type { SelectedDetail } from '@material/mwc-list'
+import { mdiFilterVariantRemove } from '@mdi/js'
+import type { CSSResultGroup, PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../common/dom/fire_event'
+import { deepEqual } from '../common/util/deep-equal'
+import type { Blueprints } from '../data/blueprint'
+import { fetchBlueprints } from '../data/blueprint'
+import type { RelatedResult } from '../data/search'
+import { findRelated } from '../data/search'
+import { haStyleScrollbar } from '../resources/styles'
+import type { HomeAssistant } from '../types'
+import './ha-check-list-item'
+import './ha-expansion-panel'
+import './ha-icon-button'
+import './ha-list'
 
-@customElement("ha-filter-blueprints")
+@customElement('ha-filter-blueprints')
 export class HaFilterBlueprints extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public value?: string[];
+  @property({ attribute: false }) public value?: string[]
 
-  @property() public type?: "automation" | "script";
+  @property() public type?: 'automation' | 'script'
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ type: Boolean, reflect: true }) public expanded = false;
+  @property({ type: Boolean, reflect: true }) public expanded = false
 
-  @state() private _shouldRender = false;
+  @state() private _shouldRender = false
 
-  @state() private _blueprints?: Blueprints;
+  @state() private _blueprints?: Blueprints
 
   public willUpdate(properties: PropertyValues) {
-    super.willUpdate(properties);
+    super.willUpdate(properties)
 
     if (
-      properties.has("value") &&
-      !deepEqual(this.value, properties.get("value"))
+      properties.has('value') &&
+      !deepEqual(this.value, properties.get('value'))
     ) {
-      this._findRelated();
+      this._findRelated()
     }
   }
 
@@ -51,8 +51,11 @@ export class HaFilterBlueprints extends LitElement {
         @expanded-will-change=${this._expandedWillChange}
         @expanded-changed=${this._expandedChanged}
       >
-        <div slot="header" class="header">
-          ${this.hass.localize("ui.panel.config.blueprint.caption")}
+        <div
+          slot="header"
+          class="header"
+        >
+          ${this.hass.localize('ui.panel.config.blueprint.caption')}
           ${this.value?.length
             ? html`<div class="badge">${this.value?.length}</div>
                 <ha-icon-button
@@ -69,7 +72,7 @@ export class HaFilterBlueprints extends LitElement {
                 class="ha-scrollbar"
               >
                 ${Object.entries(this._blueprints).map(([id, blueprint]) =>
-                  "error" in blueprint
+                  'error' in blueprint
                     ? nothing
                     : html`<ha-check-list-item
                         .value=${id}
@@ -82,99 +85,99 @@ export class HaFilterBlueprints extends LitElement {
             `
           : nothing}
       </ha-expansion-panel>
-    `;
+    `
   }
 
   protected async firstUpdated() {
     if (!this.type) {
-      return;
+      return
     }
-    this._blueprints = await fetchBlueprints(this.hass, this.type);
+    this._blueprints = await fetchBlueprints(this.hass, this.type)
   }
 
   protected updated(changed) {
-    if (changed.has("expanded") && this.expanded) {
+    if (changed.has('expanded') && this.expanded) {
       setTimeout(() => {
-        if (this.narrow || !this.expanded) return;
-        this.renderRoot.querySelector("ha-list")!.style.height =
-          `${this.clientHeight - 49}px`;
-      }, 300);
+        if (this.narrow || !this.expanded) return
+        this.renderRoot.querySelector('ha-list')!.style.height =
+          `${this.clientHeight - 49}px`
+      }, 300)
     }
   }
 
   private _expandedWillChange(ev) {
-    this._shouldRender = ev.detail.expanded;
+    this._shouldRender = ev.detail.expanded
   }
 
   private _expandedChanged(ev) {
-    this.expanded = ev.detail.expanded;
+    this.expanded = ev.detail.expanded
   }
 
   private async _blueprintsSelected(
     ev: CustomEvent<SelectedDetail<Set<number>>>
   ) {
-    const blueprints = this._blueprints!;
+    const blueprints = this._blueprints!
 
     if (!ev.detail.index.size) {
-      fireEvent(this, "data-table-filter-changed", {
+      fireEvent(this, 'data-table-filter-changed', {
         value: [],
         items: undefined,
-      });
-      this.value = [];
-      return;
+      })
+      this.value = []
+      return
     }
 
-    const value: string[] = [];
+    const value: string[] = []
 
     for (const index of ev.detail.index) {
-      const blueprintId = Object.keys(blueprints)[index];
-      value.push(blueprintId);
+      const blueprintId = Object.keys(blueprints)[index]
+      value.push(blueprintId)
     }
 
-    this.value = value;
+    this.value = value
   }
 
   private async _findRelated() {
     if (!this.value?.length) {
-      this.value = [];
-      fireEvent(this, "data-table-filter-changed", {
+      this.value = []
+      fireEvent(this, 'data-table-filter-changed', {
         value: [],
         items: undefined,
-      });
-      return;
+      })
+      return
     }
 
-    const relatedPromises: Promise<RelatedResult>[] = [];
+    const relatedPromises: Promise<RelatedResult>[] = []
 
     for (const blueprintId of this.value) {
       if (this.type) {
         relatedPromises.push(
           findRelated(this.hass, `${this.type}_blueprint`, blueprintId)
-        );
+        )
       }
     }
 
-    const results = await Promise.all(relatedPromises);
-    const items = new Set<string>();
+    const results = await Promise.all(relatedPromises)
+    const items = new Set<string>()
     for (const result of results) {
       if (result[this.type!]) {
-        result[this.type!]!.forEach((item) => items.add(item));
+        result[this.type!]!.forEach(item => items.add(item))
       }
     }
 
-    fireEvent(this, "data-table-filter-changed", {
+    fireEvent(this, 'data-table-filter-changed', {
       value: this.value,
       items: this.type ? items : undefined,
-    });
+    })
   }
 
   private _clearFilter(ev) {
-    ev.preventDefault();
-    this.value = undefined;
-    fireEvent(this, "data-table-filter-changed", {
+    ev.preventDefault()
+    this.value = undefined
+    fireEvent(this, 'data-table-filter-changed', {
       value: undefined,
       items: undefined,
-    });
+    })
   }
 
   static get styles(): CSSResultGroup {
@@ -217,12 +220,12 @@ export class HaFilterBlueprints extends LitElement {
           color: var(--text-primary-color);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-filter-blueprints": HaFilterBlueprints;
+    'ha-filter-blueprints': HaFilterBlueprints
   }
 }

@@ -1,6 +1,6 @@
-import { ResizeController } from "@lit-labs/observers/resize-controller";
-import type { ReactiveControllerHost } from "lit";
-import { css } from "lit";
+import { ResizeController } from '@lit-labs/observers/resize-controller'
+import type { ReactiveControllerHost } from 'lit'
+import { css } from 'lit'
 
 export const stateControlCircularSliderStyle = css`
   /* Layout elements */
@@ -141,7 +141,7 @@ export const stateControlCircularSliderStyle = css`
   }
   ha-control-circular-slider::after {
     display: block;
-    content: "";
+    content: '';
     position: absolute;
     top: -10%;
     left: -10%;
@@ -155,20 +155,14 @@ export const stateControlCircularSliderStyle = css`
     opacity: 0.15;
     pointer-events: none;
   }
-`;
+`
 
 export const createStateControlCircularSliderController = (
   element: ReactiveControllerHost & Element
 ) =>
   new ResizeController(element, {
-    callback: (entries) => {
-      const width = entries[0]?.contentRect.width;
-      return width < 130
-        ? "xs"
-        : width < 190
-          ? "sm"
-          : width < 250
-            ? "md"
-            : "lg";
+    callback: entries => {
+      const width = entries[0]?.contentRect.width
+      return width < 130 ? 'xs' : width < 190 ? 'sm' : width < 250 ? 'md' : 'lg'
     },
-  });
+  })

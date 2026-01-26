@@ -1,19 +1,19 @@
-import { LitElement, css, html } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { applyThemesOnElement } from "../../../src/common/dom/apply_themes_on_element";
-import "../../../src/components/ha-formfield";
-import "../../../src/components/ha-switch";
-import type { HomeAssistant } from "../../../src/types";
-import "../ha-demo-options";
-import "./demo-more-info";
+import { LitElement, css, html } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { applyThemesOnElement } from '../../../src/common/dom/apply_themes_on_element'
+import '../../../src/components/ha-formfield'
+import '../../../src/components/ha-switch'
+import type { HomeAssistant } from '../../../src/types'
+import '../ha-demo-options'
+import './demo-more-info'
 
-@customElement("demo-more-infos")
+@customElement('demo-more-infos')
 class DemoMoreInfos extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Array }) public entities!: string[];
+  @property({ type: Array }) public entities!: string[]
 
-  @state() private _showConfig = false;
+  @state() private _showConfig = false
 
   render() {
     return html`
@@ -28,7 +28,7 @@ class DemoMoreInfos extends LitElement {
       <div id="container">
         <div class="cards">
           ${this.entities.map(
-            (item) =>
+            item =>
               html`<demo-more-info
                 .entityId=${item}
                 .showConfig=${this._showConfig}
@@ -37,7 +37,7 @@ class DemoMoreInfos extends LitElement {
           )}
         </div>
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -56,32 +56,32 @@ class DemoMoreInfos extends LitElement {
     ha-formfield {
       margin-right: 16px;
     }
-  `;
+  `
 
   private _showConfigToggled(ev) {
-    this._showConfig = ev.target.checked;
+    this._showConfig = ev.target.checked
   }
 
   private _darkThemeToggled(ev) {
     applyThemesOnElement(
-      this.shadowRoot!.querySelector("#container"),
+      this.shadowRoot!.querySelector('#container'),
       {
-        default_theme: "default",
-        default_dark_theme: "default",
+        default_theme: 'default',
+        default_dark_theme: 'default',
         themes: {},
         darkMode: false,
-        theme: "default",
+        theme: 'default',
       },
-      "default",
+      'default',
       {
         dark: ev.target.checked,
       }
-    );
+    )
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-more-infos": DemoMoreInfos;
+    'demo-more-infos': DemoMoreInfos
   }
 }

@@ -1,15 +1,15 @@
-import { css } from "lit";
-import { RadioListItemBase } from "@material/mwc-list/mwc-radio-list-item-base";
-import { styles as controlStyles } from "@material/mwc-list/mwc-control-list-item.css";
-import { styles } from "@material/mwc-list/mwc-list-item.css";
-import { customElement } from "lit/decorators";
-import { fireEvent } from "../common/dom/fire_event";
+import { css } from 'lit'
+import { RadioListItemBase } from '@material/mwc-list/mwc-radio-list-item-base'
+import { styles as controlStyles } from '@material/mwc-list/mwc-control-list-item.css'
+import { styles } from '@material/mwc-list/mwc-list-item.css'
+import { customElement } from 'lit/decorators'
+import { fireEvent } from '../common/dom/fire_event'
 
-@customElement("ha-radio-list-item")
+@customElement('ha-radio-list-item')
 export class HaRadioListItem extends RadioListItemBase {
   async onChange(event) {
-    super.onChange(event);
-    fireEvent(this, event.type);
+    super.onChange(event)
+    fireEvent(this, event.type)
   }
 
   static override styles = [
@@ -20,10 +20,10 @@ export class HaRadioListItem extends RadioListItemBase {
         --mdc-theme-secondary: var(--primary-color);
       }
 
-      :host([graphic="avatar"]) .mdc-deprecated-list-item__graphic,
-      :host([graphic="medium"]) .mdc-deprecated-list-item__graphic,
-      :host([graphic="large"]) .mdc-deprecated-list-item__graphic,
-      :host([graphic="control"]) .mdc-deprecated-list-item__graphic {
+      :host([graphic='avatar']) .mdc-deprecated-list-item__graphic,
+      :host([graphic='medium']) .mdc-deprecated-list-item__graphic,
+      :host([graphic='large']) .mdc-deprecated-list-item__graphic,
+      :host([graphic='control']) .mdc-deprecated-list-item__graphic {
         margin-inline-end: var(--mdc-list-item-graphic-margin, 16px);
         margin-inline-start: 0px;
         direction: var(--direction);
@@ -37,16 +37,16 @@ export class HaRadioListItem extends RadioListItemBase {
       .mdc-deprecated-list-item__graphic {
         margin-top: var(--radio-list-item-graphic-margin-top);
       }
-      :host([graphic="icon"]) .mdc-deprecated-list-item__graphic {
+      :host([graphic='icon']) .mdc-deprecated-list-item__graphic {
         margin-inline-start: 0;
         margin-inline-end: var(--mdc-list-item-graphic-margin, 32px);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-radio-list-item": HaRadioListItem;
+    'ha-radio-list-item': HaRadioListItem
   }
 }

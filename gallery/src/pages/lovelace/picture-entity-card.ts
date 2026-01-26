@@ -1,27 +1,27 @@
-import type { PropertyValues, TemplateResult } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, query } from "lit/decorators";
-import { getEntity } from "../../../../src/fake_data/entity";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import "../../components/demo-cards";
-import { mockIcons } from "../../../../demo/src/stubs/icons";
+import type { PropertyValues, TemplateResult } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, query } from 'lit/decorators'
+import { getEntity } from '../../../../src/fake_data/entity'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import '../../components/demo-cards'
+import { mockIcons } from '../../../../demo/src/stubs/icons'
 
 const ENTITIES = [
-  getEntity("light", "kitchen_lights", "on", {
-    friendly_name: "Kitchen Lights",
+  getEntity('light', 'kitchen_lights', 'on', {
+    friendly_name: 'Kitchen Lights',
   }),
-  getEntity("light", "bed_light", "off", {
-    friendly_name: "Bed Light",
+  getEntity('light', 'bed_light', 'off', {
+    friendly_name: 'Bed Light',
   }),
-  getEntity("person", "paulus", "home", {
-    friendly_name: "Paulus",
-    entity_picture: "/images/paulus.jpg",
+  getEntity('person', 'paulus', 'home', {
+    friendly_name: 'Paulus',
+    entity_picture: '/images/paulus.jpg',
   }),
-];
+]
 
 const CONFIGS = [
   {
-    heading: "State on",
+    heading: 'State on',
     config: `
 - type: picture-entity
   image: /images/kitchen.png
@@ -31,7 +31,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "State off",
+    heading: 'State off',
     config: `
 - type: picture-entity
   image: /images/bed.png
@@ -41,7 +41,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Entity unavailable",
+    heading: 'Entity unavailable',
     config: `
 - type: picture-entity
   image: /images/living_room.png
@@ -49,21 +49,21 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Camera entity",
+    heading: 'Camera entity',
     config: `
 - type: picture-entity
   entity: camera.demo_camera
     `,
   },
   {
-    heading: "Person entity",
+    heading: 'Person entity',
     config: `
 - type: picture-entity
   entity: person.paulus
     `,
   },
   {
-    heading: "Hidden name",
+    heading: 'Hidden name',
     config: `
 - type: picture-entity
   image: /images/kitchen.png
@@ -72,7 +72,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Hidden state",
+    heading: 'Hidden state',
     config: `
 - type: picture-entity
   image: /images/kitchen.png
@@ -81,7 +81,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Both hidden",
+    heading: 'Both hidden',
     config: `
 - type: picture-entity
   image: /images/kitchen.png
@@ -90,28 +90,31 @@ const CONFIGS = [
   show_state: false
     `,
   },
-];
+]
 
-@customElement("demo-lovelace-picture-entity-card")
+@customElement('demo-lovelace-picture-entity-card')
 class DemoPictureEntity extends LitElement {
-  @query("#demos") private _demoRoot!: HTMLElement;
+  @query('#demos') private _demoRoot!: HTMLElement
 
   protected render(): TemplateResult {
-    return html`<demo-cards id="demos" .configs=${CONFIGS}></demo-cards>`;
+    return html`<demo-cards
+      id="demos"
+      .configs=${CONFIGS}
+    ></demo-cards>`
   }
 
   protected firstUpdated(changedProperties: PropertyValues) {
-    super.firstUpdated(changedProperties);
-    const hass = provideHass(this._demoRoot);
-    hass.updateTranslations(null, "en");
-    hass.updateTranslations("lovelace", "en");
-    hass.addEntities(ENTITIES);
-    mockIcons(hass);
+    super.firstUpdated(changedProperties)
+    const hass = provideHass(this._demoRoot)
+    hass.updateTranslations(null, 'en')
+    hass.updateTranslations('lovelace', 'en')
+    hass.addEntities(ENTITIES)
+    mockIcons(hass)
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-lovelace-picture-entity-card": DemoPictureEntity;
+    'demo-lovelace-picture-entity-card': DemoPictureEntity
   }
 }

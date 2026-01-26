@@ -1,19 +1,19 @@
-import type { Auth, Connection, HassUser } from "home-assistant-js-websocket";
-import { getUser } from "home-assistant-js-websocket";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../../src/components/ha-card";
+import type { Auth, Connection, HassUser } from 'home-assistant-js-websocket'
+import { getUser } from 'home-assistant-js-websocket'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../../src/components/ha-card'
 
-@customElement("hc-layout")
+@customElement('hc-layout')
 class HcLayout extends LitElement {
-  @property() public subtitle?: string;
+  @property() public subtitle?: string
 
-  @property({ attribute: false }) public auth?: Auth;
+  @property({ attribute: false }) public auth?: Auth
 
-  @property({ attribute: false }) public connection?: Connection;
+  @property({ attribute: false }) public connection?: Connection
 
-  @property({ attribute: false }) public user?: HassUser;
+  @property({ attribute: false }) public user?: HassUser
 
   protected render(): TemplateResult {
     return html`
@@ -25,19 +25,21 @@ class HcLayout extends LitElement {
             src="/images/google-nest-hub.png"
           />
           <h1 class="card-header">
-            Home Assistant Cast${this.subtitle ? ` – ${this.subtitle}` : ""}
+            Home Assistant Cast${this.subtitle ? ` – ${this.subtitle}` : ''}
             ${this.auth
               ? html`
                   <div class="subtitle">
-                    <a href=${this.auth.data.hassUrl} target="_blank"
+                    <a
+                      href=${this.auth.data.hassUrl}
+                      target="_blank"
                       >${this.auth.data.hassUrl.substr(
-                        this.auth.data.hassUrl.indexOf("//") + 2
+                        this.auth.data.hassUrl.indexOf('//') + 2
                       )}</a
                     >
-                    ${this.user ? html` – ${this.user.name} ` : ""}
+                    ${this.user ? html` – ${this.user.name} ` : ''}
                   </div>
                 `
-              : ""}
+              : ''}
           </h1>
           <slot></slot>
         </div>
@@ -50,16 +52,16 @@ class HcLayout extends LitElement {
           >Let us know!</a
         >
       </div>
-    `;
+    `
   }
 
   protected firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
+    super.firstUpdated(changedProps)
 
     if (this.connection) {
-      getUser(this.connection).then((user) => {
-        this.user = user;
-      });
+      getUser(this.connection).then(user => {
+        this.user = user
+      })
     }
   }
 
@@ -151,11 +153,11 @@ class HcLayout extends LitElement {
         margin-bottom: 30px;
       }
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hc-layout": HcLayout;
+    'hc-layout': HcLayout
   }
 }

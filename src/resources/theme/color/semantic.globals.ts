@@ -1,4 +1,4 @@
-import { css } from "lit";
+import { css } from 'lit'
 
 /*
  * Semantic color tokens are abstractions built on top of core color tokens to represent colors based on their usage or purpose.
@@ -157,7 +157,7 @@ export const semanticColorStyles = css`
     --ha-color-surface-default: var(--ha-color-neutral-95);
     --ha-color-on-surface-default: var(--ha-color-neutral-05);
   }
-`;
+`
 
 export const darkSemanticColorStyles = css`
   html {
@@ -289,4 +289,4 @@ export const darkSemanticColorStyles = css`
     --ha-color-surface-default: var(--ha-color-neutral-10);
     --ha-color-on-surface-default: var(--ha-color-neutral-95);
   }
-`;
+`

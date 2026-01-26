@@ -1,32 +1,32 @@
-import type { HomeAssistant } from "../types";
+import type { HomeAssistant } from '../types'
 
 export interface OpenStreetMapPlace {
-  place_id: number;
-  licence: string;
-  osm_type: string;
-  osm_id: number;
-  lat: string;
-  lon: string;
-  place_rank: number;
-  category: string;
-  type: string;
-  importance: number;
-  addresstype: string;
-  name: string | null;
-  display_name: string;
+  place_id: number
+  licence: string
+  osm_type: string
+  osm_id: number
+  lat: string
+  lon: string
+  place_rank: number
+  category: string
+  type: string
+  importance: number
+  addresstype: string
+  name: string | null
+  display_name: string
   address: {
-    house_number?: string;
-    road?: string;
-    neighbourhood?: string;
-    city?: string;
-    municipality?: string;
-    state?: string;
-    country?: string;
-    postcode?: string;
-    country_code: string;
-    [key: string]: string | undefined;
-  };
-  boundingbox: number[];
+    house_number?: string
+    road?: string
+    neighbourhood?: string
+    city?: string
+    municipality?: string
+    state?: string
+    country?: string
+    postcode?: string
+    country_code: string
+    [key: string]: string | undefined
+  }
+  boundingbox: number[]
 }
 
 export const searchPlaces = (
@@ -37,17 +37,17 @@ export const searchPlaces = (
 ): Promise<OpenStreetMapPlace[]> =>
   fetch(
     `https://nominatim.openstreetmap.org/search.php?q=${address}&format=jsonv2${
-      limit ? `&limit=${limit}` : ""
-    }${addressdetails ? "&addressdetails=1" : ""}&accept-language=${
+      limit ? `&limit=${limit}` : ''
+    }${addressdetails ? '&addressdetails=1' : ''}&accept-language=${
       hass.locale.language
     }&email=abuse@home-assistant.io`,
-    { headers: { "User-Agent": `HomeAssistant/${hass.config.version}` } }
-  ).then((res) => {
+    { headers: { 'User-Agent': `HomeAssistant/${hass.config.version}` } }
+  ).then(res => {
     if (res.ok) {
-      return res.json();
+      return res.json()
     }
-    throw new Error(res.statusText);
-  });
+    throw new Error(res.statusText)
+  })
 
 export const reverseGeocode = (
   location: [number, number],
@@ -60,10 +60,10 @@ export const reverseGeocode = (
     }&accept-language=${hass.locale.language}&zoom=${
       zoom ?? 18
     }&format=jsonv2&email=abuse@home-assistant.io`,
-    { headers: { "User-Agent": `HomeAssistant/${hass.config.version}` } }
-  ).then((res) => {
+    { headers: { 'User-Agent': `HomeAssistant/${hass.config.version}` } }
+  ).then(res => {
     if (res.ok) {
-      return res.json();
+      return res.json()
     }
-    throw new Error(res.statusText);
-  });
+    throw new Error(res.statusText)
+  })

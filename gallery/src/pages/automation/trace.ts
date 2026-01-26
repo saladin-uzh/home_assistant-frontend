@@ -1,27 +1,27 @@
 /* eslint-disable lit/no-template-arrow */
 
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/trace/hat-script-graph";
-import "../../../../src/components/trace/hat-trace-timeline";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import type { HomeAssistant } from "../../../../src/types";
-import { basicTrace } from "../../data/traces/basic_trace";
-import { motionLightTrace } from "../../data/traces/motion-light-trace";
-import type { DemoTrace } from "../../data/traces/types";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/trace/hat-script-graph'
+import '../../../../src/components/trace/hat-trace-timeline'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import type { HomeAssistant } from '../../../../src/types'
+import { basicTrace } from '../../data/traces/basic_trace'
+import { motionLightTrace } from '../../data/traces/motion-light-trace'
+import type { DemoTrace } from '../../data/traces/types'
 
-const traces: DemoTrace[] = [basicTrace, motionLightTrace];
+const traces: DemoTrace[] = [basicTrace, motionLightTrace]
 
-@customElement("demo-automation-trace")
+@customElement('demo-automation-trace')
 export class DemoAutomationTrace extends LitElement {
-  @property({ attribute: false }) hass?: HomeAssistant;
+  @property({ attribute: false }) hass?: HomeAssistant
 
-  @state() private _selected = {};
+  @state() private _selected = {}
 
   protected render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
     return html`
       ${traces.map(
@@ -48,24 +48,24 @@ export class DemoAutomationTrace extends LitElement {
           </ha-card>
         `
       )}
-    `;
+    `
   }
 
   protected firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
-    const hass = provideHass(this);
-    hass.updateTranslations(null, "en");
-    hass.updateTranslations("config", "en");
+    super.firstUpdated(changedProps)
+    const hass = provideHass(this)
+    hass.updateTranslations(null, 'en')
+    hass.updateTranslations('config', 'en')
   }
 
   private _handleTimelineValueChanged(ev) {
-    const sampleIdx = ev.target.sampleIdx;
-    this._selected = { ...this._selected, [sampleIdx]: ev.detail.value };
+    const sampleIdx = ev.target.sampleIdx
+    this._selected = { ...this._selected, [sampleIdx]: ev.detail.value }
   }
 
   private _handleGraphNodeSelected(ev) {
-    const sampleIdx = ev.target.sampleIdx;
-    this._selected = { ...this._selected, [sampleIdx]: ev.detail.path };
+    const sampleIdx = ev.target.sampleIdx
+    this._selected = { ...this._selected, [sampleIdx]: ev.detail.path }
   }
 
   static styles = css`
@@ -87,11 +87,11 @@ export class DemoAutomationTrace extends LitElement {
       top: 0;
       right: 0;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-automation-trace": DemoAutomationTrace;
+    'demo-automation-trace': DemoAutomationTrace
   }
 }

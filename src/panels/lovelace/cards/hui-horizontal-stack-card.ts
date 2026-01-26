@@ -1,25 +1,25 @@
-import type { CSSResultGroup } from "lit";
-import { css } from "lit";
-import { customElement } from "lit/decorators";
-import { computeCardSize } from "../common/compute-card-size";
-import { HuiStackCard } from "./hui-stack-card";
+import type { CSSResultGroup } from 'lit'
+import { css } from 'lit'
+import { customElement } from 'lit/decorators'
+import { computeCardSize } from '../common/compute-card-size'
+import { HuiStackCard } from './hui-stack-card'
 
-@customElement("hui-horizontal-stack-card")
+@customElement('hui-horizontal-stack-card')
 export class HuiHorizontalStackCard extends HuiStackCard {
   public async getCardSize(): Promise<number> {
     if (!this._cards) {
-      return 0;
+      return 0
     }
 
-    const promises: (Promise<number> | number)[] = [];
+    const promises: (Promise<number> | number)[] = []
 
     for (const element of this._cards) {
-      promises.push(computeCardSize(element));
+      promises.push(computeCardSize(element))
     }
 
-    const results = await Promise.all(promises);
+    const results = await Promise.all(promises)
 
-    return Math.max(...results);
+    return Math.max(...results)
   }
 
   static get styles(): CSSResultGroup {
@@ -39,12 +39,12 @@ export class HuiHorizontalStackCard extends HuiStackCard {
           min-width: 0;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-horizontal-stack-card": HuiHorizontalStackCard;
+    'hui-horizontal-stack-card': HuiHorizontalStackCard
   }
 }

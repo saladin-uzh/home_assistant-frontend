@@ -1,90 +1,90 @@
-import { mdiInformation } from "@mdi/js";
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { styleMap } from "lit/directives/style-map";
-import "../../../../components/ha-card";
-import "../../../../components/ha-gauge";
-import "../../../../components/ha-svg-icon";
-import type { EnergyData } from "../../../../data/energy";
+import { mdiInformation } from '@mdi/js'
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { styleMap } from 'lit/directives/style-map'
+import '../../../../components/ha-card'
+import '../../../../components/ha-gauge'
+import '../../../../components/ha-svg-icon'
+import type { EnergyData } from '../../../../data/energy'
 import {
   calculateSolarConsumedGauge,
   getEnergyDataCollection,
   getSummedData,
-} from "../../../../data/energy";
-import { SubscribeMixin } from "../../../../mixins/subscribe-mixin";
-import type { HomeAssistant } from "../../../../types";
-import type { LovelaceCard } from "../../types";
-import { severityMap } from "../hui-gauge-card";
-import type { EnergySolarGaugeCardConfig } from "../types";
-import { hasConfigChanged } from "../../common/has-changed";
+} from '../../../../data/energy'
+import { SubscribeMixin } from '../../../../mixins/subscribe-mixin'
+import type { HomeAssistant } from '../../../../types'
+import type { LovelaceCard } from '../../types'
+import { severityMap } from '../hui-gauge-card'
+import type { EnergySolarGaugeCardConfig } from '../types'
+import { hasConfigChanged } from '../../common/has-changed'
 
 const FORMAT_OPTIONS = {
   maximumFractionDigits: 0,
-};
+}
 
-@customElement("hui-energy-solar-consumed-gauge-card")
+@customElement('hui-energy-solar-consumed-gauge-card')
 class HuiEnergySolarGaugeCard
   extends SubscribeMixin(LitElement)
   implements LovelaceCard
 {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: EnergySolarGaugeCardConfig;
+  @state() private _config?: EnergySolarGaugeCardConfig
 
-  @state() private _data?: EnergyData;
+  @state() private _data?: EnergyData
 
-  protected hassSubscribeRequiredHostProps = ["_config"];
+  protected hassSubscribeRequiredHostProps = ['_config']
 
   public hassSubscribe(): UnsubscribeFunc[] {
     return [
       getEnergyDataCollection(this.hass!, {
         key: this._config?.collection_key,
-      }).subscribe((data) => {
-        this._data = data;
+      }).subscribe(data => {
+        this._data = data
       }),
-    ];
+    ]
   }
 
   public getCardSize(): number {
-    return 4;
+    return 4
   }
 
   public setConfig(config: EnergySolarGaugeCardConfig): void {
-    this._config = config;
+    this._config = config
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     return (
       hasConfigChanged(this, changedProps) ||
       changedProps.size > 1 ||
-      !changedProps.has("hass")
-    );
+      !changedProps.has('hass')
+    )
   }
 
   protected render() {
     if (!this._config || !this.hass) {
-      return nothing;
+      return nothing
     }
 
     if (!this._data) {
       return html`${this.hass.localize(
-        "ui.panel.lovelace.cards.energy.loading"
-      )}`;
+        'ui.panel.lovelace.cards.energy.loading'
+      )}`
     }
 
-    const { summedData, compareSummedData: _ } = getSummedData(this._data);
-    if (!("solar" in summedData.total)) {
-      return nothing;
+    const { summedData, compareSummedData: _ } = getSummedData(this._data)
+    if (!('solar' in summedData.total)) {
+      return nothing
     }
 
-    const productionReturnedToGrid = summedData.total.to_grid ?? null;
+    const productionReturnedToGrid = summedData.total.to_grid ?? null
 
-    let value: number | undefined;
+    let value: number | undefined
     if (productionReturnedToGrid !== null) {
-      const hasBattery = !!summedData.to_battery || !!summedData.from_battery;
-      value = calculateSolarConsumedGauge(hasBattery, summedData);
+      const hasBattery = !!summedData.to_battery || !!summedData.from_battery
+      value = calculateSolarConsumedGauge(hasBattery, summedData)
     }
 
     return html`
@@ -99,44 +99,50 @@ class HuiEnergySolarGaugeCard
                 .formatOptions=${FORMAT_OPTIONS}
                 .locale=${this.hass.locale}
                 style=${styleMap({
-                  "--gauge-color": this._computeSeverity(value),
+                  '--gauge-color': this._computeSeverity(value),
                 })}
               ></ha-gauge>
-              <ha-svg-icon id="info" .path=${mdiInformation}></ha-svg-icon>
-              <ha-tooltip for="info" placement="left">
+              <ha-svg-icon
+                id="info"
+                .path=${mdiInformation}
+              ></ha-svg-icon>
+              <ha-tooltip
+                for="info"
+                placement="left"
+              >
                 ${this.hass.localize(
-                  "ui.panel.lovelace.cards.energy.solar_consumed_gauge.card_indicates_solar_energy_used"
+                  'ui.panel.lovelace.cards.energy.solar_consumed_gauge.card_indicates_solar_energy_used'
                 )}
                 <br /><br />
                 ${this.hass.localize(
-                  "ui.panel.lovelace.cards.energy.solar_consumed_gauge.card_indicates_solar_energy_used_charge_home_bat"
+                  'ui.panel.lovelace.cards.energy.solar_consumed_gauge.card_indicates_solar_energy_used_charge_home_bat'
                 )}
               </ha-tooltip>
               <div class="name">
                 ${this.hass.localize(
-                  "ui.panel.lovelace.cards.energy.solar_consumed_gauge.self_consumed_solar_energy"
+                  'ui.panel.lovelace.cards.energy.solar_consumed_gauge.self_consumed_solar_energy'
                 )}
               </div>
             `
           : productionReturnedToGrid !== null
             ? this.hass.localize(
-                "ui.panel.lovelace.cards.energy.solar_consumed_gauge.not_produced_solar_energy"
+                'ui.panel.lovelace.cards.energy.solar_consumed_gauge.not_produced_solar_energy'
               )
             : this.hass.localize(
-                "ui.panel.lovelace.cards.energy.solar_consumed_gauge.self_consumed_solar_could_not_calc"
+                'ui.panel.lovelace.cards.energy.solar_consumed_gauge.self_consumed_solar_could_not_calc'
               )}
       </ha-card>
-    `;
+    `
   }
 
   private _computeSeverity(numberValue: number): string {
     if (numberValue > 75) {
-      return severityMap.green;
+      return severityMap.green
     }
     if (numberValue < 50) {
-      return severityMap.yellow;
+      return severityMap.yellow
     }
-    return severityMap.normal;
+    return severityMap.normal
   }
 
   static styles = css`
@@ -174,11 +180,11 @@ class HuiEnergySolarGaugeCard
       top: 4px;
       color: var(--secondary-text-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-energy-solar-consumed-gauge-card": HuiEnergySolarGaugeCard;
+    'hui-energy-solar-consumed-gauge-card': HuiEnergySolarGaugeCard
   }
 }

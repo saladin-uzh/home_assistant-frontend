@@ -1,33 +1,33 @@
-import { css, html, LitElement, nothing } from "lit";
-import "../../../../src/components/ha-formfield";
-import "../../../../src/components/ha-switch";
+import { css, html, LitElement, nothing } from 'lit'
+import '../../../../src/components/ha-formfield'
+import '../../../../src/components/ha-switch'
 
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import type { IntegrationManifest } from "../../../../src/data/integration";
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import type { IntegrationManifest } from '../../../../src/data/integration'
 
-import type { DeviceRegistryEntry } from "../../../../src/data/device_registry";
-import type { EntityRegistryEntry } from "../../../../src/data/entity_registry";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import "../../../../src/panels/config/integrations/ha-config-flow-card";
+import type { DeviceRegistryEntry } from '../../../../src/data/device_registry'
+import type { EntityRegistryEntry } from '../../../../src/data/entity_registry'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import '../../../../src/panels/config/integrations/ha-config-flow-card'
 import type {
   ConfigEntryExtended,
   DataEntryFlowProgressExtended,
-} from "../../../../src/panels/config/integrations/ha-config-integrations";
-import "../../../../src/panels/config/integrations/ha-ignored-config-entry-card";
-import "../../../../src/panels/config/integrations/ha-integration-card";
-import type { HomeAssistant } from "../../../../src/types";
+} from '../../../../src/panels/config/integrations/ha-config-integrations'
+import '../../../../src/panels/config/integrations/ha-ignored-config-entry-card'
+import '../../../../src/panels/config/integrations/ha-integration-card'
+import type { HomeAssistant } from '../../../../src/types'
 
 const createConfigEntry = (
   title: string,
   override: Partial<ConfigEntryExtended> = {}
 ): ConfigEntryExtended => ({
   entry_id: title,
-  domain: "esphome",
-  localized_domain_name: "ESPHome",
+  domain: 'esphome',
+  localized_domain_name: 'ESPHome',
   title,
-  source: "zeroconf",
-  state: "loaded",
+  source: 'zeroconf',
+  state: 'loaded',
   supports_options: false,
   supports_remove_device: false,
   supports_unload: true,
@@ -41,107 +41,107 @@ const createConfigEntry = (
   error_reason_translation_key: null,
   error_reason_translation_placeholders: null,
   ...override,
-});
+})
 
 const createManifest = (
   isCustom: boolean,
   isCloud: boolean,
-  name = "ESPHome"
+  name = 'ESPHome'
 ): IntegrationManifest => ({
   name,
-  domain: "esphome",
+  domain: 'esphome',
   is_built_in: !isCustom,
   config_flow: false,
-  documentation: "https://www.home-assistant.io/integrations/esphome/",
-  iot_class: isCloud ? "cloud_polling" : "local_polling",
-});
+  documentation: 'https://www.home-assistant.io/integrations/esphome/',
+  iot_class: isCloud ? 'cloud_polling' : 'local_polling',
+})
 
-const loadedEntry = createConfigEntry("Loaded");
-const nameAsDomainEntry = createConfigEntry("ESPHome");
+const loadedEntry = createConfigEntry('Loaded')
+const nameAsDomainEntry = createConfigEntry('ESPHome')
 const longNameEntry = createConfigEntry(
-  "Entry with a super long name that is going to the next line"
-);
+  'Entry with a super long name that is going to the next line'
+)
 const longNonBreakingNameEntry = createConfigEntry(
-  "EntryWithASuperLongNameThatDoesNotBreak"
-);
-const configPanelEntry = createConfigEntry("Config Panel", {
-  domain: "mqtt",
-  localized_domain_name: "MQTT",
-});
-const optionsFlowEntry = createConfigEntry("Options Flow", {
+  'EntryWithASuperLongNameThatDoesNotBreak'
+)
+const configPanelEntry = createConfigEntry('Config Panel', {
+  domain: 'mqtt',
+  localized_domain_name: 'MQTT',
+})
+const optionsFlowEntry = createConfigEntry('Options Flow', {
   supports_options: true,
-});
-const disabledPollingEntry = createConfigEntry("Disabled Polling", {
+})
+const disabledPollingEntry = createConfigEntry('Disabled Polling', {
   pref_disable_polling: true,
-});
-const setupErrorEntry = createConfigEntry("Setup Error", {
-  state: "setup_error",
-});
-const migrationErrorEntry = createConfigEntry("Migration Error", {
-  state: "migration_error",
-});
-const setupRetryEntry = createConfigEntry("Setup Retry", {
-  state: "setup_retry",
-});
-const setupRetryReasonEntry = createConfigEntry("Setup Retry", {
-  state: "setup_retry",
-  reason: "connection_error",
-});
-const setupRetryReasonMissingKeyEntry = createConfigEntry("Setup Retry", {
-  state: "setup_retry",
+})
+const setupErrorEntry = createConfigEntry('Setup Error', {
+  state: 'setup_error',
+})
+const migrationErrorEntry = createConfigEntry('Migration Error', {
+  state: 'migration_error',
+})
+const setupRetryEntry = createConfigEntry('Setup Retry', {
+  state: 'setup_retry',
+})
+const setupRetryReasonEntry = createConfigEntry('Setup Retry', {
+  state: 'setup_retry',
+  reason: 'connection_error',
+})
+const setupRetryReasonMissingKeyEntry = createConfigEntry('Setup Retry', {
+  state: 'setup_retry',
   reason:
     "HTTPSConnectionpool: Max retries exceeded with NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x9eedfc10>: Failed to establish a new connection: [Errno 113] Host is unreachable')",
-});
-const failedUnloadEntry = createConfigEntry("Failed Unload", {
-  state: "failed_unload",
-});
-const notLoadedEntry = createConfigEntry("Not Loaded", { state: "not_loaded" });
-const disabledEntry = createConfigEntry("Disabled", {
-  state: "not_loaded",
-  disabled_by: "user",
-});
+})
+const failedUnloadEntry = createConfigEntry('Failed Unload', {
+  state: 'failed_unload',
+})
+const notLoadedEntry = createConfigEntry('Not Loaded', { state: 'not_loaded' })
+const disabledEntry = createConfigEntry('Disabled', {
+  state: 'not_loaded',
+  disabled_by: 'user',
+})
 const disabledFailedUnloadEntry = createConfigEntry(
-  "Disabled - Failed Unload",
+  'Disabled - Failed Unload',
   {
-    state: "failed_unload",
-    disabled_by: "user",
+    state: 'failed_unload',
+    disabled_by: 'user',
   }
-);
+)
 
 const configFlows: DataEntryFlowProgressExtended[] = [
   {
-    flow_id: "adbb401329d8439ebb78ef29837826a8",
-    handler: "roku",
+    flow_id: 'adbb401329d8439ebb78ef29837826a8',
+    handler: 'roku',
     context: {
-      source: "ssdp",
-      unique_id: "YF008D862864",
+      source: 'ssdp',
+      unique_id: 'YF008D862864',
       title_placeholders: {
-        name: "Living room Roku",
+        name: 'Living room Roku',
       },
     },
-    step_id: "discovery_confirm",
-    localized_title: "Living room Roku",
+    step_id: 'discovery_confirm',
+    localized_title: 'Living room Roku',
   },
   {
-    flow_id: "adbb401329d8439ebb78ef29837826a8",
-    handler: "hue",
+    flow_id: 'adbb401329d8439ebb78ef29837826a8',
+    handler: 'hue',
     context: {
-      source: "reauth",
-      unique_id: "YF008D862864",
+      source: 'reauth',
+      unique_id: 'YF008D862864',
       title_placeholders: {
-        name: "Living room Roku",
+        name: 'Living room Roku',
       },
     },
-    step_id: "discovery_confirm",
-    localized_title: "Philips Hue",
+    step_id: 'discovery_confirm',
+    localized_title: 'Philips Hue',
   },
-];
+]
 
 const configEntries: {
-  items: ConfigEntryExtended[];
-  is_custom?: boolean;
-  disabled?: boolean;
-  highlight?: string;
+  items: ConfigEntryExtended[]
+  is_custom?: boolean
+  disabled?: boolean
+  highlight?: string
 }[] = [
   { items: [loadedEntry] },
   { items: [configPanelEntry] },
@@ -181,9 +181,9 @@ const configEntries: {
   },
   {
     items: [loadedEntry, configPanelEntry],
-    highlight: "Loaded",
+    highlight: 'Loaded',
   },
-];
+]
 
 const createEntityRegistryEntries = (
   item: ConfigEntryExtended
@@ -191,25 +191,25 @@ const createEntityRegistryEntries = (
   {
     config_entry_id: item.entry_id,
     config_subentry_id: null,
-    device_id: "mock-device-id",
+    device_id: 'mock-device-id',
     area_id: null,
     disabled_by: null,
     hidden_by: null,
     entity_category: null,
-    entity_id: "binary_sensor.updater",
-    id: "binary_sensor.updater",
+    entity_id: 'binary_sensor.updater',
+    id: 'binary_sensor.updater',
     name: null,
     icon: null,
-    platform: "updater",
+    platform: 'updater',
     has_entity_name: false,
-    unique_id: "updater",
+    unique_id: 'updater',
     options: null,
     labels: [],
     categories: {},
     created_at: 0,
     modified_at: 0,
   },
-];
+]
 
 const createDeviceRegistryEntries = (
   item: ConfigEntryExtended
@@ -219,14 +219,14 @@ const createDeviceRegistryEntries = (
     config_entries: [item.entry_id],
     config_entries_subentries: {},
     connections: [],
-    manufacturer: "ESPHome",
-    model: "Mock Device",
-    model_id: "ABC-001",
-    name: "Tag Reader",
+    manufacturer: 'ESPHome',
+    model: 'Mock Device',
+    model_id: 'ABC-001',
+    name: 'Tag Reader',
     sw_version: null,
-    hw_version: "1.0.0",
-    serial_number: "00_12_4B_00_22_98_88_7F",
-    id: "mock-device-id",
+    hw_version: '1.0.0',
+    serial_number: '00_12_4B_00_22_98_88_7F',
+    id: 'mock-device-id',
     identifiers: [],
     via_device_id: null,
     area_id: null,
@@ -238,19 +238,19 @@ const createDeviceRegistryEntries = (
     modified_at: 0,
     primary_config_entry: null,
   },
-];
+]
 
-@customElement("demo-misc-integration-card")
+@customElement('demo-misc-integration-card')
 export class DemoIntegrationCard extends LitElement {
-  @property({ attribute: false }) hass?: HomeAssistant;
+  @property({ attribute: false }) hass?: HomeAssistant
 
-  @state() isCustomIntegration = false;
+  @state() isCustomIntegration = false
 
-  @state() isCloud = false;
+  @state() isCloud = false
 
   protected render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
     return html`
       <div class="container">
@@ -265,19 +265,19 @@ export class DemoIntegrationCard extends LitElement {
 
         <ha-ignored-config-entry-card
           .hass=${this.hass}
-          .entry=${createConfigEntry("Ignored Entry")}
+          .entry=${createConfigEntry('Ignored Entry')}
           .manifest=${createManifest(this.isCustomIntegration, this.isCloud)}
         ></ha-ignored-config-entry-card>
 
         ${configFlows.map(
-          (flow) => html`
+          flow => html`
             <ha-config-flow-card
               .hass=${this.hass}
               .flow=${flow}
               .manifest=${createManifest(
                 this.isCustomIntegration,
                 this.isCloud,
-                flow.handler === "roku" ? "Roku" : "Philips Hue"
+                flow.handler === 'roku' ? 'Roku' : 'Philips Hue'
               )}
             ></ha-config-flow-card>
           `
@@ -285,7 +285,7 @@ export class DemoIntegrationCard extends LitElement {
       </div>
       <div class="container">
         ${configEntries.map(
-          (info) => html`
+          info => html`
             <ha-integration-card
               class=${classMap({
                 highlight: info.highlight !== undefined,
@@ -327,30 +327,30 @@ export class DemoIntegrationCard extends LitElement {
           .deviceRegistryEntries=${createDeviceRegistryEntries(loadedEntry)}
         ></ha-integration-card>
       </div>
-    `;
+    `
   }
 
   protected firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
-    const hass = provideHass(this);
-    hass.updateTranslations(null, "en");
-    hass.updateTranslations("config", "en");
+    super.firstUpdated(changedProps)
+    const hass = provideHass(this)
+    hass.updateTranslations(null, 'en')
+    hass.updateTranslations('config', 'en')
     // Normally this string is loaded from backend
     hass.addTranslations(
       {
-        "component.esphome.config.error.connection_error":
+        'component.esphome.config.error.connection_error':
           "Can't connect to ESP. Please make sure your YAML file contains an 'api:' line.",
       },
-      "en"
-    );
+      'en'
+    )
   }
 
   private _toggleCustomIntegration() {
-    this.isCustomIntegration = !this.isCustomIntegration;
+    this.isCustomIntegration = !this.isCustomIntegration
   }
 
   private _toggleCloud() {
-    this.isCloud = !this.isCloud;
+    this.isCloud = !this.isCloud
   }
 
   static styles = css`
@@ -370,11 +370,11 @@ export class DemoIntegrationCard extends LitElement {
       margin: 8px 0;
       display: block;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-misc-integration-card": DemoIntegrationCard;
+    'demo-misc-integration-card': DemoIntegrationCard
   }
 }

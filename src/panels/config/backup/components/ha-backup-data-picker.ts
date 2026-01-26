@@ -5,30 +5,30 @@ import {
   mdiPlayBoxMultiple,
   mdiPuzzle,
   mdiShieldCheck,
-} from "@mdi/js";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { isComponentLoaded } from "../../../../common/config/is_component_loaded";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { capitalizeFirstLetter } from "../../../../common/string/capitalize-first-letter";
-import type { LocalizeFunc } from "../../../../common/translations/localize";
-import "../../../../components/ha-checkbox";
-import type { HaCheckbox } from "../../../../components/ha-checkbox";
-import "../../../../components/ha-formfield";
-import type { BackupData } from "../../../../data/backup";
-import { fetchHassioAddonsInfo } from "../../../../data/hassio/addon";
-import { mdiHomeAssistant } from "../../../../resources/home-assistant-logo-svg";
-import type { HomeAssistant } from "../../../../types";
-import "./ha-backup-addons-picker";
-import type { BackupAddonItem } from "./ha-backup-addons-picker";
-import "./ha-backup-formfield-label";
+} from '@mdi/js'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { isComponentLoaded } from '../../../../common/config/is_component_loaded'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { capitalizeFirstLetter } from '../../../../common/string/capitalize-first-letter'
+import type { LocalizeFunc } from '../../../../common/translations/localize'
+import '../../../../components/ha-checkbox'
+import type { HaCheckbox } from '../../../../components/ha-checkbox'
+import '../../../../components/ha-formfield'
+import type { BackupData } from '../../../../data/backup'
+import { fetchHassioAddonsInfo } from '../../../../data/hassio/addon'
+import { mdiHomeAssistant } from '../../../../resources/home-assistant-logo-svg'
+import type { HomeAssistant } from '../../../../types'
+import './ha-backup-addons-picker'
+import type { BackupAddonItem } from './ha-backup-addons-picker'
+import './ha-backup-formfield-label'
 
 interface CheckBoxItem {
-  label: string;
-  id: string;
-  version?: string;
+  label: string
+  id: string
+  version?: string
 }
 
 const ITEM_ICONS = {
@@ -37,95 +37,95 @@ const ITEM_ICONS = {
   media: mdiPlayBoxMultiple,
   share: mdiFolder,
   ssl: mdiShieldCheck,
-};
-
-interface SelectedItems {
-  homeassistant: string[];
-  addons: string[];
 }
 
-@customElement("ha-backup-data-picker")
+interface SelectedItems {
+  homeassistant: string[]
+  addons: string[]
+}
+
+@customElement('ha-backup-data-picker')
 export class HaBackupDataPicker extends LitElement {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ attribute: false }) public data!: BackupData;
+  @property({ attribute: false }) public data!: BackupData
 
-  @property({ attribute: false }) public value?: BackupData;
+  @property({ attribute: false }) public value?: BackupData
 
-  @property({ attribute: false }) public localize?: LocalizeFunc;
+  @property({ attribute: false }) public localize?: LocalizeFunc
 
-  @property({ type: Array, attribute: "required-items" })
-  public requiredItems: string[] = [];
+  @property({ type: Array, attribute: 'required-items' })
+  public requiredItems: string[] = []
 
-  @property({ attribute: "translation-key-panel" }) public translationKeyPanel:
-    | "page-onboarding.restore"
-    | "config.backup" = "config.backup";
+  @property({ attribute: 'translation-key-panel' }) public translationKeyPanel:
+    | 'page-onboarding.restore'
+    | 'config.backup' = 'config.backup'
 
-  @property({ type: Boolean, attribute: false }) public addonsDisabled = false;
+  @property({ type: Boolean, attribute: false }) public addonsDisabled = false
 
-  @state() public _addonIcons: Record<string, boolean> = {};
+  @state() public _addonIcons: Record<string, boolean> = {}
 
   protected firstUpdated(changedProps: PropertyValues): void {
-    super.firstUpdated(changedProps);
-    if (this.hass && isComponentLoaded(this.hass, "hassio")) {
-      this._fetchAddonInfo();
+    super.firstUpdated(changedProps)
+    if (this.hass && isComponentLoaded(this.hass, 'hassio')) {
+      this._fetchAddonInfo()
     }
   }
 
   private async _fetchAddonInfo() {
-    const { addons } = await fetchHassioAddonsInfo(this.hass!);
+    const { addons } = await fetchHassioAddonsInfo(this.hass!)
     this._addonIcons = addons.reduce<Record<string, boolean>>(
       (acc, addon) => ({
         ...acc,
         [addon.slug]: addon.icon,
       }),
       {}
-    );
+    )
   }
 
   private _homeAssistantItems = memoizeOne(
     (data: BackupData, localize: LocalizeFunc) => {
-      const items: CheckBoxItem[] = [];
+      const items: CheckBoxItem[] = []
 
       if (data.homeassistant_included) {
         items.push({
           label: localize(
-            `ui.panel.${this.translationKeyPanel}.data_picker.${data.database_included ? "settings_and_history" : "settings"}`
+            `ui.panel.${this.translationKeyPanel}.data_picker.${data.database_included ? 'settings_and_history' : 'settings'}`
           ),
-          id: "config",
+          id: 'config',
           version: data.homeassistant_version,
-        });
+        })
       }
       items.push(
-        ...data.folders.map<CheckBoxItem>((folder) => ({
+        ...data.folders.map<CheckBoxItem>(folder => ({
           label: this._localizeFolder(folder),
           id: folder,
         }))
-      );
-      return items;
+      )
+      return items
     }
-  );
+  )
 
   private _localizeFolder(folder: string): string {
-    const localize = this.localize || this.hass!.localize;
+    const localize = this.localize || this.hass!.localize
 
     switch (folder) {
-      case "media":
+      case 'media':
         return localize(
           `ui.panel.${this.translationKeyPanel}.data_picker.media`
-        );
-      case "share":
+        )
+      case 'share':
         return localize(
           `ui.panel.${this.translationKeyPanel}.data_picker.share_folder`
-        );
-      case "ssl":
-        return localize(`ui.panel.${this.translationKeyPanel}.data_picker.ssl`);
-      case "addons/local":
+        )
+      case 'ssl':
+        return localize(`ui.panel.${this.translationKeyPanel}.data_picker.ssl`)
+      case 'addons/local':
         return localize(
           `ui.panel.${this.translationKeyPanel}.data_picker.local_addons`
-        );
+        )
     }
-    return capitalizeFirstLetter(folder);
+    return capitalizeFirstLetter(folder)
   }
 
   private _addonsItems = memoizeOne(
@@ -134,110 +134,106 @@ export class HaBackupDataPicker extends LitElement {
       _localize: LocalizeFunc,
       addonIcons: Record<string, boolean>
     ) =>
-      data.addons.map<BackupAddonItem>((addon) => ({
+      data.addons.map<BackupAddonItem>(addon => ({
         name: addon.name,
         slug: addon.slug,
         version: addon.version,
         icon: addonIcons[addon.slug],
       }))
-  );
+  )
 
   private _parseValue = memoizeOne((value?: BackupData): SelectedItems => {
     if (!value) {
       return {
         homeassistant: [],
         addons: [],
-      };
+      }
     }
-    const homeassistant: string[] = [];
-    const addons: string[] = [];
+    const homeassistant: string[] = []
+    const addons: string[] = []
 
     if (value.homeassistant_included) {
-      homeassistant.push("config");
+      homeassistant.push('config')
     }
 
-    const folders = value.folders;
-    homeassistant.push(...folders);
-    const addonsList = value.addons.map((addon) => addon.slug);
-    addons.push(...addonsList);
+    const folders = value.folders
+    homeassistant.push(...folders)
+    const addonsList = value.addons.map(addon => addon.slug)
+    addons.push(...addonsList)
 
     return {
       homeassistant,
       addons,
-    };
-  });
+    }
+  })
 
   private _formatValue = memoizeOne(
     (selectedItems: SelectedItems, data: BackupData): BackupData => ({
       homeassistant_version: data.homeassistant_version,
-      homeassistant_included: selectedItems.homeassistant.includes("config"),
+      homeassistant_included: selectedItems.homeassistant.includes('config'),
       database_included:
         data.database_included &&
-        selectedItems.homeassistant.includes("config"),
-      addons: data.addons.filter((addon) =>
+        selectedItems.homeassistant.includes('config'),
+      addons: data.addons.filter(addon =>
         selectedItems.addons.includes(addon.slug)
       ),
-      folders: data.folders.filter((folder) =>
+      folders: data.folders.filter(folder =>
         selectedItems.homeassistant.includes(folder)
       ),
     })
-  );
+  )
 
   private _homeassistantChanged(ev: Event) {
-    const itemValues = this._parseValue(this.value);
+    const itemValues = this._parseValue(this.value)
 
-    const checkbox = ev.currentTarget as HaCheckbox;
+    const checkbox = ev.currentTarget as HaCheckbox
     if (checkbox.checked) {
-      itemValues.homeassistant.push(checkbox.id);
+      itemValues.homeassistant.push(checkbox.id)
     } else {
       itemValues.homeassistant = itemValues.homeassistant.filter(
-        (id) => id !== checkbox.id
-      );
+        id => id !== checkbox.id
+      )
     }
 
-    const newValue = this._formatValue(itemValues, this.data);
-    fireEvent(this, "value-changed", { value: newValue });
+    const newValue = this._formatValue(itemValues, this.data)
+    fireEvent(this, 'value-changed', { value: newValue })
   }
 
   private _addonsChanged(ev: CustomEvent) {
-    ev.stopPropagation();
-    const itemValues = this._parseValue(this.value);
+    ev.stopPropagation()
+    const itemValues = this._parseValue(this.value)
 
-    const addons = ev.detail.value;
-    itemValues.addons = addons;
+    const addons = ev.detail.value
+    itemValues.addons = addons
 
-    const newValue = this._formatValue(itemValues, this.data);
-    fireEvent(this, "value-changed", { value: newValue });
+    const newValue = this._formatValue(itemValues, this.data)
+    fireEvent(this, 'value-changed', { value: newValue })
   }
 
   private _sectionChanged(ev: Event) {
-    const itemValues = this._parseValue(this.value);
-    const allValues = this._parseValue(this.data);
+    const itemValues = this._parseValue(this.value)
+    const allValues = this._parseValue(this.data)
 
-    const checkbox = ev.currentTarget as HaCheckbox;
-    const id = checkbox.id;
+    const checkbox = ev.currentTarget as HaCheckbox
+    const id = checkbox.id
     if (checkbox.checked) {
-      itemValues[id] = allValues[id];
+      itemValues[id] = allValues[id]
     } else {
-      itemValues[id] = [];
+      itemValues[id] = []
     }
 
-    const newValue = this._formatValue(itemValues, this.data);
-    fireEvent(this, "value-changed", { value: newValue });
+    const newValue = this._formatValue(itemValues, this.data)
+    fireEvent(this, 'value-changed', { value: newValue })
   }
 
   protected render() {
-    const localize = this.localize || this.hass!.localize;
+    const localize = this.localize || this.hass!.localize
 
-    const homeAssistantItems = this._homeAssistantItems(this.data, localize);
+    const homeAssistantItems = this._homeAssistantItems(this.data, localize)
 
-    const addonsItems = this._addonsItems(
-      this.data,
-      localize,
-      this._addonIcons
-    );
+    const addonsItems = this._addonsItems(this.data, localize, this._addonIcons)
 
-    const selectedItems = this._parseValue(this.value);
+    const selectedItems = this._parseValue(this.value)
 
     return html`
       ${homeAssistantItems.length
@@ -251,7 +247,7 @@ export class HaBackupDataPicker extends LitElement {
                 >
                 </ha-backup-formfield-label>
                 <ha-checkbox
-                  .id=${"homeassistant"}
+                  .id=${'homeassistant'}
                   .checked=${selectedItems.homeassistant.length ===
                   homeAssistantItems.length}
                   .indeterminate=${selectedItems.homeassistant.length > 0 &&
@@ -263,7 +259,7 @@ export class HaBackupDataPicker extends LitElement {
               </ha-formfield>
               <div class="items">
                 ${homeAssistantItems.map(
-                  (item) => html`
+                  item => html`
                     <ha-formfield>
                       <ha-backup-formfield-label
                         slot="label"
@@ -300,7 +296,7 @@ export class HaBackupDataPicker extends LitElement {
                 >
                 </ha-backup-formfield-label>
                 <ha-checkbox
-                  .id=${"addons"}
+                  .id=${'addons'}
                   .checked=${selectedItems.addons.length === addonsItems.length}
                   .indeterminate=${selectedItems.addons.length > 0 &&
                   selectedItems.addons.length < addonsItems.length}
@@ -319,7 +315,7 @@ export class HaBackupDataPicker extends LitElement {
             </div>
           `
         : nothing}
-    `;
+    `
   }
 
   static styles = css`
@@ -341,11 +337,11 @@ export class HaBackupDataPicker extends LitElement {
       padding-inline-start: 40px;
       padding-inline-end: initial;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-backup-data-picker": HaBackupDataPicker;
+    'ha-backup-data-picker': HaBackupDataPicker
   }
 }

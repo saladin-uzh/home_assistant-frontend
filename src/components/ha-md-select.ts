@@ -1,10 +1,10 @@
-import { FilledSelect } from "@material/web/select/internal/filled-select";
-import { styles as sharedStyles } from "@material/web/select/internal/shared-styles";
-import { styles } from "@material/web/select/internal/filled-select-styles";
-import { css } from "lit";
-import { customElement } from "lit/decorators";
+import { FilledSelect } from '@material/web/select/internal/filled-select'
+import { styles as sharedStyles } from '@material/web/select/internal/shared-styles'
+import { styles } from '@material/web/select/internal/filled-select-styles'
+import { css } from 'lit'
+import { customElement } from 'lit/decorators'
 
-@customElement("ha-md-select")
+@customElement('ha-md-select')
 export class HaMdSelect extends FilledSelect {
   static override styles = [
     sharedStyles,
@@ -26,11 +26,11 @@ export class HaMdSelect extends FilledSelect {
         --md-menu-container-color: var(--card-background-color);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-md-select": HaMdSelect;
+    'ha-md-select': HaMdSelect
   }
 }

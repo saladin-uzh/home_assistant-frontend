@@ -1,21 +1,21 @@
-import "@home-assistant/webawesome/dist/components/dialog/dialog";
-import { mdiClose } from "@mdi/js";
-import { css, html, LitElement } from "lit";
+import '@home-assistant/webawesome/dist/components/dialog/dialog'
+import { mdiClose } from '@mdi/js'
+import { css, html, LitElement } from 'lit'
 import {
   customElement,
   eventOptions,
   property,
   query,
   state,
-} from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import { fireEvent } from "../common/dom/fire_event";
-import { haStyleScrollbar } from "../resources/styles";
-import type { HomeAssistant } from "../types";
-import "./ha-dialog-header";
-import "./ha-icon-button";
+} from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import { fireEvent } from '../common/dom/fire_event'
+import { haStyleScrollbar } from '../resources/styles'
+import type { HomeAssistant } from '../types'
+import './ha-dialog-header'
+import './ha-icon-button'
 
-export type DialogWidth = "small" | "medium" | "large" | "full";
+export type DialogWidth = 'small' | 'medium' | 'large' | 'full'
 
 /**
  * Home Assistant dialog component
@@ -72,55 +72,55 @@ export type DialogWidth = "small" | "medium" | "large" | "full";
  *
  * @see https://github.com/home-assistant/frontend/issues/27143
  */
-@customElement("ha-wa-dialog")
+@customElement('ha-wa-dialog')
 export class HaWaDialog extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: "aria-labelledby" })
-  public ariaLabelledBy?: string;
+  @property({ attribute: 'aria-labelledby' })
+  public ariaLabelledBy?: string
 
-  @property({ attribute: "aria-describedby" })
-  public ariaDescribedBy?: string;
+  @property({ attribute: 'aria-describedby' })
+  public ariaDescribedBy?: string
 
   @property({ type: Boolean, reflect: true })
-  public open = false;
+  public open = false
 
   @property({ reflect: true })
-  public type: "alert" | "standard" = "standard";
+  public type: 'alert' | 'standard' = 'standard'
 
-  @property({ type: String, reflect: true, attribute: "width" })
-  public width: DialogWidth = "medium";
+  @property({ type: String, reflect: true, attribute: 'width' })
+  public width: DialogWidth = 'medium'
 
-  @property({ type: Boolean, reflect: true, attribute: "prevent-scrim-close" })
-  public preventScrimClose = false;
+  @property({ type: Boolean, reflect: true, attribute: 'prevent-scrim-close' })
+  public preventScrimClose = false
 
-  @property({ attribute: "header-title" })
-  public headerTitle?: string;
+  @property({ attribute: 'header-title' })
+  public headerTitle?: string
 
-  @property({ attribute: "header-subtitle" })
-  public headerSubtitle?: string;
+  @property({ attribute: 'header-subtitle' })
+  public headerSubtitle?: string
 
-  @property({ type: String, attribute: "header-subtitle-position" })
-  public headerSubtitlePosition: "above" | "below" = "below";
+  @property({ type: String, attribute: 'header-subtitle-position' })
+  public headerSubtitlePosition: 'above' | 'below' = 'below'
 
-  @property({ type: Boolean, reflect: true, attribute: "flexcontent" })
-  public flexContent = false;
-
-  @state()
-  private _open = false;
-
-  @query(".body") public bodyContainer!: HTMLDivElement;
+  @property({ type: Boolean, reflect: true, attribute: 'flexcontent' })
+  public flexContent = false
 
   @state()
-  private _bodyScrolled = false;
+  private _open = false
+
+  @query('.body') public bodyContainer!: HTMLDivElement
+
+  @state()
+  private _bodyScrolled = false
 
   protected updated(
     changedProperties: Map<string | number | symbol, unknown>
   ): void {
-    super.updated(changedProperties);
+    super.updated(changedProperties)
 
-    if (changedProperties.has("open")) {
-      this._open = this.open;
+    if (changedProperties.has('open')) {
+      this._open = this.open
     }
   }
 
@@ -132,7 +132,7 @@ export class HaWaDialog extends LitElement {
         without-header
         aria-labelledby=${ifDefined(
           this.ariaLabelledBy ||
-            (this.headerTitle !== undefined ? "ha-wa-dialog-title" : undefined)
+            (this.headerTitle !== undefined ? 'ha-wa-dialog-title' : undefined)
         )}
         aria-describedby=${ifDefined(this.ariaDescribedBy)}
         @wa-show=${this._handleShow}
@@ -144,60 +144,82 @@ export class HaWaDialog extends LitElement {
             .subtitlePosition=${this.headerSubtitlePosition}
             .showBorder=${this._bodyScrolled}
           >
-            <slot name="headerNavigationIcon" slot="navigationIcon">
+            <slot
+              name="headerNavigationIcon"
+              slot="navigationIcon"
+            >
               <ha-icon-button
                 data-dialog="close"
-                .label=${this.hass?.localize("ui.common.close") ?? "Close"}
+                .label=${this.hass?.localize('ui.common.close') ?? 'Close'}
                 .path=${mdiClose}
               ></ha-icon-button>
             </slot>
             ${this.headerTitle !== undefined
-              ? html`<span slot="title" class="title" id="ha-wa-dialog-title">
+              ? html`<span
+                  slot="title"
+                  class="title"
+                  id="ha-wa-dialog-title"
+                >
                   ${this.headerTitle}
                 </span>`
-              : html`<slot name="headerTitle" slot="title"></slot>`}
+              : html`<slot
+                  name="headerTitle"
+                  slot="title"
+                ></slot>`}
             ${this.headerSubtitle !== undefined
               ? html`<span slot="subtitle">${this.headerSubtitle}</span>`
-              : html`<slot name="headerSubtitle" slot="subtitle"></slot>`}
-            <slot name="headerActionItems" slot="actionItems"></slot>
+              : html`<slot
+                  name="headerSubtitle"
+                  slot="subtitle"
+                ></slot>`}
+            <slot
+              name="headerActionItems"
+              slot="actionItems"
+            ></slot>
           </ha-dialog-header>
         </slot>
-        <div class="body ha-scrollbar" @scroll=${this._handleBodyScroll}>
+        <div
+          class="body ha-scrollbar"
+          @scroll=${this._handleBodyScroll}
+        >
           <slot></slot>
         </div>
-        <slot name="footer" slot="footer"></slot>
+        <slot
+          name="footer"
+          slot="footer"
+        ></slot>
       </wa-dialog>
-    `;
+    `
   }
 
   private _handleShow = async () => {
-    this._open = true;
-    fireEvent(this, "opened");
+    this._open = true
+    fireEvent(this, 'opened')
 
-    await this.updateComplete;
+    await this.updateComplete
 
     requestAnimationFrame(() => {
-      (this.querySelector("[autofocus]") as HTMLElement | null)?.focus();
-    });
-  };
+      ;(this.querySelector('[autofocus]') as HTMLElement | null)?.focus()
+    })
+  }
 
   private _handleAfterShow = () => {
-    fireEvent(this, "after-show");
-  };
+    fireEvent(this, 'after-show')
+  }
 
   private _handleAfterHide = () => {
-    this._open = false;
-    fireEvent(this, "closed");
-  };
+    this._open = false
+    fireEvent(this, 'closed')
+  }
 
   public disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this._open = false;
+    super.disconnectedCallback()
+    this._open = false
   }
 
   @eventOptions({ passive: true })
   private _handleBodyScroll(ev: Event) {
-    this._bodyScrolled = (ev.target as HTMLDivElement).scrollTop > 0;
+    this._bodyScrolled = (ev.target as HTMLDivElement).scrollTop > 0
   }
 
   static styles = [
@@ -224,15 +246,15 @@ export class HaWaDialog extends LitElement {
         max-width: var(--ha-dialog-max-width, var(--safe-width));
       }
 
-      :host([width="small"]) wa-dialog {
+      :host([width='small']) wa-dialog {
         --width: min(var(--ha-dialog-width-sm, 320px), var(--full-width));
       }
 
-      :host([width="large"]) wa-dialog {
+      :host([width='large']) wa-dialog {
         --width: min(var(--ha-dialog-width-lg, 1024px), var(--full-width));
       }
 
-      :host([width="full"]) wa-dialog {
+      :host([width='full']) wa-dialog {
         --width: var(--full-width);
       }
 
@@ -267,7 +289,7 @@ export class HaWaDialog extends LitElement {
       }
 
       @media all and (max-width: 450px), all and (max-height: 500px) {
-        :host([type="standard"]) {
+        :host([type='standard']) {
           --ha-dialog-border-radius: var(--ha-space-0);
 
           wa-dialog {
@@ -349,7 +371,7 @@ export class HaWaDialog extends LitElement {
         padding: var(--ha-space-0);
       }
 
-      ::slotted([slot="footer"]) {
+      ::slotted([slot='footer']) {
         display: flex;
         padding: var(--ha-space-3) var(--ha-space-4) var(--ha-space-4)
           var(--ha-space-4);
@@ -359,17 +381,17 @@ export class HaWaDialog extends LitElement {
         width: 100%;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-wa-dialog": HaWaDialog;
+    'ha-wa-dialog': HaWaDialog
   }
 
   interface HASSDomEvents {
-    opened: undefined;
-    "after-show": undefined;
-    closed: undefined;
+    opened: undefined
+    'after-show': undefined
+    closed: undefined
   }
 }

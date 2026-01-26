@@ -1,22 +1,22 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../../common/dom/fire_event";
-import { deleteConfigEntry } from "../../../data/config_entries";
-import type { IntegrationManifest } from "../../../data/integration";
-import { showConfirmationDialog } from "../../../dialogs/generic/show-dialog-box";
-import type { HomeAssistant } from "../../../types";
-import type { ConfigEntryExtended } from "./ha-config-integrations";
-import "./ha-integration-action-card";
-import "../../../components/ha-button";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../../common/dom/fire_event'
+import { deleteConfigEntry } from '../../../data/config_entries'
+import type { IntegrationManifest } from '../../../data/integration'
+import { showConfirmationDialog } from '../../../dialogs/generic/show-dialog-box'
+import type { HomeAssistant } from '../../../types'
+import type { ConfigEntryExtended } from './ha-config-integrations'
+import './ha-integration-action-card'
+import '../../../components/ha-button'
 
-@customElement("ha-ignored-config-entry-card")
+@customElement('ha-ignored-config-entry-card')
 export class HaIgnoredConfigEntryCard extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public entry!: ConfigEntryExtended;
+  @property({ attribute: false }) public entry!: ConfigEntryExtended
 
-  @property({ attribute: false }) public manifest?: IntegrationManifest;
+  @property({ attribute: false }) public manifest?: IntegrationManifest
 
   protected render(): TemplateResult {
     return html`
@@ -24,51 +24,54 @@ export class HaIgnoredConfigEntryCard extends LitElement {
         .hass=${this.hass}
         .manifest=${this.manifest}
         .banner=${this.hass.localize(
-          "ui.panel.config.integrations.ignore.ignored"
+          'ui.panel.config.integrations.ignore.ignored'
         )}
         .domain=${this.entry.domain}
         .localizedDomainName=${this.entry.localized_domain_name}
-        .label=${this.entry.title === "Ignored"
+        .label=${this.entry.title === 'Ignored'
           ? // In 2020.2 we added support for entry.title. All ignored entries before
             // that have title "Ignored" so we fallback to localized domain name.
             this.entry.localized_domain_name
           : this.entry.title}
       >
-        <ha-button appearance="plain" @click=${this._removeIgnoredIntegration}>
+        <ha-button
+          appearance="plain"
+          @click=${this._removeIgnoredIntegration}
+        >
           ${this.hass.localize(
-            "ui.panel.config.integrations.ignore.stop_ignore"
+            'ui.panel.config.integrations.ignore.stop_ignore'
           )}
         </ha-button>
       </ha-integration-action-card>
-    `;
+    `
   }
 
   private async _removeIgnoredIntegration() {
     showConfirmationDialog(this, {
       title: this.hass!.localize(
-        "ui.panel.config.integrations.ignore.confirm_delete_ignore_title",
+        'ui.panel.config.integrations.ignore.confirm_delete_ignore_title',
         { name: this.hass.localize(`component.${this.entry.domain}.title`) }
       ),
       text: this.hass!.localize(
-        "ui.panel.config.integrations.ignore.confirm_delete_ignore"
+        'ui.panel.config.integrations.ignore.confirm_delete_ignore'
       ),
       confirmText: this.hass!.localize(
-        "ui.panel.config.integrations.ignore.stop_ignore"
+        'ui.panel.config.integrations.ignore.stop_ignore'
       ),
       confirm: async () => {
-        const result = await deleteConfigEntry(this.hass, this.entry.entry_id);
+        const result = await deleteConfigEntry(this.hass, this.entry.entry_id)
         if (result.require_restart) {
           alert(
             this.hass.localize(
-              "ui.panel.config.integrations.config_entry.restart_confirm"
+              'ui.panel.config.integrations.config_entry.restart_confirm'
             )
-          );
+          )
         }
-        fireEvent(this, "change", undefined, {
+        fireEvent(this, 'change', undefined, {
           bubbles: false,
-        });
+        })
       },
-    });
+    })
   }
 
   static styles = css`
@@ -79,11 +82,11 @@ export class HaIgnoredConfigEntryCard extends LitElement {
     ha-button {
       --mdc-theme-primary: var(--primary-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-ignored-config-entry-card": HaIgnoredConfigEntryCard;
+    'ha-ignored-config-entry-card': HaIgnoredConfigEntryCard
   }
 }

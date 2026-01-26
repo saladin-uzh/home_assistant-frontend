@@ -1,34 +1,34 @@
-import type { HomeAssistant, ServiceCallResponse } from "../types";
-import { computeDomain } from "../common/entity/compute_domain";
-import { computeStateName } from "../common/entity/compute_state_name";
-import { isUnavailableState } from "./entity";
-import { stringCompare } from "../common/string/compare";
+import type { HomeAssistant, ServiceCallResponse } from '../types'
+import { computeDomain } from '../common/entity/compute_domain'
+import { computeStateName } from '../common/entity/compute_state_name'
+import { isUnavailableState } from './entity'
+import { stringCompare } from '../common/string/compare'
 
 export interface TodoList {
-  entity_id: string;
-  name: string;
+  entity_id: string
+  name: string
 }
 
 export const enum TodoItemStatus {
-  NeedsAction = "needs_action",
-  Completed = "completed",
+  NeedsAction = 'needs_action',
+  Completed = 'completed',
 }
 
 export enum TodoSortMode {
-  NONE = "none",
-  ALPHA_ASC = "alpha_asc",
-  ALPHA_DESC = "alpha_desc",
-  DUEDATE_ASC = "duedate_asc",
-  DUEDATE_DESC = "duedate_desc",
+  NONE = 'none',
+  ALPHA_ASC = 'alpha_asc',
+  ALPHA_DESC = 'alpha_desc',
+  DUEDATE_ASC = 'duedate_asc',
+  DUEDATE_DESC = 'duedate_desc',
 }
 
 export interface TodoItem {
-  uid: string;
-  summary: string;
-  status: TodoItemStatus | null;
-  description?: string | null;
-  due?: string | null;
-  completed?: string | null;
+  uid: string
+  summary: string
+  status: TodoItemStatus | null
+  description?: string | null
+  due?: string | null
+  completed?: string | null
 }
 
 export const enum TodoListEntityFeature {
@@ -44,19 +44,19 @@ export const enum TodoListEntityFeature {
 export const getTodoLists = (hass: HomeAssistant): TodoList[] =>
   Object.keys(hass.states)
     .filter(
-      (entityId) =>
-        computeDomain(entityId) === "todo" &&
+      entityId =>
+        computeDomain(entityId) === 'todo' &&
         !isUnavailableState(hass.states[entityId].state)
     )
-    .map((entityId) => ({
+    .map(entityId => ({
       ...hass.states[entityId],
       entity_id: entityId,
       name: computeStateName(hass.states[entityId]),
     }))
-    .sort((a, b) => stringCompare(a.name, b.name, hass.locale.language));
+    .sort((a, b) => stringCompare(a.name, b.name, hass.locale.language))
 
 export interface TodoItems {
-  items: TodoItem[];
+  items: TodoItem[]
 }
 
 export const fetchItems = async (
@@ -64,11 +64,11 @@ export const fetchItems = async (
   entity_id: string
 ): Promise<TodoItem[]> => {
   const result = await hass.callWS<TodoItems>({
-    type: "todo/item/list",
+    type: 'todo/item/list',
     entity_id,
-  });
-  return result.items;
-};
+  })
+  return result.items
+}
 
 export const subscribeItems = (
   hass: HomeAssistant,
@@ -76,9 +76,9 @@ export const subscribeItems = (
   callback: (update: TodoItems) => void
 ) =>
   hass.connection.subscribeMessage<any>(callback, {
-    type: "todo/item/subscribe",
+    type: 'todo/item/subscribe',
     entity_id,
-  });
+  })
 
 export const updateItem = (
   hass: HomeAssistant,
@@ -86,41 +86,41 @@ export const updateItem = (
   item: TodoItem
 ): Promise<ServiceCallResponse> =>
   hass.callService(
-    "todo",
-    "update_item",
+    'todo',
+    'update_item',
     {
       item: item.uid,
       rename: item.summary,
       status: item.status,
       description: item.description,
-      due_datetime: item.due?.includes("T") ? item.due : undefined,
+      due_datetime: item.due?.includes('T') ? item.due : undefined,
       due_date:
-        item.due === undefined || item.due?.includes("T")
+        item.due === undefined || item.due?.includes('T')
           ? undefined
           : item.due,
     },
     { entity_id }
-  );
+  )
 
 export const createItem = (
   hass: HomeAssistant,
   entity_id: string,
-  item: Omit<TodoItem, "uid" | "status">
+  item: Omit<TodoItem, 'uid' | 'status'>
 ): Promise<ServiceCallResponse> =>
   hass.callService(
-    "todo",
-    "add_item",
+    'todo',
+    'add_item',
     {
       item: item.summary,
       description: item.description || undefined,
-      due_datetime: item.due?.includes("T") ? item.due : undefined,
+      due_datetime: item.due?.includes('T') ? item.due : undefined,
       due_date:
-        item.due === undefined || item.due?.includes("T")
+        item.due === undefined || item.due?.includes('T')
           ? undefined
           : item.due,
     },
     { entity_id }
-  );
+  )
 
 export const deleteItems = (
   hass: HomeAssistant,
@@ -128,13 +128,13 @@ export const deleteItems = (
   uids: string[]
 ): Promise<ServiceCallResponse> =>
   hass.callService(
-    "todo",
-    "remove_item",
+    'todo',
+    'remove_item',
     {
       item: uids,
     },
     { entity_id }
-  );
+  )
 
 export const moveItem = (
   hass: HomeAssistant,
@@ -143,8 +143,8 @@ export const moveItem = (
   previous_uid: string | undefined
 ): Promise<void> =>
   hass.callWS({
-    type: "todo/item/move",
+    type: 'todo/item/move',
     entity_id,
     uid,
     previous_uid,
-  });
+  })

@@ -1,50 +1,50 @@
-import deepFreeze from "deep-freeze";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-yaml-editor";
-import "../../../../components/ha-button";
+import deepFreeze from 'deep-freeze'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-yaml-editor'
+import '../../../../components/ha-button'
 
-import type { HaYamlEditor } from "../../../../components/ha-yaml-editor";
-import type { LovelaceBadgeConfig } from "../../../../data/lovelace/config/badge";
-import type { LovelaceConfig } from "../../../../data/lovelace/config/types";
-import { haStyleDialog } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import { showSaveSuccessToast } from "../../../../util/toast-saved-success";
-import "../../badges/hui-badge";
-import { addBadges } from "../config-util";
-import type { LovelaceContainerPath } from "../lovelace-path";
-import { parseLovelaceContainerPath } from "../lovelace-path";
-import type { SuggestBadgeDialogParams } from "./show-suggest-badge-dialog";
+import type { HaYamlEditor } from '../../../../components/ha-yaml-editor'
+import type { LovelaceBadgeConfig } from '../../../../data/lovelace/config/badge'
+import type { LovelaceConfig } from '../../../../data/lovelace/config/types'
+import { haStyleDialog } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import { showSaveSuccessToast } from '../../../../util/toast-saved-success'
+import '../../badges/hui-badge'
+import { addBadges } from '../config-util'
+import type { LovelaceContainerPath } from '../lovelace-path'
+import { parseLovelaceContainerPath } from '../lovelace-path'
+import type { SuggestBadgeDialogParams } from './show-suggest-badge-dialog'
 
-@customElement("hui-dialog-suggest-badge")
+@customElement('hui-dialog-suggest-badge')
 export class HuiDialogSuggestBadge extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _params?: SuggestBadgeDialogParams;
+  @state() private _params?: SuggestBadgeDialogParams
 
-  @state() private _badgeConfig?: LovelaceBadgeConfig[];
+  @state() private _badgeConfig?: LovelaceBadgeConfig[]
 
-  @state() private _saving = false;
+  @state() private _saving = false
 
-  @query("ha-yaml-editor") private _yamlEditor?: HaYamlEditor;
+  @query('ha-yaml-editor') private _yamlEditor?: HaYamlEditor
 
   public showDialog(params: SuggestBadgeDialogParams): void {
-    this._params = params;
-    this._badgeConfig = params.badgeConfig;
+    this._params = params
+    this._badgeConfig = params.badgeConfig
     if (!Object.isFrozen(this._badgeConfig)) {
-      this._badgeConfig = deepFreeze(this._badgeConfig);
+      this._badgeConfig = deepFreeze(this._badgeConfig)
     }
     if (this._yamlEditor) {
-      this._yamlEditor.setValue(this._badgeConfig);
+      this._yamlEditor.setValue(this._badgeConfig)
     }
   }
 
   public closeDialog(): void {
-    this._params = undefined;
-    this._badgeConfig = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    this._badgeConfig = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   private _renderPreview() {
@@ -52,7 +52,7 @@ export class HuiDialogSuggestBadge extends LitElement {
       return html`
         <div class="element-preview">
           ${this._badgeConfig.map(
-            (badgeConfig) => html`
+            badgeConfig => html`
               <hui-badge
                 .hass=${this.hass}
                 .config=${badgeConfig}
@@ -61,14 +61,14 @@ export class HuiDialogSuggestBadge extends LitElement {
             `
           )}
         </div>
-      `;
+      `
     }
-    return nothing;
+    return nothing
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
     return html`
       <ha-dialog
@@ -76,7 +76,7 @@ export class HuiDialogSuggestBadge extends LitElement {
         scrimClickAction
         @closed=${this.closeDialog}
         .heading=${this.hass!.localize(
-          "ui.panel.lovelace.editor.suggest_badge.header"
+          'ui.panel.lovelace.editor.suggest_badge.header'
         )}
       >
         <div>
@@ -99,8 +99,8 @@ export class HuiDialogSuggestBadge extends LitElement {
           dialogInitialFocus
         >
           ${this._params.yaml
-            ? this.hass!.localize("ui.common.close")
-            : this.hass!.localize("ui.common.cancel")}
+            ? this.hass!.localize('ui.common.close')
+            : this.hass!.localize('ui.common.cancel')}
         </ha-button>
         ${!this._params.yaml
           ? html`
@@ -110,13 +110,13 @@ export class HuiDialogSuggestBadge extends LitElement {
                 .loading=${this._saving}
               >
                 ${this.hass!.localize(
-                  "ui.panel.lovelace.editor.suggest_badge.add"
+                  'ui.panel.lovelace.editor.suggest_badge.add'
                 )}
               </ha-button>
             `
           : nothing}
       </ha-dialog>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -155,17 +155,17 @@ export class HuiDialogSuggestBadge extends LitElement {
           padding-top: 16px;
         }
       `,
-    ];
+    ]
   }
 
   private _computeNewConfig(
     config: LovelaceConfig,
     path: LovelaceContainerPath
   ): LovelaceConfig {
-    const { viewIndex } = parseLovelaceContainerPath(path);
+    const { viewIndex } = parseLovelaceContainerPath(path)
 
-    const newBadges = this._badgeConfig!;
-    return addBadges(config, [viewIndex], newBadges);
+    const newBadges = this._badgeConfig!
+    return addBadges(config, [viewIndex], newBadges)
   }
 
   private async _save(): Promise<void> {
@@ -175,23 +175,23 @@ export class HuiDialogSuggestBadge extends LitElement {
       !this._params?.saveConfig ||
       !this._badgeConfig
     ) {
-      return;
+      return
     }
-    this._saving = true;
+    this._saving = true
 
     const newConfig = this._computeNewConfig(
       this._params.lovelaceConfig,
       this._params.path
-    );
-    await this._params!.saveConfig(newConfig);
-    this._saving = false;
-    showSaveSuccessToast(this, this.hass);
-    this.closeDialog();
+    )
+    await this._params!.saveConfig(newConfig)
+    this._saving = false
+    showSaveSuccessToast(this, this.hass)
+    this.closeDialog()
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-dialog-suggest-badge": HuiDialogSuggestBadge;
+    'hui-dialog-suggest-badge': HuiDialogSuggestBadge
   }
 }

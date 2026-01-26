@@ -1,14 +1,14 @@
-import type { getConfigEntries } from "../../../src/data/config_entries";
-import type { MockHomeAssistant } from "../../../src/fake_data/provide_hass";
+import type { getConfigEntries } from '../../../src/data/config_entries'
+import type { MockHomeAssistant } from '../../../src/fake_data/provide_hass'
 
 export const mockConfigEntries = (hass: MockHomeAssistant) => {
-  hass.mockWS<typeof getConfigEntries>("config_entries/get", () => [
+  hass.mockWS<typeof getConfigEntries>('config_entries/get', () => [
     {
-      entry_id: "mock-entry-co2signal",
-      domain: "co2signal",
-      title: "Electricity Maps",
-      source: "user",
-      state: "loaded",
+      entry_id: 'mock-entry-co2signal',
+      domain: 'co2signal',
+      title: 'Electricity Maps',
+      source: 'user',
+      state: 'loaded',
       supports_options: false,
       supports_remove_device: false,
       supports_unload: true,
@@ -22,5 +22,5 @@ export const mockConfigEntries = (hass: MockHomeAssistant) => {
       error_reason_translation_key: null,
       error_reason_translation_placeholders: null,
     },
-  ]);
-};
+  ])
+}

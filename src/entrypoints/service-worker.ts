@@ -2,46 +2,46 @@
 
 /// <reference path="../types/service-worker.d.ts" />
 /* eslint-env serviceworker */
-import type { RouteHandler } from "workbox-core";
-import { cacheNames } from "workbox-core";
-import { CacheableResponsePlugin } from "workbox-cacheable-response";
-import { ExpirationPlugin } from "workbox-expiration";
-import { cleanupOutdatedCaches, precacheAndRoute } from "workbox-precaching";
-import { registerRoute, setCatchHandler } from "workbox-routing";
+import type { RouteHandler } from 'workbox-core'
+import { cacheNames } from 'workbox-core'
+import { CacheableResponsePlugin } from 'workbox-cacheable-response'
+import { ExpirationPlugin } from 'workbox-expiration'
+import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
+import { registerRoute, setCatchHandler } from 'workbox-routing'
 import {
   CacheFirst,
   NetworkOnly,
   StaleWhileRevalidate,
-} from "workbox-strategies";
+} from 'workbox-strategies'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-declare const __WB_MANIFEST__: Parameters<typeof precacheAndRoute>[0];
+declare const __WB_MANIFEST__: Parameters<typeof precacheAndRoute>[0]
 
 const noFallBackRegEx =
-  /\/(api|static|auth|frontend_latest|frontend_es5|local)\/.*/;
+  /\/(api|static|auth|frontend_latest|frontend_es5|local)\/.*/
 
 const initRouting = () => {
   precacheAndRoute(__WB_MANIFEST__, {
     // Ignore all URL parameters.
     ignoreURLParametersMatching: [/.*/],
-  });
+  })
 
   // Cache static content (including translations) on first access.
   registerRoute(
     /\/(static|frontend_latest|frontend_es5)\/.+/,
     new CacheFirst({ matchOptions: { ignoreSearch: true } })
-  );
+  )
 
   // Cache any brand images used for 30 days
   // Use revalidation so cache is always available during an extended outage
   registerRoute(
     ({ url, request }) =>
-      url.origin === "https://brands.home-assistant.io" &&
-      request.destination === "image",
+      url.origin === 'https://brands.home-assistant.io' &&
+      request.destination === 'image',
     new StaleWhileRevalidate({
-      cacheName: "brands",
+      cacheName: 'brands',
       // CORS must be forced to work for CSS images
-      fetchOptions: { mode: "cors", credentials: "omit" },
+      fetchOptions: { mode: 'cors', credentials: 'omit' },
       plugins: [
         // Add 404 so we quickly respond to domains with missing images
         new CacheableResponsePlugin({ statuses: [0, 200, 404] }),
@@ -51,19 +51,19 @@ const initRouting = () => {
         }),
       ],
     })
-  );
+  )
 
   // Get api from network.
-  registerRoute(/\/(api|auth)\/.*/, new NetworkOnly());
+  registerRoute(/\/(api|auth)\/.*/, new NetworkOnly())
 
   // Get manifest and onboarding from network.
-  registerRoute(/\/(?:manifest\.json|onboarding\.html)/, new NetworkOnly());
+  registerRoute(/\/(?:manifest\.json|onboarding\.html)/, new NetworkOnly())
 
   // For the root "/" we ignore search
   registerRoute(
     /\/(\?.*)?$/,
     new StaleWhileRevalidate({ matchOptions: { ignoreSearch: true } })
-  );
+  )
 
   // For rest of the files (on Home Assistant domain only) try both cache and network.
   // This includes "/states" response and user files from "/local".
@@ -72,7 +72,7 @@ const initRouting = () => {
   registerRoute(
     /\/.*/,
     new StaleWhileRevalidate({
-      cacheName: "file-cache",
+      cacheName: 'file-cache',
       plugins: [
         new ExpirationPlugin({
           maxAgeSeconds: 60 * 60 * 24,
@@ -80,30 +80,30 @@ const initRouting = () => {
         }),
       ],
     })
-  );
-};
+  )
+}
 
 const initPushNotifications = () => {
   // HTML5 Push Notifications
   function firePushCallback(payload, jwt) {
     // Don't send the JWT in the payload.data
-    delete payload.data.jwt;
+    delete payload.data.jwt
     // If payload.data is empty then just remove the entire payload.data object.
     if (
       Object.keys(payload.data).length === 0 &&
       payload.data.constructor === Object
     ) {
-      delete payload.data;
+      delete payload.data
     }
-    fetch("/api/notify.html5/callback", {
-      credentials: "same-origin",
-      method: "POST",
+    fetch('/api/notify.html5/callback', {
+      credentials: 'same-origin',
+      method: 'POST',
       headers: new Headers({
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + jwt,
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + jwt,
       }),
       body: JSON.stringify(payload),
-    });
+    })
   }
 
   function notificationEventCallback(eventType, event) {
@@ -115,20 +115,20 @@ const initPushNotifications = () => {
         type: eventType,
       },
       event.notification.data.jwt
-    );
+    )
   }
 
-  self.addEventListener("push", (event) => {
-    let data;
+  self.addEventListener('push', event => {
+    let data
     if (event.data) {
-      data = event.data.json();
+      data = event.data.json()
       if (data.dismiss) {
         event.waitUntil(
           self.registration
             .getNotifications({ tag: data.tag })
-            .then((notifications) => notifications.forEach((n) => n.close()))
-        );
-        return;
+            .then(notifications => notifications.forEach(n => n.close()))
+        )
+        return
       }
       event.waitUntil(
         self.registration
@@ -136,103 +136,103 @@ const initPushNotifications = () => {
           .then((/* notification */) => {
             firePushCallback(
               {
-                type: "received",
+                type: 'received',
                 tag: data.tag,
                 data: data.data,
               },
               data.data.jwt
-            );
+            )
           })
-      );
+      )
     }
-  });
+  })
 
-  self.addEventListener("notificationclick", (event) => {
-    notificationEventCallback("clicked", event);
+  self.addEventListener('notificationclick', event => {
+    notificationEventCallback('clicked', event)
 
-    event.notification.close();
+    event.notification.close()
 
     if (
       event.action ||
       !event.notification.data ||
       !event.notification.data.url
     ) {
-      return;
+      return
     }
 
-    const url = event.notification.data.url;
+    const url = event.notification.data.url
 
-    if (!url) return;
+    if (!url) return
 
     event.waitUntil(
       clients
         .matchAll({
-          type: "window",
+          type: 'window',
         })
-        .then((windowClients) => {
-          let i;
-          let client;
+        .then(windowClients => {
+          let i
+          let client
           for (i = 0; i < windowClients.length; i++) {
-            client = windowClients[i];
-            if (client.url === url && "focus" in client) {
-              return client.focus();
+            client = windowClients[i]
+            if (client.url === url && 'focus' in client) {
+              return client.focus()
             }
           }
           if (clients.openWindow) {
-            return clients.openWindow(url);
+            return clients.openWindow(url)
           }
-          return undefined;
+          return undefined
         })
-    );
-  });
+    )
+  })
 
-  self.addEventListener("notificationclose", (event) => {
-    notificationEventCallback("closed", event);
-  });
-};
+  self.addEventListener('notificationclose', event => {
+    notificationEventCallback('closed', event)
+  })
+}
 
-const catchHandler: RouteHandler = async (options) => {
-  const dest = (options.request as Request).destination;
-  const url = (options.request as Request).url;
+const catchHandler: RouteHandler = async options => {
+  const dest = (options.request as Request).destination
+  const url = (options.request as Request).url
 
-  if (dest !== "document" || noFallBackRegEx.test(url)) {
-    return Response.error();
+  if (dest !== 'document' || noFallBackRegEx.test(url)) {
+    return Response.error()
   }
   // eslint-disable-next-line no-console
-  console.log("Using fallback for:", url);
+  console.log('Using fallback for:', url)
 
-  return (await caches.match("/", { ignoreSearch: true })) || Response.error();
-};
+  return (await caches.match('/', { ignoreSearch: true })) || Response.error()
+}
 
-self.addEventListener("install", (event) => {
+self.addEventListener('install', event => {
   // Delete all runtime caching, so that index.html has to be refetched.
   // And add the new index.html back to the runtime cache
-  const cacheName = cacheNames.runtime;
+  const cacheName = cacheNames.runtime
   event.waitUntil(
     caches.delete(cacheName).then(() =>
-      caches.open(cacheName).then((cache) => {
-        cache.add("/");
+      caches.open(cacheName).then(cache => {
+        cache.add('/')
       })
     )
-  );
-});
+  )
+})
 
-self.addEventListener("activate", () => {
+self.addEventListener('activate', () => {
   // Attach the service worker to any page of the app
   // that didn't have a service worker loaded.
   // Happens the first time they open the app without any
   // service worker registered.
   // This will serve code split bundles from SW.
-  clients.claim();
-});
+  clients.claim()
+})
 
-self.addEventListener("message", (message) => {
-  if (message.data.type === "skipWaiting") {
-    self.skipWaiting();
+self.addEventListener('message', message => {
+  if (message.data.type === 'skipWaiting') {
+    self.skipWaiting()
   }
-});
+})
 
-cleanupOutdatedCaches();
-initRouting();
-setCatchHandler(catchHandler);
-initPushNotifications();
+cleanupOutdatedCaches()
+initRouting()
+setCatchHandler(catchHandler)
+initPushNotifications()

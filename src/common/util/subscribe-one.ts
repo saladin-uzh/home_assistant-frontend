@@ -1,4 +1,4 @@
-import type { Connection, UnsubscribeFunc } from "home-assistant-js-websocket";
+import type { Connection, UnsubscribeFunc } from 'home-assistant-js-websocket'
 
 export const subscribeOne = async <T>(
   conn: Connection,
@@ -7,9 +7,9 @@ export const subscribeOne = async <T>(
     onChange: (items: T) => void
   ) => UnsubscribeFunc
 ) =>
-  new Promise<T>((resolve) => {
-    const unsub = subscribe(conn, (items) => {
-      unsub();
-      resolve(items);
-    });
-  });
+  new Promise<T>(resolve => {
+    const unsub = subscribe(conn, items => {
+      unsub()
+      resolve(items)
+    })
+  })

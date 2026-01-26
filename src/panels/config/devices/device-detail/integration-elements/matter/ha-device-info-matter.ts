@@ -1,63 +1,63 @@
-import type { CSSResultGroup, PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "../../../../../../components/ha-expansion-panel";
-import type { DeviceRegistryEntry } from "../../../../../../data/device_registry";
-import type { MatterNodeDiagnostics } from "../../../../../../data/matter";
-import { getMatterNodeDiagnostics } from "../../../../../../data/matter";
-import { SubscribeMixin } from "../../../../../../mixins/subscribe-mixin";
-import { haStyle } from "../../../../../../resources/styles";
-import type { HomeAssistant } from "../../../../../../types";
+import type { CSSResultGroup, PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import '../../../../../../components/ha-expansion-panel'
+import type { DeviceRegistryEntry } from '../../../../../../data/device_registry'
+import type { MatterNodeDiagnostics } from '../../../../../../data/matter'
+import { getMatterNodeDiagnostics } from '../../../../../../data/matter'
+import { SubscribeMixin } from '../../../../../../mixins/subscribe-mixin'
+import { haStyle } from '../../../../../../resources/styles'
+import type { HomeAssistant } from '../../../../../../types'
 
-@customElement("ha-device-info-matter")
+@customElement('ha-device-info-matter')
 export class HaDeviceInfoMatter extends SubscribeMixin(LitElement) {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public device!: DeviceRegistryEntry;
+  @property({ attribute: false }) public device!: DeviceRegistryEntry
 
-  @state() private _nodeDiagnostics?: MatterNodeDiagnostics;
+  @state() private _nodeDiagnostics?: MatterNodeDiagnostics
 
   public willUpdate(changedProperties: PropertyValues) {
-    super.willUpdate(changedProperties);
-    if (changedProperties.has("device")) {
-      this._fetchNodeDetails();
+    super.willUpdate(changedProperties)
+    if (changedProperties.has('device')) {
+      this._fetchNodeDetails()
     }
   }
 
   private async _fetchNodeDetails() {
     if (!this.device) {
-      return;
+      return
     }
 
     if (this.device.via_device_id !== null) {
       // only show device details for top level nodes (so not bridged)
-      return;
+      return
     }
 
     try {
       this._nodeDiagnostics = await getMatterNodeDiagnostics(
         this.hass,
         this.device.id
-      );
+      )
     } catch (_err: any) {
-      this._nodeDiagnostics = undefined;
+      this._nodeDiagnostics = undefined
     }
   }
 
   protected render() {
     if (!this._nodeDiagnostics) {
-      return nothing;
+      return nothing
     }
     return html`
       <ha-expansion-panel
         .header=${this.hass.localize(
-          "ui.panel.config.matter.device_info.device_info"
+          'ui.panel.config.matter.device_info.device_info'
         )}
       >
         <div class="row">
           <span class="name"
             >${this.hass.localize(
-              "ui.panel.config.matter.device_info.node_id"
+              'ui.panel.config.matter.device_info.node_id'
             )}:</span
           >
           <span class="value">${this._nodeDiagnostics.node_id}</span>
@@ -65,7 +65,7 @@ export class HaDeviceInfoMatter extends SubscribeMixin(LitElement) {
         <div class="row">
           <span class="name"
             >${this.hass.localize(
-              "ui.panel.config.matter.device_info.network_type"
+              'ui.panel.config.matter.device_info.network_type'
             )}:</span
           >
           <span class="value"
@@ -77,7 +77,7 @@ export class HaDeviceInfoMatter extends SubscribeMixin(LitElement) {
         <div class="row">
           <span class="name"
             >${this.hass.localize(
-              "ui.panel.config.matter.device_info.node_type"
+              'ui.panel.config.matter.device_info.node_type'
             )}:</span
           >
           <span class="value"
@@ -91,7 +91,7 @@ export class HaDeviceInfoMatter extends SubscribeMixin(LitElement) {
               <div class="row">
                 <span class="name"
                   >${this.hass.localize(
-                    "ui.panel.config.matter.device_info.network_name"
+                    'ui.panel.config.matter.device_info.network_name'
                   )}:</span
                 >
                 <span class="value">${this._nodeDiagnostics.network_name}</span>
@@ -103,7 +103,7 @@ export class HaDeviceInfoMatter extends SubscribeMixin(LitElement) {
               <div class="row">
                 <span class="name"
                   >${this.hass.localize(
-                    "ui.panel.config.matter.device_info.mac_address"
+                    'ui.panel.config.matter.device_info.mac_address'
                   )}:</span
                 >
                 <span class="value">${this._nodeDiagnostics.mac_address}</span>
@@ -114,17 +114,17 @@ export class HaDeviceInfoMatter extends SubscribeMixin(LitElement) {
         <div class="row">
           <span class="name"
             >${this.hass.localize(
-              "ui.panel.config.matter.device_info.ip_adresses"
+              'ui.panel.config.matter.device_info.ip_adresses'
             )}:</span
           >
           <span class="value"
             >${this._nodeDiagnostics.ip_adresses.map(
-              (ip) => html`${ip}<br />`
+              ip => html`${ip}<br />`
             )}</span
           >
         </div>
       </ha-expansion-panel>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -153,12 +153,12 @@ export class HaDeviceInfoMatter extends SubscribeMixin(LitElement) {
           --ha-card-border-radius: var(--ha-border-radius-square);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-device-info-matter": HaDeviceInfoMatter;
+    'ha-device-info-matter': HaDeviceInfoMatter
   }
 }

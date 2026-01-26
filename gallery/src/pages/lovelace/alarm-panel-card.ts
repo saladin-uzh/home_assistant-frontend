@@ -1,37 +1,37 @@
-import type { PropertyValues, TemplateResult } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, query } from "lit/decorators";
-import { getEntity } from "../../../../src/fake_data/entity";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import "../../components/demo-cards";
-import { mockIcons } from "../../../../demo/src/stubs/icons";
+import type { PropertyValues, TemplateResult } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, query } from 'lit/decorators'
+import { getEntity } from '../../../../src/fake_data/entity'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import '../../components/demo-cards'
+import { mockIcons } from '../../../../demo/src/stubs/icons'
 
 const ENTITIES = [
-  getEntity("alarm_control_panel", "alarm", "disarmed", {
-    friendly_name: "Alarm",
+  getEntity('alarm_control_panel', 'alarm', 'disarmed', {
+    friendly_name: 'Alarm',
   }),
-  getEntity("alarm_control_panel", "alarm_armed", "armed_home", {
-    friendly_name: "Alarm",
+  getEntity('alarm_control_panel', 'alarm_armed', 'armed_home', {
+    friendly_name: 'Alarm',
   }),
-  getEntity("alarm_control_panel", "unavailable", "unavailable", {
-    friendly_name: "Alarm",
+  getEntity('alarm_control_panel', 'unavailable', 'unavailable', {
+    friendly_name: 'Alarm',
   }),
-  getEntity("alarm_control_panel", "alarm_code", "disarmed", {
-    friendly_name: "Alarm",
-    code_format: "number",
+  getEntity('alarm_control_panel', 'alarm_code', 'disarmed', {
+    friendly_name: 'Alarm',
+    code_format: 'number',
   }),
-];
+]
 
 const CONFIGS = [
   {
-    heading: "Basic Example",
+    heading: 'Basic Example',
     config: `
 - type: alarm-panel
   entity: alarm_control_panel.alarm
     `,
   },
   {
-    heading: "With Title",
+    heading: 'With Title',
     config: `
 - type: alarm-panel
   entity: alarm_control_panel.alarm_armed
@@ -39,14 +39,14 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Code Example",
+    heading: 'Code Example',
     config: `
 - type: alarm-panel
   entity: alarm_control_panel.alarm_code
     `,
   },
   {
-    heading: "Using only Arm_Home State",
+    heading: 'Using only Arm_Home State',
     config: `
 - type: alarm-panel
   entity: alarm_control_panel.alarm
@@ -55,7 +55,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Unavailable",
+    heading: 'Unavailable',
     config: `
 - type: alarm-panel
   entity: alarm_control_panel.unavailable
@@ -64,34 +64,37 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Invalid Entity",
+    heading: 'Invalid Entity',
     config: `
 - type: alarm-panel
   entity: alarm_control_panel.alarm1
     `,
   },
-];
+]
 
-@customElement("demo-lovelace-alarm-panel-card")
+@customElement('demo-lovelace-alarm-panel-card')
 class DemoAlarmPanelEntity extends LitElement {
-  @query("#demos") private _demoRoot!: HTMLElement;
+  @query('#demos') private _demoRoot!: HTMLElement
 
   protected render(): TemplateResult {
-    return html`<demo-cards id="demos" .configs=${CONFIGS}></demo-cards>`;
+    return html`<demo-cards
+      id="demos"
+      .configs=${CONFIGS}
+    ></demo-cards>`
   }
 
   protected firstUpdated(changedProperties: PropertyValues) {
-    super.firstUpdated(changedProperties);
-    const hass = provideHass(this._demoRoot);
-    hass.updateTranslations(null, "en");
-    hass.updateTranslations("lovelace", "en");
-    hass.addEntities(ENTITIES);
-    mockIcons(hass);
+    super.firstUpdated(changedProperties)
+    const hass = provideHass(this._demoRoot)
+    hass.updateTranslations(null, 'en')
+    hass.updateTranslations('lovelace', 'en')
+    hass.addEntities(ENTITIES)
+    mockIcons(hass)
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-lovelace-alarm-panel-card": DemoAlarmPanelEntity;
+    'demo-lovelace-alarm-panel-card': DemoAlarmPanelEntity
   }
 }

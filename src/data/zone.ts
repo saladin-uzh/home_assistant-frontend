@@ -1,40 +1,40 @@
-import { navigate } from "../common/navigate";
-import type { HomeAssistant } from "../types";
+import { navigate } from '../common/navigate'
+import type { HomeAssistant } from '../types'
 
 export interface Zone {
-  id: string;
-  name: string;
-  icon?: string;
-  latitude: number;
-  longitude: number;
-  passive?: boolean;
-  radius?: number;
+  id: string
+  name: string
+  icon?: string
+  latitude: number
+  longitude: number
+  passive?: boolean
+  radius?: number
 }
 
 export interface HomeZoneMutableParams {
-  name?: string;
-  latitude: number;
-  longitude: number;
-  radius: number;
+  name?: string
+  latitude: number
+  longitude: number
+  radius: number
 }
 
 export interface ZoneMutableParams {
-  name: string;
-  icon?: string;
-  latitude: number;
-  longitude: number;
-  passive?: boolean;
-  radius?: number;
+  name: string
+  icon?: string
+  latitude: number
+  longitude: number
+  passive?: boolean
+  radius?: number
 }
 
 export const fetchZones = (hass: HomeAssistant) =>
-  hass.callWS<Zone[]>({ type: "zone/list" });
+  hass.callWS<Zone[]>({ type: 'zone/list' })
 
 export const createZone = (hass: HomeAssistant, values: ZoneMutableParams) =>
   hass.callWS<Zone>({
-    type: "zone/create",
+    type: 'zone/create',
     ...values,
-  });
+  })
 
 export const updateZone = (
   hass: HomeAssistant,
@@ -42,26 +42,26 @@ export const updateZone = (
   updates: Partial<ZoneMutableParams>
 ) =>
   hass.callWS<Zone>({
-    type: "zone/update",
+    type: 'zone/update',
     zone_id: zoneId,
     ...updates,
-  });
+  })
 
 export const deleteZone = (hass: HomeAssistant, zoneId: string) =>
   hass.callWS({
-    type: "zone/delete",
+    type: 'zone/delete',
     zone_id: zoneId,
-  });
+  })
 
-let inititialZoneEditorData: Partial<ZoneMutableParams> | undefined;
+let inititialZoneEditorData: Partial<ZoneMutableParams> | undefined
 
 export const showZoneEditor = (data?: Partial<ZoneMutableParams>) => {
-  inititialZoneEditorData = data;
-  navigate("/config/zone/new");
-};
+  inititialZoneEditorData = data
+  navigate('/config/zone/new')
+}
 
 export const getZoneEditorInitData = () => {
-  const data = inititialZoneEditorData;
-  inititialZoneEditorData = undefined;
-  return data;
-};
+  const data = inititialZoneEditorData
+  inititialZoneEditorData = undefined
+  return data
+}

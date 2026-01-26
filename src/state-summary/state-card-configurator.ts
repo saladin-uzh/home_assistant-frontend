@@ -1,19 +1,19 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import "../components/entity/state-info";
-import "../components/ha-button";
-import { customElement, property } from "lit/decorators";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import type { HomeAssistant } from "../types";
-import { haStyle } from "../resources/styles";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import '../components/entity/state-info'
+import '../components/ha-button'
+import { customElement, property } from 'lit/decorators'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import type { HomeAssistant } from '../types'
+import { haStyle } from '../resources/styles'
 
-@customElement("state-card-configurator")
+@customElement('state-card-configurator')
 class StateCardConfigurator extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj!: HassEntity;
+  @property({ attribute: false }) public stateObj!: HassEntity
 
-  @property({ attribute: "in-dialog", type: Boolean }) public inDialog = false;
+  @property({ attribute: 'in-dialog', type: Boolean }) public inDialog = false
 
   protected render(): TemplateResult {
     return html`
@@ -24,12 +24,14 @@ class StateCardConfigurator extends LitElement {
           .inDialog=${this.inDialog}
         ></state-info>
         ${this.inDialog
-          ? html`<ha-button appearance="plain" size="small"
+          ? html`<ha-button
+              appearance="plain"
+              size="small"
               >${this.hass.formatEntityState(this.stateObj)}</ha-button
             >`
           : nothing}
       </div>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -44,12 +46,12 @@ class StateCardConfigurator extends LitElement {
           margin-inline-start: initial;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "state-card-configurator": StateCardConfigurator;
+    'state-card-configurator': StateCardConfigurator
   }
 }

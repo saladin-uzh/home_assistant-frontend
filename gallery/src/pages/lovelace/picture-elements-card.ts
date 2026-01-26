@@ -1,45 +1,45 @@
-import type { PropertyValues, TemplateResult } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, query } from "lit/decorators";
-import { getEntity } from "../../../../src/fake_data/entity";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import "../../components/demo-cards";
-import { mockIcons } from "../../../../demo/src/stubs/icons";
+import type { PropertyValues, TemplateResult } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, query } from 'lit/decorators'
+import { getEntity } from '../../../../src/fake_data/entity'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import '../../components/demo-cards'
+import { mockIcons } from '../../../../demo/src/stubs/icons'
 
 const ENTITIES = [
-  getEntity("light", "bed_light", "on", {
-    friendly_name: "Bed Light",
+  getEntity('light', 'bed_light', 'on', {
+    friendly_name: 'Bed Light',
   }),
-  getEntity("group", "all_lights", "on", {
-    entity_id: ["light.bed_light"],
+  getEntity('group', 'all_lights', 'on', {
+    entity_id: ['light.bed_light'],
     order: 8,
-    friendly_name: "All Lights",
+    friendly_name: 'All Lights',
   }),
-  getEntity("camera", "demo_camera", "idle", {
+  getEntity('camera', 'demo_camera', 'idle', {
     access_token:
-      "2f5bb163fb91cd8770a9494fa5e7eab172d8d34f4aba806eb6b59411b8c720b8",
-    friendly_name: "Demo camera",
+      '2f5bb163fb91cd8770a9494fa5e7eab172d8d34f4aba806eb6b59411b8c720b8',
+    friendly_name: 'Demo camera',
     entity_picture:
-      "/api/camera_proxy/camera.demo_camera?token=2f5bb163fb91cd8770a9494fa5e7eab172d8d34f4aba806eb6b59411b8c720b8",
+      '/api/camera_proxy/camera.demo_camera?token=2f5bb163fb91cd8770a9494fa5e7eab172d8d34f4aba806eb6b59411b8c720b8',
   }),
-  getEntity("binary_sensor", "movement_backyard", "on", {
-    friendly_name: "Movement Backyard",
-    device_class: "motion",
+  getEntity('binary_sensor', 'movement_backyard', 'on', {
+    friendly_name: 'Movement Backyard',
+    device_class: 'motion',
   }),
-  getEntity("person", "paulus", "home", {
-    friendly_name: "Paulus",
-    entity_picture: "/images/paulus.jpg",
+  getEntity('person', 'paulus', 'home', {
+    friendly_name: 'Paulus',
+    entity_picture: '/images/paulus.jpg',
   }),
-  getEntity("sensor", "battery", 35, {
-    device_class: "battery",
-    friendly_name: "Battery",
-    unit_of_measurement: "%",
+  getEntity('sensor', 'battery', 35, {
+    device_class: 'battery',
+    friendly_name: 'Battery',
+    unit_of_measurement: '%',
   }),
-];
+]
 
 const CONFIGS = [
   {
-    heading: "Card with few elements",
+    heading: 'Card with few elements',
     config: `
 - type: picture-elements
   image: /images/floorplan.png
@@ -86,7 +86,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Card with header",
+    heading: 'Card with header',
     config: `
 - type: picture-elements
   image: /images/floorplan.png
@@ -134,7 +134,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Person entity",
+    heading: 'Person entity',
     config: `
 - type: picture-elements
   image_entity: person.paulus
@@ -146,28 +146,31 @@ const CONFIGS = [
       left: 8%
     `,
   },
-];
+]
 
-@customElement("demo-lovelace-picture-elements-card")
+@customElement('demo-lovelace-picture-elements-card')
 class DemoPictureElements extends LitElement {
-  @query("#demos") private _demoRoot!: HTMLElement;
+  @query('#demos') private _demoRoot!: HTMLElement
 
   protected render(): TemplateResult {
-    return html`<demo-cards id="demos" .configs=${CONFIGS}></demo-cards>`;
+    return html`<demo-cards
+      id="demos"
+      .configs=${CONFIGS}
+    ></demo-cards>`
   }
 
   protected firstUpdated(changedProperties: PropertyValues) {
-    super.firstUpdated(changedProperties);
-    const hass = provideHass(this._demoRoot);
-    hass.updateTranslations(null, "en");
-    hass.updateTranslations("lovelace", "en");
-    hass.addEntities(ENTITIES);
-    mockIcons(hass);
+    super.firstUpdated(changedProperties)
+    const hass = provideHass(this._demoRoot)
+    hass.updateTranslations(null, 'en')
+    hass.updateTranslations('lovelace', 'en')
+    hass.addEntities(ENTITIES)
+    mockIcons(hass)
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-lovelace-picture-elements-card": DemoPictureElements;
+    'demo-lovelace-picture-elements-card': DemoPictureElements
   }
 }

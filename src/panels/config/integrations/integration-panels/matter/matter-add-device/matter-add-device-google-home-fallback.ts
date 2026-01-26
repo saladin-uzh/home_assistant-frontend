@@ -1,18 +1,18 @@
-import { LitElement, html } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../../../../common/dom/fire_event";
-import "../../../../../../components/ha-icon-next";
-import "../../../../../../components/ha-md-list-item";
-import "../../../../../../components/ha-md-list";
-import "../../../../../../components/ha-textfield";
-import type { HomeAssistant } from "../../../../../../types";
-import { sharedStyles } from "./matter-add-device-shared-styles";
+import { LitElement, html } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../../../common/dom/fire_event'
+import '../../../../../../components/ha-icon-next'
+import '../../../../../../components/ha-md-list-item'
+import '../../../../../../components/ha-md-list'
+import '../../../../../../components/ha-textfield'
+import type { HomeAssistant } from '../../../../../../types'
+import { sharedStyles } from './matter-add-device-shared-styles'
 
-@customElement("matter-add-device-google-home-fallback")
+@customElement('matter-add-device-google-home-fallback')
 class MatterAddDeviceGoogleHomeFallback extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _code = "";
+  @state() private _code = ''
 
   render() {
     return html`
@@ -67,20 +67,20 @@ class MatterAddDeviceGoogleHomeFallback extends LitElement {
           @input=${this._onCodeChanged}
         ></ha-textfield>
       </div>
-    `;
+    `
   }
 
   private _onCodeChanged(ev: any) {
-    const value = ev.currentTarget.value;
-    this._code = value;
-    fireEvent(this, "pairing-code-changed", { code: value });
+    const value = ev.currentTarget.value
+    this._code = value
+    fireEvent(this, 'pairing-code-changed', { code: value })
   }
 
-  static styles = [sharedStyles];
+  static styles = [sharedStyles]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "matter-add-device-google-home-fallback": MatterAddDeviceGoogleHomeFallback;
+    'matter-add-device-google-home-fallback': MatterAddDeviceGoogleHomeFallback
   }
 }

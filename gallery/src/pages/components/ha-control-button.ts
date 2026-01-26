@@ -1,60 +1,55 @@
-import {
-  mdiFanSpeed1,
-  mdiFanSpeed2,
-  mdiFanSpeed3,
-  mdiLightbulb,
-} from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import { repeat } from "lit/directives/repeat";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-control-button";
-import "../../../../src/components/ha-control-button-group";
-import "../../../../src/components/ha-svg-icon";
+import { mdiFanSpeed1, mdiFanSpeed2, mdiFanSpeed3, mdiLightbulb } from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import { repeat } from 'lit/directives/repeat'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-control-button'
+import '../../../../src/components/ha-control-button-group'
+import '../../../../src/components/ha-svg-icon'
 
 interface Button {
-  label: string;
-  icon?: string;
-  class?: string;
-  disabled?: boolean;
+  label: string
+  icon?: string
+  class?: string
+  disabled?: boolean
 }
 
 const buttons: Button[] = [
   {
-    label: "Button",
+    label: 'Button',
   },
   {
-    label: "Button and custom style",
-    class: "custom",
+    label: 'Button and custom style',
+    class: 'custom',
   },
   {
-    label: "Disabled Button",
+    label: 'Disabled Button',
     disabled: true,
   },
-];
+]
 
 interface ButtonGroup {
-  vertical?: boolean;
-  class?: string;
+  vertical?: boolean
+  class?: string
 }
 
 const buttonGroups: ButtonGroup[] = [
   {},
   {
-    class: "custom-group",
+    class: 'custom-group',
   },
-];
+]
 
-@customElement("demo-components-ha-control-button")
+@customElement('demo-components-ha-control-button')
 export class DemoHaBarButton extends LitElement {
   protected render(): TemplateResult {
     return html`
       <ha-card>
         ${repeat(
           buttons,
-          (btn) => html`
+          btn => html`
             <div class="card-content">
               <pre>Config: ${JSON.stringify(btn)}</pre>
               <ha-control-button
@@ -72,7 +67,7 @@ export class DemoHaBarButton extends LitElement {
       <ha-card>
         ${repeat(
           buttonGroups,
-          (group) => html`
+          group => html`
             <div class="card-content">
               <pre>Config: ${JSON.stringify(group)}</pre>
               <ha-control-button-group class=${ifDefined(group.class)}>
@@ -105,7 +100,7 @@ export class DemoHaBarButton extends LitElement {
           <div class="vertical-buttons">
             ${repeat(
               buttonGroups,
-              (group) => html`
+              group => html`
                 <ha-control-button-group
                   vertical
                   class=${ifDefined(group.class)}
@@ -134,7 +129,7 @@ export class DemoHaBarButton extends LitElement {
           </div>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -181,11 +176,11 @@ export class DemoHaBarButton extends LitElement {
     .vertical-switches > *:not(:last-child) {
       margin-right: 4px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-components-ha-control-button": DemoHaBarButton;
+    'demo-components-ha-control-button': DemoHaBarButton
   }
 }

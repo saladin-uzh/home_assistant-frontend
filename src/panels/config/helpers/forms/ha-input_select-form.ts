@@ -1,76 +1,76 @@
-import { mdiDelete, mdiDragHorizontalVariant } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { repeat } from "lit/directives/repeat";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-button";
-import "../../../../components/ha-icon-button";
-import "../../../../components/ha-icon-picker";
-import "../../../../components/ha-list";
-import "../../../../components/ha-list-item";
-import "../../../../components/ha-sortable";
-import "../../../../components/ha-textfield";
-import type { HaTextField } from "../../../../components/ha-textfield";
-import type { InputSelect } from "../../../../data/input_select";
-import { showConfirmationDialog } from "../../../../dialogs/generic/show-dialog-box";
-import { haStyle } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
+import { mdiDelete, mdiDragHorizontalVariant } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { repeat } from 'lit/directives/repeat'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-button'
+import '../../../../components/ha-icon-button'
+import '../../../../components/ha-icon-picker'
+import '../../../../components/ha-list'
+import '../../../../components/ha-list-item'
+import '../../../../components/ha-sortable'
+import '../../../../components/ha-textfield'
+import type { HaTextField } from '../../../../components/ha-textfield'
+import type { InputSelect } from '../../../../data/input_select'
+import { showConfirmationDialog } from '../../../../dialogs/generic/show-dialog-box'
+import { haStyle } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
 
-@customElement("ha-input_select-form")
+@customElement('ha-input_select-form')
 class HaInputSelectForm extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public new = false;
+  @property({ type: Boolean }) public new = false
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  private _item?: InputSelect;
+  private _item?: InputSelect
 
-  @state() private _name!: string;
+  @state() private _name!: string
 
-  @state() private _icon!: string;
+  @state() private _icon!: string
 
-  @state() private _options: string[] = [];
+  @state() private _options: string[] = []
 
-  @query("#option_input", true) private _optionInput?: HaTextField;
+  @query('#option_input', true) private _optionInput?: HaTextField
 
   private _optionMoved(ev: CustomEvent): void {
-    ev.stopPropagation();
-    const { oldIndex, newIndex } = ev.detail;
-    const options = this._options.concat();
-    const option = options.splice(oldIndex, 1)[0];
-    options.splice(newIndex, 0, option);
+    ev.stopPropagation()
+    const { oldIndex, newIndex } = ev.detail
+    const options = this._options.concat()
+    const option = options.splice(oldIndex, 1)[0]
+    options.splice(newIndex, 0, option)
 
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: { ...this._item, options },
-    });
+    })
   }
 
   set item(item: InputSelect) {
-    this._item = item;
+    this._item = item
     if (item) {
-      this._name = item.name || "";
-      this._icon = item.icon || "";
-      this._options = item.options || [];
+      this._name = item.name || ''
+      this._icon = item.icon || ''
+      this._options = item.options || []
     } else {
-      this._name = "";
-      this._icon = "";
-      this._options = [];
+      this._name = ''
+      this._icon = ''
+      this._options = []
     }
   }
 
   public focus() {
     this.updateComplete.then(() =>
       (
-        this.shadowRoot?.querySelector("[dialogInitialFocus]") as HTMLElement
+        this.shadowRoot?.querySelector('[dialogInitialFocus]') as HTMLElement
       )?.focus()
-    );
+    )
   }
 
   protected render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -80,29 +80,29 @@ class HaInputSelectForm extends LitElement {
           autoValidate
           required
           .validationMessage=${this.hass!.localize(
-            "ui.dialogs.helper_settings.required_error_msg"
+            'ui.dialogs.helper_settings.required_error_msg'
           )}
           .value=${this._name}
           .label=${this.hass!.localize(
-            "ui.dialogs.helper_settings.generic.name"
+            'ui.dialogs.helper_settings.generic.name'
           )}
-          .configValue=${"name"}
+          .configValue=${'name'}
           @input=${this._valueChanged}
           .disabled=${this.disabled}
         ></ha-textfield>
         <ha-icon-picker
           .hass=${this.hass}
           .value=${this._icon}
-          .configValue=${"icon"}
+          .configValue=${'icon'}
           @value-changed=${this._valueChanged}
           .label=${this.hass!.localize(
-            "ui.dialogs.helper_settings.generic.icon"
+            'ui.dialogs.helper_settings.generic.icon'
           )}
           .disabled=${this.disabled}
         ></ha-icon-picker>
         <div class="header">
           ${this.hass!.localize(
-            "ui.dialogs.helper_settings.input_select.options"
+            'ui.dialogs.helper_settings.input_select.options'
           )}:
         </div>
         <ha-sortable
@@ -114,9 +114,12 @@ class HaInputSelectForm extends LitElement {
             ${this._options.length
               ? repeat(
                   this._options,
-                  (option) => option,
+                  option => option,
                   (option, index) => html`
-                    <ha-list-item class="option" hasMeta>
+                    <ha-list-item
+                      class="option"
+                      hasMeta
+                    >
                       <div class="optioncontent">
                         <div class="handle">
                           <ha-svg-icon
@@ -129,7 +132,7 @@ class HaInputSelectForm extends LitElement {
                         slot="meta"
                         .index=${index}
                         .label=${this.hass.localize(
-                          "ui.dialogs.helper_settings.input_select.remove_option"
+                          'ui.dialogs.helper_settings.input_select.remove_option'
                         )}
                         @click=${this._removeOption}
                         .disabled=${this.disabled}
@@ -141,7 +144,7 @@ class HaInputSelectForm extends LitElement {
               : html`
                   <ha-list-item noninteractive>
                     ${this.hass!.localize(
-                      "ui.dialogs.helper_settings.input_select.no_options"
+                      'ui.dialogs.helper_settings.input_select.no_options'
                     )}
                   </ha-list-item>
                 `}
@@ -152,7 +155,7 @@ class HaInputSelectForm extends LitElement {
             class="flex-auto"
             id="option_input"
             .label=${this.hass!.localize(
-              "ui.dialogs.helper_settings.input_select.add_option"
+              'ui.dialogs.helper_settings.input_select.add_option'
             )}
             @keydown=${this._handleKeyAdd}
             .disabled=${this.disabled}
@@ -163,75 +166,75 @@ class HaInputSelectForm extends LitElement {
             @click=${this._addOption}
             .disabled=${this.disabled}
             >${this.hass!.localize(
-              "ui.dialogs.helper_settings.input_select.add"
+              'ui.dialogs.helper_settings.input_select.add'
             )}</ha-button
           >
         </div>
       </div>
-    `;
+    `
   }
 
   private _handleKeyAdd(ev: KeyboardEvent) {
-    ev.stopPropagation();
-    if (ev.key !== "Enter") {
-      return;
+    ev.stopPropagation()
+    if (ev.key !== 'Enter') {
+      return
     }
-    this._addOption();
+    this._addOption()
   }
 
   private _addOption() {
-    const input = this._optionInput;
+    const input = this._optionInput
     if (!input?.value) {
-      return;
+      return
     }
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: { ...this._item, options: [...this._options, input.value] },
-    });
-    input.value = "";
+    })
+    input.value = ''
   }
 
   private async _removeOption(ev: Event) {
-    const index = (ev.target as any).index;
+    const index = (ev.target as any).index
     if (
       !(await showConfirmationDialog(this, {
         title: this.hass.localize(
-          "ui.dialogs.helper_settings.input_select.confirm_delete.delete"
+          'ui.dialogs.helper_settings.input_select.confirm_delete.delete'
         ),
         text: this.hass.localize(
-          "ui.dialogs.helper_settings.input_select.confirm_delete.prompt"
+          'ui.dialogs.helper_settings.input_select.confirm_delete.prompt'
         ),
         destructive: true,
       }))
     ) {
-      return;
+      return
     }
-    const options = [...this._options];
-    options.splice(index, 1);
-    fireEvent(this, "value-changed", {
+    const options = [...this._options]
+    options.splice(index, 1)
+    fireEvent(this, 'value-changed', {
       value: { ...this._item, options },
-    });
+    })
   }
 
   private _valueChanged(ev: CustomEvent) {
     if (!this.new && !this._item) {
-      return;
+      return
     }
-    ev.stopPropagation();
-    const configValue = (ev.target as any).configValue;
-    const value = ev.detail?.value || (ev.target as any).value;
+    ev.stopPropagation()
+    const configValue = (ev.target as any).configValue
+    const value = ev.detail?.value || (ev.target as any).value
 
     if (this[`_${configValue}`] === value) {
-      return;
+      return
     }
-    const newValue = { ...this._item };
+    const newValue = { ...this._item }
     if (!value) {
-      delete newValue[configValue];
+      delete newValue[configValue]
     } else {
-      newValue[configValue] = value;
+      newValue[configValue] = value
     }
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: newValue,
-    });
+    })
   }
 
   static get styles(): CSSResultGroup {
@@ -278,12 +281,12 @@ class HaInputSelectForm extends LitElement {
           align-items: center;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-input_select-form": HaInputSelectForm;
+    'ha-input_select-form': HaInputSelectForm
   }
 }

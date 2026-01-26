@@ -1,23 +1,23 @@
-import { LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../components/ha-card";
-import { SubscribeMixin } from "../../../mixins/subscribe-mixin";
-import { haStyle } from "../../../resources/styles";
-import type { HomeAssistant } from "../../../types";
-import "./ha-debug-connection-row";
+import { LitElement, css, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../components/ha-card'
+import { SubscribeMixin } from '../../../mixins/subscribe-mixin'
+import { haStyle } from '../../../resources/styles'
+import type { HomeAssistant } from '../../../types'
+import './ha-debug-connection-row'
 
-@customElement("developer-tools-debug")
+@customElement('developer-tools-debug')
 class HaPanelDevDebug extends SubscribeMixin(LitElement) {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
   protected render() {
     return html`
       <div class="content">
         <ha-card
           .header=${this.hass.localize(
-            "ui.panel.developer-tools.tabs.debug.title"
+            'ui.panel.developer-tools.tabs.debug.title'
           )}
         >
           <ha-debug-connection-row
@@ -26,7 +26,7 @@ class HaPanelDevDebug extends SubscribeMixin(LitElement) {
           ></ha-debug-connection-row>
         </ha-card>
       </div>
-    `;
+    `
   }
 
   static styles = [
@@ -39,11 +39,11 @@ class HaPanelDevDebug extends SubscribeMixin(LitElement) {
         margin: 0 auto;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "developer-tools-debug": HaPanelDevDebug;
+    'developer-tools-debug': HaPanelDevDebug
   }
 }

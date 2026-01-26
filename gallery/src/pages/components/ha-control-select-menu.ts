@@ -1,83 +1,83 @@
-import { mdiFan, mdiFanSpeed1, mdiFanSpeed2, mdiFanSpeed3 } from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement } from "lit/decorators";
-import { repeat } from "lit/directives/repeat";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-control-select-menu";
-import "../../../../src/components/ha-list-item";
-import "../../../../src/components/ha-svg-icon";
+import { mdiFan, mdiFanSpeed1, mdiFanSpeed2, mdiFanSpeed3 } from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement } from 'lit/decorators'
+import { repeat } from 'lit/directives/repeat'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-control-select-menu'
+import '../../../../src/components/ha-list-item'
+import '../../../../src/components/ha-svg-icon'
 
 interface SelectMenuOptions {
-  label: string;
-  value: string;
-  icon?: string;
+  label: string
+  value: string
+  icon?: string
 }
 
 interface SelectMenu {
-  label: string;
-  icon: string;
-  class?: string;
-  disabled?: boolean;
-  options: SelectMenuOptions[];
+  label: string
+  icon: string
+  class?: string
+  disabled?: boolean
+  options: SelectMenuOptions[]
 }
 
 const selects: SelectMenu[] = [
   {
-    label: "Basic select",
+    label: 'Basic select',
     icon: mdiFan,
     options: [
       {
-        value: "low",
-        label: "Low",
+        value: 'low',
+        label: 'Low',
       },
       {
-        value: "medium",
-        label: "Medium",
+        value: 'medium',
+        label: 'Medium',
       },
       {
-        value: "high",
-        label: "High",
+        value: 'high',
+        label: 'High',
       },
     ],
   },
   {
-    label: "Select with icons",
+    label: 'Select with icons',
     icon: mdiFan,
     options: [
       {
-        value: "low",
-        label: "Low",
+        value: 'low',
+        label: 'Low',
         icon: mdiFanSpeed1,
       },
       {
-        value: "medium",
-        label: "Medium",
+        value: 'medium',
+        label: 'Medium',
         icon: mdiFanSpeed2,
       },
       {
-        value: "high",
-        label: "High",
+        value: 'high',
+        label: 'High',
         icon: mdiFanSpeed3,
       },
     ],
   },
   {
-    label: "Disabled select",
+    label: 'Disabled select',
     icon: mdiFan,
     options: [],
     disabled: true,
   },
-];
+]
 
-@customElement("demo-components-ha-control-select-menu")
+@customElement('demo-components-ha-control-select-menu')
 export class DemoHaControlSelectMenu extends LitElement {
   protected render(): TemplateResult {
     return html`
       <ha-card>
         ${repeat(
           selects,
-          (select) => html`
+          select => html`
             <div class="card-content">
               <ha-control-select-menu
                 .label=${select.label}
@@ -85,12 +85,15 @@ export class DemoHaControlSelectMenu extends LitElement {
                 fixedMenuPosition
                 naturalMenuWidth
               >
-                <ha-svg-icon slot="icon" .path=${select.icon}></ha-svg-icon>
+                <ha-svg-icon
+                  slot="icon"
+                  .path=${select.icon}
+                ></ha-svg-icon>
                 ${select.options.map(
-                  (option) => html`
+                  option => html`
                     <ha-list-item
                       .value=${option.value}
-                      .graphic=${option.icon ? "icon" : undefined}
+                      .graphic=${option.icon ? 'icon' : undefined}
                     >
                       ${option.icon
                         ? html`
@@ -109,7 +112,7 @@ export class DemoHaControlSelectMenu extends LitElement {
           `
         )}
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -135,11 +138,11 @@ export class DemoHaControlSelectMenu extends LitElement {
       height: 100px;
       width: 100px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-components-ha-control-select-menu": DemoHaControlSelectMenu;
+    'demo-components-ha-control-select-menu': DemoHaControlSelectMenu
   }
 }

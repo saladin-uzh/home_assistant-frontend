@@ -4,166 +4,166 @@ import type {
   CompletionInfo,
   CompletionResult,
   CompletionSource,
-} from "@codemirror/autocomplete";
-import { redo, redoDepth, undo, undoDepth } from "@codemirror/commands";
-import type { Extension, TransactionSpec } from "@codemirror/state";
-import type { EditorView, KeyBinding, ViewUpdate } from "@codemirror/view";
-import { placeholder } from "@codemirror/view";
+} from '@codemirror/autocomplete'
+import { redo, redoDepth, undo, undoDepth } from '@codemirror/commands'
+import type { Extension, TransactionSpec } from '@codemirror/state'
+import type { EditorView, KeyBinding, ViewUpdate } from '@codemirror/view'
+import { placeholder } from '@codemirror/view'
 import {
   mdiArrowCollapse,
   mdiArrowExpand,
   mdiContentCopy,
   mdiRedo,
   mdiUndo,
-} from "@mdi/js";
-import type { HassEntities } from "home-assistant-js-websocket";
-import type { PropertyValues } from "lit";
-import { css, html, ReactiveElement, render } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../common/dom/fire_event";
-import { stopPropagation } from "../common/dom/stop_propagation";
-import { getEntityContext } from "../common/entity/context/get_entity_context";
-import { copyToClipboard } from "../common/util/copy-clipboard";
-import type { HomeAssistant } from "../types";
-import { showToast } from "../util/toast";
-import "./ha-code-editor-completion-items";
-import type { CompletionItem } from "./ha-code-editor-completion-items";
-import "./ha-icon";
-import "./ha-icon-button-toolbar";
-import type { HaIconButtonToolbar } from "./ha-icon-button-toolbar";
+} from '@mdi/js'
+import type { HassEntities } from 'home-assistant-js-websocket'
+import type { PropertyValues } from 'lit'
+import { css, html, ReactiveElement, render } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../common/dom/fire_event'
+import { stopPropagation } from '../common/dom/stop_propagation'
+import { getEntityContext } from '../common/entity/context/get_entity_context'
+import { copyToClipboard } from '../common/util/copy-clipboard'
+import type { HomeAssistant } from '../types'
+import { showToast } from '../util/toast'
+import './ha-code-editor-completion-items'
+import type { CompletionItem } from './ha-code-editor-completion-items'
+import './ha-icon'
+import './ha-icon-button-toolbar'
+import type { HaIconButtonToolbar } from './ha-icon-button-toolbar'
 
 declare global {
   interface HASSDomEvents {
-    "editor-save": undefined;
+    'editor-save': undefined
   }
 }
 
 const saveKeyBinding: KeyBinding = {
-  key: "Mod-s",
+  key: 'Mod-s',
   run: (view: EditorView) => {
-    fireEvent(view.dom, "editor-save");
-    return true;
+    fireEvent(view.dom, 'editor-save')
+    return true
   },
-};
+}
 
 const renderIcon = (completion: Completion) => {
-  const icon = document.createElement("ha-icon");
-  icon.icon = completion.label;
-  return icon;
-};
+  const icon = document.createElement('ha-icon')
+  icon.icon = completion.label
+  return icon
+}
 
-@customElement("ha-code-editor")
+@customElement('ha-code-editor')
 export class HaCodeEditor extends ReactiveElement {
-  public codemirror?: EditorView;
+  public codemirror?: EditorView
 
-  @property() public mode = "yaml";
+  @property() public mode = 'yaml'
 
-  public hass?: HomeAssistant;
+  public hass?: HomeAssistant
 
   // eslint-disable-next-line lit/no-native-attributes
-  @property({ type: Boolean }) public autofocus = false;
+  @property({ type: Boolean }) public autofocus = false
 
-  @property({ attribute: "read-only", type: Boolean }) public readOnly = false;
+  @property({ attribute: 'read-only', type: Boolean }) public readOnly = false
 
-  @property({ type: Boolean }) public linewrap = false;
+  @property({ type: Boolean }) public linewrap = false
 
-  @property({ type: Boolean, attribute: "autocomplete-entities" })
-  public autocompleteEntities = false;
+  @property({ type: Boolean, attribute: 'autocomplete-entities' })
+  public autocompleteEntities = false
 
-  @property({ type: Boolean, attribute: "autocomplete-icons" })
-  public autocompleteIcons = false;
+  @property({ type: Boolean, attribute: 'autocomplete-icons' })
+  public autocompleteIcons = false
 
-  @property({ type: Boolean }) public error = false;
+  @property({ type: Boolean }) public error = false
 
-  @property({ type: Boolean, attribute: "disable-fullscreen" })
-  public disableFullscreen = false;
+  @property({ type: Boolean, attribute: 'disable-fullscreen' })
+  public disableFullscreen = false
 
-  @property({ type: Boolean, attribute: "has-toolbar" })
-  public hasToolbar = true;
+  @property({ type: Boolean, attribute: 'has-toolbar' })
+  public hasToolbar = true
 
-  @property({ type: String }) public placeholder?: string;
+  @property({ type: String }) public placeholder?: string
 
-  @state() private _value = "";
+  @state() private _value = ''
 
-  @state() private _isFullscreen = false;
+  @state() private _isFullscreen = false
 
-  @state() private _canUndo = false;
+  @state() private _canUndo = false
 
-  @state() private _canRedo = false;
+  @state() private _canRedo = false
 
-  @state() private _canCopy = false;
+  @state() private _canCopy = false
 
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  private _loadedCodeMirror?: typeof import("../resources/codemirror");
+  private _loadedCodeMirror?: typeof import('../resources/codemirror')
 
-  private _editorToolbar?: HaIconButtonToolbar;
+  private _editorToolbar?: HaIconButtonToolbar
 
-  private _iconList?: Completion[];
+  private _iconList?: Completion[]
 
   public set value(value: string) {
-    this._value = value;
+    this._value = value
   }
 
   public get value(): string {
-    return this.codemirror ? this.codemirror.state.doc.toString() : this._value;
+    return this.codemirror ? this.codemirror.state.doc.toString() : this._value
   }
 
   public get hasComments(): boolean {
     if (!this.codemirror || !this._loadedCodeMirror) {
-      return false;
+      return false
     }
     const className = this._loadedCodeMirror.highlightingFor(
       this.codemirror.state,
       [this._loadedCodeMirror.tags.comment]
-    );
-    return !!this.renderRoot.querySelector(`span.${className}`);
+    )
+    return !!this.renderRoot.querySelector(`span.${className}`)
   }
 
   public connectedCallback() {
-    super.connectedCallback();
+    super.connectedCallback()
     // Force update on reconnection so editor is recreated
     if (this.hasUpdated) {
-      this.requestUpdate();
+      this.requestUpdate()
     }
-    this.addEventListener("keydown", stopPropagation);
-    this.addEventListener("keydown", this._handleKeyDown);
+    this.addEventListener('keydown', stopPropagation)
+    this.addEventListener('keydown', this._handleKeyDown)
     // This is unreachable as editor will not exist yet,
     // but focus should not behave like this for good a11y.
     // (@steverep to fix in autofocus PR)
     if (!this.codemirror) {
-      return;
+      return
     }
     if (this.autofocus !== false) {
-      this.codemirror.focus();
+      this.codemirror.focus()
     }
   }
 
   public disconnectedCallback() {
-    super.disconnectedCallback();
-    this.removeEventListener("keydown", stopPropagation);
-    this.removeEventListener("keydown", this._handleKeyDown);
-    this._updateFullscreenState(false);
+    super.disconnectedCallback()
+    this.removeEventListener('keydown', stopPropagation)
+    this.removeEventListener('keydown', this._handleKeyDown)
+    this._updateFullscreenState(false)
     this.updateComplete.then(() => {
-      this.codemirror!.destroy();
-      delete this.codemirror;
-    });
+      this.codemirror!.destroy()
+      delete this.codemirror
+    })
   }
 
   // Ensure CodeMirror module is loaded before any update
   protected override async scheduleUpdate() {
-    this._loadedCodeMirror ??= await import("../resources/codemirror");
-    super.scheduleUpdate();
+    this._loadedCodeMirror ??= await import('../resources/codemirror')
+    super.scheduleUpdate()
   }
 
   protected update(changedProps: PropertyValues): void {
-    super.update(changedProps);
+    super.update(changedProps)
     if (!this.codemirror) {
-      this._createCodeMirror();
-      return;
+      this._createCodeMirror()
+      return
     }
-    const transactions: TransactionSpec[] = [];
-    if (changedProps.has("mode")) {
+    const transactions: TransactionSpec[] = []
+    if (changedProps.has('mode')) {
       transactions.push({
         effects: [
           this._loadedCodeMirror!.langCompartment!.reconfigure(this._mode),
@@ -171,64 +171,64 @@ export class HaCodeEditor extends ReactiveElement {
             this._getFoldingExtensions()
           ),
         ],
-      });
+      })
     }
-    if (changedProps.has("readOnly")) {
+    if (changedProps.has('readOnly')) {
       transactions.push({
         effects: this._loadedCodeMirror!.readonlyCompartment!.reconfigure(
           this._loadedCodeMirror!.EditorView!.editable.of(!this.readOnly)
         ),
-      });
-      this._updateToolbarButtons();
+      })
+      this._updateToolbarButtons()
     }
-    if (changedProps.has("linewrap")) {
+    if (changedProps.has('linewrap')) {
       transactions.push({
         effects: this._loadedCodeMirror!.linewrapCompartment!.reconfigure(
           this.linewrap ? this._loadedCodeMirror!.EditorView.lineWrapping : []
         ),
-      });
+      })
     }
-    if (changedProps.has("_value") && this._value !== this.value) {
+    if (changedProps.has('_value') && this._value !== this.value) {
       transactions.push({
         changes: {
           from: 0,
           to: this.codemirror.state.doc.length,
           insert: this._value,
         },
-      });
+      })
     }
     if (transactions.length > 0) {
-      this.codemirror.dispatch(...transactions);
+      this.codemirror.dispatch(...transactions)
     }
-    if (changedProps.has("hasToolbar")) {
-      this._updateToolbar();
+    if (changedProps.has('hasToolbar')) {
+      this._updateToolbar()
     }
-    if (changedProps.has("error")) {
-      this.classList.toggle("error-state", this.error);
+    if (changedProps.has('error')) {
+      this.classList.toggle('error-state', this.error)
     }
-    if (changedProps.has("_isFullscreen")) {
-      this.classList.toggle("fullscreen", this._isFullscreen);
-      this._updateToolbarButtons();
+    if (changedProps.has('_isFullscreen')) {
+      this.classList.toggle('fullscreen', this._isFullscreen)
+      this._updateToolbarButtons()
     }
     if (
-      changedProps.has("_canCopy") ||
-      changedProps.has("_canUndo") ||
-      changedProps.has("_canRedo")
+      changedProps.has('_canCopy') ||
+      changedProps.has('_canUndo') ||
+      changedProps.has('_canRedo')
     ) {
-      this._updateToolbarButtons();
+      this._updateToolbarButtons()
     }
-    if (changedProps.has("disableFullscreen")) {
-      this._updateFullscreenState();
+    if (changedProps.has('disableFullscreen')) {
+      this._updateFullscreenState()
     }
   }
 
   private get _mode() {
-    return this._loadedCodeMirror!.langs[this.mode];
+    return this._loadedCodeMirror!.langs[this.mode]
   }
 
   private _createCodeMirror() {
     if (!this._loadedCodeMirror) {
-      throw new Error("Cannot create editor before CodeMirror is loaded");
+      throw new Error('Cannot create editor before CodeMirror is loaded')
     }
     const extensions: Extension[] = [
       this._loadedCodeMirror.lineNumbers(),
@@ -244,8 +244,8 @@ export class HaCodeEditor extends ReactiveElement {
         thickness: 0,
         activeThickness: 1,
         colors: {
-          activeLight: "var(--secondary-text-color)",
-          activeDark: "var(--secondary-text-color)",
+          activeLight: 'var(--secondary-text-color)',
+          activeDark: 'var(--secondary-text-color)',
         },
       }),
       this._loadedCodeMirror.keymap.of([
@@ -269,15 +269,15 @@ export class HaCodeEditor extends ReactiveElement {
         this._getFoldingExtensions()
       ),
       ...(this.placeholder ? [placeholder(this.placeholder)] : []),
-    ];
+    ]
 
     if (!this.readOnly) {
-      const completionSources: CompletionSource[] = [];
+      const completionSources: CompletionSource[] = []
       if (this.autocompleteEntities && this.hass) {
-        completionSources.push(this._entityCompletions.bind(this));
+        completionSources.push(this._entityCompletions.bind(this))
       }
       if (this.autocompleteIcons) {
-        completionSources.push(this._mdiCompletions.bind(this));
+        completionSources.push(this._mdiCompletions.bind(this))
       }
       if (completionSources.length > 0) {
         extensions.push(
@@ -285,7 +285,7 @@ export class HaCodeEditor extends ReactiveElement {
             override: completionSources,
             maxRenderedOptions: 10,
           })
-        );
+        )
       }
     }
 
@@ -296,101 +296,101 @@ export class HaCodeEditor extends ReactiveElement {
         extensions,
       }),
       parent: this.renderRoot,
-    });
-    this._canCopy = this._value?.length > 0;
+    })
+    this._canCopy = this._value?.length > 0
 
     // Update the toolbar. Creating it if required
-    this._updateToolbar();
+    this._updateToolbar()
   }
 
   private _fullscreenLabel(): string {
     if (this._isFullscreen)
       return (
-        this.hass?.localize("ui.components.yaml-editor.exit_fullscreen") ||
-        "Exit fullscreen"
-      );
+        this.hass?.localize('ui.components.yaml-editor.exit_fullscreen') ||
+        'Exit fullscreen'
+      )
     return (
-      this.hass?.localize("ui.components.yaml-editor.enter_fullscreen") ||
-      "Enter fullscreen"
-    );
+      this.hass?.localize('ui.components.yaml-editor.enter_fullscreen') ||
+      'Enter fullscreen'
+    )
   }
 
   private _fullscreenIcon(): string {
-    return this._isFullscreen ? mdiArrowCollapse : mdiArrowExpand;
+    return this._isFullscreen ? mdiArrowCollapse : mdiArrowExpand
   }
 
   private _createEditorToolbar(): HaIconButtonToolbar {
     // Create the editor toolbar element
-    const editorToolbar = document.createElement("ha-icon-button-toolbar");
-    editorToolbar.classList.add("code-editor-toolbar");
-    editorToolbar.items = [];
-    return editorToolbar;
+    const editorToolbar = document.createElement('ha-icon-button-toolbar')
+    editorToolbar.classList.add('code-editor-toolbar')
+    editorToolbar.items = []
+    return editorToolbar
   }
 
   private _updateToolbar() {
     // Show/Hide the toolbar if we have one.
-    this.classList.toggle("hasToolbar", this.hasToolbar);
+    this.classList.toggle('hasToolbar', this.hasToolbar)
 
     // Update fullscreen state. Handles toolbar and fullscreen mode being disabled.
-    this._updateFullscreenState();
+    this._updateFullscreenState()
 
     // If we don't have a toolbar, nothing to update
     if (!this.hasToolbar) {
-      return;
+      return
     }
 
     // If we don't yet have the toolbar, create it.
     if (!this._editorToolbar) {
-      this._editorToolbar = this._createEditorToolbar();
+      this._editorToolbar = this._createEditorToolbar()
     }
 
     // Ensure all toolbar buttons are correctly configured.
-    this._updateToolbarButtons();
+    this._updateToolbarButtons()
 
     // Render the toolbar. This must be placed as a child of the code
     // mirror element to ensure it doesn't affect the positioning and
     // size of codemirror.
-    this.codemirror?.dom.appendChild(this._editorToolbar);
+    this.codemirror?.dom.appendChild(this._editorToolbar)
   }
 
   private _updateToolbarButtons() {
     // Re-render all toolbar items.
     if (!this._editorToolbar) {
-      return;
+      return
     }
 
     this._editorToolbar.items = [
       {
-        id: "undo",
+        id: 'undo',
         disabled: !this._canUndo,
-        label: this.hass?.localize("ui.common.undo") || "Undo",
+        label: this.hass?.localize('ui.common.undo') || 'Undo',
         path: mdiUndo,
         action: (e: Event) => this._handleUndoClick(e),
       },
       {
-        id: "redo",
+        id: 'redo',
         disabled: !this._canRedo,
-        label: this.hass?.localize("ui.common.redo") || "Redo",
+        label: this.hass?.localize('ui.common.redo') || 'Redo',
         path: mdiRedo,
         action: (e: Event) => this._handleRedoClick(e),
       },
       {
-        id: "copy",
+        id: 'copy',
         disabled: !this._canCopy,
         label:
-          this.hass?.localize("ui.components.yaml-editor.copy_to_clipboard") ||
-          "Copy to Clipboard",
+          this.hass?.localize('ui.components.yaml-editor.copy_to_clipboard') ||
+          'Copy to Clipboard',
         path: mdiContentCopy,
         action: (e: Event) => this._handleClipboardClick(e),
       },
       {
-        id: "fullscreen",
+        id: 'fullscreen',
         disabled: this.disableFullscreen,
         label: this._fullscreenLabel(),
         path: this._fullscreenIcon(),
         action: (e: Event) => this._handleFullscreenClick(e),
       },
-    ];
+    ]
   }
 
   private _updateFullscreenState(
@@ -399,80 +399,80 @@ export class HaCodeEditor extends ReactiveElement {
     // Update the current fullscreen state based on selected value. If fullscreen
     // is disabled, or we have no toolbar, ensure we are not in fullscreen mode.
     this._isFullscreen =
-      fullscreen && !this.disableFullscreen && this.hasToolbar;
+      fullscreen && !this.disableFullscreen && this.hasToolbar
     // Return whether successfully in requested state
-    return this._isFullscreen === fullscreen;
+    return this._isFullscreen === fullscreen
   }
 
   private _handleClipboardClick = async (e: Event) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
     if (this.value) {
-      await copyToClipboard(this.value);
+      await copyToClipboard(this.value)
       showToast(this, {
         message:
-          this.hass?.localize("ui.common.copied_clipboard") ||
-          "Copied to clipboard",
-      });
+          this.hass?.localize('ui.common.copied_clipboard') ||
+          'Copied to clipboard',
+      })
     }
-  };
+  }
 
   private _handleUndoClick = (e: Event) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
     if (!this.codemirror) {
-      return;
+      return
     }
-    undo(this.codemirror);
-  };
+    undo(this.codemirror)
+  }
 
   private _handleRedoClick = (e: Event) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
     if (!this.codemirror) {
-      return;
+      return
     }
-    redo(this.codemirror);
-  };
+    redo(this.codemirror)
+  }
 
   private _handleFullscreenClick = (e: Event) => {
-    e.preventDefault();
-    e.stopPropagation();
-    this._updateFullscreenState(!this._isFullscreen);
-  };
+    e.preventDefault()
+    e.stopPropagation()
+    this._updateFullscreenState(!this._isFullscreen)
+  }
 
   private _handleKeyDown = (e: KeyboardEvent) => {
     if (
-      (e.key === "Escape" &&
+      (e.key === 'Escape' &&
         this._isFullscreen &&
         this._updateFullscreenState(false)) ||
-      (e.key === "F11" && this._updateFullscreenState(true))
+      (e.key === 'F11' && this._updateFullscreenState(true))
     ) {
       // If we successfully performed the action, stop it propagating further.
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault()
+      e.stopPropagation()
     }
-  };
+  }
 
   private _renderInfo = (completion: Completion): CompletionInfo => {
-    const key = completion.label;
+    const key = completion.label
     const context = getEntityContext(
       this.hass!.states[key],
       this.hass!.entities,
       this.hass!.devices,
       this.hass!.areas,
       this.hass!.floors
-    );
+    )
 
-    const completionInfo = document.createElement("div");
-    completionInfo.classList.add("completion-info");
+    const completionInfo = document.createElement('div')
+    completionInfo.classList.add('completion-info')
 
-    const formattedState = this.hass!.formatEntityState(this.hass!.states[key]);
+    const formattedState = this.hass!.formatEntityState(this.hass!.states[key])
 
     const completionItems: CompletionItem[] = [
       {
         label: this.hass!.localize(
-          "ui.components.entity.entity-state-picker.state"
+          'ui.components.entity.entity-state-picker.state'
         ),
         value: formattedState,
         subValue:
@@ -481,27 +481,27 @@ export class HaCodeEditor extends ReactiveElement {
             ? undefined
             : this.hass!.states[key].state,
       },
-    ];
+    ]
 
     if (context.device && context.device.name) {
       completionItems.push({
-        label: this.hass!.localize("ui.components.device-picker.device"),
+        label: this.hass!.localize('ui.components.device-picker.device'),
         value: context.device.name,
-      });
+      })
     }
 
     if (context.area && context.area.name) {
       completionItems.push({
-        label: this.hass!.localize("ui.components.area-picker.area"),
+        label: this.hass!.localize('ui.components.area-picker.area'),
         value: context.area.name,
-      });
+      })
     }
 
     if (context.floor && context.floor.name) {
       completionItems.push({
-        label: this.hass!.localize("ui.components.floor-picker.floor"),
+        label: this.hass!.localize('ui.components.floor-picker.floor'),
         value: context.floor.name,
-      });
+      })
     }
 
     render(
@@ -511,245 +511,245 @@ export class HaCodeEditor extends ReactiveElement {
         ></ha-code-editor-completion-items>
       `,
       completionInfo
-    );
+    )
 
-    return completionInfo;
-  };
+    return completionInfo
+  }
 
   private _getStates = memoizeOne((states: HassEntities): Completion[] => {
     if (!states) {
-      return [];
+      return []
     }
 
-    const options = Object.keys(states).map((key) => ({
-      type: "variable",
+    const options = Object.keys(states).map(key => ({
+      type: 'variable',
       label: key,
       detail: states[key].attributes.friendly_name,
       info: this._renderInfo,
-    }));
+    }))
 
-    return options;
-  });
+    return options
+  })
 
   private _entityCompletions(
     context: CompletionContext
   ): CompletionResult | null | Promise<CompletionResult | null> {
     // Check for YAML mode and entity-related fields
-    if (this.mode === "yaml") {
-      const currentLine = context.state.doc.lineAt(context.pos);
-      const lineText = currentLine.text;
+    if (this.mode === 'yaml') {
+      const currentLine = context.state.doc.lineAt(context.pos)
+      const lineText = currentLine.text
 
       // Properties that commonly contain entity IDs
       const entityProperties = [
-        "entity_id",
-        "entity",
-        "entities",
-        "badges",
-        "devices",
-        "lights",
-        "light",
-        "group_members",
-        "scene",
-        "zone",
-        "zones",
-      ];
+        'entity_id',
+        'entity',
+        'entities',
+        'badges',
+        'devices',
+        'lights',
+        'light',
+        'group_members',
+        'scene',
+        'zone',
+        'zones',
+      ]
 
       // Create regex pattern for all entity properties
-      const propertyPattern = entityProperties.join("|");
+      const propertyPattern = entityProperties.join('|')
       const entityFieldRegex = new RegExp(
         `^\\s*(-\\s+)?(${propertyPattern}):\\s*`
-      );
+      )
 
       // Check if we're in an entity field (single entity or list item)
-      const entityFieldMatch = lineText.match(entityFieldRegex);
-      const listItemMatch = lineText.match(/^\s*-\s+/);
+      const entityFieldMatch = lineText.match(entityFieldRegex)
+      const listItemMatch = lineText.match(/^\s*-\s+/)
 
       if (entityFieldMatch) {
         // Calculate the position after the entity field
-        const afterField = currentLine.from + entityFieldMatch[0].length;
+        const afterField = currentLine.from + entityFieldMatch[0].length
 
         // If cursor is after the entity field, show all entities
         if (context.pos >= afterField) {
-          const states = this._getStates(this.hass!.states);
+          const states = this._getStates(this.hass!.states)
 
           if (!states || !states.length) {
-            return null;
+            return null
           }
 
           // Find what's already typed after the field
-          const typedText = context.state.sliceDoc(afterField, context.pos);
+          const typedText = context.state.sliceDoc(afterField, context.pos)
 
           // Filter states based on what's typed
           const filteredStates = typedText
-            ? states.filter((entityState) =>
+            ? states.filter(entityState =>
                 entityState.label
                   .toLowerCase()
                   .startsWith(typedText.toLowerCase())
               )
-            : states;
+            : states
 
           return {
             from: afterField,
             options: filteredStates,
             validFor: /^[a-z_]*\.?\w*$/,
-          };
+          }
         }
       } else if (listItemMatch) {
         // Check if this is a list item under an entity_id field
-        const lineNumber = currentLine.number;
+        const lineNumber = currentLine.number
 
         // Look at previous lines to check if we're under an entity_id field
         for (let i = lineNumber - 1; i > 0 && i >= lineNumber - 10; i--) {
-          const prevLine = context.state.doc.line(i);
-          const prevText = prevLine.text;
+          const prevLine = context.state.doc.line(i)
+          const prevText = prevLine.text
 
           // Stop if we hit a non-indented line (new field)
           if (
             prevText.trim() &&
-            !prevText.startsWith(" ") &&
-            !prevText.startsWith("\t")
+            !prevText.startsWith(' ') &&
+            !prevText.startsWith('\t')
           ) {
-            break;
+            break
           }
 
           // Check if we found an entity property field
           const entityListFieldRegex = new RegExp(
             `^\\s*(${propertyPattern}):\\s*$`
-          );
+          )
           if (prevText.match(entityListFieldRegex)) {
             // We're in a list under an entity field
-            const afterListMarker = currentLine.from + listItemMatch[0].length;
+            const afterListMarker = currentLine.from + listItemMatch[0].length
 
             if (context.pos >= afterListMarker) {
-              const states = this._getStates(this.hass!.states);
+              const states = this._getStates(this.hass!.states)
 
               if (!states || !states.length) {
-                return null;
+                return null
               }
 
               // Find what's already typed after the list marker
               const typedText = context.state.sliceDoc(
                 afterListMarker,
                 context.pos
-              );
+              )
 
               // Filter states based on what's typed
               const filteredStates = typedText
-                ? states.filter((entityState) =>
+                ? states.filter(entityState =>
                     entityState.label
                       .toLowerCase()
                       .startsWith(typedText.toLowerCase())
                   )
-                : states;
+                : states
 
               return {
                 from: afterListMarker,
                 options: filteredStates,
                 validFor: /^[a-z_]*\.?\w*$/,
-              };
+              }
             }
           }
         }
       }
 
       // Properties that should never suggest entities
-      const negativeProperties = ["action"];
+      const negativeProperties = ['action']
 
       // Create regex pattern for negative properties
-      const negativePropertyPattern = negativeProperties.join("|");
+      const negativePropertyPattern = negativeProperties.join('|')
       const negativeEntityFieldRegex = new RegExp(
         `^\\s*(-\\s+)?(${negativePropertyPattern}):\\s*`
-      );
+      )
       if (lineText.match(negativeEntityFieldRegex)) {
-        return null;
+        return null
       }
     }
 
     // Original entity completion logic for non-YAML or when not in entity_id field
-    const entityWord = context.matchBefore(/[a-z_]{3,}\.\w*/);
+    const entityWord = context.matchBefore(/[a-z_]{3,}\.\w*/)
 
     if (
       !entityWord ||
       (entityWord.from === entityWord.to && !context.explicit)
     ) {
-      return null;
+      return null
     }
 
-    const states = this._getStates(this.hass!.states);
+    const states = this._getStates(this.hass!.states)
 
     if (!states || !states.length) {
-      return null;
+      return null
     }
 
     return {
       from: Number(entityWord.from),
       options: states,
       validFor: /^[a-z_]{3,}\.\w*$/,
-    };
+    }
   }
 
   private _getIconItems = async (): Promise<Completion[]> => {
     if (!this._iconList) {
       let iconList: {
-        name: string;
-        keywords: string[];
-      }[];
+        name: string
+        keywords: string[]
+      }[]
       if (__SUPERVISOR__) {
-        iconList = [];
+        iconList = []
       } else {
-        iconList = (await import("../../build/mdi/iconList.json")).default;
+        iconList = (await import('../../build/mdi/iconList.json')).default
       }
 
-      this._iconList = iconList.map((icon) => ({
-        type: "variable",
+      this._iconList = iconList.map(icon => ({
+        type: 'variable',
         label: `mdi:${icon.name}`,
-        detail: icon.keywords.join(", "),
+        detail: icon.keywords.join(', '),
         info: renderIcon,
-      }));
+      }))
     }
 
-    return this._iconList;
-  };
+    return this._iconList
+  }
 
   private async _mdiCompletions(
     context: CompletionContext
   ): Promise<CompletionResult | null> {
-    const match = context.matchBefore(/mdi:\S*/);
+    const match = context.matchBefore(/mdi:\S*/)
 
     if (!match || (match.from === match.to && !context.explicit)) {
-      return null;
+      return null
     }
 
-    const iconItems = await this._getIconItems();
+    const iconItems = await this._getIconItems()
 
     return {
       from: Number(match.from),
       options: iconItems,
       validFor: /^mdi:\S*$/,
-    };
+    }
   }
 
   private _onUpdate = (update: ViewUpdate): void => {
-    this._canUndo = !this.readOnly && undoDepth(update.state) > 0;
-    this._canRedo = !this.readOnly && redoDepth(update.state) > 0;
+    this._canUndo = !this.readOnly && undoDepth(update.state) > 0
+    this._canRedo = !this.readOnly && redoDepth(update.state) > 0
     if (!update.docChanged) {
-      return;
+      return
     }
-    this._value = update.state.doc.toString();
-    this._canCopy = this._value?.length > 0;
-    fireEvent(this, "value-changed", { value: this._value });
-  };
+    this._value = update.state.doc.toString()
+    this._canCopy = this._value?.length > 0
+    fireEvent(this, 'value-changed', { value: this._value })
+  }
 
   private _getFoldingExtensions = (): Extension => {
-    if (this.mode === "yaml") {
+    if (this.mode === 'yaml') {
       return [
         this._loadedCodeMirror!.foldGutter(),
         this._loadedCodeMirror!.foldingOnIndent,
-      ];
+      ]
     }
 
-    return [];
-  };
+    return []
+  }
 
   static styles = css`
     :host {
@@ -844,11 +844,11 @@ export class HaCodeEditor extends ReactiveElement {
         display: none;
       }
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-code-editor": HaCodeEditor;
+    'ha-code-editor': HaCodeEditor
   }
 }

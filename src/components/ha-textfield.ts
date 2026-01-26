@@ -1,73 +1,73 @@
-import { TextFieldBase } from "@material/mwc-textfield/mwc-textfield-base";
-import { styles } from "@material/mwc-textfield/mwc-textfield.css";
-import type { TemplateResult, PropertyValues } from "lit";
-import { html, css } from "lit";
-import { customElement, property, query } from "lit/decorators";
-import { mainWindow } from "../common/dom/get_main_window";
+import { TextFieldBase } from '@material/mwc-textfield/mwc-textfield-base'
+import { styles } from '@material/mwc-textfield/mwc-textfield.css'
+import type { TemplateResult, PropertyValues } from 'lit'
+import { html, css } from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import { mainWindow } from '../common/dom/get_main_window'
 
-@customElement("ha-textfield")
+@customElement('ha-textfield')
 export class HaTextField extends TextFieldBase {
-  @property({ type: Boolean }) public invalid?: boolean;
+  @property({ type: Boolean }) public invalid?: boolean
 
-  @property({ attribute: "error-message" }) public errorMessage?: string;
+  @property({ attribute: 'error-message' }) public errorMessage?: string
 
   // @ts-ignore
-  @property({ type: Boolean }) public icon = false;
+  @property({ type: Boolean }) public icon = false
 
   // @ts-ignore
   // eslint-disable-next-line lit/attribute-names
-  @property({ type: Boolean }) public iconTrailing = false;
+  @property({ type: Boolean }) public iconTrailing = false
 
-  @property() public autocomplete?: string;
+  @property() public autocomplete?: string
 
-  @property({ type: Boolean }) public autocorrect = true;
+  @property({ type: Boolean }) public autocorrect = true
 
-  @property({ attribute: "input-spellcheck" })
-  public inputSpellcheck?: string;
+  @property({ attribute: 'input-spellcheck' })
+  public inputSpellcheck?: string
 
-  @query("input") public formElement!: HTMLInputElement;
+  @query('input') public formElement!: HTMLInputElement
 
   override updated(changedProperties: PropertyValues) {
-    super.updated(changedProperties);
+    super.updated(changedProperties)
     if (
-      changedProperties.has("invalid") ||
-      changedProperties.has("errorMessage")
+      changedProperties.has('invalid') ||
+      changedProperties.has('errorMessage')
     ) {
       this.setCustomValidity(
         this.invalid
-          ? this.errorMessage || this.validationMessage || "Invalid"
-          : ""
-      );
+          ? this.errorMessage || this.validationMessage || 'Invalid'
+          : ''
+      )
       if (
         this.invalid ||
         this.validateOnInitialRender ||
-        (changedProperties.has("invalid") &&
-          changedProperties.get("invalid") !== undefined)
+        (changedProperties.has('invalid') &&
+          changedProperties.get('invalid') !== undefined)
       ) {
         // Only report validity if the field is invalid or the invalid state has changed from
         // true to false to prevent setting empty required fields to invalid on first render
-        this.reportValidity();
+        this.reportValidity()
       }
     }
-    if (changedProperties.has("autocomplete")) {
+    if (changedProperties.has('autocomplete')) {
       if (this.autocomplete) {
-        this.formElement.setAttribute("autocomplete", this.autocomplete);
+        this.formElement.setAttribute('autocomplete', this.autocomplete)
       } else {
-        this.formElement.removeAttribute("autocomplete");
+        this.formElement.removeAttribute('autocomplete')
       }
     }
-    if (changedProperties.has("autocorrect")) {
+    if (changedProperties.has('autocorrect')) {
       if (this.autocorrect === false) {
-        this.formElement.setAttribute("autocorrect", "off");
+        this.formElement.setAttribute('autocorrect', 'off')
       } else {
-        this.formElement.removeAttribute("autocorrect");
+        this.formElement.removeAttribute('autocorrect')
       }
     }
-    if (changedProperties.has("inputSpellcheck")) {
+    if (changedProperties.has('inputSpellcheck')) {
       if (this.inputSpellcheck) {
-        this.formElement.setAttribute("spellcheck", this.inputSpellcheck);
+        this.formElement.setAttribute('spellcheck', this.inputSpellcheck)
       } else {
-        this.formElement.removeAttribute("spellcheck");
+        this.formElement.removeAttribute('spellcheck')
       }
     }
   }
@@ -76,7 +76,7 @@ export class HaTextField extends TextFieldBase {
     _icon: string,
     isTrailingIcon = false
   ): TemplateResult {
-    const type = isTrailingIcon ? "trailing" : "leading";
+    const type = isTrailingIcon ? 'trailing' : 'leading'
 
     return html`
       <span
@@ -85,7 +85,7 @@ export class HaTextField extends TextFieldBase {
       >
         <slot name="${type}Icon"></slot>
       </span>
-    `;
+    `
   }
 
   static override styles = [
@@ -148,7 +148,7 @@ export class HaTextField extends TextFieldBase {
         text-align: var(--text-field-text-align, start);
       }
 
-      input[type="color"] {
+      input[type='color'] {
         height: 20px;
       }
 
@@ -164,12 +164,12 @@ export class HaTextField extends TextFieldBase {
         margin: 0;
       }
 
-      input[type="color"]::-webkit-color-swatch-wrapper {
+      input[type='color']::-webkit-color-swatch-wrapper {
         padding: 0;
       }
 
       /* Firefox */
-      :host([no-spinner]) input[type="number"] {
+      :host([no-spinner]) input[type='number'] {
         -moz-appearance: textfield;
       }
 
@@ -205,7 +205,7 @@ export class HaTextField extends TextFieldBase {
         direction: var(--direction);
       }
 
-      .mdc-text-field__input[type="number"] {
+      .mdc-text-field__input[type='number'] {
         direction: var(--direction);
       }
       .mdc-text-field__affix--prefix {
@@ -223,24 +223,24 @@ export class HaTextField extends TextFieldBase {
       }
     `,
     // safari workaround - must be explicit
-    mainWindow.document.dir === "rtl"
+    mainWindow.document.dir === 'rtl'
       ? css`
           .mdc-text-field--with-leading-icon,
           .mdc-text-field__icon--leading,
           .mdc-floating-label,
           .mdc-text-field--with-leading-icon.mdc-text-field--filled
             .mdc-floating-label,
-          .mdc-text-field__input[type="number"] {
+          .mdc-text-field__input[type='number'] {
             direction: rtl;
             --direction: rtl;
           }
         `
       : css``,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-textfield": HaTextField;
+    'ha-textfield': HaTextField
   }
 }

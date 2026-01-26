@@ -1,79 +1,79 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, state } from "lit/decorators";
-import { repeat } from "lit/directives/repeat";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-select-box";
-import type { SelectBoxOption } from "../../../../src/components/ha-select-box";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, state } from 'lit/decorators'
+import { repeat } from 'lit/directives/repeat'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-select-box'
+import type { SelectBoxOption } from '../../../../src/components/ha-select-box'
 
 const basicOptions: SelectBoxOption[] = [
   {
-    value: "text-only",
-    label: "Text only",
+    value: 'text-only',
+    label: 'Text only',
   },
   {
-    value: "card",
-    label: "Card",
+    value: 'card',
+    label: 'Card',
   },
   {
-    value: "disabled",
-    label: "Disabled option",
+    value: 'disabled',
+    label: 'Disabled option',
     disabled: true,
   },
-];
+]
 
 const fullOptions: SelectBoxOption[] = [
   {
-    value: "text-only",
-    label: "Text only",
-    description: "Only text, no border and background",
-    image: "/images/select_box/text_only.svg",
+    value: 'text-only',
+    label: 'Text only',
+    description: 'Only text, no border and background',
+    image: '/images/select_box/text_only.svg',
   },
   {
-    value: "card",
-    label: "Card",
-    description: "With border and background",
-    image: "/images/select_box/card.svg",
+    value: 'card',
+    label: 'Card',
+    description: 'With border and background',
+    image: '/images/select_box/card.svg',
   },
   {
-    value: "disabled",
-    label: "Disabled",
-    description: "Option that can not be selected",
+    value: 'disabled',
+    label: 'Disabled',
+    description: 'Option that can not be selected',
     disabled: true,
   },
-];
+]
 
 const selects: {
-  id: string;
-  label: string;
-  class?: string;
-  options: SelectBoxOption[];
-  disabled?: boolean;
+  id: string
+  label: string
+  class?: string
+  options: SelectBoxOption[]
+  disabled?: boolean
 }[] = [
   {
-    id: "basic",
-    label: "Basic",
+    id: 'basic',
+    label: 'Basic',
     options: basicOptions,
   },
   {
-    id: "full",
-    label: "With description and image",
+    id: 'full',
+    label: 'With description and image',
     options: fullOptions,
   },
-];
+]
 
-@customElement("demo-components-ha-select-box")
+@customElement('demo-components-ha-select-box')
 export class DemoHaSelectBox extends LitElement {
-  @state() private value?: string = "off";
+  @state() private value?: string = 'off'
 
   handleValueChanged(e: CustomEvent) {
-    this.value = e.detail.value as string;
+    this.value = e.detail.value as string
   }
 
   protected render(): TemplateResult {
     return html`
-      ${repeat(selects, (select) => {
-        const { id, label, options } = select;
+      ${repeat(selects, select => {
+        const { id, label, options } = select
         return html`
           <ha-card>
             <div class="card-content">
@@ -86,14 +86,14 @@ export class DemoHaSelectBox extends LitElement {
               </ha-select-box>
             </div>
           </ha-card>
-        `;
+        `
       })}
       <ha-card>
         <div class="card-content">
           <p class="title"><b>Column layout</b></p>
           <div class="vertical-selects">
-            ${repeat(selects, (select) => {
-              const { options } = select;
+            ${repeat(selects, select => {
+              const { options } = select
               return html`
                 <ha-select-box
                   .value=${this.value}
@@ -102,12 +102,12 @@ export class DemoHaSelectBox extends LitElement {
                   @value-changed=${this.handleValueChanged}
                 >
                 </ha-select-box>
-              `;
+              `
             })}
           </div>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -142,11 +142,11 @@ export class DemoHaSelectBox extends LitElement {
       display: block;
       margin-bottom: 24px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-components-ha-select-box": DemoHaSelectBox;
+    'demo-components-ha-select-box': DemoHaSelectBox
   }
 }

@@ -5,143 +5,143 @@ import {
   LitElement,
   nothing,
   type PropertyValues,
-} from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { atLeastVersion } from "../../../src/common/config/version";
-import { fireEvent } from "../../../src/common/dom/fire_event";
-import "../../../src/components/buttons/ha-progress-button";
-import "../../../src/components/ha-alert";
-import "../../../src/components/ha-button-menu";
-import "../../../src/components/ha-card";
-import "../../../src/components/ha-spinner";
-import "../../../src/components/ha-checkbox";
-import "../../../src/components/ha-faded";
-import "../../../src/components/ha-icon-button";
-import "../../../src/components/ha-markdown";
-import "../../../src/components/ha-md-list";
-import "../../../src/components/ha-md-list-item";
-import "../../../src/components/ha-svg-icon";
-import "../../../src/components/ha-switch";
-import type { HaSwitch } from "../../../src/components/ha-switch";
-import type { HassioAddonDetails } from "../../../src/data/hassio/addon";
+} from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { atLeastVersion } from '../../../src/common/config/version'
+import { fireEvent } from '../../../src/common/dom/fire_event'
+import '../../../src/components/buttons/ha-progress-button'
+import '../../../src/components/ha-alert'
+import '../../../src/components/ha-button-menu'
+import '../../../src/components/ha-card'
+import '../../../src/components/ha-spinner'
+import '../../../src/components/ha-checkbox'
+import '../../../src/components/ha-faded'
+import '../../../src/components/ha-icon-button'
+import '../../../src/components/ha-markdown'
+import '../../../src/components/ha-md-list'
+import '../../../src/components/ha-md-list-item'
+import '../../../src/components/ha-svg-icon'
+import '../../../src/components/ha-switch'
+import type { HaSwitch } from '../../../src/components/ha-switch'
+import type { HassioAddonDetails } from '../../../src/data/hassio/addon'
 import {
   fetchHassioAddonChangelog,
   fetchHassioAddonInfo,
   updateHassioAddon,
-} from "../../../src/data/hassio/addon";
+} from '../../../src/data/hassio/addon'
 import {
   extractApiErrorMessage,
   ignoreSupervisorError,
-} from "../../../src/data/hassio/common";
-import { fetchHassioHassOsInfo, updateOS } from "../../../src/data/hassio/host";
+} from '../../../src/data/hassio/common'
+import { fetchHassioHassOsInfo, updateOS } from '../../../src/data/hassio/host'
 import {
   fetchHassioHomeAssistantInfo,
   fetchHassioSupervisorInfo,
   updateSupervisor,
-} from "../../../src/data/hassio/supervisor";
-import { updateCore } from "../../../src/data/supervisor/core";
-import type { StoreAddon } from "../../../src/data/supervisor/store";
-import type { Supervisor } from "../../../src/data/supervisor/supervisor";
-import { showAlertDialog } from "../../../src/dialogs/generic/show-dialog-box";
-import { haStyle } from "../../../src/resources/styles";
-import type { HomeAssistant, Route } from "../../../src/types";
-import { addonArchIsSupported, extractChangelog } from "../util/addon";
+} from '../../../src/data/hassio/supervisor'
+import { updateCore } from '../../../src/data/supervisor/core'
+import type { StoreAddon } from '../../../src/data/supervisor/store'
+import type { Supervisor } from '../../../src/data/supervisor/supervisor'
+import { showAlertDialog } from '../../../src/dialogs/generic/show-dialog-box'
+import { haStyle } from '../../../src/resources/styles'
+import type { HomeAssistant, Route } from '../../../src/types'
+import { addonArchIsSupported, extractChangelog } from '../util/addon'
 
 declare global {
   interface HASSDomEvents {
-    "update-complete": undefined;
+    'update-complete': undefined
   }
 }
 
 const SUPERVISOR_UPDATE_NAMES = {
-  core: "Home Assistant Core",
-  os: "Home Assistant Operating System",
-  supervisor: "Home Assistant Supervisor",
-};
+  core: 'Home Assistant Core',
+  os: 'Home Assistant Operating System',
+  supervisor: 'Home Assistant Supervisor',
+}
 
-type UpdateType = "os" | "supervisor" | "core" | "addon";
+type UpdateType = 'os' | 'supervisor' | 'core' | 'addon'
 
 const changelogUrl = (
   entry: UpdateType,
   version: string
 ): string | undefined => {
-  if (entry === "addon") {
-    return undefined;
+  if (entry === 'addon') {
+    return undefined
   }
-  if (entry === "core") {
-    return version.includes("dev")
-      ? "https://github.com/home-assistant/core/commits/dev"
-      : version.includes("b")
-        ? "https://next.home-assistant.io/latest-release-notes/"
-        : "https://www.home-assistant.io/latest-release-notes/";
+  if (entry === 'core') {
+    return version.includes('dev')
+      ? 'https://github.com/home-assistant/core/commits/dev'
+      : version.includes('b')
+        ? 'https://next.home-assistant.io/latest-release-notes/'
+        : 'https://www.home-assistant.io/latest-release-notes/'
   }
-  if (entry === "os") {
-    return version.includes("dev")
-      ? "https://github.com/home-assistant/operating-system/commits/dev"
-      : `https://github.com/home-assistant/operating-system/releases/tag/${version}`;
+  if (entry === 'os') {
+    return version.includes('dev')
+      ? 'https://github.com/home-assistant/operating-system/commits/dev'
+      : `https://github.com/home-assistant/operating-system/releases/tag/${version}`
   }
-  if (entry === "supervisor") {
-    return version.includes("dev")
-      ? "https://github.com/home-assistant/supervisor/commits/main"
-      : `https://github.com/home-assistant/supervisor/releases/tag/${version}`;
+  if (entry === 'supervisor') {
+    return version.includes('dev')
+      ? 'https://github.com/home-assistant/supervisor/commits/main'
+      : `https://github.com/home-assistant/supervisor/releases/tag/${version}`
   }
-  return undefined;
-};
+  return undefined
+}
 
-@customElement("update-available-card")
+@customElement('update-available-card')
 class UpdateAvailableCard extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public supervisor!: Supervisor;
+  @property({ attribute: false }) public supervisor!: Supervisor
 
-  @property({ attribute: false }) public route!: Route;
+  @property({ attribute: false }) public route!: Route
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ attribute: false }) public addonSlug?: string;
+  @property({ attribute: false }) public addonSlug?: string
 
-  @state() private _updateType?: UpdateType;
+  @state() private _updateType?: UpdateType
 
-  @state() private _changelogContent?: string;
+  @state() private _changelogContent?: string
 
-  @state() private _addonInfo?: HassioAddonDetails;
+  @state() private _addonInfo?: HassioAddonDetails
 
-  @state() private _updating = false;
+  @state() private _updating = false
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
   private _addonStoreInfo = memoizeOne(
     (slug: string, storeAddons: StoreAddon[]) =>
-      storeAddons.find((addon) => addon.slug === slug)
-  );
+      storeAddons.find(addon => addon.slug === slug)
+  )
 
   protected render() {
     if (
       !this._updateType ||
-      (this._updateType === "addon" && !this._addonInfo)
+      (this._updateType === 'addon' && !this._addonInfo)
     ) {
-      return nothing;
+      return nothing
     }
 
-    const changelog = changelogUrl(this._updateType, this._version_latest);
+    const changelog = changelogUrl(this._updateType, this._version_latest)
 
-    const createBackupTexts = this._computeCreateBackupTexts();
+    const createBackupTexts = this._computeCreateBackupTexts()
 
     return html`
       <ha-card
         outlined
-        .header=${this.supervisor.localize("update_available.update_name", {
+        .header=${this.supervisor.localize('update_available.update_name', {
           name: this._name,
         })}
       >
         <div class="card-content">
           ${this._error
             ? html`<ha-alert alert-type="error">${this._error}</ha-alert>`
-            : ""}
+            : ''}
           ${this._version === this._version_latest
             ? html`<p>
-                ${this.supervisor.localize("update_available.no_update", {
+                ${this.supervisor.localize('update_available.no_update', {
                   name: this._name,
                 })}
               </p>`
@@ -158,7 +158,7 @@ class UpdateAvailableCard extends LitElement {
                   <div class="versions">
                     <p>
                       ${this.supervisor.localize(
-                        "update_available.description",
+                        'update_available.description',
                         {
                           name: this._name,
                           version: this._version,
@@ -197,7 +197,7 @@ class UpdateAvailableCard extends LitElement {
                     size="large"
                   ></ha-spinner>
                   <p class="progress-text">
-                    ${this.supervisor.localize("update_available.updating", {
+                    ${this.supervisor.localize('update_available.updating', {
                       name: this._name,
                       version: this._version_latest,
                     })}
@@ -215,46 +215,46 @@ class UpdateAvailableCard extends LitElement {
                         appearance="plain"
                       >
                         ${this.supervisor.localize(
-                          "update_available.open_release_notes"
+                          'update_available.open_release_notes'
                         )}
                       </ha-button>
                     `
                   : nothing}
                 <span></span>
                 <ha-progress-button @click=${this._update}>
-                  ${this.supervisor.localize("common.update")}
+                  ${this.supervisor.localize('common.update')}
                 </ha-progress-button>
               </div>
             `
           : nothing}
       </ha-card>
-    `;
+    `
   }
 
   protected firstUpdated(changedProps: PropertyValues) {
-    super.firstUpdated(changedProps);
-    const pathPart = this.route?.path.substring(1, this.route.path.length);
-    const updateType = ["core", "os", "supervisor"].includes(pathPart)
+    super.firstUpdated(changedProps)
+    const pathPart = this.route?.path.substring(1, this.route.path.length)
+    const updateType = ['core', 'os', 'supervisor'].includes(pathPart)
       ? pathPart
-      : "addon";
-    this._updateType = updateType as UpdateType;
+      : 'addon'
+    this._updateType = updateType as UpdateType
 
     switch (updateType) {
-      case "addon":
+      case 'addon':
         if (!this.addonSlug) {
-          this.addonSlug = pathPart;
+          this.addonSlug = pathPart
         }
-        this._loadAddonData();
-        break;
-      case "core":
-        this._loadCoreData();
-        break;
-      case "supervisor":
-        this._loadSupervisorData();
-        break;
-      case "os":
-        this._loadOsData();
-        break;
+        this._loadAddonData()
+        break
+      case 'core':
+        this._loadCoreData()
+        break
+      case 'supervisor':
+        this._loadSupervisorData()
+        break
+      case 'os':
+        this._loadOsData()
+        break
     }
   }
 
@@ -263,76 +263,76 @@ class UpdateAvailableCard extends LitElement {
     | undefined {
     // Addon backup
     if (
-      this._updateType === "addon" &&
+      this._updateType === 'addon' &&
       atLeastVersion(this.hass.config.version, 2025, 2, 0)
     ) {
-      const version = this._version;
+      const version = this._version
       return {
-        title: this.supervisor.localize("update_available.create_backup.addon"),
+        title: this.supervisor.localize('update_available.create_backup.addon'),
         description: this.supervisor.localize(
-          "update_available.create_backup.addon_description",
+          'update_available.create_backup.addon_description',
           { version: version }
         ),
-      };
+      }
     }
 
     // Old behavior
-    if (this._updateType && ["core", "addon"].includes(this._updateType)) {
+    if (this._updateType && ['core', 'addon'].includes(this._updateType)) {
       return {
         title: this.supervisor.localize(
-          "update_available.create_backup.generic"
+          'update_available.create_backup.generic'
         ),
-      };
+      }
     }
-    return undefined;
+    return undefined
   }
 
   get _shouldCreateBackup(): boolean {
-    if (this._updateType && !["core", "addon"].includes(this._updateType)) {
-      return false;
+    if (this._updateType && !['core', 'addon'].includes(this._updateType)) {
+      return false
     }
     const createBackupSwitch = this.shadowRoot?.getElementById(
-      "create-backup"
-    ) as HaSwitch;
+      'create-backup'
+    ) as HaSwitch
     if (createBackupSwitch) {
-      return createBackupSwitch.checked;
+      return createBackupSwitch.checked
     }
-    return true;
+    return true
   }
 
   get _version(): string {
     return this._updateType
-      ? this._updateType === "addon"
+      ? this._updateType === 'addon'
         ? this._addonInfo!.version
-        : this.supervisor[this._updateType]?.version || ""
-      : "";
+        : this.supervisor[this._updateType]?.version || ''
+      : ''
   }
 
   get _version_latest(): string {
     return this._updateType
-      ? this._updateType === "addon"
+      ? this._updateType === 'addon'
         ? this._addonInfo!.version_latest
-        : this.supervisor[this._updateType]?.version_latest || ""
-      : "";
+        : this.supervisor[this._updateType]?.version_latest || ''
+      : ''
   }
 
   get _name(): string {
     return this._updateType
-      ? this._updateType === "addon"
+      ? this._updateType === 'addon'
         ? this._addonInfo!.name
         : SUPERVISOR_UPDATE_NAMES[this._updateType]
-      : "";
+      : ''
   }
 
   private async _loadAddonData() {
     try {
-      this._addonInfo = await fetchHassioAddonInfo(this.hass, this.addonSlug!);
+      this._addonInfo = await fetchHassioAddonInfo(this.hass, this.addonSlug!)
     } catch (err) {
       showAlertDialog(this, {
         title: this._updateType,
         text: extractApiErrorMessage(err),
-      });
-      return;
+      })
+      return
     }
     const addonStoreInfo =
       !this._addonInfo.detached && !this._addonInfo.available
@@ -340,18 +340,18 @@ class UpdateAvailableCard extends LitElement {
             this._addonInfo.slug,
             this.supervisor.store.addons
           )
-        : undefined;
+        : undefined
 
     if (this._addonInfo.changelog) {
       try {
         const content = await fetchHassioAddonChangelog(
           this.hass,
           this.addonSlug!
-        );
-        this._changelogContent = extractChangelog(this._addonInfo, content);
+        )
+        this._changelogContent = extractChangelog(this._addonInfo, content)
       } catch (err) {
-        this._error = extractApiErrorMessage(err);
-        return;
+        this._error = extractApiErrorMessage(err)
+        return
       }
     }
 
@@ -363,87 +363,87 @@ class UpdateAvailableCard extends LitElement {
         )
       ) {
         this._error = this.supervisor.localize(
-          "addon.dashboard.not_available_arch"
-        );
+          'addon.dashboard.not_available_arch'
+        )
       } else {
         this._error = this.supervisor.localize(
-          "addon.dashboard.not_available_version",
+          'addon.dashboard.not_available_version',
           {
             core_version_installed: this.supervisor.core.version,
             core_version_needed: addonStoreInfo.homeassistant,
           }
-        );
+        )
       }
     }
   }
 
   private async _loadSupervisorData() {
     try {
-      const supervisor = await fetchHassioSupervisorInfo(this.hass);
-      fireEvent(this, "supervisor-update", { supervisor });
+      const supervisor = await fetchHassioSupervisorInfo(this.hass)
+      fireEvent(this, 'supervisor-update', { supervisor })
     } catch (err) {
       showAlertDialog(this, {
         title: this._updateType,
         text: extractApiErrorMessage(err),
-      });
+      })
     }
   }
 
   private async _loadCoreData() {
     try {
-      const core = await fetchHassioHomeAssistantInfo(this.hass);
-      fireEvent(this, "supervisor-update", { core });
+      const core = await fetchHassioHomeAssistantInfo(this.hass)
+      fireEvent(this, 'supervisor-update', { core })
     } catch (err) {
       showAlertDialog(this, {
         title: this._updateType,
         text: extractApiErrorMessage(err),
-      });
+      })
     }
   }
 
   private async _loadOsData() {
     try {
-      const os = await fetchHassioHassOsInfo(this.hass);
-      fireEvent(this, "supervisor-update", { os });
+      const os = await fetchHassioHassOsInfo(this.hass)
+      fireEvent(this, 'supervisor-update', { os })
     } catch (err) {
       showAlertDialog(this, {
         title: this._updateType,
         text: extractApiErrorMessage(err),
-      });
+      })
     }
   }
 
   private async _update() {
-    if (this._shouldCreateBackup && this.supervisor.info.state === "freeze") {
-      this._error = this.supervisor.localize("backup.backup_already_running");
-      return;
+    if (this._shouldCreateBackup && this.supervisor.info.state === 'freeze') {
+      this._error = this.supervisor.localize('backup.backup_already_running')
+      return
     }
-    this._error = undefined;
-    this._updating = true;
+    this._error = undefined
+    this._updating = true
 
     try {
-      if (this._updateType === "addon") {
+      if (this._updateType === 'addon') {
         await updateHassioAddon(
           this.hass,
           this.addonSlug!,
           this._shouldCreateBackup
-        );
-      } else if (this._updateType === "core") {
-        await updateCore(this.hass, this._shouldCreateBackup);
-      } else if (this._updateType === "os") {
-        await updateOS(this.hass);
-      } else if (this._updateType === "supervisor") {
-        await updateSupervisor(this.hass);
+        )
+      } else if (this._updateType === 'core') {
+        await updateCore(this.hass, this._shouldCreateBackup)
+      } else if (this._updateType === 'os') {
+        await updateOS(this.hass)
+      } else if (this._updateType === 'supervisor') {
+        await updateSupervisor(this.hass)
       }
     } catch (err: any) {
       if (this.hass.connection.connected && !ignoreSupervisorError(err)) {
-        this._error = extractApiErrorMessage(err);
-        this._updating = false;
-        return;
+        this._error = extractApiErrorMessage(err)
+        this._updating = false
+        return
       }
     }
-    fireEvent(this, "update-complete");
-    this._updating = false;
+    fireEvent(this, 'update-complete')
+    this._updating = false
   }
 
   static get styles(): CSSResultGroup {
@@ -496,12 +496,12 @@ class UpdateAvailableCard extends LitElement {
           --md-item-overflow: visible;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "update-available-card": UpdateAvailableCard;
+    'update-available-card': UpdateAvailableCard
   }
 }

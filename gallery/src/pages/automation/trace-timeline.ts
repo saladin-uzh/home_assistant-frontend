@@ -1,41 +1,41 @@
 /* eslint-disable lit/no-template-arrow */
 
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/trace/hat-trace-timeline";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import type { HomeAssistant } from "../../../../src/types";
-import { mockDemoTrace } from "../../data/traces/mock-demo-trace";
-import type { DemoTrace } from "../../data/traces/types";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/trace/hat-trace-timeline'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import type { HomeAssistant } from '../../../../src/types'
+import { mockDemoTrace } from '../../data/traces/mock-demo-trace'
+import type { DemoTrace } from '../../data/traces/types'
 
 const traces: DemoTrace[] = [
-  mockDemoTrace({ state: "running" }),
-  mockDemoTrace({ state: "debugged" }),
-  mockDemoTrace({ state: "stopped", script_execution: "failed_conditions" }),
-  mockDemoTrace({ state: "stopped", script_execution: "failed_single" }),
-  mockDemoTrace({ state: "stopped", script_execution: "failed_max_runs" }),
-  mockDemoTrace({ state: "stopped", script_execution: "finished" }),
-  mockDemoTrace({ state: "stopped", script_execution: "aborted" }),
+  mockDemoTrace({ state: 'running' }),
+  mockDemoTrace({ state: 'debugged' }),
+  mockDemoTrace({ state: 'stopped', script_execution: 'failed_conditions' }),
+  mockDemoTrace({ state: 'stopped', script_execution: 'failed_single' }),
+  mockDemoTrace({ state: 'stopped', script_execution: 'failed_max_runs' }),
+  mockDemoTrace({ state: 'stopped', script_execution: 'finished' }),
+  mockDemoTrace({ state: 'stopped', script_execution: 'aborted' }),
   mockDemoTrace({
-    state: "stopped",
-    script_execution: "error",
+    state: 'stopped',
+    script_execution: 'error',
     error: 'Variable "beer" cannot be None',
   }),
-  mockDemoTrace({ state: "stopped", script_execution: "cancelled" }),
-];
+  mockDemoTrace({ state: 'stopped', script_execution: 'cancelled' }),
+]
 
-@customElement("demo-automation-trace-timeline")
+@customElement('demo-automation-trace-timeline')
 export class DemoAutomationTraceTimeline extends LitElement {
-  @property({ attribute: false }) hass?: HomeAssistant;
+  @property({ attribute: false }) hass?: HomeAssistant
 
   protected render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
     return html`
       ${traces.map(
-        (trace) => html`
+        trace => html`
           <ha-card .header=${trace.trace.config.alias}>
             <div class="card-content">
               <hat-trace-timeline
@@ -48,14 +48,14 @@ export class DemoAutomationTraceTimeline extends LitElement {
           </ha-card>
         `
       )}
-    `;
+    `
   }
 
   protected firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
-    const hass = provideHass(this);
-    hass.updateTranslations(null, "en");
-    hass.updateTranslations("config", "en");
+    super.firstUpdated(changedProps)
+    const hass = provideHass(this)
+    hass.updateTranslations(null, 'en')
+    hass.updateTranslations('config', 'en')
   }
 
   static styles = css`
@@ -71,11 +71,11 @@ export class DemoAutomationTraceTimeline extends LitElement {
       top: 0;
       right: 0;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-automation-trace-timeline": DemoAutomationTraceTimeline;
+    'demo-automation-trace-timeline': DemoAutomationTraceTimeline
   }
 }

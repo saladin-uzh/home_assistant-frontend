@@ -1,70 +1,70 @@
-import { mdiRefresh } from "@mdi/js";
-import type { HassServiceTarget } from "home-assistant-js-websocket";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { ensureArray } from "../../common/array/ensure-array";
-import { storage } from "../../common/decorators/storage";
-import { goBack, navigate } from "../../common/navigate";
-import { constructUrlCurrentPath } from "../../common/url/construct-url";
+import { mdiRefresh } from '@mdi/js'
+import type { HassServiceTarget } from 'home-assistant-js-websocket'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { ensureArray } from '../../common/array/ensure-array'
+import { storage } from '../../common/decorators/storage'
+import { goBack, navigate } from '../../common/navigate'
+import { constructUrlCurrentPath } from '../../common/url/construct-url'
 import {
   createSearchParam,
   extractSearchParamsObject,
   removeSearchParam,
-} from "../../common/url/search-params";
-import "../../components/entity/ha-entity-picker";
-import "../../components/ha-date-range-picker";
-import "../../components/ha-icon-button";
-import "../../components/ha-icon-button-arrow-prev";
-import "../../components/ha-menu-button";
-import "../../components/ha-target-picker";
-import "../../components/ha-top-app-bar-fixed";
-import type { HaEntityPickerEntityFilterFunc } from "../../data/entity";
-import { filterLogbookCompatibleEntities } from "../../data/logbook";
-import { resolveEntityIDs } from "../../data/selector";
-import { getSensorNumericDeviceClasses } from "../../data/sensor";
-import { haStyle } from "../../resources/styles";
-import type { HomeAssistant } from "../../types";
-import "./ha-logbook";
+} from '../../common/url/search-params'
+import '../../components/entity/ha-entity-picker'
+import '../../components/ha-date-range-picker'
+import '../../components/ha-icon-button'
+import '../../components/ha-icon-button-arrow-prev'
+import '../../components/ha-menu-button'
+import '../../components/ha-target-picker'
+import '../../components/ha-top-app-bar-fixed'
+import type { HaEntityPickerEntityFilterFunc } from '../../data/entity'
+import { filterLogbookCompatibleEntities } from '../../data/logbook'
+import { resolveEntityIDs } from '../../data/selector'
+import { getSensorNumericDeviceClasses } from '../../data/sensor'
+import { haStyle } from '../../resources/styles'
+import type { HomeAssistant } from '../../types'
+import './ha-logbook'
 
-@customElement("ha-panel-logbook")
+@customElement('ha-panel-logbook')
 export class HaPanelLogbook extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean, reflect: true }) public narrow = false;
+  @property({ type: Boolean, reflect: true }) public narrow = false
 
-  @state() _time: { range: [Date, Date] };
+  @state() _time: { range: [Date, Date] }
 
-  @state() _entityIds?: string[];
+  @state() _entityIds?: string[]
 
   @state()
-  private _showBack?: boolean;
+  private _showBack?: boolean
 
   @state()
   @storage({
-    key: "logbookPickedValue",
+    key: 'logbookPickedValue',
     state: true,
     subscribe: false,
   })
-  private _targetPickerValue: HassServiceTarget = {};
+  private _targetPickerValue: HassServiceTarget = {}
 
-  @state() private _sensorNumericDeviceClasses?: string[] = [];
+  @state() private _sensorNumericDeviceClasses?: string[] = []
 
   public constructor() {
-    super();
+    super()
 
-    const start = new Date();
-    start.setHours(start.getHours() - 1, 0, 0, 0);
+    const start = new Date()
+    start.setHours(start.getHours() - 1, 0, 0, 0)
 
-    const end = new Date();
-    end.setHours(end.getHours() + 2, 0, 0, 0);
+    const end = new Date()
+    end.setHours(end.getHours() + 2, 0, 0, 0)
 
-    this._time = { range: [start, end] };
+    this._time = { range: [start, end] }
   }
 
   private _goBack(): void {
-    goBack();
+    goBack()
   }
 
   protected render() {
@@ -84,12 +84,12 @@ export class HaPanelLogbook extends LitElement {
                 .narrow=${this.narrow}
               ></ha-menu-button>
             `}
-        <div slot="title">${this.hass.localize("panel.logbook")}</div>
+        <div slot="title">${this.hass.localize('panel.logbook')}</div>
         <ha-icon-button
           slot="actionItems"
           @click=${this._refreshLogbook}
           .path=${mdiRefresh}
-          .label=${this.hass!.localize("ui.common.refresh")}
+          .label=${this.hass!.localize('ui.common.refresh')}
         ></ha-icon-button>
 
         <div class="content">
@@ -120,54 +120,54 @@ export class HaPanelLogbook extends LitElement {
           ></ha-logbook>
         </div>
       </ha-top-app-bar-fixed>
-    `;
+    `
   }
 
-  private _filterFunc: HaEntityPickerEntityFilterFunc = (entity) =>
-    filterLogbookCompatibleEntities(entity, this._sensorNumericDeviceClasses);
+  private _filterFunc: HaEntityPickerEntityFilterFunc = entity =>
+    filterLogbookCompatibleEntities(entity, this._sensorNumericDeviceClasses)
 
   protected willUpdate(changedProps: PropertyValues) {
-    super.willUpdate(changedProps);
+    super.willUpdate(changedProps)
 
     if (this.hasUpdated) {
-      return;
+      return
     }
 
-    this._applyURLParams();
+    this._applyURLParams()
   }
 
   private async _loadNumericDeviceClasses() {
-    const deviceClasses = await getSensorNumericDeviceClasses(this.hass);
-    this._sensorNumericDeviceClasses = deviceClasses.numeric_device_classes;
+    const deviceClasses = await getSensorNumericDeviceClasses(this.hass)
+    this._sensorNumericDeviceClasses = deviceClasses.numeric_device_classes
   }
 
   protected firstUpdated(changedProps: PropertyValues) {
-    super.firstUpdated(changedProps);
-    this.hass.loadBackendTranslation("title");
-    this._loadNumericDeviceClasses();
+    super.firstUpdated(changedProps)
+    this.hass.loadBackendTranslation('title')
+    this._loadNumericDeviceClasses()
 
-    const searchParams = extractSearchParamsObject();
-    if (searchParams.back === "1" && history.length > 1) {
-      this._showBack = true;
-      navigate(constructUrlCurrentPath(removeSearchParam("back")), {
+    const searchParams = extractSearchParamsObject()
+    if (searchParams.back === '1' && history.length > 1) {
+      this._showBack = true
+      navigate(constructUrlCurrentPath(removeSearchParam('back')), {
         replace: true,
-      });
+      })
     }
   }
 
   public connectedCallback(): void {
-    super.connectedCallback();
-    window.addEventListener("location-changed", this._locationChanged);
+    super.connectedCallback()
+    window.addEventListener('location-changed', this._locationChanged)
   }
 
   public disconnectedCallback(): void {
-    super.disconnectedCallback();
-    window.removeEventListener("location-changed", this._locationChanged);
+    super.disconnectedCallback()
+    window.removeEventListener('location-changed', this._locationChanged)
   }
 
   private _locationChanged = () => {
-    this._applyURLParams();
-  };
+    this._applyURLParams()
+  }
 
   private _getEntityIds(): string[] | undefined {
     const entities = this.__getEntityIds(
@@ -175,62 +175,62 @@ export class HaPanelLogbook extends LitElement {
       this.hass.entities,
       this.hass.devices,
       this.hass.areas
-    );
+    )
     if (entities.length === 0) {
-      return undefined;
+      return undefined
     }
-    return entities;
+    return entities
   }
 
   private __getEntityIds = memoizeOne(
     (
       targetPickerValue: HassServiceTarget,
-      entities: HomeAssistant["entities"],
-      devices: HomeAssistant["devices"],
-      areas: HomeAssistant["areas"]
+      entities: HomeAssistant['entities'],
+      devices: HomeAssistant['devices'],
+      areas: HomeAssistant['areas']
     ): string[] =>
       resolveEntityIDs(this.hass, targetPickerValue, entities, devices, areas)
-  );
+  )
 
   private _applyURLParams() {
-    const searchParams = extractSearchParamsObject();
-    const entityIds = searchParams.entity_id;
-    const deviceIds = searchParams.device_id;
-    const areaIds = searchParams.area_id;
-    const floorIds = searchParams.floor_id;
-    const labelsIds = searchParams.label_id;
+    const searchParams = extractSearchParamsObject()
+    const entityIds = searchParams.entity_id
+    const deviceIds = searchParams.device_id
+    const areaIds = searchParams.area_id
+    const floorIds = searchParams.floor_id
+    const labelsIds = searchParams.label_id
     if (entityIds || deviceIds || areaIds || floorIds || labelsIds) {
-      this._targetPickerValue = {};
+      this._targetPickerValue = {}
     }
     if (entityIds) {
-      const splitIds = entityIds.split(",");
-      this._targetPickerValue!.entity_id = splitIds;
+      const splitIds = entityIds.split(',')
+      this._targetPickerValue!.entity_id = splitIds
     }
     if (deviceIds) {
-      const splitIds = deviceIds.split(",");
-      this._targetPickerValue!.device_id = splitIds;
+      const splitIds = deviceIds.split(',')
+      this._targetPickerValue!.device_id = splitIds
     }
     if (areaIds) {
-      const splitIds = areaIds.split(",");
-      this._targetPickerValue!.area_id = splitIds;
+      const splitIds = areaIds.split(',')
+      this._targetPickerValue!.area_id = splitIds
     }
     if (floorIds) {
-      const splitIds = floorIds.split(",");
-      this._targetPickerValue!.floor_id = splitIds;
+      const splitIds = floorIds.split(',')
+      this._targetPickerValue!.floor_id = splitIds
     }
     if (labelsIds) {
-      const splitIds = labelsIds.split(",");
-      this._targetPickerValue!.label_id = splitIds;
+      const splitIds = labelsIds.split(',')
+      this._targetPickerValue!.label_id = splitIds
     }
 
-    const startDateStr = searchParams.start_date;
-    const endDateStr = searchParams.end_date;
+    const startDateStr = searchParams.start_date
+    const endDateStr = searchParams.end_date
 
     if (startDateStr || endDateStr) {
       const startDate = startDateStr
         ? new Date(startDateStr)
-        : this._time.range[0];
-      const endDate = endDateStr ? new Date(endDateStr) : this._time.range[1];
+        : this._time.range[0]
+      const endDate = endDateStr ? new Date(endDateStr) : this._time.range[1]
 
       // Only set if date has changed.
       if (
@@ -242,61 +242,61 @@ export class HaPanelLogbook extends LitElement {
             startDateStr ? new Date(startDateStr) : this._time.range[0],
             endDateStr ? new Date(endDateStr) : this._time.range[1],
           ],
-        };
+        }
       }
     }
   }
 
   private _dateRangeChanged(ev) {
-    const startDate = ev.detail.value.startDate;
-    const endDate = ev.detail.value.endDate;
+    const startDate = ev.detail.value.startDate
+    const endDate = ev.detail.value.endDate
     this._time = {
       range: [startDate, endDate],
-    };
-    this._updatePath();
+    }
+    this._updatePath()
   }
 
   private _targetsChanged(ev) {
-    this._targetPickerValue = ev.detail.value || {};
-    this._updatePath();
+    this._targetPickerValue = ev.detail.value || {}
+    this._updatePath()
   }
 
   private _updatePath() {
-    const params: Record<string, string> = {};
+    const params: Record<string, string> = {}
 
     if (this._targetPickerValue.entity_id) {
       params.entity_id = ensureArray(this._targetPickerValue.entity_id).join(
-        ","
-      );
+        ','
+      )
     }
     if (this._targetPickerValue.label_id) {
-      params.label_id = ensureArray(this._targetPickerValue.label_id).join(",");
+      params.label_id = ensureArray(this._targetPickerValue.label_id).join(',')
     }
     if (this._targetPickerValue.floor_id) {
-      params.floor_id = ensureArray(this._targetPickerValue.floor_id).join(",");
+      params.floor_id = ensureArray(this._targetPickerValue.floor_id).join(',')
     }
     if (this._targetPickerValue.area_id) {
-      params.area_id = ensureArray(this._targetPickerValue.area_id).join(",");
+      params.area_id = ensureArray(this._targetPickerValue.area_id).join(',')
     }
     if (this._targetPickerValue.device_id) {
       params.device_id = ensureArray(this._targetPickerValue.device_id).join(
-        ","
-      );
+        ','
+      )
     }
 
     if (this._time.range[0]) {
-      params.start_date = this._time.range[0].toISOString();
+      params.start_date = this._time.range[0].toISOString()
     }
 
     if (this._time.range[1]) {
-      params.end_date = this._time.range[1].toISOString();
+      params.end_date = this._time.range[1].toISOString()
     }
 
-    navigate(`/logbook?${createSearchParam(params)}`, { replace: true });
+    navigate(`/logbook?${createSearchParam(params)}`, { replace: true })
   }
 
   private _refreshLogbook() {
-    this.shadowRoot!.querySelector("ha-logbook")?.refresh();
+    this.shadowRoot!.querySelector('ha-logbook')?.refresh()
   }
 
   static get styles() {
@@ -373,12 +373,12 @@ export class HaPanelLogbook extends LitElement {
           width: 100%;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-panel-logbook": HaPanelLogbook;
+    'ha-panel-logbook': HaPanelLogbook
   }
 }

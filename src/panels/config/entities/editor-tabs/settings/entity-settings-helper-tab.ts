@@ -1,87 +1,87 @@
-import type { CSSResultGroup, PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { isComponentLoaded } from "../../../../../common/config/is_component_loaded";
-import { dynamicElement } from "../../../../../common/dom/dynamic-element-directive";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import "../../../../../components/ha-button";
-import type { ExtEntityRegistryEntry } from "../../../../../data/entity_registry";
-import { removeEntityRegistryEntry } from "../../../../../data/entity_registry";
-import { HELPERS_CRUD } from "../../../../../data/helpers_crud";
-import { showConfirmationDialog } from "../../../../../dialogs/generic/show-dialog-box";
-import { haStyle } from "../../../../../resources/styles";
-import type { HomeAssistant } from "../../../../../types";
-import type { Helper } from "../../../helpers/const";
-import "../../../helpers/forms/ha-counter-form";
-import "../../../helpers/forms/ha-input_boolean-form";
-import "../../../helpers/forms/ha-input_button-form";
-import "../../../helpers/forms/ha-input_datetime-form";
-import "../../../helpers/forms/ha-input_number-form";
-import "../../../helpers/forms/ha-input_select-form";
-import "../../../helpers/forms/ha-input_text-form";
-import "../../../helpers/forms/ha-schedule-form";
-import "../../../helpers/forms/ha-timer-form";
-import "../../../voice-assistants/entity-voice-settings";
-import "../../entity-registry-settings-editor";
-import type { EntityRegistrySettingsEditor } from "../../entity-registry-settings-editor";
+import type { CSSResultGroup, PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { isComponentLoaded } from '../../../../../common/config/is_component_loaded'
+import { dynamicElement } from '../../../../../common/dom/dynamic-element-directive'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import '../../../../../components/ha-button'
+import type { ExtEntityRegistryEntry } from '../../../../../data/entity_registry'
+import { removeEntityRegistryEntry } from '../../../../../data/entity_registry'
+import { HELPERS_CRUD } from '../../../../../data/helpers_crud'
+import { showConfirmationDialog } from '../../../../../dialogs/generic/show-dialog-box'
+import { haStyle } from '../../../../../resources/styles'
+import type { HomeAssistant } from '../../../../../types'
+import type { Helper } from '../../../helpers/const'
+import '../../../helpers/forms/ha-counter-form'
+import '../../../helpers/forms/ha-input_boolean-form'
+import '../../../helpers/forms/ha-input_button-form'
+import '../../../helpers/forms/ha-input_datetime-form'
+import '../../../helpers/forms/ha-input_number-form'
+import '../../../helpers/forms/ha-input_select-form'
+import '../../../helpers/forms/ha-input_text-form'
+import '../../../helpers/forms/ha-schedule-form'
+import '../../../helpers/forms/ha-timer-form'
+import '../../../voice-assistants/entity-voice-settings'
+import '../../entity-registry-settings-editor'
+import type { EntityRegistrySettingsEditor } from '../../entity-registry-settings-editor'
 
-@customElement("entity-settings-helper-tab")
+@customElement('entity-settings-helper-tab')
 export class EntitySettingsHelperTab extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public entry!: ExtEntityRegistryEntry;
+  @property({ attribute: false }) public entry!: ExtEntityRegistryEntry
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
-  @state() private _item?: Helper | null;
+  @state() private _item?: Helper | null
 
-  @state() private _submitting?: boolean;
+  @state() private _submitting?: boolean
 
-  @state() private _componentLoaded?: boolean;
+  @state() private _componentLoaded?: boolean
 
-  @query("entity-registry-settings-editor")
-  private _registryEditor?: EntityRegistrySettingsEditor;
+  @query('entity-registry-settings-editor')
+  private _registryEditor?: EntityRegistrySettingsEditor
 
   protected firstUpdated(changedProperties: PropertyValues) {
-    super.firstUpdated(changedProperties);
-    this._componentLoaded = isComponentLoaded(this.hass, this.entry.platform);
+    super.firstUpdated(changedProperties)
+    this._componentLoaded = isComponentLoaded(this.hass, this.entry.platform)
   }
 
   protected updated(changedProperties: PropertyValues) {
-    super.updated(changedProperties);
-    if (changedProperties.has("entry")) {
-      this._error = undefined;
+    super.updated(changedProperties)
+    if (changedProperties.has('entry')) {
+      this._error = undefined
       if (
         this.entry.unique_id !==
-        (changedProperties.get("entry") as ExtEntityRegistryEntry)?.unique_id
+        (changedProperties.get('entry') as ExtEntityRegistryEntry)?.unique_id
       ) {
-        this._item = undefined;
+        this._item = undefined
       }
 
-      this._getItem();
+      this._getItem()
     }
   }
 
   protected render() {
     if (this._item === undefined) {
-      return nothing;
+      return nothing
     }
-    const stateObj = this.hass.states[this.entry.entity_id];
+    const stateObj = this.hass.states[this.entry.entity_id]
     return html`
       <div class="form">
         ${this._error
           ? html`<ha-alert alert-type="error">${this._error}</ha-alert>`
-          : ""}
+          : ''}
         ${this._item === null
           ? html`<ha-alert alert-type="info"
               >${this.hass.localize(
-                "ui.dialogs.helper_settings.yaml_not_editable"
+                'ui.dialogs.helper_settings.yaml_not_editable'
               )}</ha-alert
             >`
           : nothing}
         ${!this._componentLoaded
           ? this.hass.localize(
-              "ui.dialogs.helper_settings.platform_not_loaded",
+              'ui.dialogs.helper_settings.platform_not_loaded',
               { platform: this.entry.platform }
             )
           : html`
@@ -111,53 +111,53 @@ export class EntitySettingsHelperTab extends LitElement {
           .disabled=${this._submitting ||
           (!this._item && !stateObj?.attributes.restored)}
         >
-          ${this.hass.localize("ui.dialogs.entity_registry.editor.delete")}
+          ${this.hass.localize('ui.dialogs.entity_registry.editor.delete')}
         </ha-button>
         <ha-button
           @click=${this._updateItem}
           .disabled=${this._submitting || (this._item && !this._item.name)}
         >
-          ${this.hass.localize("ui.dialogs.entity_registry.editor.update")}
+          ${this.hass.localize('ui.dialogs.entity_registry.editor.update')}
         </ha-button>
       </div>
-    `;
+    `
   }
 
   private _entityRegistryChanged() {
-    this._error = undefined;
+    this._error = undefined
   }
 
   private _valueChanged(ev: CustomEvent): void {
     if (this._item === null) {
-      return;
+      return
     }
-    this._error = undefined;
-    this._item = ev.detail.value;
+    this._error = undefined
+    this._item = ev.detail.value
   }
 
   private async _getItem() {
-    const items = await HELPERS_CRUD[this.entry.platform].fetch(this.hass!);
-    this._item = items.find((item) => item.id === this.entry.unique_id) || null;
+    const items = await HELPERS_CRUD[this.entry.platform].fetch(this.hass!)
+    this._item = items.find(item => item.id === this.entry.unique_id) || null
   }
 
   private async _updateItem(): Promise<void> {
-    this._submitting = true;
+    this._submitting = true
     try {
       if (this._componentLoaded && this._item) {
         await HELPERS_CRUD[this.entry.platform].update(
           this.hass!,
           this._item.id,
           this._item
-        );
+        )
       }
-      const result = await this._registryEditor!.updateEntry();
+      const result = await this._registryEditor!.updateEntry()
       if (result.close) {
-        fireEvent(this, "close-dialog");
+        fireEvent(this, 'close-dialog')
       }
     } catch (err: any) {
-      this._error = err.message || "Unknown error";
+      this._error = err.message || 'Unknown error'
     } finally {
-      this._submitting = false;
+      this._submitting = false
     }
   }
 
@@ -165,34 +165,34 @@ export class EntitySettingsHelperTab extends LitElement {
     if (
       !(await showConfirmationDialog(this, {
         text: this.hass.localize(
-          "ui.dialogs.entity_registry.editor.confirm_delete"
+          'ui.dialogs.entity_registry.editor.confirm_delete'
         ),
-        confirmText: this.hass.localize("ui.common.delete"),
-        dismissText: this.hass.localize("ui.common.cancel"),
+        confirmText: this.hass.localize('ui.common.delete'),
+        dismissText: this.hass.localize('ui.common.cancel'),
         destructive: true,
       }))
     ) {
-      return;
+      return
     }
 
-    this._submitting = true;
+    this._submitting = true
 
     try {
       if (this._componentLoaded && this._item) {
         await HELPERS_CRUD[this.entry.platform].delete(
           this.hass!,
           this._item.id
-        );
+        )
       } else {
-        const stateObj = this.hass.states[this.entry.entity_id];
+        const stateObj = this.hass.states[this.entry.entity_id]
         if (!stateObj?.attributes.restored) {
-          return;
+          return
         }
-        await removeEntityRegistryEntry(this.hass!, this.entry.entity_id);
+        await removeEntityRegistryEntry(this.hass!, this.entry.entity_id)
       }
-      fireEvent(this, "close-dialog");
+      fireEvent(this, 'close-dialog')
     } finally {
-      this._submitting = false;
+      this._submitting = false
     }
   }
 
@@ -230,12 +230,12 @@ export class EntitySettingsHelperTab extends LitElement {
           color: var(--secondary-text-color);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "entity-settings-helper-tab": EntitySettingsHelperTab;
+    'entity-settings-helper-tab': EntitySettingsHelperTab
   }
 }

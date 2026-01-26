@@ -1,41 +1,41 @@
-import { startOfYesterday } from "date-fns";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { isComponentLoaded } from "../../common/config/is_component_loaded";
-import { createSearchParam } from "../../common/url/search-params";
-import "../../panels/logbook/ha-logbook";
-import type { HomeAssistant } from "../../types";
-import { haStyle } from "../../resources/styles";
+import { startOfYesterday } from 'date-fns'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { isComponentLoaded } from '../../common/config/is_component_loaded'
+import { createSearchParam } from '../../common/url/search-params'
+import '../../panels/logbook/ha-logbook'
+import type { HomeAssistant } from '../../types'
+import { haStyle } from '../../resources/styles'
 
-@customElement("ha-more-info-logbook")
+@customElement('ha-more-info-logbook')
 export class MoreInfoLogbook extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public entityId!: string;
+  @property({ attribute: false }) public entityId!: string
 
-  private _showMoreHref = "";
+  private _showMoreHref = ''
 
-  private _time = { recent: 86400 };
+  private _time = { recent: 86400 }
 
-  private _entityIdAsList = memoizeOne((entityId: string) => [entityId]);
+  private _entityIdAsList = memoizeOne((entityId: string) => [entityId])
 
   protected render() {
-    if (!isComponentLoaded(this.hass, "logbook") || !this.entityId) {
-      return nothing;
+    if (!isComponentLoaded(this.hass, 'logbook') || !this.entityId) {
+      return nothing
     }
-    const stateObj = this.hass.states[this.entityId];
+    const stateObj = this.hass.states[this.entityId]
 
     if (!stateObj) {
-      return nothing;
+      return nothing
     }
 
     return html`
       <div class="header">
-        <h2>${this.hass.localize("ui.dialogs.more_info_control.logbook")}</h2>
+        <h2>${this.hass.localize('ui.dialogs.more_info_control.logbook')}</h2>
         <a href=${this._showMoreHref}
-          >${this.hass.localize("ui.dialogs.more_info_control.show_more")}</a
+          >${this.hass.localize('ui.dialogs.more_info_control.show_more')}</a
         >
       </div>
       <ha-logbook
@@ -48,20 +48,20 @@ export class MoreInfoLogbook extends LitElement {
         show-indicator
         relative-time
       ></ha-logbook>
-    `;
+    `
   }
 
   protected willUpdate(changedProps: PropertyValues): void {
-    super.willUpdate(changedProps);
+    super.willUpdate(changedProps)
 
-    if (changedProps.has("entityId") && this.entityId) {
+    if (changedProps.has('entityId') && this.entityId) {
       const params = {
         entity_id: this.entityId,
         start_date: startOfYesterday().toISOString(),
-        back: "1",
-      };
+        back: '1',
+      }
 
-      this._showMoreHref = `/logbook?${createSearchParam(params)}`;
+      this._showMoreHref = `/logbook?${createSearchParam(params)}`
     }
   }
 
@@ -92,12 +92,12 @@ export class MoreInfoLogbook extends LitElement {
           margin: 0;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-more-info-logbook": MoreInfoLogbook;
+    'ha-more-info-logbook': MoreInfoLogbook
   }
 }

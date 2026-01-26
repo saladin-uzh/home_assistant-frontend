@@ -1,47 +1,47 @@
-import { LitElement, css, html } from "lit";
-import { customElement, state } from "lit/decorators";
-import { formatTime } from "../../../../src/common/datetime/format_time";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-control-select";
-import "../../../../src/components/ha-list";
-import type { FrontendLocaleData } from "../../../../src/data/translation";
+import { LitElement, css, html } from 'lit'
+import { customElement, state } from 'lit/decorators'
+import { formatTime } from '../../../../src/common/datetime/format_time'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-control-select'
+import '../../../../src/components/ha-list'
+import type { FrontendLocaleData } from '../../../../src/data/translation'
 import {
   DateFormat,
   FirstWeekday,
   NumberFormat,
   TimeFormat,
   TimeZone,
-} from "../../../../src/data/translation";
-import { demoConfig } from "../../../../src/fake_data/demo_config";
-import { translationMetadata } from "../../../../src/resources/translations-metadata";
-import { timeOptions } from "../../data/date-options";
+} from '../../../../src/data/translation'
+import { demoConfig } from '../../../../src/fake_data/demo_config'
+import { translationMetadata } from '../../../../src/resources/translations-metadata'
+import { timeOptions } from '../../data/date-options'
 
-@customElement("demo-date-time-time")
+@customElement('demo-date-time-time')
 export class DemoDateTimeTime extends LitElement {
-  @state() private selection?: string = "now";
+  @state() private selection?: string = 'now'
 
-  @state() private date: Date = new Date();
+  @state() private date: Date = new Date()
 
   handleValueChanged(e: CustomEvent) {
-    this.selection = e.detail.value as string;
-    this.date = new Date();
-    if (this.selection !== "now") {
-      const [hours, minutes, seconds] = this.selection.split(":").map(Number);
-      this.date.setHours(hours);
-      this.date.setMinutes(minutes);
-      this.date.setSeconds(seconds);
+    this.selection = e.detail.value as string
+    this.date = new Date()
+    if (this.selection !== 'now') {
+      const [hours, minutes, seconds] = this.selection.split(':').map(Number)
+      this.date.setHours(hours)
+      this.date.setMinutes(minutes)
+      this.date.setSeconds(seconds)
     }
   }
 
   protected render() {
     const defaultLocale: FrontendLocaleData = {
-      language: "en",
+      language: 'en',
       number_format: NumberFormat.language,
       time_format: TimeFormat.language,
       date_format: DateFormat.language,
       first_weekday: FirstWeekday.language,
       time_zone: TimeZone.local,
-    };
+    }
     return html`
       <ha-control-select
         .value=${this.selection}
@@ -97,7 +97,7 @@ export class DemoDateTimeTime extends LitElement {
           `
         )}
       </ha-list>
-    `;
+    `
   }
 
   static styles = css`
@@ -123,11 +123,11 @@ export class DemoDateTimeTime extends LitElement {
       flex-grow: 1;
       width: 20%;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-date-time-time": DemoDateTimeTime;
+    'demo-date-time-time': DemoDateTimeTime
   }
 }

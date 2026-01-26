@@ -1,86 +1,86 @@
-import { mdiClose } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { cache } from "lit/directives/cache";
-import { classMap } from "lit/directives/class-map";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-button";
-import "../../../../components/ha-dialog";
-import "../../../../components/ha-dialog-header";
-import "../../../../components/ha-tab-group";
-import "../../../../components/ha-tab-group-tab";
-import type { LovelaceViewConfig } from "../../../../data/lovelace/config/view";
-import type { HassDialog } from "../../../../dialogs/make-dialog-manager";
-import { haStyleDialog } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import { computeBadges } from "../../common/generate-lovelace-config";
-import "../card-editor/hui-entity-picker-table";
-import { findLovelaceContainer } from "../lovelace-path";
-import "./hui-badge-picker";
-import type { CreateBadgeDialogParams } from "./show-create-badge-dialog";
-import { showEditBadgeDialog } from "./show-edit-badge-dialog";
-import { showSuggestBadgeDialog } from "./show-suggest-badge-dialog";
+import { mdiClose } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { cache } from 'lit/directives/cache'
+import { classMap } from 'lit/directives/class-map'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-button'
+import '../../../../components/ha-dialog'
+import '../../../../components/ha-dialog-header'
+import '../../../../components/ha-tab-group'
+import '../../../../components/ha-tab-group-tab'
+import type { LovelaceViewConfig } from '../../../../data/lovelace/config/view'
+import type { HassDialog } from '../../../../dialogs/make-dialog-manager'
+import { haStyleDialog } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import { computeBadges } from '../../common/generate-lovelace-config'
+import '../card-editor/hui-entity-picker-table'
+import { findLovelaceContainer } from '../lovelace-path'
+import './hui-badge-picker'
+import type { CreateBadgeDialogParams } from './show-create-badge-dialog'
+import { showEditBadgeDialog } from './show-edit-badge-dialog'
+import { showSuggestBadgeDialog } from './show-suggest-badge-dialog'
 
 declare global {
   interface HASSDomEvents {
-    "selected-changed": SelectedChangedEvent;
+    'selected-changed': SelectedChangedEvent
   }
 }
 
 interface SelectedChangedEvent {
-  selectedEntities: string[];
+  selectedEntities: string[]
 }
 
-@customElement("hui-dialog-create-badge")
+@customElement('hui-dialog-create-badge')
 export class HuiCreateDialogBadge
   extends LitElement
   implements HassDialog<CreateBadgeDialogParams>
 {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _params?: CreateBadgeDialogParams;
+  @state() private _params?: CreateBadgeDialogParams
 
-  @state() private _containerConfig!: LovelaceViewConfig;
+  @state() private _containerConfig!: LovelaceViewConfig
 
-  @state() private _selectedEntities: string[] = [];
+  @state() private _selectedEntities: string[] = []
 
-  @state() private _currTab: "badge" | "entity" = "badge";
+  @state() private _currTab: 'badge' | 'entity' = 'badge'
 
   public async showDialog(params: CreateBadgeDialogParams): Promise<void> {
-    this._params = params;
+    this._params = params
 
     const containerConfig = findLovelaceContainer(
       params.lovelaceConfig,
       params.path
-    );
+    )
 
-    if ("strategy" in containerConfig) {
-      throw new Error("Can't edit strategy");
+    if ('strategy' in containerConfig) {
+      throw new Error("Can't edit strategy")
     }
 
-    this._containerConfig = containerConfig;
+    this._containerConfig = containerConfig
   }
 
   public closeDialog(): boolean {
-    this._params = undefined;
-    this._currTab = "badge";
-    this._selectedEntities = [];
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
-    return true;
+    this._params = undefined
+    this._currTab = 'badge'
+    this._selectedEntities = []
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
+    return true
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
 
     const title = this._containerConfig.title
       ? this.hass!.localize(
-          "ui.panel.lovelace.editor.edit_badge.pick_badge_title",
+          'ui.panel.lovelace.editor.edit_badge.pick_badge_title',
           { name: this._containerConfig.title }
         )
-      : this.hass!.localize("ui.panel.lovelace.editor.edit_badge.pick_badge");
+      : this.hass!.localize('ui.panel.lovelace.editor.edit_badge.pick_badge')
 
     return html`
       <ha-dialog
@@ -89,39 +89,42 @@ export class HuiCreateDialogBadge
         @keydown=${this._ignoreKeydown}
         @closed=${this._cancel}
         .heading=${title}
-        class=${classMap({ table: this._currTab === "entity" })}
+        class=${classMap({ table: this._currTab === 'entity' })}
       >
-        <ha-dialog-header show-border slot="heading">
+        <ha-dialog-header
+          show-border
+          slot="heading"
+        >
           <ha-icon-button
             slot="navigationIcon"
             dialogAction="cancel"
-            .label=${this.hass.localize("ui.common.close")}
+            .label=${this.hass.localize('ui.common.close')}
             .path=${mdiClose}
           ></ha-icon-button>
           <span slot="title">${title}</span>
           <ha-tab-group @wa-tab-show=${this._handleTabChanged}>
             <ha-tab-group-tab
               slot="nav"
-              .active=${this._currTab === "badge"}
+              .active=${this._currTab === 'badge'}
               panel="badge"
               dialogInitialFocus
             >
               ${this.hass!.localize(
-                "ui.panel.lovelace.editor.badge_picker.by_badge"
+                'ui.panel.lovelace.editor.badge_picker.by_badge'
               )}
             </ha-tab-group-tab>
             <ha-tab-group-tab
               slot="nav"
-              .active=${this._currTab === "entity"}
+              .active=${this._currTab === 'entity'}
               panel="entity"
               >${this.hass!.localize(
-                "ui.panel.lovelace.editor.badge_picker.by_entity"
+                'ui.panel.lovelace.editor.badge_picker.by_entity'
               )}</ha-tab-group-tab
             >
           </ha-tab-group>
         </ha-dialog-header>
         ${cache(
-          this._currTab === "badge"
+          this._currTab === 'badge'
             ? html`
                 <hui-badge-picker
                   .suggestedBadges=${this._params.suggestedBadges}
@@ -141,23 +144,26 @@ export class HuiCreateDialogBadge
         )}
 
         <div slot="primaryAction">
-          <ha-button appearance="plain" @click=${this._cancel}>
-            ${this.hass!.localize("ui.common.cancel")}
+          <ha-button
+            appearance="plain"
+            @click=${this._cancel}
+          >
+            ${this.hass!.localize('ui.common.cancel')}
           </ha-button>
           ${this._selectedEntities.length
             ? html`
                 <ha-button @click=${this._suggestBadges}>
-                  ${this.hass!.localize("ui.common.continue")}
+                  ${this.hass!.localize('ui.common.continue')}
                 </ha-button>
               `
-            : ""}
+            : ''}
         </div>
       </ha-dialog>
-    `;
+    `
   }
 
   private _ignoreKeydown(ev: KeyboardEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
   }
 
   static get styles(): CSSResultGroup {
@@ -216,16 +222,16 @@ export class HuiCreateDialogBadge
           }
         }
       `,
-    ];
+    ]
   }
 
   private _handleBadgePicked(ev) {
-    const config = ev.detail.config;
+    const config = ev.detail.config
     if (this._params!.entities && this._params!.entities.length) {
-      if ("entities" in config) {
-        config.entities = this._params!.entities;
-      } else if ("entity" in config) {
-        config.entity = this._params!.entities[0];
+      if ('entities' in config) {
+        config.entities = this._params!.entities
+      } else if ('entity' in config) {
+        config.entity = this._params!.entities[0]
       }
     }
 
@@ -234,34 +240,34 @@ export class HuiCreateDialogBadge
       saveConfig: this._params!.saveConfig,
       path: this._params!.path,
       badgeConfig: config,
-    });
+    })
 
-    this.closeDialog();
+    this.closeDialog()
   }
 
   private _handleTabChanged(ev: CustomEvent): void {
-    const newTab = ev.detail.name;
+    const newTab = ev.detail.name
     if (newTab === this._currTab) {
-      return;
+      return
     }
 
-    this._currTab = newTab;
-    this._selectedEntities = [];
+    this._currTab = newTab
+    this._selectedEntities = []
   }
 
   private _handleSelectedChanged(ev: CustomEvent): void {
-    this._selectedEntities = ev.detail.selectedEntities;
+    this._selectedEntities = ev.detail.selectedEntities
   }
 
   private _cancel(ev?: Event) {
     if (ev) {
-      ev.stopPropagation();
+      ev.stopPropagation()
     }
-    this.closeDialog();
+    this.closeDialog()
   }
 
   private _suggestBadges(): void {
-    const badgeConfig = computeBadges(this.hass.states, this._selectedEntities);
+    const badgeConfig = computeBadges(this.hass.states, this._selectedEntities)
 
     showSuggestBadgeDialog(this, {
       lovelaceConfig: this._params!.lovelaceConfig,
@@ -269,14 +275,14 @@ export class HuiCreateDialogBadge
       path: this._params!.path as [number],
       entities: this._selectedEntities,
       badgeConfig,
-    });
+    })
 
-    this.closeDialog();
+    this.closeDialog()
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-dialog-create-badge": HuiCreateDialogBadge;
+    'hui-dialog-create-badge': HuiCreateDialogBadge
   }
 }

@@ -1,6 +1,6 @@
-import { consume } from "@lit/context";
+import { consume } from '@lit/context'
 // @ts-ignore
-import chipStyles from "@material/chips/dist/mdc.chips.min.css";
+import chipStyles from '@material/chips/dist/mdc.chips.min.css'
 import {
   mdiClose,
   mdiDevices,
@@ -8,52 +8,52 @@ import {
   mdiLabel,
   mdiTextureBox,
   mdiUnfoldMoreVertical,
-} from "@mdi/js";
-import { css, html, LitElement, nothing, unsafeCSS } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import memoizeOne from "memoize-one";
-import { computeCssColor } from "../../common/color/compute-color";
-import { hex2rgb } from "../../common/color/convert-color";
-import { fireEvent } from "../../common/dom/fire_event";
-import { computeDeviceNameDisplay } from "../../common/entity/compute_device_name";
-import { computeDomain } from "../../common/entity/compute_domain";
-import { computeStateName } from "../../common/entity/compute_state_name";
-import { slugify } from "../../common/string/slugify";
-import { getConfigEntry } from "../../data/config_entries";
-import { labelsContext } from "../../data/context";
-import { domainToName } from "../../data/integration";
-import type { LabelRegistryEntry } from "../../data/label_registry";
-import type { TargetType } from "../../data/target";
-import type { HomeAssistant } from "../../types";
-import { brandsUrl } from "../../util/brands-url";
-import { floorDefaultIconPath } from "../ha-floor-icon";
-import "../ha-icon";
-import "../ha-icon-button";
-import "../ha-md-list";
-import "../ha-md-list-item";
-import "../ha-state-icon";
-import "../ha-tooltip";
+} from '@mdi/js'
+import { css, html, LitElement, nothing, unsafeCSS } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import memoizeOne from 'memoize-one'
+import { computeCssColor } from '../../common/color/compute-color'
+import { hex2rgb } from '../../common/color/convert-color'
+import { fireEvent } from '../../common/dom/fire_event'
+import { computeDeviceNameDisplay } from '../../common/entity/compute_device_name'
+import { computeDomain } from '../../common/entity/compute_domain'
+import { computeStateName } from '../../common/entity/compute_state_name'
+import { slugify } from '../../common/string/slugify'
+import { getConfigEntry } from '../../data/config_entries'
+import { labelsContext } from '../../data/context'
+import { domainToName } from '../../data/integration'
+import type { LabelRegistryEntry } from '../../data/label_registry'
+import type { TargetType } from '../../data/target'
+import type { HomeAssistant } from '../../types'
+import { brandsUrl } from '../../util/brands-url'
+import { floorDefaultIconPath } from '../ha-floor-icon'
+import '../ha-icon'
+import '../ha-icon-button'
+import '../ha-md-list'
+import '../ha-md-list-item'
+import '../ha-state-icon'
+import '../ha-tooltip'
 
-@customElement("ha-target-picker-value-chip")
+@customElement('ha-target-picker-value-chip')
 export class HaTargetPickerValueChip extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property() public type!: TargetType;
+  @property() public type!: TargetType
 
-  @property({ attribute: "item-id" }) public itemId!: string;
+  @property({ attribute: 'item-id' }) public itemId!: string
 
-  @state() private _domainName?: string;
+  @state() private _domainName?: string
 
-  @state() private _iconImg?: string;
+  @state() private _iconImg?: string
 
   @state()
   @consume({ context: labelsContext, subscribe: true })
-  _labelRegistry!: LabelRegistryEntry[];
+  _labelRegistry!: LabelRegistryEntry[]
 
   protected render() {
     const { name, iconPath, fallbackIconPath, stateObject, color } =
-      this._itemData(this.type, this.itemId);
+      this._itemData(this.type, this.itemId)
 
     return html`
       <div
@@ -62,7 +62,7 @@ export class HaTargetPickerValueChip extends LitElement {
         })}"
         style=${color
           ? `--color: rgb(${color}); --background-color: rgba(${color}, .5)`
-          : ""}
+          : ''}
       >
         ${iconPath
           ? html`<ha-icon
@@ -72,7 +72,7 @@ export class HaTargetPickerValueChip extends LitElement {
           : this._iconImg
             ? html`<img
                 class="mdc-chip__icon mdc-chip__icon--leading"
-                alt=${this._domainName || ""}
+                alt=${this._domainName || ''}
                 crossorigin="anonymous"
                 referrerpolicy="no-referrer"
                 src=${this._iconImg}
@@ -90,13 +90,19 @@ export class HaTargetPickerValueChip extends LitElement {
                   ></ha-state-icon>`
                 : nothing}
         <span role="gridcell">
-          <span role="button" tabindex="0" class="mdc-chip__primary-action">
-            <span id="title-${this.itemId}" class="mdc-chip__text"
+          <span
+            role="button"
+            tabindex="0"
+            class="mdc-chip__primary-action"
+          >
+            <span
+              id="title-${this.itemId}"
+              class="mdc-chip__text"
               >${name}</span
             >
           </span>
         </span>
-        ${this.type === "entity"
+        ${this.type === 'entity'
           ? nothing
           : html`<span role="gridcell">
               <ha-tooltip .for="expand-${slugify(this.itemId)}"
@@ -107,7 +113,7 @@ export class HaTargetPickerValueChip extends LitElement {
               <ha-icon-button
                 class="expand-btn mdc-chip__icon mdc-chip__icon--trailing"
                 .label=${this.hass.localize(
-                  "ui.components.target-picker.expand"
+                  'ui.components.target-picker.expand'
                 )}
                 .path=${mdiUnfoldMoreVertical}
                 hide-title
@@ -124,7 +130,7 @@ export class HaTargetPickerValueChip extends LitElement {
           </ha-tooltip>
           <ha-icon-button
             class="mdc-chip__icon mdc-chip__icon--trailing"
-            .label=${this.hass.localize("ui.components.target-picker.remove")}
+            .label=${this.hass.localize('ui.components.target-picker.remove')}
             .path=${mdiClose}
             hide-title
             .id="remove-${slugify(this.itemId)}"
@@ -133,102 +139,102 @@ export class HaTargetPickerValueChip extends LitElement {
           ></ha-icon-button>
         </span>
       </div>
-    `;
+    `
   }
 
   private _itemData = memoizeOne((type: TargetType, itemId: string) => {
-    if (type === "floor") {
-      const floor = this.hass.floors?.[itemId];
+    if (type === 'floor') {
+      const floor = this.hass.floors?.[itemId]
       return {
         name: floor?.name || itemId,
         iconPath: floor?.icon,
         fallbackIconPath: floor ? floorDefaultIconPath(floor) : mdiHome,
-      };
+      }
     }
-    if (type === "area") {
-      const area = this.hass.areas?.[itemId];
+    if (type === 'area') {
+      const area = this.hass.areas?.[itemId]
       return {
         name: area?.name || itemId,
         iconPath: area?.icon,
         fallbackIconPath: mdiTextureBox,
-      };
+      }
     }
-    if (type === "device") {
-      const device = this.hass.devices?.[itemId];
+    if (type === 'device') {
+      const device = this.hass.devices?.[itemId]
 
       if (device.primary_config_entry) {
-        this._getDeviceDomain(device.primary_config_entry);
+        this._getDeviceDomain(device.primary_config_entry)
       }
 
       return {
         name: device ? computeDeviceNameDisplay(device, this.hass) : itemId,
         fallbackIconPath: mdiDevices,
-      };
+      }
     }
-    if (type === "entity") {
-      this._setDomainName(computeDomain(itemId));
+    if (type === 'entity') {
+      this._setDomainName(computeDomain(itemId))
 
-      const stateObj = this.hass.states[itemId];
+      const stateObj = this.hass.states[itemId]
       return {
         name: computeStateName(stateObj) || itemId,
         stateObject: stateObj,
-      };
+      }
     }
 
     // type label
-    const label = this._labelRegistry.find((lab) => lab.label_id === itemId);
-    let color = label?.color ? computeCssColor(label.color) : undefined;
-    if (color?.startsWith("var(")) {
-      const computedStyles = getComputedStyle(this);
+    const label = this._labelRegistry.find(lab => lab.label_id === itemId)
+    let color = label?.color ? computeCssColor(label.color) : undefined
+    if (color?.startsWith('var(')) {
+      const computedStyles = getComputedStyle(this)
       color = computedStyles.getPropertyValue(
         color.substring(4, color.length - 1)
-      );
+      )
     }
-    if (color?.startsWith("#")) {
-      color = hex2rgb(color).join(",");
+    if (color?.startsWith('#')) {
+      color = hex2rgb(color).join(',')
     }
     return {
       name: label?.name || itemId,
       iconPath: label?.icon,
       fallbackIconPath: mdiLabel,
       color,
-    };
-  });
+    }
+  })
 
   private _setDomainName(domain: string) {
-    this._domainName = domainToName(this.hass.localize, domain);
+    this._domainName = domainToName(this.hass.localize, domain)
   }
 
   private async _getDeviceDomain(configEntryId: string) {
     try {
-      const data = await getConfigEntry(this.hass, configEntryId);
-      const domain = data.config_entry.domain;
+      const data = await getConfigEntry(this.hass, configEntryId)
+      const domain = data.config_entry.domain
       this._iconImg = brandsUrl({
         domain: domain,
-        type: "icon",
+        type: 'icon',
         darkOptimized: this.hass.themes?.darkMode,
-      });
+      })
 
-      this._setDomainName(domain);
+      this._setDomainName(domain)
     } catch {
       // failed to load config entry -> ignore
     }
   }
 
   private _removeItem(ev) {
-    ev.stopPropagation();
-    fireEvent(this, "remove-target-item", {
+    ev.stopPropagation()
+    fireEvent(this, 'remove-target-item', {
       type: this.type,
       id: this.itemId,
-    });
+    })
   }
 
   private _handleExpand(ev) {
-    ev.stopPropagation();
-    fireEvent(this, "expand-target-item", {
+    ev.stopPropagation()
+    fireEvent(this, 'expand-target-item', {
       type: this.type,
       id: this.itemId,
-    });
+    })
   }
 
   static styles = css`
@@ -328,11 +334,11 @@ export class HaTargetPickerValueChip extends LitElement {
       width: 24px;
       height: 24px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-target-picker-value-chip": HaTargetPickerValueChip;
+    'ha-target-picker-value-chip': HaTargetPickerValueChip
   }
 }

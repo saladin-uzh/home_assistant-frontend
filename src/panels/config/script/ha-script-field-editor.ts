@@ -1,64 +1,63 @@
-import { LitElement, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../common/dom/fire_event";
-import { slugify } from "../../../common/string/slugify";
-import "../../../components/ha-alert";
-import "../../../components/ha-form/ha-form";
-import type { SchemaUnion } from "../../../components/ha-form/types";
-import "../../../components/ha-yaml-editor";
-import type { Field } from "../../../data/script";
-import { haStyle } from "../../../resources/styles";
-import type { HomeAssistant } from "../../../types";
+import { LitElement, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../common/dom/fire_event'
+import { slugify } from '../../../common/string/slugify'
+import '../../../components/ha-alert'
+import '../../../components/ha-form/ha-form'
+import type { SchemaUnion } from '../../../components/ha-form/types'
+import '../../../components/ha-yaml-editor'
+import type { Field } from '../../../data/script'
+import { haStyle } from '../../../resources/styles'
+import type { HomeAssistant } from '../../../types'
 
-@customElement("ha-script-field-editor")
+@customElement('ha-script-field-editor')
 export default class HaScriptFieldEditor extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property() public key!: string;
+  @property() public key!: string
 
-  @property({ attribute: false, type: Array }) public excludeKeys: string[] =
-    [];
+  @property({ attribute: false, type: Array }) public excludeKeys: string[] = []
 
-  @property({ attribute: false }) public field!: Field;
+  @property({ attribute: false }) public field!: Field
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean, attribute: "yaml-mode" }) public yamlMode = false;
+  @property({ type: Boolean, attribute: 'yaml-mode' }) public yamlMode = false
 
-  @state() private _uiError?: Record<string, string>;
+  @state() private _uiError?: Record<string, string>
 
-  @state() private _yamlError?: undefined | "yaml_error" | "key_not_unique";
+  @state() private _yamlError?: undefined | 'yaml_error' | 'key_not_unique'
 
-  private _errorKey?: string;
+  private _errorKey?: string
 
   private _schema = memoizeOne(
     () =>
       [
         {
-          name: "name",
+          name: 'name',
           selector: { text: {} },
         },
         {
-          name: "key",
+          name: 'key',
           selector: { text: {} },
         },
         {
-          name: "description",
+          name: 'description',
           selector: { text: {} },
         },
         {
-          name: "required",
+          name: 'required',
           selector: { boolean: {} },
         },
       ] as const
-  );
+  )
 
   protected render() {
-    const schema = this._schema();
-    const data = { ...this.field, key: this._errorKey ?? this.key };
+    const schema = this._schema()
+    const data = { ...this.field, key: this._errorKey ?? this.key }
 
-    const yamlValue = { [this.key]: this.field };
+    const yamlValue = { [this.key]: this.field }
 
     return html`
       ${this.yamlMode
@@ -84,109 +83,109 @@ export default class HaScriptFieldEditor extends LitElement {
             .computeError=${this._computeError}
             @value-changed=${this._valueChanged}
           ></ha-form>`}
-    `;
+    `
   }
 
   private _maybeSetKey(value): void {
-    const nameChanged = value.name !== this.field.name;
-    const keyChanged = value.key !== this.key;
+    const nameChanged = value.name !== this.field.name
+    const keyChanged = value.key !== this.key
     if (!nameChanged || keyChanged) {
-      return;
+      return
     }
     const slugifyName = this.field.name
       ? slugify(this.field.name)
-      : this.hass.localize("ui.panel.config.script.editor.field.field") ||
-        "field";
-    const regex = new RegExp(`^${slugifyName}(_\\d)?$`);
+      : this.hass.localize('ui.panel.config.script.editor.field.field') ||
+        'field'
+    const regex = new RegExp(`^${slugifyName}(_\\d)?$`)
     if (regex.test(this.key)) {
       let key = !value.name
-        ? this.hass.localize("ui.panel.config.script.editor.field.field") ||
-          "field"
-        : slugify(value.name);
+        ? this.hass.localize('ui.panel.config.script.editor.field.field') ||
+          'field'
+        : slugify(value.name)
       if (this.excludeKeys.includes(key)) {
-        let uniqueKey = key;
-        let i = 2;
+        let uniqueKey = key
+        let i = 2
         do {
-          uniqueKey = `${key}_${i}`;
-          i++;
-        } while (this.excludeKeys.includes(uniqueKey));
-        key = uniqueKey;
+          uniqueKey = `${key}_${i}`
+          i++
+        } while (this.excludeKeys.includes(uniqueKey))
+        key = uniqueKey
       }
-      value.key = key;
+      value.key = key
     }
   }
 
   private _valueChanged(ev: CustomEvent) {
-    ev.stopPropagation();
-    const value = { ...ev.detail.value };
+    ev.stopPropagation()
+    const value = { ...ev.detail.value }
 
-    this._maybeSetKey(value);
+    this._maybeSetKey(value)
 
     // Don't allow to set an empty key, or duplicate an existing key.
     if (!value.key || this.excludeKeys.includes(value.key)) {
       this._uiError = value.key
         ? {
-            key: "key_not_unique",
+            key: 'key_not_unique',
           }
         : {
-            key: "key_not_null",
-          };
-      this._errorKey = value.key ?? "";
-      return;
+            key: 'key_not_null',
+          }
+      this._errorKey = value.key ?? ''
+      return
     }
-    this._errorKey = undefined;
-    this._uiError = undefined;
+    this._errorKey = undefined
+    this._uiError = undefined
 
     // If we render the default with an incompatible selector, it risks throwing an exception and not rendering.
     // Clear the default when changing the selector type.
     if (
       Object.keys(this.field.selector)[0] !== Object.keys(value.selector)[0]
     ) {
-      delete value.default;
+      delete value.default
     }
 
-    fireEvent(this, "value-changed", { value });
+    fireEvent(this, 'value-changed', { value })
   }
 
   private _onYamlChange(ev: CustomEvent) {
-    ev.stopPropagation();
-    const value = { ...ev.detail.value };
+    ev.stopPropagation()
+    const value = { ...ev.detail.value }
 
     if (
-      typeof value !== "object" ||
+      typeof value !== 'object' ||
       Object.keys(value).length !== 1 ||
       !value[Object.keys(value)[0]] ||
       !value[Object.keys(value)[0]].selector
     ) {
-      this._yamlError = "yaml_error";
-      return;
+      this._yamlError = 'yaml_error'
+      return
     }
-    const key = Object.keys(value)[0];
+    const key = Object.keys(value)[0]
     if (this.excludeKeys.includes(key)) {
-      this._yamlError = "key_not_unique";
-      return;
+      this._yamlError = 'key_not_unique'
+      return
     }
-    this._yamlError = undefined;
+    this._yamlError = undefined
 
-    const newValue = { ...value[key], key };
+    const newValue = { ...value[key], key }
 
-    fireEvent(this, "yaml-changed", { value: newValue });
+    fireEvent(this, 'yaml-changed', { value: newValue })
   }
 
   private _computeLabelCallback = (
     schema: SchemaUnion<ReturnType<typeof this._schema>>
   ): string =>
-    this.hass.localize(`ui.panel.config.script.editor.field.${schema.name}`);
+    this.hass.localize(`ui.panel.config.script.editor.field.${schema.name}`)
 
   private _computeError = (error: string) =>
     this.hass.localize(`ui.panel.config.script.editor.field.${error}` as any) ||
-    error;
+    error
 
-  static styles = haStyle;
+  static styles = haStyle
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-script-field-editor": HaScriptFieldEditor;
+    'ha-script-field-editor': HaScriptFieldEditor
   }
 }

@@ -1,32 +1,32 @@
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { computeDeviceNameDisplay } from "../../../../common/entity/compute_device_name";
-import { stringCompare } from "../../../../common/string/compare";
-import { titleCase } from "../../../../common/string/title-case";
-import "../../../../components/ha-card";
-import type { DeviceRegistryEntry } from "../../../../data/device_registry";
-import { haStyle } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import { createSearchParam } from "../../../../common/url/search-params";
-import { isComponentLoaded } from "../../../../common/config/is_component_loaded";
-import "../../../../components/ha-icon";
-import "../../../../components/ha-label";
-import type { LabelRegistryEntry } from "../../../../data/label_registry";
-import { subscribeLabelRegistry } from "../../../../data/label_registry";
-import { computeCssColor } from "../../../../common/color/compute-color";
-import { SubscribeMixin } from "../../../../mixins/subscribe-mixin";
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { computeDeviceNameDisplay } from '../../../../common/entity/compute_device_name'
+import { stringCompare } from '../../../../common/string/compare'
+import { titleCase } from '../../../../common/string/title-case'
+import '../../../../components/ha-card'
+import type { DeviceRegistryEntry } from '../../../../data/device_registry'
+import { haStyle } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import { createSearchParam } from '../../../../common/url/search-params'
+import { isComponentLoaded } from '../../../../common/config/is_component_loaded'
+import '../../../../components/ha-icon'
+import '../../../../components/ha-label'
+import type { LabelRegistryEntry } from '../../../../data/label_registry'
+import { subscribeLabelRegistry } from '../../../../data/label_registry'
+import { computeCssColor } from '../../../../common/color/compute-color'
+import { SubscribeMixin } from '../../../../mixins/subscribe-mixin'
 
-@customElement("ha-device-info-card")
+@customElement('ha-device-info-card')
 export class HaDeviceCard extends SubscribeMixin(LitElement) {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public device!: DeviceRegistryEntry;
+  @property({ attribute: false }) public device!: DeviceRegistryEntry
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @state() private _labelRegistry?: LabelRegistryEntry[];
+  @state() private _labelRegistry?: LabelRegistryEntry[]
 
   private _labelsData = memoizeOne(
     (
@@ -34,29 +34,29 @@ export class HaDeviceCard extends SubscribeMixin(LitElement) {
       labelIds: string[],
       language: string
     ): {
-      map: Map<string, LabelRegistryEntry>;
-      ids: string[];
+      map: Map<string, LabelRegistryEntry>
+      ids: string[]
     } => {
       const map = labels
-        ? new Map(labels.map((label) => [label.label_id, label]))
-        : new Map<string, LabelRegistryEntry>();
+        ? new Map(labels.map(label => [label.label_id, label]))
+        : new Map<string, LabelRegistryEntry>()
       const ids = [...labelIds].sort((labelA, labelB) =>
         stringCompare(
           map.get(labelA)?.name || labelA,
           map.get(labelB)?.name || labelB,
           language
         )
-      );
-      return { map, ids };
+      )
+      return { map, ids }
     }
-  );
+  )
 
   public hassSubscribe() {
     return [
-      subscribeLabelRegistry(this.hass.connection, (labels) => {
-        this._labelRegistry = labels;
+      subscribeLabelRegistry(this.hass.connection, labels => {
+        this._labelRegistry = labels
       }),
-    ];
+    ]
   }
 
   protected render(): TemplateResult {
@@ -64,15 +64,15 @@ export class HaDeviceCard extends SubscribeMixin(LitElement) {
       this._labelRegistry,
       this.device.labels,
       this.hass.locale.language
-    );
+    )
 
     return html`
       <ha-card
         outlined
-        .header=${this.hass.localize("ui.panel.config.devices.device_info", {
+        .header=${this.hass.localize('ui.panel.config.devices.device_info', {
           type: this.hass.localize(
             `ui.panel.config.devices.type.${
-              this.device.entry_type || "device"
+              this.device.entry_type || 'device'
             }_heading`
           ),
         })}
@@ -81,26 +81,26 @@ export class HaDeviceCard extends SubscribeMixin(LitElement) {
           ${this.device.model
             ? html`<div class="model">
                 ${this.device.model}
-                ${this.device.model_id ? html`(${this.device.model_id})` : ""}
+                ${this.device.model_id ? html`(${this.device.model_id})` : ''}
               </div>`
             : this.device.model_id
               ? html`<div class="model">${this.device.model_id}</div>`
-              : ""}
+              : ''}
           ${this.device.manufacturer
             ? html`
                 <div class="manuf">
                   ${this.hass.localize(
-                    "ui.panel.config.integrations.config_entry.manuf",
+                    'ui.panel.config.integrations.config_entry.manuf',
                     { manufacturer: this.device.manufacturer }
                   )}
                 </div>
               `
-            : ""}
+            : ''}
           ${this.device.via_device_id
             ? html`
                 <div class="extra-info">
                   ${this.hass.localize(
-                    "ui.panel.config.integrations.config_entry.via"
+                    'ui.panel.config.integrations.config_entry.via'
                   )}
                   <span class="hub"
                     ><a
@@ -112,47 +112,47 @@ export class HaDeviceCard extends SubscribeMixin(LitElement) {
                   >
                 </div>
               `
-            : ""}
+            : ''}
           ${this.device.sw_version
             ? html`
                 <div class="extra-info">
                   ${this.hass.localize(
                     `ui.panel.config.integrations.config_entry.${
-                      this.device.entry_type === "service" &&
+                      this.device.entry_type === 'service' &&
                       !this.device.hw_version
-                        ? "version"
-                        : "firmware"
+                        ? 'version'
+                        : 'firmware'
                     }`,
                     { version: this.device.sw_version }
                   )}
                 </div>
               `
-            : ""}
+            : ''}
           ${this.device.hw_version
             ? html`
                 <div class="extra-info">
                   ${this.hass.localize(
-                    "ui.panel.config.integrations.config_entry.hardware",
+                    'ui.panel.config.integrations.config_entry.hardware',
                     { version: this.device.hw_version }
                   )}
                 </div>
               `
-            : ""}
+            : ''}
           ${this.device.serial_number
             ? html`
                 <div class="extra-info">
                   ${this.hass.localize(
-                    "ui.panel.config.integrations.config_entry.serial_number",
+                    'ui.panel.config.integrations.config_entry.serial_number',
                     { serial_number: this.device.serial_number }
                   )}
                 </div>
               `
-            : ""}
+            : ''}
           ${this._getAddresses().map(
             ([type, value]) => html`
               <div class="extra-info">
-                ${type === "bluetooth" &&
-                isComponentLoaded(this.hass, "bluetooth")
+                ${type === 'bluetooth' &&
+                isComponentLoaded(this.hass, 'bluetooth')
                   ? html`${titleCase(type)}:
                       <a
                         href="/config/bluetooth/advertisement-monitor?${createSearchParam(
@@ -160,7 +160,7 @@ export class HaDeviceCard extends SubscribeMixin(LitElement) {
                         )}"
                         >${value.toUpperCase()}</a
                       >`
-                  : type === "mac" && isComponentLoaded(this.hass, "dhcp")
+                  : type === 'mac' && isComponentLoaded(this.hass, 'dhcp')
                     ? html`MAC:
                         <a
                           href="/config/dhcp?${createSearchParam({
@@ -168,7 +168,7 @@ export class HaDeviceCard extends SubscribeMixin(LitElement) {
                           })}"
                           >${value.toUpperCase()}</a
                         >`
-                    : html`${type === "mac" ? "MAC" : titleCase(type)}:
+                    : html`${type === 'mac' ? 'MAC' : titleCase(type)}:
                       ${value.toUpperCase()}`}
               </div>
             `
@@ -176,15 +176,15 @@ export class HaDeviceCard extends SubscribeMixin(LitElement) {
           ${labels.length > 0
             ? html`
                 <div class="extra-info labels">
-                  ${labels.map((labelId) => {
-                    const label = labelMap.get(labelId);
+                  ${labels.map(labelId => {
+                    const label = labelMap.get(labelId)
                     const color =
-                      label?.color && typeof label.color === "string"
+                      label?.color && typeof label.color === 'string'
                         ? computeCssColor(label.color)
-                        : undefined;
+                        : undefined
                     return html`
                       <ha-label
-                        style=${color ? `--color: ${color}` : ""}
+                        style=${color ? `--color: ${color}` : ''}
                         .description=${label?.description}
                       >
                         ${label?.icon
@@ -195,7 +195,7 @@ export class HaDeviceCard extends SubscribeMixin(LitElement) {
                           : nothing}
                         ${label?.name || labelId}
                       </ha-label>
-                    `;
+                    `
                   })}
                 </div>
               `
@@ -205,22 +205,22 @@ export class HaDeviceCard extends SubscribeMixin(LitElement) {
         </div>
         <slot name="actions"></slot>
       </ha-card>
-    `;
+    `
   }
 
   protected _getAddresses() {
-    return this.device.connections.filter((conn) =>
-      ["mac", "bluetooth", "zigbee"].includes(conn[0])
-    );
+    return this.device.connections.filter(conn =>
+      ['mac', 'bluetooth', 'zigbee'].includes(conn[0])
+    )
   }
 
   private _computeDeviceNameDisplay(deviceId: string) {
-    const device = this.hass.devices[deviceId];
+    const device = this.hass.devices[deviceId]
     return device
       ? computeDeviceNameDisplay(device, this.hass)
       : `<${this.hass.localize(
-          "ui.panel.config.integrations.config_entry.unknown_via_device"
-        )}>`;
+          'ui.panel.config.integrations.config_entry.unknown_via_device'
+        )}>`
   }
 
   static get styles(): CSSResultGroup {
@@ -265,12 +265,12 @@ export class HaDeviceCard extends SubscribeMixin(LitElement) {
           word-wrap: break-word;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-device-info-card": HaDeviceCard;
+    'ha-device-info-card': HaDeviceCard
   }
 }

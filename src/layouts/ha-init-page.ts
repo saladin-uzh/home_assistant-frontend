@@ -1,19 +1,19 @@
-import type { PropertyValues } from "lit";
-import { css, html, LitElement } from "lit";
-import { property, state } from "lit/decorators";
-import "../components/ha-spinner";
-import "../components/ha-button";
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { property, state } from 'lit/decorators'
+import '../components/ha-spinner'
+import '../components/ha-button'
 
 class HaInitPage extends LitElement {
-  @property({ type: Boolean }) public error = false;
+  @property({ type: Boolean }) public error = false
 
-  @property({ type: Boolean }) public migration = false;
+  @property({ type: Boolean }) public migration = false
 
-  @state() private _retryInSeconds = 60;
+  @state() private _retryInSeconds = 60
 
-  private _showProgressIndicatorTimeout?: number;
+  private _showProgressIndicatorTimeout?: number
 
-  private _retryInterval?: number;
+  private _retryInterval?: number
 
   protected render() {
     return this.error
@@ -22,10 +22,13 @@ class HaInitPage extends LitElement {
           <p class="retry-text">
             Retrying in ${this._retryInSeconds} seconds...
           </p>
-          <ha-button size="small" appearance="plain" @click=${this._retry}
+          <ha-button
+            size="small"
+            appearance="plain"
+            @click=${this._retry}
             >Retry now</ha-button
           >
-          ${location.host.includes("ui.nabu.casa")
+          ${location.host.includes('ui.nabu.casa')
             ? html`
                 <p>
                   It is possible that you are seeing this screen because your
@@ -36,7 +39,7 @@ class HaInitPage extends LitElement {
                   >.
                 </p>
               `
-            : ""}
+            : ''}
         `
       : html`
           <div id="progress-indicator-wrapper">
@@ -51,45 +54,45 @@ class HaInitPage extends LitElement {
                   The upgrade may need a long time to complete, please be
                   patient.
                 `
-              : "Loading data"}
+              : 'Loading data'}
           </div>
-        `;
+        `
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
     if (this._showProgressIndicatorTimeout) {
-      clearTimeout(this._showProgressIndicatorTimeout);
+      clearTimeout(this._showProgressIndicatorTimeout)
     }
     if (this._retryInterval) {
-      clearInterval(this._retryInterval);
+      clearInterval(this._retryInterval)
     }
   }
 
   protected willUpdate(changedProperties: PropertyValues<this>) {
-    if (changedProperties.has("error") && this.error) {
-      import("../components/ha-button");
+    if (changedProperties.has('error') && this.error) {
+      import('../components/ha-button')
     }
   }
 
   protected firstUpdated() {
     this._showProgressIndicatorTimeout = window.setTimeout(() => {
-      import("../components/ha-spinner");
-    }, 5000);
+      import('../components/ha-spinner')
+    }, 5000)
 
     this._retryInterval = window.setInterval(() => {
-      const remainingSeconds = this._retryInSeconds--;
+      const remainingSeconds = this._retryInSeconds--
       if (remainingSeconds <= 0) {
-        this._retry();
+        this._retry()
       }
-    }, 1000);
+    }, 1000)
   }
 
   private _retry() {
     if (this._retryInterval) {
-      clearInterval(this._retryInterval);
+      clearInterval(this._retryInterval)
     }
-    location.reload();
+    location.reload()
   }
 
   static styles = css`
@@ -117,13 +120,13 @@ class HaInitPage extends LitElement {
       color: var(--primary-text-color);
       text-align: center;
     }
-  `;
+  `
 }
 
-customElements.define("ha-init-page", HaInitPage);
+customElements.define('ha-init-page', HaInitPage)
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-init-page": HaInitPage;
+    'ha-init-page': HaInitPage
   }
 }

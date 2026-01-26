@@ -1,9 +1,9 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators";
-import "../../components/ha-card";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import '../../components/ha-card'
 
-@customElement("notification-item-template")
+@customElement('notification-item-template')
 export class HuiNotificationItemTemplate extends LitElement {
   protected render(): TemplateResult {
     return html`
@@ -12,7 +12,7 @@ export class HuiNotificationItemTemplate extends LitElement {
         <div class="contents"><slot></slot></div>
         <div class="actions"><slot name="actions"></slot></div>
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -46,11 +46,11 @@ export class HuiNotificationItemTemplate extends LitElement {
     ::slotted(.primary) {
       color: var(--primary-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "notification-item-template": HuiNotificationItemTemplate;
+    'notification-item-template': HuiNotificationItemTemplate
   }
 }

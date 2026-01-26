@@ -1,26 +1,26 @@
-import type { HomeAssistant } from "../../../../types";
-import { getHeaderFooterElementClass } from "../../create-element/create-header-footer-element";
-import type { LovelaceHeaderFooterConfig } from "../../header-footer/types";
+import type { HomeAssistant } from '../../../../types'
+import { getHeaderFooterElementClass } from '../../create-element/create-header-footer-element'
+import type { LovelaceHeaderFooterConfig } from '../../header-footer/types'
 
 export const getHeaderFooterStubConfig = async (
   hass: HomeAssistant,
-  type: LovelaceHeaderFooterConfig["type"],
+  type: LovelaceHeaderFooterConfig['type'],
   entities: string[],
   entitiesFallback: string[]
 ): Promise<LovelaceHeaderFooterConfig> => {
-  let config: LovelaceHeaderFooterConfig = { type };
+  let config: LovelaceHeaderFooterConfig = { type }
 
-  const elClass = await getHeaderFooterElementClass(type);
+  const elClass = await getHeaderFooterElementClass(type)
 
   if (elClass && elClass.getStubConfig) {
     const classStubConfig = await elClass.getStubConfig(
       hass,
       entities,
       entitiesFallback
-    );
+    )
 
-    config = { ...config, ...classStubConfig };
+    config = { ...config, ...classStubConfig }
   }
 
-  return config;
-};
+  return config
+}

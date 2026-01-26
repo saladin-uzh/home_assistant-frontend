@@ -1,21 +1,21 @@
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../components/entity/state-info";
-import "../components/ha-cover-controls";
-import "../components/ha-cover-tilt-controls";
-import type { CoverEntity } from "../data/cover";
-import { isTiltOnly } from "../data/cover";
-import { haStyle } from "../resources/styles";
-import type { HomeAssistant } from "../types";
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../components/entity/state-info'
+import '../components/ha-cover-controls'
+import '../components/ha-cover-tilt-controls'
+import type { CoverEntity } from '../data/cover'
+import { isTiltOnly } from '../data/cover'
+import { haStyle } from '../resources/styles'
+import type { HomeAssistant } from '../types'
 
-@customElement("state-card-cover")
+@customElement('state-card-cover')
 class StateCardCover extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj!: CoverEntity;
+  @property({ attribute: false }) public stateObj!: CoverEntity
 
-  @property({ attribute: "in-dialog", type: Boolean }) public inDialog = false;
+  @property({ attribute: 'in-dialog', type: Boolean }) public inDialog = false
 
   protected render(): TemplateResult {
     return html`
@@ -36,7 +36,7 @@ class StateCardCover extends LitElement {
           .stateObj=${this.stateObj}
         ></ha-cover-tilt-controls>
       </div>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -47,12 +47,12 @@ class StateCardCover extends LitElement {
           line-height: var(--ha-line-height-normal);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "state-card-cover": StateCardCover;
+    'state-card-cover': StateCardCover
   }
 }

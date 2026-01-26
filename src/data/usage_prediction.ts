@@ -1,10 +1,10 @@
-import type { HomeAssistant } from "../types";
+import type { HomeAssistant } from '../types'
 
 export interface CommonControlResult {
-  entities: string[];
+  entities: string[]
 }
 
 export const getCommonControlUsagePrediction = (hass: HomeAssistant) =>
   hass.callWS<CommonControlResult>({
-    type: "usage_prediction/common_control",
-  });
+    type: 'usage_prediction/common_control',
+  })

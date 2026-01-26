@@ -1,1 +1,1 @@
-export const preventDefault = (ev) => ev.preventDefault();
+export const preventDefault = ev => ev.preventDefault()

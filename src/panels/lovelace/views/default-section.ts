@@ -1,13 +1,13 @@
-import type { LocalizeFunc } from "../../../common/translations/localize";
+import type { LocalizeFunc } from '../../../common/translations/localize'
 
 export const generateDefaultSection = (localize: LocalizeFunc) => ({
-  type: "grid",
+  type: 'grid',
   cards: [
     {
-      type: "heading",
+      type: 'heading',
       heading: localize(
-        "ui.panel.lovelace.editor.section.default_section_title"
+        'ui.panel.lovelace.editor.section.default_section_title'
       ),
     },
   ],
-});
+})

@@ -4,57 +4,57 @@ import {
   html,
   css,
   type PropertyValues,
-} from "lit";
-import { customElement, eventOptions, property, query } from "lit/decorators";
+} from 'lit'
+import { customElement, eventOptions, property, query } from 'lit/decorators'
 
-@customElement("ha-marquee-text")
+@customElement('ha-marquee-text')
 export class HaMarqueeText extends LitElement {
-  @property({ type: Number }) speed = 15; // pixels per second
+  @property({ type: Number }) speed = 15 // pixels per second
 
-  @property({ type: Number, attribute: "pause-duration" }) pauseDuration = 1000; // ms delay at ends
+  @property({ type: Number, attribute: 'pause-duration' }) pauseDuration = 1000 // ms delay at ends
 
-  @property({ type: Boolean, attribute: "pause-on-hover" })
-  pauseOnHover = false;
+  @property({ type: Boolean, attribute: 'pause-on-hover' })
+  pauseOnHover = false
 
-  private _direction: "left" | "right" = "left";
+  private _direction: 'left' | 'right' = 'left'
 
-  private _animationFrame?: number;
+  private _animationFrame?: number
 
-  @query(".marquee-container")
-  private _container?: HTMLDivElement;
+  @query('.marquee-container')
+  private _container?: HTMLDivElement
 
-  @query(".marquee-text")
-  private _textSpan?: HTMLSpanElement;
+  @query('.marquee-text')
+  private _textSpan?: HTMLSpanElement
 
-  private _position = 0;
+  private _position = 0
 
-  private _maxOffset = 0;
+  private _maxOffset = 0
 
-  private _pauseTimeout?: number;
+  private _pauseTimeout?: number
 
   protected firstUpdated(changedProps: PropertyValues) {
-    super.firstUpdated(changedProps);
+    super.firstUpdated(changedProps)
 
-    this._setupAnimation();
+    this._setupAnimation()
   }
 
   protected updated(changedProps: PropertyValues) {
-    super.updated(changedProps);
+    super.updated(changedProps)
 
-    if (changedProps.has("text")) {
-      this._setupAnimation();
+    if (changedProps.has('text')) {
+      this._setupAnimation()
     }
   }
 
   public disconnectedCallback() {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
 
     if (this._animationFrame) {
-      cancelAnimationFrame(this._animationFrame);
+      cancelAnimationFrame(this._animationFrame)
     }
     if (this._pauseTimeout) {
-      clearTimeout(this._pauseTimeout);
-      this._pauseTimeout = undefined;
+      clearTimeout(this._pauseTimeout)
+      this._pauseTimeout = undefined
     }
   }
 
@@ -69,80 +69,80 @@ export class HaMarqueeText extends LitElement {
       >
         <span class="marquee-text"><slot></slot></span>
       </div>
-    `;
+    `
   }
 
   private _setupAnimation() {
     if (!this._container || !this._textSpan) {
-      return;
+      return
     }
 
-    this._position = 0;
-    this._direction = "left";
+    this._position = 0
+    this._direction = 'left'
     this._maxOffset = Math.max(
       0,
       this._textSpan.offsetWidth - this._container.offsetWidth
-    );
-    this._textSpan.style.transform = `translateX(0px)`;
+    )
+    this._textSpan.style.transform = `translateX(0px)`
     if (this._animationFrame) {
-      cancelAnimationFrame(this._animationFrame);
+      cancelAnimationFrame(this._animationFrame)
     }
     if (this._pauseTimeout) {
-      clearTimeout(this._pauseTimeout);
-      this._pauseTimeout = undefined;
+      clearTimeout(this._pauseTimeout)
+      this._pauseTimeout = undefined
     }
-    this._animate();
+    this._animate()
   }
 
   private _animate = () => {
     if (!this._container || !this._textSpan) {
-      return;
+      return
     }
 
-    const dt = 1 / 60; // ~16ms per frame
-    const pxPerFrame = this.speed * dt;
-    let reachedEnd = false;
-    if (this._direction === "left") {
-      this._position -= pxPerFrame;
+    const dt = 1 / 60 // ~16ms per frame
+    const pxPerFrame = this.speed * dt
+    let reachedEnd = false
+    if (this._direction === 'left') {
+      this._position -= pxPerFrame
       if (this._position <= -this._maxOffset) {
-        this._position = -this._maxOffset;
-        this._direction = "right";
-        reachedEnd = true;
+        this._position = -this._maxOffset
+        this._direction = 'right'
+        reachedEnd = true
       }
     } else {
-      this._position += pxPerFrame;
+      this._position += pxPerFrame
       if (this._position >= 0) {
-        this._position = 0;
-        this._direction = "left";
-        reachedEnd = true;
+        this._position = 0
+        this._direction = 'left'
+        reachedEnd = true
       }
     }
-    this._textSpan.style.transform = `translateX(${this._position}px)`;
+    this._textSpan.style.transform = `translateX(${this._position}px)`
     if (reachedEnd) {
       this._pauseTimeout = window.setTimeout(() => {
-        this._pauseTimeout = undefined;
-        this._animationFrame = requestAnimationFrame(this._animate);
-      }, this.pauseDuration);
+        this._pauseTimeout = undefined
+        this._animationFrame = requestAnimationFrame(this._animate)
+      }, this.pauseDuration)
     } else {
-      this._animationFrame = requestAnimationFrame(this._animate);
+      this._animationFrame = requestAnimationFrame(this._animate)
     }
-  };
+  }
 
   @eventOptions({ passive: true })
   private _handleMouseEnter() {
     if (this.pauseOnHover && this._animationFrame) {
-      cancelAnimationFrame(this._animationFrame);
-      this._animationFrame = undefined;
+      cancelAnimationFrame(this._animationFrame)
+      this._animationFrame = undefined
     }
     if (this.pauseOnHover && this._pauseTimeout) {
-      clearTimeout(this._pauseTimeout);
-      this._pauseTimeout = undefined;
+      clearTimeout(this._pauseTimeout)
+      this._pauseTimeout = undefined
     }
   }
 
   private _handleMouseLeave() {
     if (this.pauseOnHover && !this._animationFrame && !this._pauseTimeout) {
-      this._animate();
+      this._animate()
     }
   }
 
@@ -168,11 +168,11 @@ export class HaMarqueeText extends LitElement {
       font-size: 1em;
       pointer-events: none;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-marquee-text": HaMarqueeText;
+    'ha-marquee-text': HaMarqueeText
   }
 }

@@ -1,31 +1,31 @@
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../common/dom/fire_event";
-import "../../../components/ha-card";
-import { createCloseHeading } from "../../../components/ha-dialog";
-import { haStyleDialog } from "../../../resources/styles";
-import type { HomeAssistant } from "../../../types";
-import "./integrations-startup-time";
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../common/dom/fire_event'
+import '../../../components/ha-card'
+import { createCloseHeading } from '../../../components/ha-dialog'
+import { haStyleDialog } from '../../../resources/styles'
+import type { HomeAssistant } from '../../../types'
+import './integrations-startup-time'
 
-@customElement("dialog-integration-startup")
+@customElement('dialog-integration-startup')
 class DialogIntegrationStartup extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _opened = false;
+  @state() private _opened = false
 
   public showDialog(): void {
-    this._opened = true;
+    this._opened = true
   }
 
   public closeDialog() {
-    this._opened = false;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._opened = false
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._opened) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -34,7 +34,7 @@ class DialogIntegrationStartup extends LitElement {
         hideActions
         .heading=${createCloseHeading(
           this.hass,
-          this.hass.localize("ui.panel.config.repairs.integration_startup_time")
+          this.hass.localize('ui.panel.config.repairs.integration_startup_time')
         )}
         @closed=${this.closeDialog}
       >
@@ -43,7 +43,7 @@ class DialogIntegrationStartup extends LitElement {
           narrow
         ></integrations-startup-time>
       </ha-dialog>
-    `;
+    `
   }
 
   static styles: CSSResultGroup = [
@@ -53,11 +53,11 @@ class DialogIntegrationStartup extends LitElement {
         --dialog-content-padding: 0;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-integration-startup": DialogIntegrationStartup;
+    'dialog-integration-startup': DialogIntegrationStartup
   }
 }

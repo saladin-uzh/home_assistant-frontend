@@ -4,8 +4,8 @@ import {
   rgb2hex,
   rgb2lab,
   theme2hex,
-} from "../../../../../common/color/convert-color";
-import { labBrighten, labDarken } from "../../../../../common/color/lab";
+} from '../../../../../common/color/convert-color'
+import { labBrighten, labDarken } from '../../../../../common/color/lab'
 
 export function getEnergyColor(
   computedStyles: CSSStyleDeclaration,
@@ -16,15 +16,15 @@ export function getEnergyColor(
   idx?: number
 ): string {
   const themeIdxColor = computedStyles
-    .getPropertyValue(propertyName + "-" + idx)
-    .trim();
+    .getPropertyValue(propertyName + '-' + idx)
+    .trim()
 
   const themeColor =
     themeIdxColor.length > 0
       ? themeIdxColor
-      : computedStyles.getPropertyValue(propertyName).trim();
+      : computedStyles.getPropertyValue(propertyName).trim()
 
-  let hexColor = theme2hex(themeColor);
+  let hexColor = theme2hex(themeColor)
 
   if (themeIdxColor.length === 0 && idx) {
     // Brighten or darken the color based on set position.
@@ -36,17 +36,17 @@ export function getEnergyColor(
           ? labBrighten(rgb2lab(hex2rgb(hexColor)), idx)
           : labDarken(rgb2lab(hex2rgb(hexColor)), idx)
       )
-    );
+    )
   }
 
   if (compare) {
     if (background) {
-      hexColor += "32";
+      hexColor += '32'
     } else {
-      hexColor += "7F";
+      hexColor += '7F'
     }
   } else if (background) {
-    hexColor += "7F";
+    hexColor += '7F'
   }
-  return hexColor;
+  return hexColor
 }

@@ -1,23 +1,23 @@
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { styleMap } from "lit/directives/style-map";
-import { computeCssColor } from "../../../common/color/compute-color";
-import { computeAttributeNameDisplay } from "../../../common/entity/compute_attribute_display";
-import { computeDomain } from "../../../common/entity/compute_domain";
-import { stateActive } from "../../../common/entity/state_active";
-import { stateColorCss } from "../../../common/entity/state_color";
-import { supportsFeature } from "../../../common/entity/supports-feature";
-import "../../../components/ha-control-slider";
-import { ValveEntityFeature, type ValveEntity } from "../../../data/valve";
-import { UNAVAILABLE } from "../../../data/entity";
-import { DOMAIN_ATTRIBUTES_UNITS } from "../../../data/entity_attributes";
-import type { HomeAssistant } from "../../../types";
-import type { LovelaceCardFeature } from "../types";
-import { cardFeatureStyles } from "./common/card-feature-styles";
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { styleMap } from 'lit/directives/style-map'
+import { computeCssColor } from '../../../common/color/compute-color'
+import { computeAttributeNameDisplay } from '../../../common/entity/compute_attribute_display'
+import { computeDomain } from '../../../common/entity/compute_domain'
+import { stateActive } from '../../../common/entity/state_active'
+import { stateColorCss } from '../../../common/entity/state_color'
+import { supportsFeature } from '../../../common/entity/supports-feature'
+import '../../../components/ha-control-slider'
+import { ValveEntityFeature, type ValveEntity } from '../../../data/valve'
+import { UNAVAILABLE } from '../../../data/entity'
+import { DOMAIN_ATTRIBUTES_UNITS } from '../../../data/entity_attributes'
+import type { HomeAssistant } from '../../../types'
+import type { LovelaceCardFeature } from '../types'
+import { cardFeatureStyles } from './common/card-feature-styles'
 import type {
   ValvePositionCardFeatureConfig,
   LovelaceCardFeatureContext,
-} from "./types";
+} from './types'
 
 export const supportsValvePositionCardFeature = (
   hass: HomeAssistant,
@@ -25,46 +25,46 @@ export const supportsValvePositionCardFeature = (
 ) => {
   const stateObj = context.entity_id
     ? hass.states[context.entity_id]
-    : undefined;
-  if (!stateObj) return false;
-  const domain = computeDomain(stateObj.entity_id);
+    : undefined
+  if (!stateObj) return false
+  const domain = computeDomain(stateObj.entity_id)
   return (
-    domain === "valve" &&
+    domain === 'valve' &&
     supportsFeature(stateObj, ValveEntityFeature.SET_POSITION)
-  );
-};
+  )
+}
 
-@customElement("hui-valve-position-card-feature")
+@customElement('hui-valve-position-card-feature')
 class HuiValvePositionCardFeature
   extends LitElement
   implements LovelaceCardFeature
 {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ attribute: false }) public context?: LovelaceCardFeatureContext;
+  @property({ attribute: false }) public context?: LovelaceCardFeatureContext
 
-  @property({ attribute: false }) public color?: string;
+  @property({ attribute: false }) public color?: string
 
-  @state() private _config?: ValvePositionCardFeatureConfig;
+  @state() private _config?: ValvePositionCardFeatureConfig
 
   private get _stateObj() {
     if (!this.hass || !this.context || !this.context.entity_id) {
-      return undefined;
+      return undefined
     }
-    return this.hass.states[this.context.entity_id!] as ValveEntity | undefined;
+    return this.hass.states[this.context.entity_id!] as ValveEntity | undefined
   }
 
   static getStubConfig(): ValvePositionCardFeatureConfig {
     return {
-      type: "valve-position",
-    };
+      type: 'valve-position',
+    }
   }
 
   public setConfig(config: ValvePositionCardFeatureConfig): void {
     if (!config) {
-      throw new Error("Invalid configuration");
+      throw new Error('Invalid configuration')
     }
-    this._config = config;
+    this._config = config
   }
 
   protected render() {
@@ -75,26 +75,26 @@ class HuiValvePositionCardFeature
       !this._stateObj ||
       !supportsValvePositionCardFeature(this.hass, this.context)
     ) {
-      return nothing;
+      return nothing
     }
 
     const percentage = stateActive(this._stateObj)
       ? (this._stateObj.attributes.current_position ?? 0)
-      : 0;
+      : 0
 
-    const value = Math.max(Math.round(percentage), 0);
+    const value = Math.max(Math.round(percentage), 0)
 
-    const openColor = stateColorCss(this._stateObj, "open");
+    const openColor = stateColorCss(this._stateObj, 'open')
 
     const color = this.color
       ? computeCssColor(this.color)
-      : stateColorCss(this._stateObj);
+      : stateColorCss(this._stateObj)
 
     const style = {
-      "--feature-color": color,
+      '--feature-color': color,
       // Use open color for inactive state to avoid grey slider that looks disabled
-      "--state-valve-inactive-color": openColor,
-    };
+      '--state-valve-inactive-color': openColor,
+    }
 
     return html`
       <ha-control-slider
@@ -110,32 +110,32 @@ class HuiValvePositionCardFeature
           this.hass.localize,
           this._stateObj,
           this.hass.entities,
-          "current_position"
+          'current_position'
         )}
         .disabled=${this._stateObj!.state === UNAVAILABLE}
         .unit=${DOMAIN_ATTRIBUTES_UNITS.valve.current_position}
         .locale=${this.hass.locale}
       ></ha-control-slider>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent) {
-    const value = (ev.detail as any).value;
-    if (isNaN(value)) return;
+    const value = (ev.detail as any).value
+    if (isNaN(value)) return
 
-    this.hass!.callService("valve", "set_valve_position", {
+    this.hass!.callService('valve', 'set_valve_position', {
       entity_id: this._stateObj!.entity_id,
       position: value,
-    });
+    })
   }
 
   static get styles() {
-    return cardFeatureStyles;
+    return cardFeatureStyles
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-valve-position-card-feature": HuiValvePositionCardFeature;
+    'hui-valve-position-card-feature': HuiValvePositionCardFeature
   }
 }

@@ -1,30 +1,30 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
 
-type HeadingBadgeType = "text" | "button";
+type HeadingBadgeType = 'text' | 'button'
 
-@customElement("ha-heading-badge")
+@customElement('ha-heading-badge')
 export class HaBadge extends LitElement {
-  @property() public type: HeadingBadgeType = "text";
+  @property() public type: HeadingBadgeType = 'text'
 
   protected render() {
     return html`
       <div
         class="heading-badge"
-        role=${ifDefined(this.type === "button" ? "button" : undefined)}
-        tabindex=${ifDefined(this.type === "button" ? "0" : undefined)}
+        role=${ifDefined(this.type === 'button' ? 'button' : undefined)}
+        tabindex=${ifDefined(this.type === 'button' ? '0' : undefined)}
       >
         <slot name="icon"></slot>
         <slot></slot>
       </div>
-    `;
+    `
   }
 
   static styles = css`
     :host {
     }
-    [role="button"] {
+    [role='button'] {
       cursor: pointer;
     }
     .heading-badge {
@@ -40,15 +40,15 @@ export class HaBadge extends LitElement {
       letter-spacing: 0.1px;
       --mdc-icon-size: 14px;
     }
-    ::slotted([slot="icon"]) {
+    ::slotted([slot='icon']) {
       --ha-icon-display: block;
       color: var(--icon-color, inherit);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-heading-badge": HaBadge;
+    'ha-heading-badge': HaBadge
   }
 }

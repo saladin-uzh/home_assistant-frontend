@@ -1,65 +1,65 @@
-import "@material/mwc-linear-progress/mwc-linear-progress";
-import memoizeOne from "memoize-one";
-import { type CSSResultGroup, LitElement, css, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
+import '@material/mwc-linear-progress/mwc-linear-progress'
+import memoizeOne from 'memoize-one'
+import { type CSSResultGroup, LitElement, css, html, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
 import type {
   LandingPageKeys,
   LocalizeFunc,
-} from "../../../src/common/translations/localize";
-import "../../../src/components/ha-button";
-import "../../../src/components/ha-alert";
+} from '../../../src/common/translations/localize'
+import '../../../src/components/ha-button'
+import '../../../src/components/ha-alert'
 import {
   ALTERNATIVE_DNS_SERVERS,
   setSupervisorNetworkDns,
   type NetworkInfo,
-} from "../data/supervisor";
-import { showAlertDialog } from "../../../src/dialogs/generic/show-dialog-box";
-import type { NetworkInterface } from "../../../src/data/hassio/network";
-import { fireEvent } from "../../../src/common/dom/fire_event";
+} from '../data/supervisor'
+import { showAlertDialog } from '../../../src/dialogs/generic/show-dialog-box'
+import type { NetworkInterface } from '../../../src/data/hassio/network'
+import { fireEvent } from '../../../src/common/dom/fire_event'
 
-@customElement("landing-page-network")
+@customElement('landing-page-network')
 class LandingPageNetwork extends LitElement {
   @property({ attribute: false })
-  public localize!: LocalizeFunc<LandingPageKeys>;
+  public localize!: LocalizeFunc<LandingPageKeys>
 
-  @property({ attribute: false }) public networkInfo?: NetworkInfo;
+  @property({ attribute: false }) public networkInfo?: NetworkInfo
 
-  @property({ type: Boolean }) public error = false;
+  @property({ type: Boolean }) public error = false
 
   protected render() {
     if (this.error) {
       return html`
         <ha-alert alert-type="error">
-          <p>${this.localize("network_issue.error_get_network_info")}</p>
+          <p>${this.localize('network_issue.error_get_network_info')}</p>
         </ha-alert>
-      `;
+      `
     }
 
-    let dnsPrimaryInterfaceNameservers: string | undefined;
+    let dnsPrimaryInterfaceNameservers: string | undefined
 
     const primaryInterface = this._getPrimaryInterface(
       this.networkInfo?.interfaces
-    );
+    )
     if (primaryInterface) {
       dnsPrimaryInterfaceNameservers =
-        this._getPrimaryNameservers(primaryInterface);
+        this._getPrimaryNameservers(primaryInterface)
     }
 
     return html`
       <ha-alert
         alert-type="warning"
-        .title=${this.localize("network_issue.title")}
+        .title=${this.localize('network_issue.title')}
       >
         <p>
-          ${this.localize("network_issue.description", {
-            dns: dnsPrimaryInterfaceNameservers || "?",
+          ${this.localize('network_issue.description', {
+            dns: dnsPrimaryInterfaceNameservers || '?',
           })}
         </p>
-        <p>${this.localize("network_issue.resolve_different")}</p>
+        <p>${this.localize('network_issue.resolve_different')}</p>
         ${!dnsPrimaryInterfaceNameservers
           ? html`
               <p>
-                <b>${this.localize("network_issue.no_primary_interface")} </b>
+                <b>${this.localize('network_issue.no_primary_interface')} </b>
               </p>
             `
           : nothing}
@@ -76,54 +76,51 @@ class LandingPageNetwork extends LitElement {
           )}
         </div>
       </ha-alert>
-    `;
+    `
   }
 
   private _getPrimaryInterface = memoizeOne((interfaces?: NetworkInterface[]) =>
-    interfaces?.find((intf) => intf.primary && intf.enabled)
-  );
+    interfaces?.find(intf => intf.primary && intf.enabled)
+  )
 
   private _getPrimaryNameservers = memoizeOne(
     (primaryInterface: NetworkInterface) =>
       [
         ...(primaryInterface.ipv4?.nameservers || []),
         ...(primaryInterface.ipv6?.nameservers || []),
-      ].join(", ")
-  );
+      ].join(', ')
+  )
 
   private async _setDns(ev) {
     const primaryInterface = this._getPrimaryInterface(
       this.networkInfo?.interfaces
-    );
+    )
 
-    const index = ev.target?.index;
+    const index = ev.target?.index
     try {
-      const dnsPrimaryInterface = primaryInterface?.interface;
+      const dnsPrimaryInterface = primaryInterface?.interface
       if (!dnsPrimaryInterface) {
-        throw new Error("No primary interface found");
+        throw new Error('No primary interface found')
       }
 
-      const response = await setSupervisorNetworkDns(
-        index,
-        dnsPrimaryInterface
-      );
+      const response = await setSupervisorNetworkDns(index, dnsPrimaryInterface)
       if (!response.ok) {
-        throw new Error("Failed to set DNS");
+        throw new Error('Failed to set DNS')
       }
 
       // notify landing page to trigger a network info reload
-      fireEvent(this, "dns-set");
+      fireEvent(this, 'dns-set')
     } catch (err: any) {
       // eslint-disable-next-line no-console
-      console.error(err);
+      console.error(err)
       showAlertDialog(this, {
-        title: this.localize("network_issue.failed"),
+        title: this.localize('network_issue.failed'),
         warning: true,
         text: `${this.localize(
-          "network_issue.set_dns_failed"
-        )}${err?.message ? ` ${this.localize("network_issue.error")}: ${err.message}` : ""}`,
-        confirmText: this.localize("network_issue.close"),
-      });
+          'network_issue.set_dns_failed'
+        )}${err?.message ? ` ${this.localize('network_issue.error')}: ${err.message}` : ''}`,
+        confirmText: this.localize('network_issue.close'),
+      })
     }
   }
 
@@ -135,15 +132,15 @@ class LandingPageNetwork extends LitElement {
           justify-content: flex-end;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "landing-page-network": LandingPageNetwork;
+    'landing-page-network': LandingPageNetwork
   }
   interface HASSDomEvents {
-    "dns-set": undefined;
+    'dns-set': undefined
   }
 }

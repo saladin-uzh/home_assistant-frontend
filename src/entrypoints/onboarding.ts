@@ -1,9 +1,9 @@
-import "../onboarding/ha-onboarding";
+import '../onboarding/ha-onboarding'
 
-import("../resources/append-ha-style");
+import('../resources/append-ha-style')
 
 declare global {
   interface Window {
-    stepsPromise: Promise<Response>;
+    stepsPromise: Promise<Response>
   }
 }

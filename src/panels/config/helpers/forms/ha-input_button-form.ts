@@ -1,64 +1,64 @@
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-icon-picker";
-import "../../../../components/ha-textfield";
-import type { InputButton } from "../../../../data/input_button";
-import { haStyle } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-icon-picker'
+import '../../../../components/ha-textfield'
+import type { InputButton } from '../../../../data/input_button'
+import { haStyle } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
 
-@customElement("ha-input_button-form")
+@customElement('ha-input_button-form')
 class HaInputButtonForm extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public new = false;
+  @property({ type: Boolean }) public new = false
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @state() private _name!: string;
+  @state() private _name!: string
 
-  @state() private _icon!: string;
+  @state() private _icon!: string
 
-  private _item?: InputButton;
+  private _item?: InputButton
 
   set item(item: InputButton) {
-    this._item = item;
+    this._item = item
     if (item) {
-      this._name = item.name || "";
-      this._icon = item.icon || "";
+      this._name = item.name || ''
+      this._icon = item.icon || ''
     } else {
-      this._name = "";
-      this._icon = "";
+      this._name = ''
+      this._icon = ''
     }
   }
 
   public focus() {
     this.updateComplete.then(() =>
       (
-        this.shadowRoot?.querySelector("[dialogInitialFocus]") as HTMLElement
+        this.shadowRoot?.querySelector('[dialogInitialFocus]') as HTMLElement
       )?.focus()
-    );
+    )
   }
 
   protected render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
 
     return html`
       <div class="form">
         <ha-textfield
           .value=${this._name}
-          .configValue=${"name"}
+          .configValue=${'name'}
           @input=${this._valueChanged}
           .label=${this.hass!.localize(
-            "ui.dialogs.helper_settings.generic.name"
+            'ui.dialogs.helper_settings.generic.name'
           )}
           autoValidate
           required
           .validationMessage=${this.hass!.localize(
-            "ui.dialogs.helper_settings.required_error_msg"
+            'ui.dialogs.helper_settings.required_error_msg'
           )}
           dialogInitialFocus
           .disabled=${this.disabled}
@@ -66,36 +66,36 @@ class HaInputButtonForm extends LitElement {
         <ha-icon-picker
           .hass=${this.hass}
           .value=${this._icon}
-          .configValue=${"icon"}
+          .configValue=${'icon'}
           @value-changed=${this._valueChanged}
           .label=${this.hass!.localize(
-            "ui.dialogs.helper_settings.generic.icon"
+            'ui.dialogs.helper_settings.generic.icon'
           )}
           .disabled=${this.disabled}
         ></ha-icon-picker>
       </div>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent) {
     if (!this.new && !this._item) {
-      return;
+      return
     }
-    ev.stopPropagation();
-    const configValue = (ev.target as any).configValue;
-    const value = ev.detail?.value || (ev.target as any).value;
+    ev.stopPropagation()
+    const configValue = (ev.target as any).configValue
+    const value = ev.detail?.value || (ev.target as any).value
     if (this[`_${configValue}`] === value) {
-      return;
+      return
     }
-    const newValue = { ...this._item };
+    const newValue = { ...this._item }
     if (!value) {
-      delete newValue[configValue];
+      delete newValue[configValue]
     } else {
-      newValue[configValue] = value;
+      newValue[configValue] = value
     }
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: newValue,
-    });
+    })
   }
 
   static get styles(): CSSResultGroup {
@@ -113,12 +113,12 @@ class HaInputButtonForm extends LitElement {
           margin: 8px 0;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-input_button-form": HaInputButtonForm;
+    'ha-input_button-form': HaInputButtonForm
   }
 }

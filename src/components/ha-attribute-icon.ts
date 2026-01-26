@@ -1,35 +1,35 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import { html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { until } from "lit/directives/until";
-import { attributeIcon } from "../data/icons";
-import type { HomeAssistant } from "../types";
-import "./ha-icon";
-import "./ha-svg-icon";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { until } from 'lit/directives/until'
+import { attributeIcon } from '../data/icons'
+import type { HomeAssistant } from '../types'
+import './ha-icon'
+import './ha-svg-icon'
 
-@customElement("ha-attribute-icon")
+@customElement('ha-attribute-icon')
 export class HaAttributeIcon extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj?: HassEntity;
+  @property({ attribute: false }) public stateObj?: HassEntity
 
-  @property() public attribute?: string;
+  @property() public attribute?: string
 
-  @property({ attribute: false }) public attributeValue?: string;
+  @property({ attribute: false }) public attributeValue?: string
 
-  @property() public icon?: string;
+  @property() public icon?: string
 
   protected render() {
     if (this.icon) {
-      return html`<ha-icon .icon=${this.icon}></ha-icon>`;
+      return html`<ha-icon .icon=${this.icon}></ha-icon>`
     }
 
     if (!this.stateObj || !this.attribute) {
-      return nothing;
+      return nothing
     }
 
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
 
     const icon = attributeIcon(
@@ -37,19 +37,19 @@ export class HaAttributeIcon extends LitElement {
       this.stateObj,
       this.attribute,
       this.attributeValue
-    ).then((icn) => {
+    ).then(icn => {
       if (icn) {
-        return html`<ha-icon .icon=${icn}></ha-icon>`;
+        return html`<ha-icon .icon=${icn}></ha-icon>`
       }
-      return nothing;
-    });
+      return nothing
+    })
 
-    return html`${until(icon)}`;
+    return html`${until(icon)}`
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-attribute-icon": HaAttributeIcon;
+    'ha-attribute-icon': HaAttributeIcon
   }
 }

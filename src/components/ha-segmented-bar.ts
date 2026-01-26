@@ -1,34 +1,34 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { styleMap } from "lit/directives/style-map";
-import "./ha-tooltip";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { styleMap } from 'lit/directives/style-map'
+import './ha-tooltip'
 
 export interface Segment {
-  value: number;
-  color: string;
-  label?: TemplateResult | string;
+  value: number
+  color: string
+  label?: TemplateResult | string
 }
 
-@customElement("ha-segmented-bar")
+@customElement('ha-segmented-bar')
 class HaSegmentedBar extends LitElement {
-  @property({ attribute: false }) public segments!: Segment[];
+  @property({ attribute: false }) public segments!: Segment[]
 
-  @property({ type: String }) public heading!: string;
+  @property({ type: String }) public heading!: string
 
-  @property({ type: String }) public description?: string;
+  @property({ type: String }) public description?: string
 
-  @property({ type: Boolean, attribute: "hide-legend" })
-  public hideLegend = false;
+  @property({ type: Boolean, attribute: 'hide-legend' })
+  public hideLegend = false
 
-  @property({ type: Boolean, attribute: "hide-tooltip" })
-  public hideTooltip = false;
+  @property({ type: Boolean, attribute: 'hide-tooltip' })
+  public hideTooltip = false
 
   protected render(): TemplateResult {
     const totalValue = this.segments.reduce(
       (acc, segment) => acc + segment.value,
       0
-    );
+    )
     return html`
       <div class="container">
         <div class="heading">
@@ -44,7 +44,10 @@ class HaSegmentedBar extends LitElement {
               ${this.hideTooltip || !segment.label
                 ? nothing
                 : html`
-                    <ha-tooltip for="segment-${index}" placement="top">
+                    <ha-tooltip
+                      for="segment-${index}"
+                      placement="top"
+                    >
                       ${segment.label}
                     </ha-tooltip>
                   `}
@@ -62,7 +65,7 @@ class HaSegmentedBar extends LitElement {
           ? nothing
           : html`
               <ul class="legend">
-                ${this.segments.map((segment) =>
+                ${this.segments.map(segment =>
                   segment.label
                     ? html`
                         <li>
@@ -80,7 +83,7 @@ class HaSegmentedBar extends LitElement {
               </ul>
             `}
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -144,11 +147,11 @@ class HaSegmentedBar extends LitElement {
     .spacer {
       flex: 1;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-segmented-bar": HaSegmentedBar;
+    'ha-segmented-bar': HaSegmentedBar
   }
 }

@@ -1,83 +1,83 @@
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
 
-import { fireEvent } from "../../../common/dom/fire_event";
-import { createCloseHeading } from "../../../components/ha-dialog";
-import "../../../components/ha-form/ha-form";
-import type { SchemaUnion } from "../../../components/ha-form/types";
-import "../../../components/ha-textfield";
-import "../../../components/ha-button";
-import { adminChangePassword } from "../../../data/auth";
-import { haStyleDialog } from "../../../resources/styles";
-import type { HomeAssistant } from "../../../types";
-import { showToast } from "../../../util/toast";
-import type { AdminChangePasswordDialogParams } from "./show-dialog-admin-change-password";
+import { fireEvent } from '../../../common/dom/fire_event'
+import { createCloseHeading } from '../../../components/ha-dialog'
+import '../../../components/ha-form/ha-form'
+import type { SchemaUnion } from '../../../components/ha-form/types'
+import '../../../components/ha-textfield'
+import '../../../components/ha-button'
+import { adminChangePassword } from '../../../data/auth'
+import { haStyleDialog } from '../../../resources/styles'
+import type { HomeAssistant } from '../../../types'
+import { showToast } from '../../../util/toast'
+import type { AdminChangePasswordDialogParams } from './show-dialog-admin-change-password'
 
 const SCHEMA = [
   {
-    name: "new_password",
+    name: 'new_password',
     required: true,
     selector: {
       text: {
-        type: "password",
-        autocomplete: "new-password",
+        type: 'password',
+        autocomplete: 'new-password',
       },
     },
   },
   {
-    name: "password_confirm",
+    name: 'password_confirm',
     required: true,
     selector: {
       text: {
-        type: "password",
-        autocomplete: "new-password",
+        type: 'password',
+        autocomplete: 'new-password',
       },
     },
   },
-] as const;
+] as const
 
 interface FormData {
-  new_password?: string;
-  password_confirm?: string;
+  new_password?: string
+  password_confirm?: string
 }
 
-@customElement("dialog-admin-change-password")
+@customElement('dialog-admin-change-password')
 class DialogAdminChangePassword extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _params?: AdminChangePasswordDialogParams;
+  @state() private _params?: AdminChangePasswordDialogParams
 
-  @state() private _userId?: string;
+  @state() private _userId?: string
 
-  @state() private _data?: FormData;
+  @state() private _data?: FormData
 
-  @state() private _error?: Record<string, string>;
+  @state() private _error?: Record<string, string>
 
-  @state() private _submitting = false;
+  @state() private _submitting = false
 
-  @state() private _success = false;
+  @state() private _success = false
 
   public showDialog(params: AdminChangePasswordDialogParams): void {
-    this._params = params;
-    this._userId = params.userId;
+    this._params = params
+    this._userId = params.userId
   }
 
   public closeDialog(): void {
-    this._params = undefined;
-    this._data = undefined;
-    this._submitting = false;
-    this._success = false;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    this._data = undefined
+    this._submitting = false
+    this._success = false
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   private _computeLabel = (schema: SchemaUnion<typeof SCHEMA>) =>
-    this.hass.localize(`ui.panel.config.users.change_password.${schema.name}`);
+    this.hass.localize(`ui.panel.config.users.change_password.${schema.name}`)
 
   private _computeError = (error: string) =>
     this.hass.localize(
       `ui.panel.config.users.change_password.${error}` as any
-    ) || error;
+    ) || error
 
   private _validate() {
     if (
@@ -87,21 +87,21 @@ class DialogAdminChangePassword extends LitElement {
       this._data.new_password !== this._data.password_confirm
     ) {
       this._error = {
-        password_confirm: "password_no_match",
-      };
+        password_confirm: 'password_no_match',
+      }
     } else {
-      this._error = undefined;
+      this._error = undefined
     }
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
 
     const canSubmit = Boolean(
       this._data?.new_password && this._data?.password_confirm && !this._error
-    );
+    )
 
     return html`
       <ha-dialog
@@ -111,18 +111,21 @@ class DialogAdminChangePassword extends LitElement {
         escapeKeyAction
         .heading=${createCloseHeading(
           this.hass,
-          this.hass.localize("ui.panel.config.users.change_password.caption")
+          this.hass.localize('ui.panel.config.users.change_password.caption')
         )}
       >
         ${this._success
           ? html`
               <p>
                 ${this.hass.localize(
-                  "ui.panel.config.users.change_password.password_changed"
+                  'ui.panel.config.users.change_password.password_changed'
                 )}
               </p>
-              <ha-button slot="primaryAction" @click=${this.closeDialog}>
-                ${this.hass.localize("ui.common.ok")}
+              <ha-button
+                slot="primaryAction"
+                @click=${this.closeDialog}
+              >
+                ${this.hass.localize('ui.common.ok')}
               </ha-button>
             `
           : html`
@@ -141,7 +144,7 @@ class DialogAdminChangePassword extends LitElement {
                 slot="primaryAction"
                 @click=${this.closeDialog}
               >
-                ${this.hass.localize("ui.common.cancel")}
+                ${this.hass.localize('ui.common.cancel')}
               </ha-button>
               <ha-button
                 slot="primaryAction"
@@ -149,45 +152,45 @@ class DialogAdminChangePassword extends LitElement {
                 .disabled=${this._submitting || !canSubmit}
               >
                 ${this.hass.localize(
-                  "ui.panel.config.users.change_password.change"
+                  'ui.panel.config.users.change_password.change'
                 )}
               </ha-button>
             `}
       </ha-dialog>
-    `;
+    `
   }
 
   private _valueChanged(ev) {
-    this._data = ev.detail.value;
-    this._validate();
+    this._data = ev.detail.value
+    this._validate()
   }
 
   private async _changePassword(): Promise<void> {
-    if (!this._userId || !this._data?.new_password) return;
+    if (!this._userId || !this._data?.new_password) return
     try {
-      this._submitting = true;
+      this._submitting = true
       await adminChangePassword(
         this.hass,
         this._userId!,
         this._data.new_password
-      );
-      this._success = true;
+      )
+      this._success = true
     } catch (err: any) {
       showToast(this, {
         message: err.body?.message || err.message || err,
-      });
+      })
     } finally {
-      this._submitting = false;
+      this._submitting = false
     }
   }
 
   static get styles(): CSSResultGroup {
-    return [haStyleDialog, css``];
+    return [haStyleDialog, css``]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-admin-change-password": DialogAdminChangePassword;
+    'dialog-admin-change-password': DialogAdminChangePassword
   }
 }

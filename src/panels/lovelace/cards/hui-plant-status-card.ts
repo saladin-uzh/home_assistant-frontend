@@ -3,24 +3,24 @@ import {
   mdiThermometer,
   mdiWaterPercent,
   mdiWhiteBalanceSunny,
-} from "@mdi/js";
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { applyThemesOnElement } from "../../../common/dom/apply_themes_on_element";
-import { fireEvent } from "../../../common/dom/fire_event";
-import { batteryLevelIcon } from "../../../common/entity/battery_icon";
-import "../../../components/ha-card";
-import "../../../components/ha-svg-icon";
-import type { HomeAssistant } from "../../../types";
-import { actionHandler } from "../common/directives/action-handler-directive";
-import { computeLovelaceEntityName } from "../common/entity/compute-lovelace-entity-name";
-import { findEntities } from "../common/find-entities";
-import { hasConfigOrEntityChanged } from "../common/has-changed";
-import { createEntityNotFoundWarning } from "../components/hui-warning";
-import type { LovelaceCard, LovelaceCardEditor } from "../types";
-import type { PlantAttributeTarget, PlantStatusCardConfig } from "./types";
+} from '@mdi/js'
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { applyThemesOnElement } from '../../../common/dom/apply_themes_on_element'
+import { fireEvent } from '../../../common/dom/fire_event'
+import { batteryLevelIcon } from '../../../common/entity/battery_icon'
+import '../../../components/ha-card'
+import '../../../components/ha-svg-icon'
+import type { HomeAssistant } from '../../../types'
+import { actionHandler } from '../common/directives/action-handler-directive'
+import { computeLovelaceEntityName } from '../common/entity/compute-lovelace-entity-name'
+import { findEntities } from '../common/find-entities'
+import { hasConfigOrEntityChanged } from '../common/has-changed'
+import { createEntityNotFoundWarning } from '../components/hui-warning'
+import type { LovelaceCard, LovelaceCardEditor } from '../types'
+import type { PlantAttributeTarget, PlantStatusCardConfig } from './types'
 
 const SENSOR_ICONS = {
   moisture: mdiWaterPercent,
@@ -28,13 +28,13 @@ const SENSOR_ICONS = {
   brightness: mdiWhiteBalanceSunny,
   conductivity: mdiSprout,
   battery: undefined,
-};
+}
 
-@customElement("hui-plant-status-card")
+@customElement('hui-plant-status-card')
 class HuiPlantStatusCard extends LitElement implements LovelaceCard {
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import("../editor/config-elements/hui-plant-status-card-editor");
-    return document.createElement("hui-plant-status-card-editor");
+    await import('../editor/config-elements/hui-plant-status-card-editor')
+    return document.createElement('hui-plant-status-card-editor')
   }
 
   public static getStubConfig(
@@ -42,48 +42,48 @@ class HuiPlantStatusCard extends LitElement implements LovelaceCard {
     entities: string[],
     entitiesFallback: string[]
   ): PlantStatusCardConfig {
-    const includeDomains = ["plant"];
-    const maxEntities = 1;
+    const includeDomains = ['plant']
+    const maxEntities = 1
     const foundEntities = findEntities(
       hass,
       maxEntities,
       entities,
       entitiesFallback,
       includeDomains
-    );
+    )
 
-    return { type: "plant-status", entity: foundEntities[0] || "" };
+    return { type: 'plant-status', entity: foundEntities[0] || '' }
   }
 
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: PlantStatusCardConfig;
+  @state() private _config?: PlantStatusCardConfig
 
   public getCardSize(): number {
-    return 3;
+    return 3
   }
 
   public setConfig(config: PlantStatusCardConfig): void {
-    if (!config.entity || config.entity.split(".")[0] !== "plant") {
-      throw new Error("Specify an entity from within the plant domain");
+    if (!config.entity || config.entity.split('.')[0] !== 'plant') {
+      throw new Error('Specify an entity from within the plant domain')
     }
 
-    this._config = config;
+    this._config = config
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    return hasConfigOrEntityChanged(this, changedProps);
+    return hasConfigOrEntityChanged(this, changedProps)
   }
 
   protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
+    super.updated(changedProps)
     if (!this._config || !this.hass) {
-      return;
+      return
     }
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
-    const oldConfig = changedProps.get("_config") as
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined
+    const oldConfig = changedProps.get('_config') as
       | PlantStatusCardConfig
-      | undefined;
+      | undefined
 
     if (
       !oldHass ||
@@ -91,28 +91,28 @@ class HuiPlantStatusCard extends LitElement implements LovelaceCard {
       oldHass.themes !== this.hass.themes ||
       oldConfig.theme !== this._config.theme
     ) {
-      applyThemesOnElement(this, this.hass.themes, this._config.theme);
+      applyThemesOnElement(this, this.hass.themes, this._config.theme)
     }
   }
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
-    const stateObj = this.hass.states[this._config!.entity];
+    const stateObj = this.hass.states[this._config!.entity]
 
     if (!stateObj) {
       return html`
         <hui-warning .hass=${this.hass}>
           ${createEntityNotFoundWarning(this.hass, this._config.entity)}
         </hui-warning>
-      `;
+      `
     }
 
     return html`
       <ha-card
-        class=${stateObj.attributes.entity_picture ? "has-plant-image" : ""}
+        class=${stateObj.attributes.entity_picture ? 'has-plant-image' : ''}
       >
         <div
           class="banner"
@@ -124,7 +124,7 @@ class HuiPlantStatusCard extends LitElement implements LovelaceCard {
         </div>
         <div class="content">
           ${this._computeAttributes(stateObj).map(
-            (item) => html`
+            item => html`
               <div
                 class="attributes"
                 @action=${this._handleMoreInfo}
@@ -133,7 +133,7 @@ class HuiPlantStatusCard extends LitElement implements LovelaceCard {
                 .value=${item}
               >
                 <div class="icon">
-                  ${item === "battery"
+                  ${item === 'battery'
                     ? html`<ha-icon
                         .icon=${batteryLevelIcon(stateObj.attributes.battery)}
                       ></ha-icon>`
@@ -143,20 +143,20 @@ class HuiPlantStatusCard extends LitElement implements LovelaceCard {
                 </div>
                 <div
                   class=${stateObj.attributes.problem.indexOf(item) === -1
-                    ? ""
-                    : "problem"}
+                    ? ''
+                    : 'problem'}
                 >
                   ${stateObj.attributes[item]}
                 </div>
                 <div class="uom">
-                  ${stateObj.attributes.unit_of_measurement_dict[item] || ""}
+                  ${stateObj.attributes.unit_of_measurement_dict[item] || ''}
                 </div>
               </div>
             `
           )}
         </div>
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -238,28 +238,26 @@ class HuiPlantStatusCard extends LitElement implements LovelaceCard {
     .uom {
       color: var(--secondary-text-color);
     }
-  `;
+  `
 
   private _computeAttributes(stateObj: HassEntity): string[] {
-    return Object.keys(SENSOR_ICONS).filter(
-      (key) => key in stateObj.attributes
-    );
+    return Object.keys(SENSOR_ICONS).filter(key => key in stateObj.attributes)
   }
 
   private _handleMoreInfo(ev: Event): void {
-    const target = ev.currentTarget! as PlantAttributeTarget;
-    const stateObj = this.hass!.states[this._config!.entity];
+    const target = ev.currentTarget! as PlantAttributeTarget
+    const stateObj = this.hass!.states[this._config!.entity]
 
     if (target.value) {
-      fireEvent(this, "hass-more-info", {
+      fireEvent(this, 'hass-more-info', {
         entityId: stateObj.attributes.sensors[target.value],
-      });
+      })
     }
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-plant-status-card": HuiPlantStatusCard;
+    'hui-plant-status-card': HuiPlantStatusCard
   }
 }

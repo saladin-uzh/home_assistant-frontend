@@ -1,33 +1,33 @@
-import { mdiCheckCircle, mdiCloseCircle } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import "../../../../../components/ha-button";
-import "../../../../../components/ha-spinner";
-import { createCloseHeading } from "../../../../../components/ha-dialog";
-import { interviewMatterNode } from "../../../../../data/matter";
-import { haStyleDialog } from "../../../../../resources/styles";
-import type { HomeAssistant } from "../../../../../types";
-import type { MatterReinterviewNodeDialogParams } from "./show-dialog-matter-reinterview-node";
+import { mdiCheckCircle, mdiCloseCircle } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import '../../../../../components/ha-button'
+import '../../../../../components/ha-spinner'
+import { createCloseHeading } from '../../../../../components/ha-dialog'
+import { interviewMatterNode } from '../../../../../data/matter'
+import { haStyleDialog } from '../../../../../resources/styles'
+import type { HomeAssistant } from '../../../../../types'
+import type { MatterReinterviewNodeDialogParams } from './show-dialog-matter-reinterview-node'
 
-@customElement("dialog-matter-reinterview-node")
+@customElement('dialog-matter-reinterview-node')
 class DialogMatterReinterviewNode extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private device_id?: string;
+  @state() private device_id?: string
 
-  @state() private _status?: string;
+  @state() private _status?: string
 
   public async showDialog(
     params: MatterReinterviewNodeDialogParams
   ): Promise<void> {
-    this.device_id = params.device_id;
+    this.device_id = params.device_id
   }
 
   protected render() {
     if (!this.device_id) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -36,30 +36,33 @@ class DialogMatterReinterviewNode extends LitElement {
         @closed=${this.closeDialog}
         .heading=${createCloseHeading(
           this.hass,
-          this.hass.localize("ui.panel.config.matter.reinterview_node.title")
+          this.hass.localize('ui.panel.config.matter.reinterview_node.title')
         )}
       >
         ${!this._status
           ? html`
               <p>
                 ${this.hass.localize(
-                  "ui.panel.config.matter.reinterview_node.introduction"
+                  'ui.panel.config.matter.reinterview_node.introduction'
                 )}
               </p>
               <p>
                 <em>
                   ${this.hass.localize(
-                    "ui.panel.config.matter.reinterview_node.battery_device_warning"
+                    'ui.panel.config.matter.reinterview_node.battery_device_warning'
                   )}
                 </em>
               </p>
-              <ha-button slot="primaryAction" @click=${this._startReinterview}>
+              <ha-button
+                slot="primaryAction"
+                @click=${this._startReinterview}
+              >
                 ${this.hass.localize(
-                  "ui.panel.config.matter.reinterview_node.start_reinterview"
+                  'ui.panel.config.matter.reinterview_node.start_reinterview'
                 )}
               </ha-button>
             `
-          : this._status === "started"
+          : this._status === 'started'
             ? html`
                 <div class="flex-container">
                   <ha-spinner></ha-spinner>
@@ -67,22 +70,25 @@ class DialogMatterReinterviewNode extends LitElement {
                     <p>
                       <b>
                         ${this.hass.localize(
-                          "ui.panel.config.matter.reinterview_node.in_progress"
+                          'ui.panel.config.matter.reinterview_node.in_progress'
                         )}
                       </b>
                     </p>
                     <p>
                       ${this.hass.localize(
-                        "ui.panel.config.matter.reinterview_node.run_in_background"
+                        'ui.panel.config.matter.reinterview_node.run_in_background'
                       )}
                     </p>
                   </div>
                 </div>
-                <ha-button slot="primaryAction" @click=${this.closeDialog}>
-                  ${this.hass.localize("ui.common.close")}
+                <ha-button
+                  slot="primaryAction"
+                  @click=${this.closeDialog}
+                >
+                  ${this.hass.localize('ui.common.close')}
                 </ha-button>
               `
-            : this._status === "failed"
+            : this._status === 'failed'
               ? html`
                   <div class="flex-container">
                     <ha-svg-icon
@@ -92,16 +98,19 @@ class DialogMatterReinterviewNode extends LitElement {
                     <div class="status">
                       <p>
                         ${this.hass.localize(
-                          "ui.panel.config.matter.reinterview_node.interview_failed"
+                          'ui.panel.config.matter.reinterview_node.interview_failed'
                         )}
                       </p>
                     </div>
                   </div>
-                  <ha-button slot="primaryAction" @click=${this.closeDialog}>
-                    ${this.hass.localize("ui.common.close")}
+                  <ha-button
+                    slot="primaryAction"
+                    @click=${this.closeDialog}
+                  >
+                    ${this.hass.localize('ui.common.close')}
                   </ha-button>
                 `
-              : this._status === "finished"
+              : this._status === 'finished'
                 ? html`
                     <div class="flex-container">
                       <ha-svg-icon
@@ -111,37 +120,40 @@ class DialogMatterReinterviewNode extends LitElement {
                       <div class="status">
                         <p>
                           ${this.hass.localize(
-                            "ui.panel.config.matter.reinterview_node.interview_complete"
+                            'ui.panel.config.matter.reinterview_node.interview_complete'
                           )}
                         </p>
                       </div>
                     </div>
-                    <ha-button slot="primaryAction" @click=${this.closeDialog}>
-                      ${this.hass.localize("ui.common.close")}
+                    <ha-button
+                      slot="primaryAction"
+                      @click=${this.closeDialog}
+                    >
+                      ${this.hass.localize('ui.common.close')}
                     </ha-button>
                   `
                 : nothing}
       </ha-dialog>
-    `;
+    `
   }
 
   private async _startReinterview(): Promise<void> {
     if (!this.hass) {
-      return;
+      return
     }
-    this._status = "started";
+    this._status = 'started'
     try {
-      await interviewMatterNode(this.hass, this.device_id!);
-      this._status = "finished";
+      await interviewMatterNode(this.hass, this.device_id!)
+      this._status = 'finished'
     } catch (_err) {
-      this._status = "failed";
+      this._status = 'failed'
     }
   }
 
   public closeDialog(): void {
-    this.device_id = undefined;
-    this._status = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this.device_id = undefined
+    this._status = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   static get styles(): CSSResultGroup {
@@ -183,12 +195,12 @@ class DialogMatterReinterviewNode extends LitElement {
           margin-right: 20px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-matter-reinterview-node": DialogMatterReinterviewNode;
+    'dialog-matter-reinterview-node': DialogMatterReinterviewNode
   }
 }

@@ -1,4 +1,4 @@
-import { mdiClose, mdiMenuDown } from "@mdi/js";
+import { mdiClose, mdiMenuDown } from '@mdi/js'
 import {
   css,
   html,
@@ -6,58 +6,65 @@ import {
   nothing,
   type CSSResultGroup,
   type TemplateResult,
-} from "lit";
-import { customElement, property, query } from "lit/decorators";
-import { fireEvent } from "../common/dom/fire_event";
-import "./ha-combo-box-item";
-import type { HaComboBoxItem } from "./ha-combo-box-item";
-import "./ha-icon-button";
+} from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import { fireEvent } from '../common/dom/fire_event'
+import './ha-combo-box-item'
+import type { HaComboBoxItem } from './ha-combo-box-item'
+import './ha-icon-button'
 
 declare global {
   interface HASSDomEvents {
-    clear: undefined;
+    clear: undefined
   }
 }
 
-export type PickerValueRenderer = (value: string) => TemplateResult<1>;
+export type PickerValueRenderer = (value: string) => TemplateResult<1>
 
-@customElement("ha-picker-field")
+@customElement('ha-picker-field')
 export class HaPickerField extends LitElement {
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = false;
+  @property({ type: Boolean }) public required = false
 
-  @property() public value?: string;
+  @property() public value?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property() public placeholder?: string;
+  @property() public placeholder?: string
 
-  @property({ attribute: "hide-clear-icon", type: Boolean })
-  public hideClearIcon = false;
+  @property({ attribute: 'hide-clear-icon', type: Boolean })
+  public hideClearIcon = false
 
   @property({ attribute: false })
-  public valueRenderer?: PickerValueRenderer;
+  public valueRenderer?: PickerValueRenderer
 
-  @query("ha-combo-box-item", true) public item!: HaComboBoxItem;
+  @query('ha-combo-box-item', true) public item!: HaComboBoxItem
 
   public async focus() {
-    await this.updateComplete;
-    await this.item?.focus();
+    await this.updateComplete
+    await this.item?.focus()
   }
 
   protected render() {
     const showClearIcon =
-      !!this.value && !this.required && !this.disabled && !this.hideClearIcon;
+      !!this.value && !this.required && !this.disabled && !this.hideClearIcon
 
     return html`
-      <ha-combo-box-item .disabled=${this.disabled} type="button" compact>
+      <ha-combo-box-item
+        .disabled=${this.disabled}
+        type="button"
+        compact
+      >
         ${this.value
           ? this.valueRenderer
             ? this.valueRenderer(this.value)
             : html`<slot name="headline">${this.value}</slot>`
           : html`
-              <span slot="headline" class="placeholder">
+              <span
+                slot="headline"
+                class="placeholder"
+              >
                 ${this.placeholder}
               </span>
             `}
@@ -77,12 +84,12 @@ export class HaPickerField extends LitElement {
           .path=${mdiMenuDown}
         ></ha-svg-icon>
       </ha-combo-box-item>
-    `;
+    `
   }
 
   private _clear(e) {
-    e.stopPropagation();
-    fireEvent(this, "clear");
+    e.stopPropagation()
+    fireEvent(this, 'clear')
   }
 
   static get styles(): CSSResultGroup {
@@ -120,7 +127,7 @@ export class HaPickerField extends LitElement {
         }
         ha-combo-box-item:after {
           display: block;
-          content: "";
+          content: '';
           position: absolute;
           pointer-events: none;
           bottom: 0;
@@ -157,12 +164,12 @@ export class HaPickerField extends LitElement {
           padding: 0 8px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-picker-field": HaPickerField;
+    'ha-picker-field': HaPickerField
   }
 }

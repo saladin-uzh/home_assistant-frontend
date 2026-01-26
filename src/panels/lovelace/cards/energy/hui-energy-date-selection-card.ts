@@ -1,48 +1,48 @@
-import type { PropertyValues } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "../../../../components/ha-card";
-import type { HomeAssistant } from "../../../../types";
-import { hasConfigChanged } from "../../common/has-changed";
-import "../../components/hui-energy-period-selector";
-import type { LovelaceCard, LovelaceGridOptions } from "../../types";
-import type { EnergyCardBaseConfig } from "../types";
+import type { PropertyValues } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import '../../../../components/ha-card'
+import type { HomeAssistant } from '../../../../types'
+import { hasConfigChanged } from '../../common/has-changed'
+import '../../components/hui-energy-period-selector'
+import type { LovelaceCard, LovelaceGridOptions } from '../../types'
+import type { EnergyCardBaseConfig } from '../types'
 
-@customElement("hui-energy-date-selection-card")
+@customElement('hui-energy-date-selection-card')
 export class HuiEnergyDateSelectionCard
   extends LitElement
   implements LovelaceCard
 {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _config?: EnergyCardBaseConfig;
+  @state() private _config?: EnergyCardBaseConfig
 
   public getCardSize(): Promise<number> | number {
-    return 1;
+    return 1
   }
 
   public getGridOptions(): LovelaceGridOptions {
     return {
       rows: 1,
       columns: 12,
-    };
+    }
   }
 
   public setConfig(config: EnergyCardBaseConfig): void {
-    this._config = config;
+    this._config = config
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     return (
       hasConfigChanged(this, changedProps) ||
       changedProps.size > 1 ||
-      !changedProps.has("hass")
-    );
+      !changedProps.has('hass')
+    )
   }
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -54,7 +54,7 @@ export class HuiEnergyDateSelectionCard
           ></hui-energy-period-selector>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -64,11 +64,11 @@ export class HuiEnergyDateSelectionCard
       flex-direction: column;
       justify-content: center;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-energy-date-selection-card": HuiEnergyDateSelectionCard;
+    'hui-energy-date-selection-card': HuiEnergyDateSelectionCard
   }
 }

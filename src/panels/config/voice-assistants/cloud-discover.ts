@@ -1,16 +1,16 @@
-import { mdiMicrophoneMessage, mdiOpenInNew } from "@mdi/js";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { isComponentLoaded } from "../../../common/config/is_component_loaded";
-import "../../../components/ha-button";
-import "../../../components/ha-card";
-import "../../../components/ha-svg-icon";
-import type { HomeAssistant } from "../../../types";
-import { brandsUrl } from "../../../util/brands-url";
+import { mdiMicrophoneMessage, mdiOpenInNew } from '@mdi/js'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { isComponentLoaded } from '../../../common/config/is_component_loaded'
+import '../../../components/ha-button'
+import '../../../components/ha-card'
+import '../../../components/ha-svg-icon'
+import type { HomeAssistant } from '../../../types'
+import { brandsUrl } from '../../../util/brands-url'
 
-@customElement("cloud-discover")
+@customElement('cloud-discover')
 export class CloudDiscover extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   protected render() {
     return html`
@@ -18,7 +18,7 @@ export class CloudDiscover extends LitElement {
         <div class="card-content">
           <h1 class="header">
             ${this.hass.localize(
-              "ui.panel.config.voice_assistants.assistants.cloud.title",
+              'ui.panel.config.voice_assistants.assistants.cloud.title',
               {
                 home_assistant_cloud: html`
                   <span class="no-wrap">Home Assistant Cloud</span>
@@ -35,13 +35,13 @@ export class CloudDiscover extends LitElement {
               </div>
               <h2>
                 ${this.hass.localize(
-                  "ui.panel.config.voice_assistants.assistants.cloud.features.speech.title"
+                  'ui.panel.config.voice_assistants.assistants.cloud.features.speech.title'
                 )}
                 <span class="no-wrap"></span>
               </h2>
               <p>
                 ${this.hass.localize(
-                  "ui.panel.config.voice_assistants.assistants.cloud.features.speech.text"
+                  'ui.panel.config.voice_assistants.assistants.cloud.features.speech.text'
                 )}
               </p>
             </div>
@@ -50,8 +50,8 @@ export class CloudDiscover extends LitElement {
                 <img
                   alt="Google Assistant"
                   src=${brandsUrl({
-                    domain: "google_assistant",
-                    type: "icon",
+                    domain: 'google_assistant',
+                    type: 'icon',
                     darkOptimized: this.hass.themes?.darkMode,
                   })}
                   crossorigin="anonymous"
@@ -60,8 +60,8 @@ export class CloudDiscover extends LitElement {
                 <img
                   alt="Amazon Alexa"
                   src=${brandsUrl({
-                    domain: "alexa",
-                    type: "icon",
+                    domain: 'alexa',
+                    type: 'icon',
                     darkOptimized: this.hass.themes?.darkMode,
                   })}
                   crossorigin="anonymous"
@@ -70,12 +70,12 @@ export class CloudDiscover extends LitElement {
               </div>
               <h2>
                 ${this.hass.localize(
-                  "ui.panel.config.voice_assistants.assistants.cloud.features.assistants.title"
+                  'ui.panel.config.voice_assistants.assistants.cloud.features.assistants.title'
                 )}
               </h2>
               <p>
                 ${this.hass.localize(
-                  "ui.panel.config.voice_assistants.assistants.cloud.features.assistants.text"
+                  'ui.panel.config.voice_assistants.assistants.cloud.features.assistants.text'
                 )}
               </p>
             </div>
@@ -89,30 +89,39 @@ export class CloudDiscover extends LitElement {
               rel="noreferrer"
             >
               ${this.hass.localize(
-                "ui.panel.config.voice_assistants.assistants.cloud.and_more"
+                'ui.panel.config.voice_assistants.assistants.cloud.and_more'
               )}
-              <ha-svg-icon slot="end" .path=${mdiOpenInNew}></ha-svg-icon>
+              <ha-svg-icon
+                slot="end"
+                .path=${mdiOpenInNew}
+              ></ha-svg-icon>
             </ha-button>
           </div>
         </div>
-        ${isComponentLoaded(this.hass, "cloud")
+        ${isComponentLoaded(this.hass, 'cloud')
           ? html`
               <div class="card-actions">
-                <ha-button appearance="plain" href="/config/cloud/login">
+                <ha-button
+                  appearance="plain"
+                  href="/config/cloud/login"
+                >
                   ${this.hass.localize(
-                    "ui.panel.config.voice_assistants.assistants.cloud.sign_in"
+                    'ui.panel.config.voice_assistants.assistants.cloud.sign_in'
                   )}
                 </ha-button>
-                <ha-button href="/config/cloud/register" appearance="filled">
+                <ha-button
+                  href="/config/cloud/register"
+                  appearance="filled"
+                >
                   ${this.hass.localize(
-                    "ui.panel.config.voice_assistants.assistants.cloud.try_one_month"
+                    'ui.panel.config.voice_assistants.assistants.cloud.try_one_month'
                   )}
                 </ha-button>
               </div>
             `
           : nothing}
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -207,11 +216,11 @@ export class CloudDiscover extends LitElement {
     .no-wrap {
       white-space: nowrap;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "cloud-discover": CloudDiscover;
+    'cloud-discover': CloudDiscover
   }
 }

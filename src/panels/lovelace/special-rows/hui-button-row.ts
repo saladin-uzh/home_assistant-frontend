@@ -1,59 +1,59 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, state } from "lit/decorators";
-import { DOMAINS_TOGGLE } from "../../../common/const";
-import { computeDomain } from "../../../common/entity/compute_domain";
-import "../../../components/ha-button";
-import "../../../components/ha-state-icon";
-import type { ActionHandlerEvent } from "../../../data/lovelace/action_handler";
-import type { HomeAssistant } from "../../../types";
-import { actionHandler } from "../common/directives/action-handler-directive";
-import { computeLovelaceEntityName } from "../common/entity/compute-lovelace-entity-name";
-import { handleAction } from "../common/handle-action";
-import { hasAction } from "../common/has-action";
-import type { ButtonRowConfig, LovelaceRow } from "../entity-rows/types";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, state } from 'lit/decorators'
+import { DOMAINS_TOGGLE } from '../../../common/const'
+import { computeDomain } from '../../../common/entity/compute_domain'
+import '../../../components/ha-button'
+import '../../../components/ha-state-icon'
+import type { ActionHandlerEvent } from '../../../data/lovelace/action_handler'
+import type { HomeAssistant } from '../../../types'
+import { actionHandler } from '../common/directives/action-handler-directive'
+import { computeLovelaceEntityName } from '../common/entity/compute-lovelace-entity-name'
+import { handleAction } from '../common/handle-action'
+import { hasAction } from '../common/has-action'
+import type { ButtonRowConfig, LovelaceRow } from '../entity-rows/types'
 
-@customElement("hui-button-row")
+@customElement('hui-button-row')
 export class HuiButtonRow extends LitElement implements LovelaceRow {
-  public hass?: HomeAssistant;
+  public hass?: HomeAssistant
 
-  @state() private _config?: ButtonRowConfig;
+  @state() private _config?: ButtonRowConfig
 
   public setConfig(config: ButtonRowConfig): void {
     if (!config) {
-      throw new Error("Invalid configuration");
+      throw new Error('Invalid configuration')
     }
 
     if (!config.name && !config.entity) {
-      throw new Error("No name and no entity specified");
+      throw new Error('No name and no entity specified')
     }
 
     this._config = {
       tap_action: {
         action:
           config.entity && DOMAINS_TOGGLE.has(computeDomain(config.entity))
-            ? "toggle"
-            : "more-info",
+            ? 'toggle'
+            : 'more-info',
       },
-      hold_action: { action: "more-info" },
+      hold_action: { action: 'more-info' },
       ...config,
-    };
+    }
   }
 
   protected render() {
     if (!this._config) {
-      return nothing;
+      return nothing
     }
 
     const stateObj =
       this._config.entity && this.hass
         ? this.hass.states[this._config.entity]
-        : undefined;
+        : undefined
 
     const name = computeLovelaceEntityName(
       this.hass!,
       stateObj,
       this._config.name
-    );
+    )
 
     return html`
       <ha-state-icon
@@ -74,10 +74,10 @@ export class HuiButtonRow extends LitElement implements LovelaceRow {
           })}
           >${this._config.action_name
             ? this._config.action_name
-            : this.hass!.localize("ui.card.service.run")}</ha-button
+            : this.hass!.localize('ui.card.service.run')}</ha-button
         >
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -104,15 +104,15 @@ export class HuiButtonRow extends LitElement implements LovelaceRow {
       overflow: hidden;
       text-overflow: ellipsis;
     }
-  `;
+  `
 
   private _handleAction(ev: ActionHandlerEvent) {
-    handleAction(this, this.hass!, this._config!, ev.detail.action!);
+    handleAction(this, this.hass!, this._config!, ev.detail.action!)
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-button-row": HuiButtonRow;
+    'hui-button-row': HuiButtonRow
   }
 }

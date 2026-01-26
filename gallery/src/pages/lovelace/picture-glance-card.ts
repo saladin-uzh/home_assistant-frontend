@@ -1,40 +1,40 @@
-import type { PropertyValues, TemplateResult } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, query } from "lit/decorators";
-import { getEntity } from "../../../../src/fake_data/entity";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import "../../components/demo-cards";
-import { mockIcons } from "../../../../demo/src/stubs/icons";
+import type { PropertyValues, TemplateResult } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, query } from 'lit/decorators'
+import { getEntity } from '../../../../src/fake_data/entity'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import '../../components/demo-cards'
+import { mockIcons } from '../../../../demo/src/stubs/icons'
 
 const ENTITIES = [
-  getEntity("switch", "decorative_lights", "on", {
-    friendly_name: "Decorative Lights",
+  getEntity('switch', 'decorative_lights', 'on', {
+    friendly_name: 'Decorative Lights',
   }),
-  getEntity("light", "ceiling_lights", "on", {
-    friendly_name: "Ceiling Lights",
+  getEntity('light', 'ceiling_lights', 'on', {
+    friendly_name: 'Ceiling Lights',
   }),
-  getEntity("binary_sensor", "movement_backyard", "on", {
-    friendly_name: "Movement Backyard",
-    device_class: "moving",
+  getEntity('binary_sensor', 'movement_backyard', 'on', {
+    friendly_name: 'Movement Backyard',
+    device_class: 'moving',
   }),
-  getEntity("binary_sensor", "basement_floor_wet", "off", {
-    friendly_name: "Basement Floor Wet",
-    device_class: "moisture",
+  getEntity('binary_sensor', 'basement_floor_wet', 'off', {
+    friendly_name: 'Basement Floor Wet',
+    device_class: 'moisture',
   }),
-  getEntity("person", "paulus", "home", {
-    friendly_name: "Paulus",
-    entity_picture: "/images/paulus.jpg",
+  getEntity('person', 'paulus', 'home', {
+    friendly_name: 'Paulus',
+    entity_picture: '/images/paulus.jpg',
   }),
-  getEntity("sensor", "battery", 35, {
-    device_class: "battery",
-    friendly_name: "Battery",
-    unit_of_measurement: "%",
+  getEntity('sensor', 'battery', 35, {
+    device_class: 'battery',
+    friendly_name: 'Battery',
+    unit_of_measurement: '%',
   }),
-];
+]
 
 const CONFIGS = [
   {
-    heading: "Title, dialog, toggle",
+    heading: 'Title, dialog, toggle',
     config: `
 - type: picture-glance
   image: /images/living_room.png
@@ -47,7 +47,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Title, dialog, no toggle",
+    heading: 'Title, dialog, no toggle',
     config: `
 - type: picture-glance
   image: /images/living_room.png
@@ -58,7 +58,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Title, no dialog, toggle",
+    heading: 'Title, no dialog, toggle',
     config: `
 - type: picture-glance
   image: /images/living_room.png
@@ -69,7 +69,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "No title, dialog, toggle",
+    heading: 'No title, dialog, toggle',
     config: `
 - type: picture-glance
   image: /images/living_room.png
@@ -81,7 +81,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "No title, dialog, no toggle",
+    heading: 'No title, dialog, no toggle',
     config: `
 - type: picture-glance
   image: /images/living_room.png
@@ -91,7 +91,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "No title, no dialog, toggle",
+    heading: 'No title, no dialog, toggle',
     config: `
 - type: picture-glance
   image: /images/living_room.png
@@ -101,7 +101,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Person entity",
+    heading: 'Person entity',
     config: `
 - type: picture-glance
   image_entity: person.paulus
@@ -110,7 +110,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Custom icon",
+    heading: 'Custom icon',
     config: `
 - type: picture-glance
   image: /images/living_room.png
@@ -122,7 +122,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Custom tap action",
+    heading: 'Custom tap action',
     config: `
 - type: picture-glance
   image: /images/living_room.png
@@ -138,28 +138,31 @@ const CONFIGS = [
     - binary_sensor.basement_floor_wet
     `,
   },
-];
+]
 
-@customElement("demo-lovelace-picture-glance-card")
+@customElement('demo-lovelace-picture-glance-card')
 class DemoPictureGlance extends LitElement {
-  @query("#demos") private _demoRoot!: HTMLElement;
+  @query('#demos') private _demoRoot!: HTMLElement
 
   protected render(): TemplateResult {
-    return html`<demo-cards id="demos" .configs=${CONFIGS}></demo-cards>`;
+    return html`<demo-cards
+      id="demos"
+      .configs=${CONFIGS}
+    ></demo-cards>`
   }
 
   protected firstUpdated(changedProperties: PropertyValues) {
-    super.firstUpdated(changedProperties);
-    const hass = provideHass(this._demoRoot);
-    hass.updateTranslations(null, "en");
-    hass.updateTranslations("lovelace", "en");
-    hass.addEntities(ENTITIES);
-    mockIcons(hass);
+    super.firstUpdated(changedProperties)
+    const hass = provideHass(this._demoRoot)
+    hass.updateTranslations(null, 'en')
+    hass.updateTranslations('lovelace', 'en')
+    hass.addEntities(ENTITIES)
+    mockIcons(hass)
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-lovelace-picture-glance-card": DemoPictureGlance;
+    'demo-lovelace-picture-glance-card': DemoPictureGlance
   }
 }

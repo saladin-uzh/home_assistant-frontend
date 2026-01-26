@@ -1,27 +1,27 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query } from "lit/decorators";
-import type { Condition } from "../../data/automation";
-import type { ConditionSelector } from "../../data/selector";
-import "../../panels/config/automation/condition/ha-automation-condition";
-import type HaAutomationCondition from "../../panels/config/automation/condition/ha-automation-condition";
-import type { HomeAssistant } from "../../types";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import type { Condition } from '../../data/automation'
+import type { ConditionSelector } from '../../data/selector'
+import '../../panels/config/automation/condition/ha-automation-condition'
+import type HaAutomationCondition from '../../panels/config/automation/condition/ha-automation-condition'
+import type { HomeAssistant } from '../../types'
 
-@customElement("ha-selector-condition")
+@customElement('ha-selector-condition')
 export class HaConditionSelector extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ attribute: false }) public selector!: ConditionSelector;
+  @property({ attribute: false }) public selector!: ConditionSelector
 
-  @property({ attribute: false }) public value?: Condition;
+  @property({ attribute: false }) public value?: Condition
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property({ type: Boolean, reflect: true }) public disabled = false;
+  @property({ type: Boolean, reflect: true }) public disabled = false
 
-  @query("ha-automation-condition")
-  private _conditionElement?: HaAutomationCondition;
+  @query('ha-automation-condition')
+  private _conditionElement?: HaAutomationCondition
 
   protected render() {
     return html`
@@ -33,15 +33,15 @@ export class HaConditionSelector extends LitElement {
         .narrow=${this.narrow}
         .optionsInSidebar=${!!this.selector.condition?.optionsInSidebar}
       ></ha-automation-condition>
-    `;
+    `
   }
 
   public expandAll() {
-    this._conditionElement?.expandAll();
+    this._conditionElement?.expandAll()
   }
 
   public collapseAll() {
-    this._conditionElement?.collapseAll();
+    this._conditionElement?.collapseAll()
   }
 
   static styles = css`
@@ -55,11 +55,11 @@ export class HaConditionSelector extends LitElement {
       font-weight: var(--ha-font-weight-medium);
       color: var(--secondary-text-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-condition": HaConditionSelector;
+    'ha-selector-condition': HaConditionSelector
   }
 }

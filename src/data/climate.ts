@@ -7,65 +7,65 @@ import {
   mdiThermostat,
   mdiThermostatAuto,
   mdiWaterPercent,
-} from "@mdi/js";
+} from '@mdi/js'
 import type {
   HassEntityAttributeBase,
   HassEntityBase,
-} from "home-assistant-js-websocket";
+} from 'home-assistant-js-websocket'
 
 export const HVAC_MODES = [
-  "auto",
-  "heat_cool",
-  "heat",
-  "cool",
-  "dry",
-  "fan_only",
-  "off",
-] as const;
+  'auto',
+  'heat_cool',
+  'heat',
+  'cool',
+  'dry',
+  'fan_only',
+  'off',
+] as const
 
-export type HvacMode = (typeof HVAC_MODES)[number];
+export type HvacMode = (typeof HVAC_MODES)[number]
 
-export const CLIMATE_PRESET_NONE = "none";
+export const CLIMATE_PRESET_NONE = 'none'
 
 export type HvacAction =
-  | "cooling"
-  | "defrosting"
-  | "drying"
-  | "fan"
-  | "heating"
-  | "idle"
-  | "off"
-  | "preheating";
+  | 'cooling'
+  | 'defrosting'
+  | 'drying'
+  | 'fan'
+  | 'heating'
+  | 'idle'
+  | 'off'
+  | 'preheating'
 
 export type ClimateEntity = HassEntityBase & {
   attributes: HassEntityAttributeBase & {
-    hvac_mode: HvacMode;
-    hvac_modes: HvacMode[];
-    hvac_action?: HvacAction;
-    current_temperature: number;
-    min_temp: number;
-    max_temp: number;
-    temperature: number;
-    target_temp_step?: number;
-    target_temp_high?: number;
-    target_temp_low?: number;
-    humidity?: number;
-    current_humidity?: number;
-    target_humidity_low?: number;
-    target_humidity_high?: number;
-    min_humidity?: number;
-    max_humidity?: number;
-    fan_mode?: string;
-    fan_modes?: string[];
-    preset_mode?: string;
-    preset_modes?: string[];
-    swing_mode?: string;
-    swing_modes?: string[];
-    swing_horizontal_mode?: string;
-    swing_horizontal_modes?: string[];
-    aux_heat?: "on" | "off";
-  };
-};
+    hvac_mode: HvacMode
+    hvac_modes: HvacMode[]
+    hvac_action?: HvacAction
+    current_temperature: number
+    min_temp: number
+    max_temp: number
+    temperature: number
+    target_temp_step?: number
+    target_temp_high?: number
+    target_temp_low?: number
+    humidity?: number
+    current_humidity?: number
+    target_humidity_low?: number
+    target_humidity_high?: number
+    min_humidity?: number
+    max_humidity?: number
+    fan_mode?: string
+    fan_modes?: string[]
+    preset_mode?: string
+    preset_modes?: string[]
+    swing_mode?: string
+    swing_modes?: string[]
+    swing_horizontal_mode?: string
+    swing_horizontal_modes?: string[]
+    aux_heat?: 'on' | 'off'
+  }
+}
 
 export const enum ClimateEntityFeature {
   TARGET_TEMPERATURE = 1,
@@ -82,25 +82,25 @@ export const enum ClimateEntityFeature {
 
 const hvacModeOrdering = HVAC_MODES.reduce(
   (order, mode, index) => {
-    order[mode] = index;
-    return order;
+    order[mode] = index
+    return order
   },
   {} as Record<HvacMode, number>
-);
+)
 
 export const compareClimateHvacModes = (mode1: HvacMode, mode2: HvacMode) =>
-  hvacModeOrdering[mode1] - hvacModeOrdering[mode2];
+  hvacModeOrdering[mode1] - hvacModeOrdering[mode2]
 
 export const CLIMATE_HVAC_ACTION_TO_MODE: Record<HvacAction, HvacMode> = {
-  cooling: "cool",
-  defrosting: "heat",
-  drying: "dry",
-  fan: "fan_only",
-  heating: "heat",
-  idle: "off",
-  off: "off",
-  preheating: "heat",
-};
+  cooling: 'cool',
+  defrosting: 'heat',
+  drying: 'dry',
+  fan: 'fan_only',
+  heating: 'heat',
+  idle: 'off',
+  off: 'off',
+  preheating: 'heat',
+}
 
 export const CLIMATE_HVAC_MODE_ICONS: Record<HvacMode, string> = {
   cool: mdiSnowflake,
@@ -110,7 +110,7 @@ export const CLIMATE_HVAC_MODE_ICONS: Record<HvacMode, string> = {
   heat: mdiFire,
   off: mdiPower,
   heat_cool: mdiSunSnowflakeVariant,
-};
+}
 
 export const climateHvacModeIcon = (mode: string) =>
-  CLIMATE_HVAC_MODE_ICONS[mode] || mdiThermostat;
+  CLIMATE_HVAC_MODE_ICONS[mode] || mdiThermostat

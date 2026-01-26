@@ -1,44 +1,44 @@
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../common/dom/fire_event";
-import type { HassDialog } from "../../../dialogs/make-dialog-manager";
-import type { HomeAssistant } from "../../../types";
-import "../../ha-dialog-header";
-import "../../ha-icon-button";
-import "../../ha-icon-next";
-import "../../ha-md-list";
-import "../../ha-md-list-item";
-import "../../ha-svg-icon";
-import "../../ha-wa-dialog";
-import "../ha-target-picker-item-row";
-import type { TargetDetailsDialogParams } from "./show-dialog-target-details";
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../common/dom/fire_event'
+import type { HassDialog } from '../../../dialogs/make-dialog-manager'
+import type { HomeAssistant } from '../../../types'
+import '../../ha-dialog-header'
+import '../../ha-icon-button'
+import '../../ha-icon-next'
+import '../../ha-md-list'
+import '../../ha-md-list-item'
+import '../../ha-svg-icon'
+import '../../ha-wa-dialog'
+import '../ha-target-picker-item-row'
+import type { TargetDetailsDialogParams } from './show-dialog-target-details'
 
-@customElement("ha-dialog-target-details")
+@customElement('ha-dialog-target-details')
 class DialogTargetDetails extends LitElement implements HassDialog {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _params?: TargetDetailsDialogParams;
+  @state() private _params?: TargetDetailsDialogParams
 
-  @state() private _opened = false;
+  @state() private _opened = false
 
   public showDialog(params: TargetDetailsDialogParams): void {
-    this._params = params;
-    this._opened = true;
+    this._params = params
+    this._opened = true
   }
 
   public closeDialog() {
-    this._opened = false;
-    return true;
+    this._opened = false
+    return true
   }
 
   private _dialogClosed() {
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
-    this._params = undefined;
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
+    this._params = undefined
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -46,7 +46,7 @@ class DialogTargetDetails extends LitElement implements HassDialog {
         .hass=${this.hass}
         .open=${this._opened}
         header-title=${this.hass.localize(
-          "ui.components.target-picker.target_details"
+          'ui.components.target-picker.target_details'
         )}
         header-subtitle=${`${this.hass.localize(
           `ui.components.target-picker.type.${this._params.type}`
@@ -65,12 +65,12 @@ class DialogTargetDetails extends LitElement implements HassDialog {
           expand
         ></ha-target-picker-item-row>
       </ha-wa-dialog>
-    `;
+    `
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-dialog-target-details": DialogTargetDetails;
+    'ha-dialog-target-details': DialogTargetDetails
   }
 }

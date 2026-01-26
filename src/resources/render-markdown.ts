@@ -1,11 +1,11 @@
-import type { Remote } from "comlink";
-import { wrap } from "comlink";
-import type { Api } from "./markdown-worker";
+import type { Remote } from 'comlink'
+import { wrap } from 'comlink'
+import type { Api } from './markdown-worker'
 
-type RenderMarkdownType = Api["renderMarkdown"];
-type RenderMarkdownParamTypes = Parameters<RenderMarkdownType>;
+type RenderMarkdownType = Api['renderMarkdown']
+type RenderMarkdownParamTypes = Parameters<RenderMarkdownType>
 
-let worker: Remote<Api> | undefined;
+let worker: Remote<Api> | undefined
 
 export const renderMarkdown = async (
   content: RenderMarkdownParamTypes[0],
@@ -16,9 +16,9 @@ export const renderMarkdown = async (
     worker = wrap(
       new Worker(
         /* webpackChunkName: "markdown-worker" */
-        new URL("./markdown-worker", import.meta.url)
+        new URL('./markdown-worker', import.meta.url)
       )
-    );
+    )
   }
-  return worker.renderMarkdown(content, markedOptions, hassOptions);
-};
+  return worker.renderMarkdown(content, markedOptions, hassOptions)
+}

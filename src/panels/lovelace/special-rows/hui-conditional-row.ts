@@ -1,26 +1,26 @@
-import { customElement } from "lit/decorators";
-import type { EntityCardConfig } from "../cards/types";
-import { HuiConditionalBase } from "../components/hui-conditional-base";
-import { createRowElement } from "../create-element/create-row-element";
+import { customElement } from 'lit/decorators'
+import type { EntityCardConfig } from '../cards/types'
+import { HuiConditionalBase } from '../components/hui-conditional-base'
+import { createRowElement } from '../create-element/create-row-element'
 import type {
   ConditionalRowConfig,
   EntityConfig,
   LovelaceRow,
-} from "../entity-rows/types";
-import { fireEvent } from "../../../common/dom/fire_event";
+} from '../entity-rows/types'
+import { fireEvent } from '../../../common/dom/fire_event'
 
 declare global {
   interface HASSDomEvents {
-    "row-visibility-changed": { row: LovelaceRow; value: boolean };
+    'row-visibility-changed': { row: LovelaceRow; value: boolean }
   }
 }
-@customElement("hui-conditional-row")
+@customElement('hui-conditional-row')
 class HuiConditionalRow extends HuiConditionalBase implements LovelaceRow {
   public setConfig(config: ConditionalRowConfig): void {
-    this.validateConfig(config);
+    this.validateConfig(config)
 
     if (!config.row) {
-      throw new Error("No row configured");
+      throw new Error('No row configured')
     }
 
     this._element = createRowElement(
@@ -30,21 +30,21 @@ class HuiConditionalRow extends HuiConditionalBase implements LovelaceRow {
             ...(config.row as EntityConfig),
           } as EntityConfig)
         : config.row
-    ) as LovelaceRow;
+    ) as LovelaceRow
   }
 
   protected setVisibility(conditionMet: boolean): void {
-    const visible = this.preview || conditionMet;
-    const previouslyHidden = this.hidden;
-    super.setVisibility(conditionMet);
+    const visible = this.preview || conditionMet
+    const previouslyHidden = this.hidden
+    super.setVisibility(conditionMet)
     if (previouslyHidden !== this.hidden) {
-      fireEvent(this, "row-visibility-changed", { row: this, value: visible });
+      fireEvent(this, 'row-visibility-changed', { row: this, value: visible })
     }
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-conditional-row": HuiConditionalRow;
+    'hui-conditional-row': HuiConditionalRow
   }
 }

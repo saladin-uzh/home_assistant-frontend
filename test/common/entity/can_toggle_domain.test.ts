@@ -1,9 +1,9 @@
-import { assert, describe, it } from "vitest";
+import { assert, describe, it } from 'vitest'
 
-import { canToggleDomain } from "../../../src/common/entity/can_toggle_domain";
-import type { HomeAssistant } from "../../../src/types";
+import { canToggleDomain } from '../../../src/common/entity/can_toggle_domain'
+import type { HomeAssistant } from '../../../src/types'
 
-describe("canToggleDomain", () => {
+describe('canToggleDomain', () => {
   const hass: any = {
     services: {
       light: {
@@ -14,21 +14,21 @@ describe("canToggleDomain", () => {
         custom_service: null,
       },
     },
-  };
+  }
 
-  it("Detects lights toggle", () => {
-    assert.isTrue(canToggleDomain(hass, "light"));
-  });
+  it('Detects lights toggle', () => {
+    assert.isTrue(canToggleDomain(hass, 'light'))
+  })
 
-  it("Detects sensors do not toggle", () => {
-    assert.isFalse(canToggleDomain(hass, "sensor"));
-  });
+  it('Detects sensors do not toggle', () => {
+    assert.isFalse(canToggleDomain(hass, 'sensor'))
+  })
 
-  it("Detects binary sensors do not toggle", () => {
-    assert.isFalse(canToggleDomain(hass, "binary_sensor"));
-  });
+  it('Detects binary sensors do not toggle', () => {
+    assert.isFalse(canToggleDomain(hass, 'binary_sensor'))
+  })
 
-  it("Detects covers toggle", () => {
+  it('Detects covers toggle', () => {
     assert.isTrue(
       canToggleDomain(
         {
@@ -38,9 +38,9 @@ describe("canToggleDomain", () => {
             },
           },
         } as unknown as HomeAssistant,
-        "cover"
+        'cover'
       )
-    );
+    )
     assert.isFalse(
       canToggleDomain(
         {
@@ -50,12 +50,12 @@ describe("canToggleDomain", () => {
             },
           },
         } as unknown as HomeAssistant,
-        "cover"
+        'cover'
       )
-    );
-  });
+    )
+  })
 
-  it("Detects lock toggle", () => {
+  it('Detects lock toggle', () => {
     assert.isTrue(
       canToggleDomain(
         {
@@ -65,9 +65,9 @@ describe("canToggleDomain", () => {
             },
           },
         } as unknown as HomeAssistant,
-        "lock"
+        'lock'
       )
-    );
+    )
     assert.isFalse(
       canToggleDomain(
         {
@@ -77,8 +77,8 @@ describe("canToggleDomain", () => {
             },
           },
         } as unknown as HomeAssistant,
-        "lock"
+        'lock'
       )
-    );
-  });
-});
+    )
+  })
+})

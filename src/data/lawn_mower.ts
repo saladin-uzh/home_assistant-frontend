@@ -1,15 +1,15 @@
 import type {
   HassEntityAttributeBase,
   HassEntityBase,
-} from "home-assistant-js-websocket";
-import { UNAVAILABLE } from "./entity";
+} from 'home-assistant-js-websocket'
+import { UNAVAILABLE } from './entity'
 
 export type LawnMowerEntityState =
-  | "paused"
-  | "mowing"
-  | "returning"
-  | "docked"
-  | "error";
+  | 'paused'
+  | 'mowing'
+  | 'returning'
+  | 'docked'
+  | 'error'
 
 export const enum LawnMowerEntityFeature {
   START_MOWING = 1,
@@ -22,26 +22,26 @@ interface LawnMowerEntityAttributes
     Record<string, any> {}
 
 export interface LawnMowerEntity extends HassEntityBase {
-  attributes: LawnMowerEntityAttributes;
+  attributes: LawnMowerEntityAttributes
 }
 
 export function canStartMowing(stateObj: LawnMowerEntity): boolean {
   if (stateObj.state === UNAVAILABLE) {
-    return false;
+    return false
   }
-  return stateObj.state !== "mowing";
+  return stateObj.state !== 'mowing'
 }
 
 export function canPause(stateObj: LawnMowerEntity): boolean {
   if (stateObj.state === UNAVAILABLE) {
-    return false;
+    return false
   }
-  return stateObj.state !== "paused";
+  return stateObj.state !== 'paused'
 }
 
 export function canDock(stateObj: LawnMowerEntity): boolean {
   if (stateObj.state === UNAVAILABLE) {
-    return false;
+    return false
   }
-  return stateObj.state !== "docked";
+  return stateObj.state !== 'docked'
 }

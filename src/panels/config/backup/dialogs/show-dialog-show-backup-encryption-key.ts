@@ -1,17 +1,17 @@
-import { fireEvent } from "../../../../common/dom/fire_event";
+import { fireEvent } from '../../../../common/dom/fire_event'
 
 export interface ShowBackupEncryptionKeyDialogParams {
-  currentKey: string;
+  currentKey: string
 }
 
-const loadDialog = () => import("./dialog-show-backup-encryption-key");
+const loadDialog = () => import('./dialog-show-backup-encryption-key')
 
 export const showShowBackupEncryptionKeyDialog = (
   element: HTMLElement,
   params?: ShowBackupEncryptionKeyDialogParams
 ) =>
-  fireEvent(element, "show-dialog", {
-    dialogTag: "ha-dialog-show-backup-encryption-key",
+  fireEvent(element, 'show-dialog', {
+    dialogTag: 'ha-dialog-show-backup-encryption-key',
     dialogImport: loadDialog,
     dialogParams: params,
-  });
+  })

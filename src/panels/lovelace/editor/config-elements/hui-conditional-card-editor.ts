@@ -1,31 +1,31 @@
-import { mdiCodeBraces, mdiContentCopy, mdiListBoxOutline } from "@mdi/js";
-import deepClone from "deep-clone-simple";
-import type { CSSResultGroup } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { any, array, assert, assign, object, optional } from "superstruct";
-import { storage } from "../../../../common/decorators/storage";
-import type { HASSDomEvent } from "../../../../common/dom/fire_event";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-alert";
-import "../../../../components/ha-button";
-import "../../../../components/ha-svg-icon";
-import "../../../../components/ha-tab-group";
-import "../../../../components/ha-tab-group-tab";
-import type { LovelaceCardConfig } from "../../../../data/lovelace/config/card";
-import type { LovelaceConfig } from "../../../../data/lovelace/config/types";
-import type { HomeAssistant } from "../../../../types";
-import type { ConditionalCardConfig } from "../../cards/types";
-import type { LovelaceCardEditor } from "../../types";
-import "../card-editor/hui-card-element-editor";
-import type { HuiCardElementEditor } from "../card-editor/hui-card-element-editor";
-import "../card-editor/hui-card-picker";
-import "../conditions/ha-card-conditions-editor";
-import "../hui-element-editor";
-import type { ConfigChangedEvent } from "../hui-element-editor";
-import { baseLovelaceCardConfig } from "../structs/base-card-struct";
-import type { GUIModeChangedEvent } from "../types";
-import { configElementStyle } from "./config-elements-style";
+import { mdiCodeBraces, mdiContentCopy, mdiListBoxOutline } from '@mdi/js'
+import deepClone from 'deep-clone-simple'
+import type { CSSResultGroup } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { any, array, assert, assign, object, optional } from 'superstruct'
+import { storage } from '../../../../common/decorators/storage'
+import type { HASSDomEvent } from '../../../../common/dom/fire_event'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-alert'
+import '../../../../components/ha-button'
+import '../../../../components/ha-svg-icon'
+import '../../../../components/ha-tab-group'
+import '../../../../components/ha-tab-group-tab'
+import type { LovelaceCardConfig } from '../../../../data/lovelace/config/card'
+import type { LovelaceConfig } from '../../../../data/lovelace/config/types'
+import type { HomeAssistant } from '../../../../types'
+import type { ConditionalCardConfig } from '../../cards/types'
+import type { LovelaceCardEditor } from '../../types'
+import '../card-editor/hui-card-element-editor'
+import type { HuiCardElementEditor } from '../card-editor/hui-card-element-editor'
+import '../card-editor/hui-card-picker'
+import '../conditions/ha-card-conditions-editor'
+import '../hui-element-editor'
+import type { ConfigChangedEvent } from '../hui-element-editor'
+import { baseLovelaceCardConfig } from '../structs/base-card-struct'
+import type { GUIModeChangedEvent } from '../types'
+import { configElementStyle } from './config-elements-style'
 
 const cardConfigStruct = assign(
   baseLovelaceCardConfig,
@@ -33,51 +33,51 @@ const cardConfigStruct = assign(
     card: any(),
     conditions: optional(array(any())),
   })
-);
+)
 
-@customElement("hui-conditional-card-editor")
+@customElement('hui-conditional-card-editor')
 export class HuiConditionalCardEditor
   extends LitElement
   implements LovelaceCardEditor
 {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ attribute: false }) public lovelace?: LovelaceConfig;
+  @property({ attribute: false }) public lovelace?: LovelaceConfig
 
   @storage({
-    key: "dashboardCardClipboard",
+    key: 'dashboardCardClipboard',
     state: false,
     subscribe: false,
-    storage: "sessionStorage",
+    storage: 'sessionStorage',
   })
-  protected _clipboard?: LovelaceCardConfig;
+  protected _clipboard?: LovelaceCardConfig
 
-  @state() private _config?: ConditionalCardConfig;
+  @state() private _config?: ConditionalCardConfig
 
-  @state() private _GUImode = true;
+  @state() private _GUImode = true
 
-  @state() private _guiModeAvailable? = true;
+  @state() private _guiModeAvailable? = true
 
-  @state() private _cardTab = false;
+  @state() private _cardTab = false
 
-  @query("hui-card-element-editor")
-  private _cardEditorEl?: HuiCardElementEditor;
+  @query('hui-card-element-editor')
+  private _cardEditorEl?: HuiCardElementEditor
 
   public setConfig(config: ConditionalCardConfig): void {
-    assert(config, cardConfigStruct);
-    this._config = config;
+    assert(config, cardConfigStruct)
+    this._config = config
   }
 
   public focusYamlEditor() {
-    this._cardEditorEl?.focusYamlEditor();
+    this._cardEditorEl?.focusYamlEditor()
   }
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
-    const isGuiMode = !this._cardEditorEl || this._GUImode;
+    const isGuiMode = !this._cardEditorEl || this._GUImode
 
     return html`
       <ha-tab-group @wa-tab-show=${this._selectTab}>
@@ -87,12 +87,16 @@ export class HuiConditionalCardEditor
           .active=${!this._cardTab}
         >
           ${this.hass!.localize(
-            "ui.panel.lovelace.editor.card.conditional.conditions"
+            'ui.panel.lovelace.editor.card.conditional.conditions'
           )}
         </ha-tab-group-tab>
-        <ha-tab-group-tab slot="nav" panel="card" .active=${this._cardTab}>
+        <ha-tab-group-tab
+          slot="nav"
+          panel="card"
+          .active=${this._cardTab}
+        >
           ${this.hass!.localize(
-            "ui.panel.lovelace.editor.card.conditional.card"
+            'ui.panel.lovelace.editor.card.conditional.card'
           )}
         </ha-tab-group-tab>
       </ha-tab-group>
@@ -108,14 +112,14 @@ export class HuiConditionalCardEditor
                         .disabled=${!this._guiModeAvailable}
                         .label=${this.hass!.localize(
                           isGuiMode
-                            ? "ui.panel.lovelace.editor.edit_card.show_code_editor"
-                            : "ui.panel.lovelace.editor.edit_card.show_visual_editor"
+                            ? 'ui.panel.lovelace.editor.edit_card.show_code_editor'
+                            : 'ui.panel.lovelace.editor.edit_card.show_visual_editor'
                         )}
                         .path=${isGuiMode ? mdiCodeBraces : mdiListBoxOutline}
                       ></ha-icon-button>
                       <ha-icon-button
                         .label=${this.hass!.localize(
-                          "ui.panel.lovelace.editor.edit_card.copy"
+                          'ui.panel.lovelace.editor.edit_card.copy'
                         )}
                         .path=${mdiContentCopy}
                         @click=${this._handleCopyCard}
@@ -125,7 +129,7 @@ export class HuiConditionalCardEditor
                         size="small"
                         @click=${this._handleReplaceCard}
                         >${this.hass!.localize(
-                          "ui.panel.lovelace.editor.card.conditional.change_type"
+                          'ui.panel.lovelace.editor.card.conditional.change_type'
                         )}</ha-button
                       >
                     </div>
@@ -149,7 +153,7 @@ export class HuiConditionalCardEditor
         : html`
             <ha-alert alert-type="info">
               ${this.hass!.localize(
-                "ui.panel.lovelace.editor.condition-editor.explanation"
+                'ui.panel.lovelace.editor.condition-editor.explanation'
               )}
             </ha-alert>
             <ha-card-conditions-editor
@@ -159,79 +163,79 @@ export class HuiConditionalCardEditor
             >
             </ha-card-conditions-editor>
           `}
-    `;
+    `
   }
 
   private _selectTab(ev: CustomEvent): void {
-    this._cardTab = ev.detail.name === "card";
+    this._cardTab = ev.detail.name === 'card'
   }
 
   private _toggleMode(): void {
-    this._cardEditorEl?.toggleMode();
+    this._cardEditorEl?.toggleMode()
   }
 
   private _setMode(value: boolean): void {
-    this._GUImode = value;
+    this._GUImode = value
     if (this._cardEditorEl) {
-      this._cardEditorEl.GUImode = value;
+      this._cardEditorEl.GUImode = value
     }
   }
 
   private _handleGUIModeChanged(ev: HASSDomEvent<GUIModeChangedEvent>): void {
-    ev.stopPropagation();
-    this._GUImode = ev.detail.guiMode;
-    this._guiModeAvailable = ev.detail.guiModeAvailable;
+    ev.stopPropagation()
+    this._GUImode = ev.detail.guiMode
+    this._guiModeAvailable = ev.detail.guiModeAvailable
   }
 
   private _handleCardPicked(ev: CustomEvent): void {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!this._config) {
-      return;
+      return
     }
-    this._setMode(true);
-    this._guiModeAvailable = true;
-    this._config = { ...this._config, card: ev.detail.config };
-    fireEvent(this, "config-changed", { config: this._config });
+    this._setMode(true)
+    this._guiModeAvailable = true
+    this._config = { ...this._config, card: ev.detail.config }
+    fireEvent(this, 'config-changed', { config: this._config })
   }
 
   protected _handleCopyCard() {
     if (!this._config) {
-      return;
+      return
     }
-    this._clipboard = deepClone(this._config.card);
+    this._clipboard = deepClone(this._config.card)
   }
 
   private _handleCardChanged(ev: HASSDomEvent<ConfigChangedEvent>): void {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!this._config) {
-      return;
+      return
     }
     this._config = {
       ...this._config,
       card: ev.detail.config as LovelaceCardConfig,
-    };
-    this._guiModeAvailable = ev.detail.guiModeAvailable;
-    fireEvent(this, "config-changed", { config: this._config });
+    }
+    this._guiModeAvailable = ev.detail.guiModeAvailable
+    fireEvent(this, 'config-changed', { config: this._config })
   }
 
   private _handleReplaceCard(): void {
     if (!this._config) {
-      return;
+      return
     }
     // @ts-ignore
-    this._config = { ...this._config, card: {} };
+    this._config = { ...this._config, card: {} }
     // @ts-ignore
-    fireEvent(this, "config-changed", { config: this._config });
+    fireEvent(this, 'config-changed', { config: this._config })
   }
 
   private _conditionChanged(ev: CustomEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!this._config) {
-      return;
+      return
     }
-    const conditions = ev.detail.value;
-    this._config = { ...this._config, conditions };
-    fireEvent(this, "config-changed", { config: this._config });
+    const conditions = ev.detail.value
+    this._config = { ...this._config, conditions }
+    fireEvent(this, 'config-changed', { config: this._config })
   }
 
   static get styles(): CSSResultGroup {
@@ -275,12 +279,12 @@ export class HuiConditionalCardEditor
           margin-inline-start: initial;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-conditional-card-editor": HuiConditionalCardEditor;
+    'hui-conditional-card-editor': HuiConditionalCardEditor
   }
 }

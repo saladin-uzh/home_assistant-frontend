@@ -1,17 +1,17 @@
-import { mdiGestureTap } from "@mdi/js";
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { any, assert, literal, object, optional, string } from "superstruct";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import "../../../../../components/ha-form/ha-form";
-import type { SchemaUnion } from "../../../../../components/ha-form/types";
-import type { HomeAssistant } from "../../../../../types";
-import type { IconElementConfig } from "../../../elements/types";
-import type { LovelacePictureElementEditor } from "../../../types";
-import { actionConfigStruct } from "../../structs/action-struct";
+import { mdiGestureTap } from '@mdi/js'
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { any, assert, literal, object, optional, string } from 'superstruct'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import '../../../../../components/ha-form/ha-form'
+import type { SchemaUnion } from '../../../../../components/ha-form/types'
+import type { HomeAssistant } from '../../../../../types'
+import type { IconElementConfig } from '../../../elements/types'
+import type { LovelacePictureElementEditor } from '../../../types'
+import { actionConfigStruct } from '../../structs/action-struct'
 
 const iconElementConfigStruct = object({
-  type: literal("icon"),
+  type: literal('icon'),
   entity: optional(string()),
   icon: optional(string()),
   style: optional(any()),
@@ -19,44 +19,44 @@ const iconElementConfigStruct = object({
   tap_action: optional(actionConfigStruct),
   hold_action: optional(actionConfigStruct),
   double_tap_action: optional(actionConfigStruct),
-});
+})
 
 const SCHEMA = [
-  { name: "icon", selector: { icon: {} } },
-  { name: "title", selector: { text: {} } },
-  { name: "entity", selector: { entity: {} } },
+  { name: 'icon', selector: { icon: {} } },
+  { name: 'title', selector: { text: {} } },
+  { name: 'entity', selector: { entity: {} } },
   {
-    name: "interactions",
-    type: "expandable",
+    name: 'interactions',
+    type: 'expandable',
     flatten: true,
     iconPath: mdiGestureTap,
     schema: [
       {
-        name: "tap_action",
+        name: 'tap_action',
         selector: {
           ui_action: {
-            default_action: "more-info",
+            default_action: 'more-info',
           },
         },
       },
       {
-        name: "hold_action",
+        name: 'hold_action',
         selector: {
           ui_action: {
-            default_action: "more-info",
+            default_action: 'more-info',
           },
         },
       },
       {
-        name: "",
-        type: "optional_actions",
+        name: '',
+        type: 'optional_actions',
         flatten: true,
         schema: [
           {
-            name: "double_tap_action",
+            name: 'double_tap_action',
             selector: {
               ui_action: {
-                default_action: "none",
+                default_action: 'none',
               },
             },
           },
@@ -64,26 +64,26 @@ const SCHEMA = [
       },
     ],
   },
-  { name: "style", selector: { object: {} } },
-] as const;
+  { name: 'style', selector: { object: {} } },
+] as const
 
-@customElement("hui-icon-element-editor")
+@customElement('hui-icon-element-editor')
 export class HuiIconElementEditor
   extends LitElement
   implements LovelacePictureElementEditor
 {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: IconElementConfig;
+  @state() private _config?: IconElementConfig
 
   public setConfig(config: IconElementConfig): void {
-    assert(config, iconElementConfigStruct);
-    this._config = config;
+    assert(config, iconElementConfigStruct)
+    this._config = config
   }
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -94,11 +94,11 @@ export class HuiIconElementEditor
         .computeLabel=${this._computeLabelCallback}
         @value-changed=${this._valueChanged}
       ></ha-form>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent): void {
-    fireEvent(this, "config-changed", { config: ev.detail.value });
+    fireEvent(this, 'config-changed', { config: ev.detail.value })
   }
 
   private _computeLabelCallback = (schema: SchemaUnion<typeof SCHEMA>) =>
@@ -106,11 +106,11 @@ export class HuiIconElementEditor
       `ui.panel.lovelace.editor.card.generic.${schema.name}`
     ) ||
     this.hass!.localize(`ui.panel.lovelace.editor.elements.${schema.name}`) ||
-    schema.name;
+    schema.name
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-icon-element-editor": HuiIconElementEditor;
+    'hui-icon-element-editor': HuiIconElementEditor
   }
 }

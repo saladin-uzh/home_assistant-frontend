@@ -1,14 +1,14 @@
-import { css, html, LitElement } from "lit";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-markdown";
+import { css, html, LitElement } from 'lit'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-markdown'
 
-import { customElement } from "lit/decorators";
+import { customElement } from 'lit/decorators'
 
 interface MarkdownContent {
-  content: string;
-  breaks: boolean;
-  allowSvg: boolean;
-  lazyImages: boolean;
+  content: string
+  breaks: boolean
+  allowSvg: boolean
+  lazyImages: boolean
 }
 
 const mdContentwithDefaults = (md: Partial<MarkdownContent>) =>
@@ -17,9 +17,9 @@ const mdContentwithDefaults = (md: Partial<MarkdownContent>) =>
     allowSvg: false,
     lazyImages: false,
     ...md,
-  }) as MarkdownContent;
+  }) as MarkdownContent
 
-const generateContent = (md) => `
+const generateContent = md => `
 \`\`\`json
 ${JSON.stringify({ ...md, content: undefined })}
 \`\`\`
@@ -27,13 +27,13 @@ ${JSON.stringify({ ...md, content: undefined })}
 ---
 
 ${md.content}
-`;
+`
 
 const markdownContents: MarkdownContent[] = [
   mdContentwithDefaults({
-    content: "_Hello_ **there** 👋, ~~nice~~ of you ||to|| show up.",
+    content: '_Hello_ **there** 👋, ~~nice~~ of you ||to|| show up.',
   }),
-  ...[true, false].map((breaks) =>
+  ...[true, false].map(breaks =>
     mdContentwithDefaults({
       breaks,
       content: `
@@ -54,15 +54,15 @@ lorem | ipsum
     `,
     })
   ),
-];
+]
 
-@customElement("demo-misc-ha-markdown")
+@customElement('demo-misc-ha-markdown')
 export class DemoMiscMarkdown extends LitElement {
   protected render() {
     return html`
       <div class="container">
         ${markdownContents.map(
-          (md) =>
+          md =>
             html`<ha-card>
               <ha-markdown
                 .content=${generateContent(md)}
@@ -73,7 +73,7 @@ export class DemoMiscMarkdown extends LitElement {
             </ha-card>`
         )}
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -81,11 +81,11 @@ export class DemoMiscMarkdown extends LitElement {
       margin: 12px;
       padding: 12px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-misc-ha-markdown": DemoMiscMarkdown;
+    'demo-misc-ha-markdown': DemoMiscMarkdown
   }
 }

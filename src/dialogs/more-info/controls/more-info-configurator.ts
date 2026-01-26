@@ -1,25 +1,25 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "../../../components/ha-alert";
-import "../../../components/ha-button";
-import "../../../components/ha-markdown";
-import "../../../components/ha-textfield";
-import type { HomeAssistant } from "../../../types";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import '../../../components/ha-alert'
+import '../../../components/ha-button'
+import '../../../components/ha-markdown'
+import '../../../components/ha-textfield'
+import type { HomeAssistant } from '../../../types'
 
-@customElement("more-info-configurator")
+@customElement('more-info-configurator')
 export class MoreInfoConfigurator extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj?: HassEntity;
+  @property({ attribute: false }) public stateObj?: HassEntity
 
-  @state() private _isConfiguring = false;
+  @state() private _isConfiguring = false
 
-  private _fieldInput = {};
+  private _fieldInput = {}
 
   protected render() {
-    if (this.stateObj?.state !== "configure") {
-      return nothing;
+    if (this.stateObj?.state !== 'configure') {
+      return nothing
     }
 
     return html`
@@ -33,9 +33,9 @@ export class MoreInfoConfigurator extends LitElement {
           ? html`<ha-alert alert-type="error">
               ${this.stateObj.attributes.errors}
             </ha-alert>`
-          : ""}
+          : ''}
         ${this.stateObj.attributes.fields.map(
-          (field) =>
+          field =>
             html`<ha-textfield
               .label=${field.name}
               .name=${field.id}
@@ -53,32 +53,32 @@ export class MoreInfoConfigurator extends LitElement {
                 ${this.stateObj.attributes.submit_caption}
               </ha-button>
             </p>`
-          : ""}
+          : ''}
       </div>
-    `;
+    `
   }
 
   private _fieldChanged(ev) {
-    const el = ev.target;
-    this._fieldInput[el.name] = el.value;
+    const el = ev.target
+    this._fieldInput[el.name] = el.value
   }
 
   private _submitClicked() {
     const data = {
       configure_id: this.stateObj!.attributes.configure_id,
       fields: this._fieldInput,
-    };
+    }
 
-    this._isConfiguring = true;
+    this._isConfiguring = true
 
-    this.hass.callService("configurator", "configure", data).then(
+    this.hass.callService('configurator', 'configure', data).then(
       () => {
-        this._isConfiguring = false;
+        this._isConfiguring = false
       },
       () => {
-        this._isConfiguring = false;
+        this._isConfiguring = false
       }
-    );
+    )
   }
 
   static styles = css`
@@ -106,11 +106,11 @@ export class MoreInfoConfigurator extends LitElement {
       text-align: center;
       height: 41px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "more-info-configurator": MoreInfoConfigurator;
+    'more-info-configurator': MoreInfoConfigurator
   }
 }

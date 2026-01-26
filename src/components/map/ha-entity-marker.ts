@@ -1,37 +1,37 @@
-import { LitElement, html, css } from "lit";
-import { property } from "lit/decorators";
-import { styleMap } from "lit/directives/style-map";
-import type { HomeAssistant } from "../../types";
-import { fireEvent } from "../../common/dom/fire_event";
-import "../ha-state-icon";
+import { LitElement, html, css } from 'lit'
+import { property } from 'lit/decorators'
+import { styleMap } from 'lit/directives/style-map'
+import type { HomeAssistant } from '../../types'
+import { fireEvent } from '../../common/dom/fire_event'
+import '../ha-state-icon'
 
 class HaEntityMarker extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: "entity-id", reflect: true }) public entityId?: string;
+  @property({ attribute: 'entity-id', reflect: true }) public entityId?: string
 
-  @property({ attribute: "entity-name" }) public entityName?: string;
+  @property({ attribute: 'entity-name' }) public entityName?: string
 
-  @property({ attribute: "entity-unit" }) public entityUnit?: string;
+  @property({ attribute: 'entity-unit' }) public entityUnit?: string
 
-  @property({ attribute: "entity-picture" }) public entityPicture?: string;
+  @property({ attribute: 'entity-picture' }) public entityPicture?: string
 
-  @property({ attribute: "entity-color" }) public entityColor?: string;
+  @property({ attribute: 'entity-color' }) public entityColor?: string
 
-  @property({ attribute: "show-icon", type: Boolean }) public showIcon = false;
+  @property({ attribute: 'show-icon', type: Boolean }) public showIcon = false
 
   protected render() {
     return html`
       <div
-        class="marker ${this.entityPicture ? "picture" : ""}"
-        style=${styleMap({ "border-color": this.entityColor })}
+        class="marker ${this.entityPicture ? 'picture' : ''}"
+        style=${styleMap({ 'border-color': this.entityColor })}
         @click=${this._badgeTap}
       >
         ${this.entityPicture
           ? html`<div
               class="entity-picture"
               style=${styleMap({
-                "background-image": `url(${this.entityPicture})`,
+                'background-image': `url(${this.entityPicture})`,
               })}
             ></div>`
           : this.showIcon && this.entityId
@@ -45,18 +45,18 @@ class HaEntityMarker extends LitElement {
                   ${this.entityName}
                   <span
                     class="unit"
-                    style="display: ${this.entityUnit ? "initial" : "none"}"
+                    style="display: ${this.entityUnit ? 'initial' : 'none'}"
                     >${this.entityUnit}</span
                   >
                 `}
       </div>
-    `;
+    `
   }
 
   private _badgeTap(ev: Event) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (this.entityId) {
-      fireEvent(this, "hass-more-info", { entityId: this.entityId });
+      fireEvent(this, 'hass-more-info', { entityId: this.entityId })
     }
   }
 
@@ -86,13 +86,13 @@ class HaEntityMarker extends LitElement {
     .unit {
       margin-left: 2px;
     }
-  `;
+  `
 }
 
-customElements.define("ha-entity-marker", HaEntityMarker);
+customElements.define('ha-entity-marker', HaEntityMarker)
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-entity-marker": HaEntityMarker;
+    'ha-entity-marker': HaEntityMarker
   }
 }

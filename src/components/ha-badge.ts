@@ -1,31 +1,31 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { ifDefined } from "lit/directives/if-defined";
-import "./ha-ripple";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { ifDefined } from 'lit/directives/if-defined'
+import './ha-ripple'
 
-type BadgeType = "badge" | "button";
+type BadgeType = 'badge' | 'button'
 
-@customElement("ha-badge")
+@customElement('ha-badge')
 export class HaBadge extends LitElement {
-  @property() public type: BadgeType = "badge";
+  @property() public type: BadgeType = 'badge'
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property({ type: Boolean, attribute: "icon-only" }) iconOnly = false;
+  @property({ type: Boolean, attribute: 'icon-only' }) iconOnly = false
 
   protected render() {
-    const label = this.label;
+    const label = this.label
 
     return html`
       <div
         class="badge ${classMap({
-          "icon-only": this.iconOnly,
+          'icon-only': this.iconOnly,
         })}"
-        role=${ifDefined(this.type === "button" ? "button" : undefined)}
-        tabindex=${ifDefined(this.type === "button" ? "0" : undefined)}
+        role=${ifDefined(this.type === 'button' ? 'button' : undefined)}
+        tabindex=${ifDefined(this.type === 'button' ? '0' : undefined)}
       >
-        <ha-ripple .disabled=${this.type !== "button"}></ha-ripple>
+        <ha-ripple .disabled=${this.type !== 'button'}></ha-ripple>
         <slot name="icon"></slot>
         ${this.iconOnly
           ? nothing
@@ -34,7 +34,7 @@ export class HaBadge extends LitElement {
               <span class="content"><slot></slot></span>
             </span>`}
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -81,10 +81,10 @@ export class HaBadge extends LitElement {
       border-color: var(--badge-color);
       box-shadow: var(--shadow-default), var(--shadow-focus);
     }
-    [role="button"] {
+    [role='button'] {
       cursor: pointer;
     }
-    [role="button"]:focus {
+    [role='button']:focus {
       outline: none;
     }
     .info {
@@ -110,7 +110,7 @@ export class HaBadge extends LitElement {
       letter-spacing: 0.1px;
       color: var(--primary-text-color);
     }
-    ::slotted([slot="icon"]) {
+    ::slotted([slot='icon']) {
       --mdc-icon-size: var(--ha-badge-icon-size, 18px);
       color: var(--badge-color);
       line-height: 0;
@@ -119,7 +119,7 @@ export class HaBadge extends LitElement {
       margin-inline-start: -4px;
       margin-inline-end: 0;
     }
-    ::slotted(img[slot="icon"]) {
+    ::slotted(img[slot='icon']) {
       width: 30px;
       height: 30px;
       border-radius: var(--ha-border-radius-circle);
@@ -133,17 +133,17 @@ export class HaBadge extends LitElement {
     .badge.icon-only {
       padding: 0;
     }
-    .badge.icon-only ::slotted([slot="icon"]) {
+    .badge.icon-only ::slotted([slot='icon']) {
       margin-left: 0;
       margin-right: 0;
       margin-inline-start: 0;
       margin-inline-end: 0;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-badge": HaBadge;
+    'ha-badge': HaBadge
   }
 }

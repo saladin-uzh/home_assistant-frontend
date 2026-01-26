@@ -1,46 +1,46 @@
-import type { PropertyValues, TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { LOCAL_TIME_ZONE } from "../common/datetime/resolve-time-zone";
-import { fireEvent } from "../common/dom/fire_event";
-import type { LocalizeFunc } from "../common/translations/localize";
-import "../components/ha-alert";
-import "../components/ha-button";
-import { COUNTRIES } from "../components/ha-country-picker";
-import "../components/ha-spinner";
-import type { ConfigUpdateValues } from "../data/core";
-import { saveCoreConfig } from "../data/core";
-import { countryCurrency } from "../data/currency";
-import { onboardCoreConfigStep } from "../data/onboarding";
-import type { HomeAssistant, ValueChangedEvent } from "../types";
-import { getLocalLanguage } from "../util/common-translation";
-import "./onboarding-location";
+import type { PropertyValues, TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { LOCAL_TIME_ZONE } from '../common/datetime/resolve-time-zone'
+import { fireEvent } from '../common/dom/fire_event'
+import type { LocalizeFunc } from '../common/translations/localize'
+import '../components/ha-alert'
+import '../components/ha-button'
+import { COUNTRIES } from '../components/ha-country-picker'
+import '../components/ha-spinner'
+import type { ConfigUpdateValues } from '../data/core'
+import { saveCoreConfig } from '../data/core'
+import { countryCurrency } from '../data/currency'
+import { onboardCoreConfigStep } from '../data/onboarding'
+import type { HomeAssistant, ValueChangedEvent } from '../types'
+import { getLocalLanguage } from '../util/common-translation'
+import './onboarding-location'
 
-@customElement("onboarding-core-config")
+@customElement('onboarding-core-config')
 class OnboardingCoreConfig extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public onboardingLocalize!: LocalizeFunc;
+  @property({ attribute: false }) public onboardingLocalize!: LocalizeFunc
 
-  @state() private _working = false;
+  @state() private _working = false
 
-  @state() private _location?: [number, number];
+  @state() private _location?: [number, number]
 
-  private _elevation = "0";
+  private _elevation = '0'
 
-  private _timeZone: ConfigUpdateValues["time_zone"] = LOCAL_TIME_ZONE;
+  private _timeZone: ConfigUpdateValues['time_zone'] = LOCAL_TIME_ZONE
 
-  private _language: ConfigUpdateValues["language"] = getLocalLanguage();
+  private _language: ConfigUpdateValues['language'] = getLocalLanguage()
 
-  @state() private _country?: ConfigUpdateValues["country"];
+  @state() private _country?: ConfigUpdateValues['country']
 
-  private _unitSystem?: ConfigUpdateValues["unit_system"];
+  private _unitSystem?: ConfigUpdateValues['unit_system']
 
-  private _currency?: ConfigUpdateValues["currency"];
+  private _currency?: ConfigUpdateValues['currency']
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
-  @state() private _skipCore = false;
+  @state() private _skipCore = false
 
   protected render(): TemplateResult {
     if (!this._location) {
@@ -48,12 +48,12 @@ class OnboardingCoreConfig extends LitElement {
         .hass=${this.hass}
         .onboardingLocalize=${this.onboardingLocalize}
         @value-changed=${this._locationChanged}
-      ></onboarding-location>`;
+      ></onboarding-location>`
     }
     if (this._skipCore) {
       return html`<div class="row center">
         <ha-spinner></ha-spinner>
-      </div>`;
+      </div>`
     }
     return html`
       ${this._error
@@ -62,7 +62,7 @@ class OnboardingCoreConfig extends LitElement {
 
       <p>
         ${this.onboardingLocalize(
-          "ui.panel.page-onboarding.core-config.country_intro"
+          'ui.panel.page-onboarding.core-config.country_intro'
         )}
       </p>
 
@@ -70,8 +70,8 @@ class OnboardingCoreConfig extends LitElement {
         class="flex"
         .language=${this.hass.locale.language}
         .label=${this.hass.localize(
-          "ui.panel.config.core.section.core.core_config.country"
-        ) || "Country"}
+          'ui.panel.config.core.section.core.core_config.country'
+        ) || 'Country'}
         required
         .disabled=${this._working}
         .value=${this._countryValue}
@@ -80,108 +80,111 @@ class OnboardingCoreConfig extends LitElement {
       </ha-country-picker>
 
       <div class="footer">
-        <ha-button @click=${this._save} .disabled=${this._working}>
+        <ha-button
+          @click=${this._save}
+          .disabled=${this._working}
+        >
           ${this.onboardingLocalize(
-            "ui.panel.page-onboarding.core-config.finish"
+            'ui.panel.page-onboarding.core-config.finish'
           )}
         </ha-button>
       </div>
-    `;
+    `
   }
 
   protected firstUpdated(changedProps: PropertyValues) {
-    super.firstUpdated(changedProps);
-    this.addEventListener("keyup", (ev) => {
-      if (this._location && ev.key === "Enter") {
-        this._save(ev);
+    super.firstUpdated(changedProps)
+    this.addEventListener('keyup', ev => {
+      if (this._location && ev.key === 'Enter') {
+        this._save(ev)
       }
-    });
+    })
   }
 
   private get _countryValue() {
-    return this._country || "";
+    return this._country || ''
   }
 
   private _handleCountryChanged(ev: ValueChangedEvent<string>) {
-    this._country = ev.detail.value;
+    this._country = ev.detail.value
   }
 
   private async _locationChanged(ev) {
-    this._location = ev.detail.value.location;
+    this._location = ev.detail.value.location
     if (ev.detail.value.country) {
-      this._country = ev.detail.value.country;
+      this._country = ev.detail.value.country
     }
     if (ev.detail.value.elevation) {
-      this._elevation = ev.detail.value.elevation;
+      this._elevation = ev.detail.value.elevation
     }
     if (ev.detail.value.currency) {
-      this._currency = ev.detail.value.currency;
+      this._currency = ev.detail.value.currency
     }
     if (ev.detail.value.language) {
-      this._language = ev.detail.value.language;
+      this._language = ev.detail.value.language
     }
     if (ev.detail.value.timezone) {
-      this._timeZone = ev.detail.value.timezone;
+      this._timeZone = ev.detail.value.timezone
     }
     if (ev.detail.value.unit_system) {
-      this._unitSystem = ev.detail.value.unit_system;
+      this._unitSystem = ev.detail.value.unit_system
     }
     if (this._country) {
-      this._skipCore = true;
-      this._save(ev);
-      return;
+      this._skipCore = true
+      this._save(ev)
+      return
     }
 
     // Set suggested country
-    let suggested: string | undefined;
+    let suggested: string | undefined
     if (navigator.language) {
-      const lang = navigator.language.split("-").pop()!.toUpperCase();
+      const lang = navigator.language.split('-').pop()!.toUpperCase()
       if (COUNTRIES.includes(lang)) {
-        suggested = lang;
+        suggested = lang
       }
     }
-    this._country = suggested;
+    this._country = suggested
 
-    fireEvent(this, "onboarding-progress", { increase: 0.5 });
-    await this.updateComplete;
+    fireEvent(this, 'onboarding-progress', { increase: 0.5 })
+    await this.updateComplete
     setTimeout(
-      () => this.renderRoot.querySelector("ha-country-picker")!.focus(),
+      () => this.renderRoot.querySelector('ha-country-picker')!.focus(),
       100
-    );
+    )
   }
 
   private async _save(ev) {
     if (!this._location || !this._country) {
-      return;
+      return
     }
-    ev.preventDefault();
-    this._working = true;
+    ev.preventDefault()
+    this._working = true
     try {
       await saveCoreConfig(this.hass, {
         location_name: this.onboardingLocalize(
-          "ui.panel.page-onboarding.core-config.location_name_default"
+          'ui.panel.page-onboarding.core-config.location_name_default'
         ),
         latitude: this._location[0],
         longitude: this._location[1],
         elevation: Number(this._elevation),
         unit_system:
-          this._unitSystem || ["US", "MM", "LR"].includes(this._country)
-            ? "us_customary"
-            : "metric",
-        time_zone: this._timeZone || "UTC",
-        currency: this._currency || countryCurrency[this._country] || "EUR",
+          this._unitSystem || ['US', 'MM', 'LR'].includes(this._country)
+            ? 'us_customary'
+            : 'metric',
+        time_zone: this._timeZone || 'UTC',
+        currency: this._currency || countryCurrency[this._country] || 'EUR',
         country: this._country,
         language: this._language,
-      });
-      const result = await onboardCoreConfigStep(this.hass);
-      fireEvent(this, "onboarding-step", {
-        type: "core_config",
+      })
+      const result = await onboardCoreConfigStep(this.hass)
+      fireEvent(this, 'onboarding-step', {
+        type: 'core_config',
         result,
-      });
+      })
     } catch (err: any) {
-      this._skipCore = false;
-      this._working = false;
-      this._error = err.message;
+      this._skipCore = false
+      this._working = false
+      this._error = err.message
     }
   }
 
@@ -240,11 +243,11 @@ class OnboardingCoreConfig extends LitElement {
     a {
       color: var(--primary-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "onboarding-core-config": OnboardingCoreConfig;
+    'onboarding-core-config': OnboardingCoreConfig
   }
 }

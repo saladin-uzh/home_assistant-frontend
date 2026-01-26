@@ -3,137 +3,137 @@ import {
   mdiGestureTap,
   mdiPencilOutline,
   mdiRoomService,
-} from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { shouldHandleRequestSelectedEvent } from "../../../../common/mwc/handle-request-selected-event";
-import { createCloseHeading } from "../../../../components/ha-dialog";
-import "../../../../components/ha-icon-next";
-import "../../../../components/ha-list-item";
-import "../../../../components/ha-list";
-import type { AutomationConfig } from "../../../../data/automation";
-import { showAutomationEditor } from "../../../../data/automation";
+} from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { shouldHandleRequestSelectedEvent } from '../../../../common/mwc/handle-request-selected-event'
+import { createCloseHeading } from '../../../../components/ha-dialog'
+import '../../../../components/ha-icon-next'
+import '../../../../components/ha-list-item'
+import '../../../../components/ha-list'
+import type { AutomationConfig } from '../../../../data/automation'
+import { showAutomationEditor } from '../../../../data/automation'
 import type {
   DeviceAction,
   DeviceCondition,
   DeviceTrigger,
-} from "../../../../data/device_automation";
+} from '../../../../data/device_automation'
 import {
   fetchDeviceActions,
   fetchDeviceConditions,
   fetchDeviceTriggers,
   sortDeviceAutomations,
-} from "../../../../data/device_automation";
-import type { ScriptConfig } from "../../../../data/script";
-import { showScriptEditor } from "../../../../data/script";
-import { haStyle, haStyleDialog } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import type { DeviceAutomationDialogParams } from "./show-dialog-device-automation";
+} from '../../../../data/device_automation'
+import type { ScriptConfig } from '../../../../data/script'
+import { showScriptEditor } from '../../../../data/script'
+import { haStyle, haStyleDialog } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import type { DeviceAutomationDialogParams } from './show-dialog-device-automation'
 
-@customElement("dialog-device-automation")
+@customElement('dialog-device-automation')
 export class DialogDeviceAutomation extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _triggers: DeviceTrigger[] = [];
+  @state() private _triggers: DeviceTrigger[] = []
 
-  @state() private _conditions: DeviceCondition[] = [];
+  @state() private _conditions: DeviceCondition[] = []
 
-  @state() private _actions: DeviceAction[] = [];
+  @state() private _actions: DeviceAction[] = []
 
-  @state() private _params?: DeviceAutomationDialogParams;
+  @state() private _params?: DeviceAutomationDialogParams
 
   public async showDialog(params: DeviceAutomationDialogParams): Promise<void> {
-    this._params = params;
-    await this.updateComplete;
+    this._params = params
+    await this.updateComplete
   }
 
   public closeDialog(): void {
-    this._params = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
-    this.hass.loadBackendTranslation("device_automation");
+    super.firstUpdated(changedProps)
+    this.hass.loadBackendTranslation('device_automation')
   }
 
   protected updated(changedProps): void {
-    super.updated(changedProps);
+    super.updated(changedProps)
 
-    if (!changedProps.has("_params")) {
-      return;
+    if (!changedProps.has('_params')) {
+      return
     }
 
-    this._triggers = [];
-    this._conditions = [];
-    this._actions = [];
+    this._triggers = []
+    this._conditions = []
+    this._actions = []
 
     if (!this._params) {
-      return;
+      return
     }
 
-    const { device, script } = this._params;
+    const { device, script } = this._params
 
-    fetchDeviceActions(this.hass, device.id).then((actions) => {
-      this._actions = actions.sort(sortDeviceAutomations);
-    });
+    fetchDeviceActions(this.hass, device.id).then(actions => {
+      this._actions = actions.sort(sortDeviceAutomations)
+    })
     if (script) {
-      return;
+      return
     }
-    fetchDeviceTriggers(this.hass, device.id).then((triggers) => {
-      this._triggers = triggers.sort(sortDeviceAutomations);
-    });
-    fetchDeviceConditions(this.hass, device.id).then((conditions) => {
-      this._conditions = conditions.sort(sortDeviceAutomations);
-    });
+    fetchDeviceTriggers(this.hass, device.id).then(triggers => {
+      this._triggers = triggers.sort(sortDeviceAutomations)
+    })
+    fetchDeviceConditions(this.hass, device.id).then(conditions => {
+      this._conditions = conditions.sort(sortDeviceAutomations)
+    })
   }
 
-  private _handleRowClick = (ev) => {
+  private _handleRowClick = ev => {
     if (!shouldHandleRequestSelectedEvent(ev) || !this._params) {
-      return;
+      return
     }
-    const type = (ev.currentTarget as any).type;
-    const isScript = this._params.script;
+    const type = (ev.currentTarget as any).type
+    const isScript = this._params.script
 
-    this.closeDialog();
+    this.closeDialog()
 
     if (isScript) {
-      const newScript = {} as ScriptConfig;
-      if (type === "action") {
-        newScript.sequence = [this._actions[0]];
+      const newScript = {} as ScriptConfig
+      if (type === 'action') {
+        newScript.sequence = [this._actions[0]]
       }
-      showScriptEditor(newScript, true);
+      showScriptEditor(newScript, true)
     } else {
-      const newAutomation = {} as AutomationConfig;
-      if (type === "trigger") {
-        newAutomation.triggers = [this._triggers[0]];
+      const newAutomation = {} as AutomationConfig
+      if (type === 'trigger') {
+        newAutomation.triggers = [this._triggers[0]]
       }
-      if (type === "condition") {
-        newAutomation.conditions = [this._conditions[0]];
+      if (type === 'condition') {
+        newAutomation.conditions = [this._conditions[0]]
       }
-      if (type === "action") {
-        newAutomation.actions = [this._actions[0]];
+      if (type === 'action') {
+        newAutomation.actions = [this._actions[0]]
       }
-      showAutomationEditor(newAutomation, true);
+      showAutomationEditor(newAutomation, true)
     }
-  };
+  }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
 
-    const mode = this._params.script ? "script" : "automation";
+    const mode = this._params.script ? 'script' : 'automation'
 
     const title = this.hass.localize(`ui.panel.config.devices.${mode}.create`, {
       type: this.hass.localize(
         `ui.panel.config.devices.type.${
-          this._params.device.entry_type || "device"
+          this._params.device.entry_type || 'device'
         }`
       ),
-    });
+    })
 
     return html`
       <ha-dialog
@@ -155,7 +155,7 @@ export class DialogDeviceAutomation extends LitElement {
                   hasmeta
                   twoline
                   graphic="icon"
-                  .type=${"trigger"}
+                  .type=${'trigger'}
                   @request-selected=${this._handleRowClick}
                 >
                   <ha-svg-icon
@@ -180,7 +180,7 @@ export class DialogDeviceAutomation extends LitElement {
                   hasmeta
                   twoline
                   graphic="icon"
-                  .type=${"condition"}
+                  .type=${'condition'}
                   @request-selected=${this._handleRowClick}
                 >
                   <ha-svg-icon
@@ -205,7 +205,7 @@ export class DialogDeviceAutomation extends LitElement {
                   hasmeta
                   twoline
                   graphic="icon"
-                  .type=${"action"}
+                  .type=${'action'}
                   @request-selected=${this._handleRowClick}
                 >
                   <ha-svg-icon
@@ -227,7 +227,10 @@ export class DialogDeviceAutomation extends LitElement {
           ${this._triggers.length ||
           this._conditions.length ||
           this._actions.length
-            ? html`<li divider role="separator"></li>`
+            ? html`<li
+                divider
+                role="separator"
+              ></li>`
             : nothing}
           <ha-list-item
             hasmeta
@@ -235,7 +238,10 @@ export class DialogDeviceAutomation extends LitElement {
             graphic="icon"
             @request-selected=${this._handleRowClick}
           >
-            <ha-svg-icon slot="graphic" .path=${mdiPencilOutline}></ha-svg-icon>
+            <ha-svg-icon
+              slot="graphic"
+              .path=${mdiPencilOutline}
+            ></ha-svg-icon>
             ${this.hass.localize(`ui.panel.config.devices.${mode}.new.title`)}
             <span slot="secondary">
               ${this.hass.localize(
@@ -246,7 +252,7 @@ export class DialogDeviceAutomation extends LitElement {
           </ha-list-item>
         </ha-list>
       </ha-dialog>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -267,12 +273,12 @@ export class DialogDeviceAutomation extends LitElement {
           width: 24px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-device-automation": DialogDeviceAutomation;
+    'dialog-device-automation': DialogDeviceAutomation
   }
 }

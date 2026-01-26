@@ -1,51 +1,51 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../common/dom/fire_event";
-import "../../components/ha-bottom-sheet";
-import { createCloseHeading } from "../../components/ha-dialog";
-import "../../components/ha-icon";
-import "../../components/ha-md-list";
-import "../../components/ha-md-list-item";
-import "../../components/ha-svg-icon";
-import type { HomeAssistant } from "../../types";
-import type { HassDialog } from "../make-dialog-manager";
-import type { ListItemsDialogParams } from "./show-list-items-dialog";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../common/dom/fire_event'
+import '../../components/ha-bottom-sheet'
+import { createCloseHeading } from '../../components/ha-dialog'
+import '../../components/ha-icon'
+import '../../components/ha-md-list'
+import '../../components/ha-md-list-item'
+import '../../components/ha-svg-icon'
+import type { HomeAssistant } from '../../types'
+import type { HassDialog } from '../make-dialog-manager'
+import type { ListItemsDialogParams } from './show-list-items-dialog'
 
-@customElement("dialog-list-items")
+@customElement('dialog-list-items')
 export class ListItemsDialog
   extends LitElement
   implements HassDialog<ListItemsDialogParams>
 {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _params?: ListItemsDialogParams;
+  @state() private _params?: ListItemsDialogParams
 
   public async showDialog(params: ListItemsDialogParams): Promise<void> {
-    this._params = params;
+    this._params = params
   }
 
   private _dialogClosed(): void {
-    this._params = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   private _itemClicked(ev: CustomEvent): void {
-    const item = (ev.currentTarget as any).item;
-    if (!item) return;
-    item.action();
-    this._dialogClosed();
+    const item = (ev.currentTarget as any).item
+    if (!item) return
+    item.action()
+    this._dialogClosed()
   }
 
   protected render() {
     if (!this._params || !this.hass) {
-      return nothing;
+      return nothing
     }
 
     const content = html`
       <div class="container">
         <ha-md-list>
           ${this._params.items.map(
-            (item) => html`
+            item => html`
               <ha-md-list-item
                 type="button"
                 @click=${this._itemClicked}
@@ -79,26 +79,30 @@ export class ListItemsDialog
           )}
         </ha-md-list>
       </div>
-    `;
+    `
 
-    if (this._params.mode === "bottom-sheet") {
+    if (this._params.mode === 'bottom-sheet') {
       return html`
-        <ha-bottom-sheet placement="bottom" open @closed=${this._dialogClosed}>
+        <ha-bottom-sheet
+          placement="bottom"
+          open
+          @closed=${this._dialogClosed}
+        >
           ${content}
         </ha-bottom-sheet>
-      `;
+      `
     }
 
     return html`
       <ha-dialog
         open
-        .heading=${createCloseHeading(this.hass, this._params.title ?? " ")}
+        .heading=${createCloseHeading(this.hass, this._params.title ?? ' ')}
         @closed=${this._dialogClosed}
         hideActions
       >
         ${content}
       </ha-dialog>
-    `;
+    `
   }
 
   static styles = css`
@@ -109,11 +113,11 @@ export class ListItemsDialog
       --md-list-item-leading-space: 24px;
       --md-list-item-trailing-space: 24px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-list-items": ListItemsDialog;
+    'dialog-list-items': ListItemsDialog
   }
 }

@@ -1,47 +1,47 @@
-import type { HassConfig } from "home-assistant-js-websocket";
-import { assert, describe, it, beforeEach, expect } from "vitest";
+import type { HassConfig } from 'home-assistant-js-websocket'
+import { assert, describe, it, beforeEach, expect } from 'vitest'
 import {
   computeStateDisplay,
   computeStateDisplayFromEntityAttributes,
-} from "../../../src/common/entity/compute_state_display";
-import { UNKNOWN } from "../../../src/data/entity";
-import type { FrontendLocaleData } from "../../../src/data/translation";
+} from '../../../src/common/entity/compute_state_display'
+import { UNKNOWN } from '../../../src/data/entity'
+import type { FrontendLocaleData } from '../../../src/data/translation'
 import {
   NumberFormat,
   TimeFormat,
   FirstWeekday,
   DateFormat,
   TimeZone,
-} from "../../../src/data/translation";
-import { demoConfig } from "../../../src/fake_data/demo_config";
-import type { EntityRegistryDisplayEntry } from "../../../src/data/entity_registry";
+} from '../../../src/data/translation'
+import { demoConfig } from '../../../src/fake_data/demo_config'
+import type { EntityRegistryDisplayEntry } from '../../../src/data/entity_registry'
 
-let localeData: FrontendLocaleData;
+let localeData: FrontendLocaleData
 
-describe("computeStateDisplay", () => {
+describe('computeStateDisplay', () => {
   // Mock Localize function for testing
   const localize = (message, ...args) =>
-    message + (args.length ? ": " + args.join(",") : "");
+    message + (args.length ? ': ' + args.join(',') : '')
 
-  const numericDeviceClasses = [];
+  const numericDeviceClasses = []
 
   beforeEach(() => {
     localeData = {
-      language: "en",
+      language: 'en',
       number_format: NumberFormat.comma_decimal,
       time_format: TimeFormat.am_pm,
       date_format: DateFormat.language,
       time_zone: TimeZone.local,
       first_weekday: FirstWeekday.language,
-    };
-  });
+    }
+  })
 
-  it("Localizes binary sensor defaults", () => {
+  it('Localizes binary sensor defaults', () => {
     const stateObj: any = {
-      entity_id: "binary_sensor.test",
-      state: "off",
+      entity_id: 'binary_sensor.test',
+      state: 'off',
       attributes: {},
-    };
+    }
     assert.strictEqual(
       computeStateDisplay(
         localize,
@@ -51,18 +51,18 @@ describe("computeStateDisplay", () => {
         demoConfig,
         {}
       ),
-      "component.binary_sensor.entity_component._.state.off"
-    );
-  });
+      'component.binary_sensor.entity_component._.state.off'
+    )
+  })
 
-  it("Localizes binary sensor device class", () => {
+  it('Localizes binary sensor device class', () => {
     const stateObj: any = {
-      entity_id: "binary_sensor.test",
-      state: "off",
+      entity_id: 'binary_sensor.test',
+      state: 'off',
       attributes: {
-        device_class: "moisture",
+        device_class: 'moisture',
       },
-    };
+    }
     assert.strictEqual(
       computeStateDisplay(
         localize,
@@ -72,24 +72,24 @@ describe("computeStateDisplay", () => {
         demoConfig,
         {}
       ),
-      "component.binary_sensor.entity_component.moisture.state.off"
-    );
-  });
+      'component.binary_sensor.entity_component.moisture.state.off'
+    )
+  })
 
-  it("Localizes binary sensor invalid device class", () => {
+  it('Localizes binary sensor invalid device class', () => {
     const altLocalize = (message, ...args) => {
-      if (message === "state.binary_sensor.invalid_device_class.off") {
-        return "";
+      if (message === 'state.binary_sensor.invalid_device_class.off') {
+        return ''
       }
-      return localize(message, ...args);
-    };
+      return localize(message, ...args)
+    }
     const stateObj: any = {
-      entity_id: "binary_sensor.test",
-      state: "off",
+      entity_id: 'binary_sensor.test',
+      state: 'off',
       attributes: {
-        device_class: "invalid_device_class",
+        device_class: 'invalid_device_class',
       },
-    };
+    }
     assert.strictEqual(
       computeStateDisplay(
         altLocalize,
@@ -99,18 +99,18 @@ describe("computeStateDisplay", () => {
         demoConfig,
         {}
       ),
-      "component.binary_sensor.entity_component.invalid_device_class.state.off"
-    );
-  });
+      'component.binary_sensor.entity_component.invalid_device_class.state.off'
+    )
+  })
 
-  it("Localizes sensor value with units", () => {
+  it('Localizes sensor value with units', () => {
     const stateObj: any = {
-      entity_id: "sensor.test",
-      state: "123",
+      entity_id: 'sensor.test',
+      state: '123',
       attributes: {
-        unit_of_measurement: "m",
+        unit_of_measurement: 'm',
       },
-    };
+    }
     assert.strictEqual(
       computeStateDisplay(
         localize,
@@ -120,24 +120,24 @@ describe("computeStateDisplay", () => {
         demoConfig,
         {}
       ),
-      "123 m"
-    );
-  });
+      '123 m'
+    )
+  })
 
-  it("Localizes a numeric sensor value with translated unit_of_measurement", () => {
+  it('Localizes a numeric sensor value with translated unit_of_measurement', () => {
     const stateObj: any = {
-      entity_id: "sensor.test",
-      state: "1234",
+      entity_id: 'sensor.test',
+      state: '1234',
       attributes: {
-        state_class: "measurement",
+        state_class: 'measurement',
       },
-    };
+    }
     const entities: any = {
-      "sensor.test": {
-        translation_key: "custom_translation",
-        platform: "custom_integration",
+      'sensor.test': {
+        translation_key: 'custom_translation',
+        platform: 'custom_integration',
       },
-    };
+    }
     assert.strictEqual(
       computeStateDisplay(
         localize,
@@ -147,18 +147,18 @@ describe("computeStateDisplay", () => {
         demoConfig,
         entities
       ),
-      "1,234 component.custom_integration.entity.sensor.custom_translation.unit_of_measurement"
-    );
-  });
+      '1,234 component.custom_integration.entity.sensor.custom_translation.unit_of_measurement'
+    )
+  })
 
-  it("Localizes and formats numeric sensor value with units", () => {
+  it('Localizes and formats numeric sensor value with units', () => {
     const stateObj: any = {
-      entity_id: "sensor.test",
-      state: "1234.5",
+      entity_id: 'sensor.test',
+      state: '1234.5',
       attributes: {
-        unit_of_measurement: "m",
+        unit_of_measurement: 'm',
       },
-    };
+    }
     assert.strictEqual(
       computeStateDisplay(
         localize,
@@ -168,18 +168,18 @@ describe("computeStateDisplay", () => {
         demoConfig,
         {}
       ),
-      "1,234.5 m"
-    );
-  });
+      '1,234.5 m'
+    )
+  })
 
-  it("Localizes and formats numeric sensor value with state_class", () => {
+  it('Localizes and formats numeric sensor value with state_class', () => {
     const stateObj: any = {
-      entity_id: "sensor.test",
-      state: "1234.5",
+      entity_id: 'sensor.test',
+      state: '1234.5',
       attributes: {
-        state_class: "measurement",
+        state_class: 'measurement',
       },
-    };
+    }
     assert.strictEqual(
       computeStateDisplay(
         localize,
@@ -189,24 +189,24 @@ describe("computeStateDisplay", () => {
         demoConfig,
         {}
       ),
-      "1,234.5"
-    );
-  });
+      '1,234.5'
+    )
+  })
 
-  it("Localizes unknown sensor value with units", () => {
+  it('Localizes unknown sensor value with units', () => {
     const altLocalize = (message, ...args) => {
-      if (message === "state.sensor.unknown") {
-        return "";
+      if (message === 'state.sensor.unknown') {
+        return ''
       }
-      return localize(message, ...args);
-    };
+      return localize(message, ...args)
+    }
     const stateObj: any = {
-      entity_id: "sensor.test",
+      entity_id: 'sensor.test',
       state: UNKNOWN,
       attributes: {
-        unit_of_measurement: "m",
+        unit_of_measurement: 'm',
       },
-    };
+    }
     assert.strictEqual(
       computeStateDisplay(
         altLocalize,
@@ -216,24 +216,24 @@ describe("computeStateDisplay", () => {
         demoConfig,
         {}
       ),
-      "state.default.unknown"
-    );
-  });
+      'state.default.unknown'
+    )
+  })
 
-  it("Localizes unavailable sensor value with units", () => {
+  it('Localizes unavailable sensor value with units', () => {
     const altLocalize = (message, ...args) => {
-      if (message === "state.sensor.unavailable") {
-        return "";
+      if (message === 'state.sensor.unavailable') {
+        return ''
       }
-      return localize(message, ...args);
-    };
+      return localize(message, ...args)
+    }
     const stateObj: any = {
-      entity_id: "sensor.test",
-      state: "unavailable",
+      entity_id: 'sensor.test',
+      state: 'unavailable',
       attributes: {
-        unit_of_measurement: "m",
+        unit_of_measurement: 'm',
       },
-    };
+    }
     assert.strictEqual(
       computeStateDisplay(
         altLocalize,
@@ -243,24 +243,24 @@ describe("computeStateDisplay", () => {
         demoConfig,
         {}
       ),
-      "state.default.unavailable"
-    );
-  });
+      'state.default.unavailable'
+    )
+  })
 
-  it("Localizes sensor value with component translation", () => {
+  it('Localizes sensor value with component translation', () => {
     const altLocalize = (message, ...args) => {
       if (
-        message !== "component.sensor.entity_component._.state.custom_state"
+        message !== 'component.sensor.entity_component._.state.custom_state'
       ) {
-        return "";
+        return ''
       }
-      return localize(message, ...args);
-    };
+      return localize(message, ...args)
+    }
     const stateObj: any = {
-      entity_id: "sensor.test",
-      state: "custom_state",
+      entity_id: 'sensor.test',
+      state: 'custom_state',
       attributes: {},
-    };
+    }
     assert.strictEqual(
       computeStateDisplay(
         altLocalize,
@@ -270,24 +270,24 @@ describe("computeStateDisplay", () => {
         demoConfig,
         {}
       ),
-      "component.sensor.entity_component._.state.custom_state"
-    );
-  });
+      'component.sensor.entity_component._.state.custom_state'
+    )
+  })
 
-  describe("Localizes a number entity value with translated unit_of_measurement", () => {
+  describe('Localizes a number entity value with translated unit_of_measurement', () => {
     const testDomain = (domain: string) => {
-      const entity_id = `${domain}.test`;
+      const entity_id = `${domain}.test`
       const stateObj: any = {
         entity_id: entity_id,
-        state: "1234",
+        state: '1234',
         attributes: {},
-      };
+      }
       const entities: any = {
         [entity_id]: {
-          translation_key: "custom_translation",
-          platform: "custom_integration",
+          translation_key: 'custom_translation',
+          platform: 'custom_integration',
         },
-      };
+      }
       assert.strictEqual(
         computeStateDisplay(
           localize,
@@ -298,23 +298,23 @@ describe("computeStateDisplay", () => {
           entities
         ),
         `1,234 component.custom_integration.entity.${domain}.custom_translation.unit_of_measurement`
-      );
-    };
-    it("Localizes counter domain", () => {
-      testDomain("counter");
-    });
-    it("Localizes number domain", () => {
-      testDomain("number");
-    });
-    it("Localizes input_number domain", () => {
-      testDomain("input_number");
-    });
-  });
+      )
+    }
+    it('Localizes counter domain', () => {
+      testDomain('counter')
+    })
+    it('Localizes number domain', () => {
+      testDomain('number')
+    })
+    it('Localizes input_number domain', () => {
+      testDomain('input_number')
+    })
+  })
 
-  describe("Localizes input_datetime with full date time", () => {
+  describe('Localizes input_datetime with full date time', () => {
     const stateObj: any = {
-      entity_id: "input_datetime.test",
-      state: "2017-11-18 23:12:00",
+      entity_id: 'input_datetime.test',
+      state: '2017-11-18 23:12:00',
       attributes: {
         has_date: true,
         has_time: true,
@@ -325,8 +325,8 @@ describe("computeStateDisplay", () => {
         minute: 12,
         second: 13,
       },
-    };
-    it("Uses am/pm time format", () => {
+    }
+    it('Uses am/pm time format', () => {
       assert.strictEqual(
         computeStateDisplay(
           localize,
@@ -336,11 +336,11 @@ describe("computeStateDisplay", () => {
           demoConfig,
           {}
         ),
-        "November 18, 2017 at 11:12 PM"
-      );
-    });
-    it("Uses 24h time format", () => {
-      localeData.time_format = TimeFormat.twenty_four;
+        'November 18, 2017 at 11:12 PM'
+      )
+    })
+    it('Uses 24h time format', () => {
+      localeData.time_format = TimeFormat.twenty_four
       assert.strictEqual(
         computeStateDisplay(
           localize,
@@ -350,15 +350,15 @@ describe("computeStateDisplay", () => {
           demoConfig,
           {}
         ),
-        "November 18, 2017 at 23:12"
-      );
-    });
-  });
+        'November 18, 2017 at 23:12'
+      )
+    })
+  })
 
-  it("Localizes input_datetime with date", () => {
+  it('Localizes input_datetime with date', () => {
     const stateObj: any = {
-      entity_id: "input_datetime.test",
-      state: "2017-11-18",
+      entity_id: 'input_datetime.test',
+      state: '2017-11-18',
       attributes: {
         has_date: true,
         has_time: false,
@@ -369,7 +369,7 @@ describe("computeStateDisplay", () => {
         minute: 12,
         second: 13,
       },
-    };
+    }
     assert.strictEqual(
       computeStateDisplay(
         localize,
@@ -379,14 +379,14 @@ describe("computeStateDisplay", () => {
         demoConfig,
         {}
       ),
-      "November 18, 2017"
-    );
-  });
+      'November 18, 2017'
+    )
+  })
 
-  describe("Localizes input_datetime with time", () => {
+  describe('Localizes input_datetime with time', () => {
     const stateObj: any = {
-      entity_id: "input_datetime.test",
-      state: "23:12:00",
+      entity_id: 'input_datetime.test',
+      state: '23:12:00',
       attributes: {
         has_date: false,
         has_time: true,
@@ -397,9 +397,9 @@ describe("computeStateDisplay", () => {
         minute: 12,
         second: 13,
       },
-    };
-    it("Uses am/pm time format", () => {
-      localeData.time_format = TimeFormat.am_pm;
+    }
+    it('Uses am/pm time format', () => {
+      localeData.time_format = TimeFormat.am_pm
       assert.strictEqual(
         computeStateDisplay(
           localize,
@@ -409,11 +409,11 @@ describe("computeStateDisplay", () => {
           demoConfig,
           {}
         ),
-        "11:12 PM"
-      );
-    });
-    it("Uses 24h time format", () => {
-      localeData.time_format = TimeFormat.twenty_four;
+        '11:12 PM'
+      )
+    })
+    it('Uses 24h time format', () => {
+      localeData.time_format = TimeFormat.twenty_four
       assert.strictEqual(
         computeStateDisplay(
           localize,
@@ -423,15 +423,15 @@ describe("computeStateDisplay", () => {
           demoConfig,
           {}
         ),
-        "23:12"
-      );
-    });
-  });
+        '23:12'
+      )
+    })
+  })
 
-  describe("Localizes input_datetime state parameter with full date time", () => {
+  describe('Localizes input_datetime state parameter with full date time', () => {
     const stateObj: any = {
-      entity_id: "input_datetime.test",
-      state: "123",
+      entity_id: 'input_datetime.test',
+      state: '123',
       attributes: {
         has_date: true,
         has_time: true,
@@ -442,8 +442,8 @@ describe("computeStateDisplay", () => {
         minute: 26,
         second: 36,
       },
-    };
-    it("Uses am/pm time format", () => {
+    }
+    it('Uses am/pm time format', () => {
       assert.strictEqual(
         computeStateDisplay(
           localize,
@@ -452,13 +452,13 @@ describe("computeStateDisplay", () => {
           numericDeviceClasses,
           demoConfig,
           {},
-          "2021-07-04 15:40:03"
+          '2021-07-04 15:40:03'
         ),
-        "July 4, 2021 at 3:40 PM"
-      );
-    });
-    it("Uses 24h time format", () => {
-      localeData.time_format = TimeFormat.twenty_four;
+        'July 4, 2021 at 3:40 PM'
+      )
+    })
+    it('Uses 24h time format', () => {
+      localeData.time_format = TimeFormat.twenty_four
       assert.strictEqual(
         computeStateDisplay(
           localize,
@@ -467,17 +467,17 @@ describe("computeStateDisplay", () => {
           numericDeviceClasses,
           demoConfig,
           {},
-          "2021-07-04 15:40:03"
+          '2021-07-04 15:40:03'
         ),
-        "July 4, 2021 at 15:40"
-      );
-    });
-  });
+        'July 4, 2021 at 15:40'
+      )
+    })
+  })
 
-  it("Localizes input_datetime state parameter with date", () => {
+  it('Localizes input_datetime state parameter with date', () => {
     const stateObj: any = {
-      entity_id: "input_datetime.test",
-      state: "123",
+      entity_id: 'input_datetime.test',
+      state: '123',
       attributes: {
         has_date: true,
         has_time: false,
@@ -488,7 +488,7 @@ describe("computeStateDisplay", () => {
         minute: 26,
         second: 36,
       },
-    };
+    }
     assert.strictEqual(
       computeStateDisplay(
         localize,
@@ -497,16 +497,16 @@ describe("computeStateDisplay", () => {
         numericDeviceClasses,
         demoConfig,
         {},
-        "2021-07-04"
+        '2021-07-04'
       ),
-      "July 4, 2021"
-    );
-  });
+      'July 4, 2021'
+    )
+  })
 
-  describe("Localizes input_datetime state parameter with time", () => {
+  describe('Localizes input_datetime state parameter with time', () => {
     const stateObj: any = {
-      entity_id: "input_datetime.test",
-      state: "123",
+      entity_id: 'input_datetime.test',
+      state: '123',
       attributes: {
         has_date: false,
         has_time: true,
@@ -517,9 +517,9 @@ describe("computeStateDisplay", () => {
         minute: 26,
         second: 36,
       },
-    };
-    it("Uses am/pm time format", () => {
-      localeData.time_format = TimeFormat.am_pm;
+    }
+    it('Uses am/pm time format', () => {
+      localeData.time_format = TimeFormat.am_pm
       assert.strictEqual(
         computeStateDisplay(
           localize,
@@ -528,13 +528,13 @@ describe("computeStateDisplay", () => {
           numericDeviceClasses,
           demoConfig,
           {},
-          "17:05:07"
+          '17:05:07'
         ),
-        "5:05 PM"
-      );
-    });
-    it("Uses 24h time format", () => {
-      localeData.time_format = TimeFormat.twenty_four;
+        '5:05 PM'
+      )
+    })
+    it('Uses 24h time format', () => {
+      localeData.time_format = TimeFormat.twenty_four
       assert.strictEqual(
         computeStateDisplay(
           localize,
@@ -543,25 +543,25 @@ describe("computeStateDisplay", () => {
           numericDeviceClasses,
           demoConfig,
           {},
-          "17:05:07"
+          '17:05:07'
         ),
-        "17:05"
-      );
-    });
-  });
+        '17:05'
+      )
+    })
+  })
 
-  it("Localizes unavailable", () => {
+  it('Localizes unavailable', () => {
     const altLocalize = (message, ...args) => {
-      if (message === "state.sensor.unavailable") {
-        return "";
+      if (message === 'state.sensor.unavailable') {
+        return ''
       }
-      return localize(message, ...args);
-    };
+      return localize(message, ...args)
+    }
     const stateObj: any = {
-      entity_id: "sensor.test",
-      state: "unavailable",
+      entity_id: 'sensor.test',
+      state: 'unavailable',
       attributes: {},
-    };
+    }
     assert.strictEqual(
       computeStateDisplay(
         altLocalize,
@@ -571,19 +571,19 @@ describe("computeStateDisplay", () => {
         demoConfig,
         {}
       ),
-      "state.default.unavailable"
-    );
-  });
+      'state.default.unavailable'
+    )
+  })
 
-  it("Localizes custom state", () => {
+  it('Localizes custom state', () => {
     const altLocalize = () =>
       // No matches can be found
-      "";
+      ''
     const stateObj: any = {
-      entity_id: "sensor.test",
-      state: "My Custom State",
+      entity_id: 'sensor.test',
+      state: 'My Custom State',
       attributes: {},
-    };
+    }
     assert.strictEqual(
       computeStateDisplay(
         altLocalize,
@@ -593,22 +593,22 @@ describe("computeStateDisplay", () => {
         demoConfig,
         {}
       ),
-      "My Custom State"
-    );
-  });
+      'My Custom State'
+    )
+  })
 
-  it("Localizes using translation key", () => {
+  it('Localizes using translation key', () => {
     const stateObj: any = {
-      entity_id: "sensor.test",
-      state: "custom_state",
+      entity_id: 'sensor.test',
+      state: 'custom_state',
       attributes: {},
-    };
+    }
     const entities: any = {
-      "sensor.test": {
-        translation_key: "custom_translation",
-        platform: "custom_integration",
+      'sensor.test': {
+        translation_key: 'custom_translation',
+        platform: 'custom_integration',
       },
-    };
+    }
     assert.strictEqual(
       computeStateDisplay(
         localize,
@@ -618,89 +618,89 @@ describe("computeStateDisplay", () => {
         demoConfig,
         entities
       ),
-      "component.custom_integration.entity.sensor.custom_translation.state.custom_state"
-    );
-  });
-});
+      'component.custom_integration.entity.sensor.custom_translation.state.custom_state'
+    )
+  })
+})
 
-describe("computeStateDisplayFromEntityAttributes with numeric device classes", () => {
-  it("Should format duration sensor", () => {
+describe('computeStateDisplayFromEntityAttributes with numeric device classes', () => {
+  it('Should format duration sensor', () => {
     const result = computeStateDisplayFromEntityAttributes(
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       (() => {}) as any,
       {
-        language: "en",
+        language: 'en',
       } as FrontendLocaleData,
       [],
       {} as HassConfig,
       {
         display_precision: 2,
       } as EntityRegistryDisplayEntry,
-      "number.test",
+      'number.test',
       {
-        device_class: "duration",
-        unit_of_measurement: "min",
+        device_class: 'duration',
+        unit_of_measurement: 'min',
       },
-      "12"
-    );
-    expect(result).toBe("12.00 min");
-  });
-  it("Should format duration sensor with seconds", () => {
+      '12'
+    )
+    expect(result).toBe('12.00 min')
+  })
+  it('Should format duration sensor with seconds', () => {
     const result = computeStateDisplayFromEntityAttributes(
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       (() => {}) as any,
       {
-        language: "en",
+        language: 'en',
       } as FrontendLocaleData,
       [],
       {} as HassConfig,
       undefined,
-      "number.test",
+      'number.test',
       {
-        device_class: "duration",
-        unit_of_measurement: "s",
+        device_class: 'duration',
+        unit_of_measurement: 's',
       },
-      "12"
-    );
-    expect(result).toBe("12 s");
-  });
+      '12'
+    )
+    expect(result).toBe('12 s')
+  })
 
-  it("Should format monetary device_class", () => {
+  it('Should format monetary device_class', () => {
     const result = computeStateDisplayFromEntityAttributes(
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       (() => {}) as any,
       {
-        language: "en",
+        language: 'en',
       } as FrontendLocaleData,
       [],
       {} as HassConfig,
       undefined,
-      "number.test",
+      'number.test',
       {
-        device_class: "monetary",
-        unit_of_measurement: "$",
+        device_class: 'monetary',
+        unit_of_measurement: '$',
       },
-      "12"
-    );
-    expect(result).toBe("12 $");
-  });
-});
+      '12'
+    )
+    expect(result).toBe('12 $')
+  })
+})
 
-describe("computeStateDisplayFromEntityAttributes datetime device calss", () => {
-  it("Should format datetime sensor", () => {
+describe('computeStateDisplayFromEntityAttributes datetime device calss', () => {
+  it('Should format datetime sensor', () => {
     const result = computeStateDisplayFromEntityAttributes(
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       (() => {}) as any,
       {
-        language: "en",
+        language: 'en',
       } as FrontendLocaleData,
       [],
       {} as HassConfig,
       undefined,
-      "button.test",
+      'button.test',
       {},
-      "2020-01-01T12:00:00+00:00"
-    );
-    expect(result).toBe("January 1, 2020 at 12:00");
-  });
-});
+      '2020-01-01T12:00:00+00:00'
+    )
+    expect(result).toBe('January 1, 2020 at 12:00')
+  })
+})

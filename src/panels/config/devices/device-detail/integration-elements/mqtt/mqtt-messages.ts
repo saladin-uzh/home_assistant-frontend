@@ -1,43 +1,43 @@
-import { dump } from "js-yaml";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { formatTimeWithSeconds } from "../../../../../../common/datetime/format_time";
-import type { MQTTMessage } from "../../../../../../data/mqtt";
-import type { HomeAssistant } from "../../../../../../types";
+import { dump } from 'js-yaml'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { formatTimeWithSeconds } from '../../../../../../common/datetime/format_time'
+import type { MQTTMessage } from '../../../../../../data/mqtt'
+import type { HomeAssistant } from '../../../../../../types'
 
-@customElement("mqtt-messages")
+@customElement('mqtt-messages')
 class MQTTMessages extends LitElement {
-  public hass!: HomeAssistant;
+  public hass!: HomeAssistant
 
-  @property({ attribute: false }) public messages!: MQTTMessage[];
+  @property({ attribute: false }) public messages!: MQTTMessage[]
 
-  @property() public direction!: string;
+  @property() public direction!: string
 
-  @property({ attribute: "show-as-yaml", type: Boolean })
-  public showAsYaml = false;
+  @property({ attribute: 'show-as-yaml', type: Boolean })
+  public showAsYaml = false
 
-  @property({ attribute: "show-deserialized", type: Boolean })
-  public showDeserialized = false;
+  @property({ attribute: 'show-deserialized', type: Boolean })
+  public showDeserialized = false
 
-  @property({ attribute: false }) public subscribedTopic!: string;
+  @property({ attribute: false }) public subscribedTopic!: string
 
-  @property() public summary!: string;
+  @property() public summary!: string
 
-  @state() private _open = false;
+  @state() private _open = false
 
-  @state() private _payloadsJson = new WeakMap();
+  @state() private _payloadsJson = new WeakMap()
 
-  @state() private _showTopic = false;
+  @state() private _showTopic = false
 
   protected firstUpdated(): void {
-    this.messages.forEach((message) => {
+    this.messages.forEach(message => {
       // If any message's topic differs from the subscribed topic, show topics + payload
       if (this.subscribedTopic !== message.topic) {
-        this._showTopic = true;
+        this._showTopic = true
       }
-    });
+    })
   }
 
   protected render(): TemplateResult {
@@ -52,7 +52,7 @@ class MQTTMessages extends LitElement {
         ? html`
             <ul class="message-list">
               ${this.messages.map(
-                (message) => html`
+                message => html`
                   <li class="message">
                     <div class="time">
                       ${this.direction}
@@ -68,30 +68,30 @@ class MQTTMessages extends LitElement {
               )}
             </ul>
           `
-        : ""}
-    `;
+        : ''}
+    `
   }
 
   private _renderSingleMessage(message): TemplateResult {
-    const topic = message.topic;
+    const topic = message.topic
     return html`
       <ul class="message-with-topic">
-        ${this._showTopic ? html` <li>Topic: <code>${topic}</code></li> ` : ""}
-        <li>QoS: ${message.qos}${message.retain ? ", Retained" : ""}</li>
+        ${this._showTopic ? html` <li>Topic: <code>${topic}</code></li> ` : ''}
+        <li>QoS: ${message.qos}${message.retain ? ', Retained' : ''}</li>
         <li>Payload: ${this._renderSinglePayload(message)}</li>
       </ul>
-    `;
+    `
   }
 
   private _renderSinglePayload(message): TemplateResult {
-    let json;
+    let json
 
     if (this.showDeserialized) {
       if (!this._payloadsJson.has(message)) {
-        json = this._tryParseJson(message.payload);
-        this._payloadsJson.set(message, json);
+        json = this._tryParseJson(message.payload)
+        this._payloadsJson.set(message, json)
       } else {
-        json = this._payloadsJson.get(message);
+        json = this._payloadsJson.get(message)
       }
     }
 
@@ -101,34 +101,34 @@ class MQTTMessages extends LitElement {
             ? html` <pre>${dump(json)}</pre> `
             : html` <pre>${JSON.stringify(json, null, 2)}</pre> `}
         `
-      : html` <code>${message.payload}</code> `;
+      : html` <code>${message.payload}</code> `
   }
 
   private _tryParseJson(payload) {
-    let jsonPayload = null;
-    let o = payload;
+    let jsonPayload = null
+    let o = payload
 
     // If the payload is a string, determine if the payload is valid JSON and if it
     // is, assign the object representation to this._payloadJson.
-    if (typeof payload === "string") {
+    if (typeof payload === 'string') {
       try {
-        o = JSON.parse(payload);
+        o = JSON.parse(payload)
       } catch (_err: any) {
-        o = null;
+        o = null
       }
     }
     // Handle non-exception-throwing cases:
     // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
     // but... JSON.parse(null) returns null, and typeof null === "object",
     // so we must check for that, too. Thankfully, null is falsey, so this suffices:
-    if (o && typeof o === "object") {
-      jsonPayload = o;
+    if (o && typeof o === 'object') {
+      jsonPayload = o
     }
-    return jsonPayload;
+    return jsonPayload
   }
 
   private _handleToggle() {
-    this._open = !this._open;
+    this._open = !this._open
   }
 
   static styles = css`
@@ -177,11 +177,11 @@ class MQTTMessages extends LitElement {
         padding-inline-end: 4px;
         font-family: var(--ha-font-family-code);
       }
-    `;
+    `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "mqtt-messages": MQTTMessages;
+    'mqtt-messages': MQTTMessages
   }
 }

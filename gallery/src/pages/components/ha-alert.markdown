@@ -126,7 +126,10 @@ The `title ` option should not be used without a description.
 </ha-alert>
 
 ```html
-<ha-alert alert-type="success" title="Success">
+<ha-alert
+  alert-type="success"
+  title="Success"
+>
   This is a success alert — check it out!
 </ha-alert>
 ```
@@ -138,7 +141,10 @@ The `title ` option should not be used without a description.
 </ha-alert>
 
 ```html
-<ha-alert alert-type="success" dismissable>
+<ha-alert
+  alert-type="success"
+  dismissable
+>
   This is a success alert — check it out!
 </ha-alert>
 ```

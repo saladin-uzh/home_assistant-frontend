@@ -1,24 +1,24 @@
-import type { HassEntity } from "home-assistant-js-websocket/dist/types";
-import type { CSSResultGroup } from "lit";
-import { css } from "lit";
-import { customElement } from "lit/decorators";
-import { computeDomain } from "../../../common/entity/compute_domain";
-import type { HomeAssistant } from "../../../types";
-import { findEntities } from "../common/find-entities";
-import type { GraphHeaderFooterConfig } from "../header-footer/types";
-import type { LovelaceCardEditor, LovelaceGridOptions } from "../types";
-import { HuiEntityCard } from "./hui-entity-card";
-import type { EntityCardConfig, SensorCardConfig } from "./types";
+import type { HassEntity } from 'home-assistant-js-websocket/dist/types'
+import type { CSSResultGroup } from 'lit'
+import { css } from 'lit'
+import { customElement } from 'lit/decorators'
+import { computeDomain } from '../../../common/entity/compute_domain'
+import type { HomeAssistant } from '../../../types'
+import { findEntities } from '../common/find-entities'
+import type { GraphHeaderFooterConfig } from '../header-footer/types'
+import type { LovelaceCardEditor, LovelaceGridOptions } from '../types'
+import { HuiEntityCard } from './hui-entity-card'
+import type { EntityCardConfig, SensorCardConfig } from './types'
 
-const includeDomains = ["counter", "input_number", "number", "sensor"];
+const includeDomains = ['counter', 'input_number', 'number', 'sensor']
 
-export const DEFAULT_HOURS_TO_SHOW = 24;
+export const DEFAULT_HOURS_TO_SHOW = 24
 
-@customElement("hui-sensor-card")
+@customElement('hui-sensor-card')
 class HuiSensorCard extends HuiEntityCard {
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import("../editor/config-elements/hui-sensor-card-editor");
-    return document.createElement("hui-sensor-card-editor");
+    await import('../editor/config-elements/hui-sensor-card-editor')
+    return document.createElement('hui-sensor-card-editor')
   }
 
   public static getStubConfig(
@@ -26,10 +26,10 @@ class HuiSensorCard extends HuiEntityCard {
     entities: string[],
     entitiesFallback: string[]
   ): SensorCardConfig {
-    const maxEntities = 1;
+    const maxEntities = 1
     const entityFilter = (stateObj: HassEntity): boolean =>
       !isNaN(Number(stateObj.state)) &&
-      !!stateObj.attributes.unit_of_measurement;
+      !!stateObj.attributes.unit_of_measurement
 
     const foundEntities = findEntities(
       hass,
@@ -38,9 +38,9 @@ class HuiSensorCard extends HuiEntityCard {
       entitiesFallback,
       includeDomains,
       entityFilter
-    );
+    )
 
-    return { type: "sensor", entity: foundEntities[0] || "", graph: "line" };
+    return { type: 'sensor', entity: foundEntities[0] || '', graph: 'line' }
   }
 
   public setConfig(config: SensorCardConfig): void {
@@ -48,29 +48,29 @@ class HuiSensorCard extends HuiEntityCard {
       !config.entity ||
       !includeDomains.includes(computeDomain(config.entity))
     ) {
-      throw new Error("Specify an entity from within the sensor domain");
+      throw new Error('Specify an entity from within the sensor domain')
     }
 
-    const { graph, detail, hours_to_show, ...cardConfig } = config;
+    const { graph, detail, hours_to_show, ...cardConfig } = config
 
     const entityCardConfig: EntityCardConfig = {
       ...cardConfig,
-      type: "entity",
-    };
+      type: 'entity',
+    }
 
-    if (graph === "line") {
+    if (graph === 'line') {
       const footerConfig: GraphHeaderFooterConfig = {
-        type: "graph",
+        type: 'graph',
         entity: config.entity,
         detail: detail || 1,
         hours_to_show: hours_to_show || DEFAULT_HOURS_TO_SHOW,
         limits: config.limits!,
-      };
+      }
 
-      entityCardConfig.footer = footerConfig;
+      entityCardConfig.footer = footerConfig
     }
 
-    super.setConfig(entityCardConfig);
+    super.setConfig(entityCardConfig)
   }
 
   public getGridOptions(): LovelaceGridOptions {
@@ -79,7 +79,7 @@ class HuiSensorCard extends HuiEntityCard {
       rows: 2,
       min_columns: 6,
       min_rows: 2,
-    };
+    }
   }
 
   static get styles(): CSSResultGroup {
@@ -94,12 +94,12 @@ class HuiSensorCard extends HuiEntityCard {
           text-align: var(--float-start);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-sensor-card": HuiSensorCard;
+    'hui-sensor-card': HuiSensorCard
   }
 }

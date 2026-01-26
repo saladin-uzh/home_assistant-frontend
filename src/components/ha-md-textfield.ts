@@ -1,10 +1,10 @@
-import { styles } from "@material/web/textfield/internal/filled-styles";
-import { FilledTextField } from "@material/web/textfield/internal/filled-text-field";
-import { styles as sharedStyles } from "@material/web/textfield/internal/shared-styles";
-import { css } from "lit";
-import { customElement } from "lit/decorators";
+import { styles } from '@material/web/textfield/internal/filled-styles'
+import { FilledTextField } from '@material/web/textfield/internal/filled-text-field'
+import { styles as sharedStyles } from '@material/web/textfield/internal/shared-styles'
+import { css } from 'lit'
+import { customElement } from 'lit/decorators'
 
-@customElement("ha-md-textfield")
+@customElement('ha-md-textfield')
 export class HaMdTextfield extends FilledTextField {
   static override styles = [
     sharedStyles,
@@ -24,11 +24,11 @@ export class HaMdTextfield extends FilledTextField {
         --md-sys-color-secondary-container: var(--input-fill-color);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-md-textfield": HaMdTextfield;
+    'ha-md-textfield': HaMdTextfield
   }
 }

@@ -1,5 +1,5 @@
-import { css } from "lit";
-import { haStyle } from "../../resources/styles";
+import { css } from 'lit'
+import { haStyle } from '../../resources/styles'
 
 export const AssistantSetupStyles = [
   haStyle,
@@ -50,4 +50,4 @@ export const AssistantSetupStyles = [
       justify-content: space-between;
     }
   `,
-];
+]

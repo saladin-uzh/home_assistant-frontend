@@ -1,71 +1,83 @@
-import { mdiHarddisk, mdiNas } from "@mdi/js";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { computeDomain } from "../../../../common/entity/compute_domain";
-import "../../../../components/ha-checkbox";
-import "../../../../components/ha-formfield";
-import "../../../../components/ha-svg-icon";
-import type { BackupAgent } from "../../../../data/backup";
+import { mdiHarddisk, mdiNas } from '@mdi/js'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { computeDomain } from '../../../../common/entity/compute_domain'
+import '../../../../components/ha-checkbox'
+import '../../../../components/ha-formfield'
+import '../../../../components/ha-svg-icon'
+import type { BackupAgent } from '../../../../data/backup'
 import {
   computeBackupAgentName,
   isLocalAgent,
   isNetworkMountAgent,
-} from "../../../../data/backup";
-import type { HomeAssistant } from "../../../../types";
-import { brandsUrl } from "../../../../util/brands-url";
+} from '../../../../data/backup'
+import type { HomeAssistant } from '../../../../types'
+import { brandsUrl } from '../../../../util/brands-url'
 
-@customElement("ha-backup-agents-picker")
+@customElement('ha-backup-agents-picker')
 class HaBackupAgentsPicker extends LitElement {
   @property({ attribute: false })
-  public hass!: HomeAssistant;
+  public hass!: HomeAssistant
 
   @property({ type: Boolean })
-  public disabled = false;
+  public disabled = false
 
   @property({ attribute: false })
-  public agents!: BackupAgent[];
+  public agents!: BackupAgent[]
 
   @property({ attribute: false })
-  public disabledAgentIds?: string[];
+  public disabledAgentIds?: string[]
 
   @property({ attribute: false })
-  public value!: string[];
+  public value!: string[]
 
   render() {
     return html`
       <div class="agents">
-        ${this.agents.map((agent) => this._renderAgent(agent))}
+        ${this.agents.map(agent => this._renderAgent(agent))}
       </div>
-    `;
+    `
   }
 
   private _renderAgent(agent: BackupAgent) {
-    const domain = computeDomain(agent.agent_id);
+    const domain = computeDomain(agent.agent_id)
     const name = computeBackupAgentName(
       this.hass.localize,
       agent.agent_id,
       this.agents
-    );
+    )
 
     const disabled =
-      this.disabled || this.disabledAgentIds?.includes(agent.agent_id) || false;
+      this.disabled || this.disabledAgentIds?.includes(agent.agent_id) || false
 
     return html`
       <ha-formfield>
-        <span class="label ${classMap({ disabled })}" slot="label">
+        <span
+          class="label ${classMap({ disabled })}"
+          slot="label"
+        >
           ${isLocalAgent(agent.agent_id)
             ? html`
-                <ha-svg-icon .path=${mdiHarddisk} slot="start"> </ha-svg-icon>
+                <ha-svg-icon
+                  .path=${mdiHarddisk}
+                  slot="start"
+                >
+                </ha-svg-icon>
               `
             : isNetworkMountAgent(agent.agent_id)
-              ? html` <ha-svg-icon .path=${mdiNas} slot="start"></ha-svg-icon> `
+              ? html`
+                  <ha-svg-icon
+                    .path=${mdiNas}
+                    slot="start"
+                  ></ha-svg-icon>
+                `
               : html`
                   <img
                     .src=${brandsUrl({
                       domain,
-                      type: "icon",
+                      type: 'icon',
                       useFallback: true,
                       darkOptimized: this.hass.themes?.darkMode,
                     })}
@@ -84,22 +96,22 @@ class HaBackupAgentsPicker extends LitElement {
           @change=${this._checkboxChanged}
         ></ha-checkbox>
       </ha-formfield>
-    `;
+    `
   }
 
   private _checkboxChanged(ev: Event) {
-    const checkbox = ev.target as HTMLInputElement;
-    const value = checkbox.value;
-    const index = this.value.indexOf(value);
+    const checkbox = ev.target as HTMLInputElement
+    const value = checkbox.value
+    const index = this.value.indexOf(value)
     if (checkbox.checked && index === -1) {
-      this.value = [...this.value, value];
+      this.value = [...this.value, value]
     } else if (!checkbox.checked && index !== -1) {
       this.value = [
         ...this.value.slice(0, index),
         ...this.value.slice(index + 1),
-      ];
+      ]
     }
-    fireEvent(this, "value-changed", { value: this.value });
+    fireEvent(this, 'value-changed', { value: this.value })
   }
 
   static styles = css`
@@ -131,11 +143,11 @@ class HaBackupAgentsPicker extends LitElement {
     span.disabled ha-svg-icon {
       color: var(--disabled-text-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-backup-agents-picker": HaBackupAgentsPicker;
+    'ha-backup-agents-picker': HaBackupAgentsPicker
   }
 }

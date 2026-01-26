@@ -1,7 +1,7 @@
-import { mdiEye, mdiGestureTap, mdiTextShort } from "@mdi/js";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
+import { mdiEye, mdiGestureTap, mdiTextShort } from '@mdi/js'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
 import {
   any,
   array,
@@ -11,29 +11,29 @@ import {
   optional,
   string,
   union,
-} from "superstruct";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import type { LocalizeFunc } from "../../../../common/translations/localize";
-import "../../../../components/ha-expansion-panel";
-import "../../../../components/ha-form/ha-form";
+} from 'superstruct'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import type { LocalizeFunc } from '../../../../common/translations/localize'
+import '../../../../components/ha-expansion-panel'
+import '../../../../components/ha-form/ha-form'
 import type {
   HaFormSchema,
   SchemaUnion,
-} from "../../../../components/ha-form/types";
-import type { HomeAssistant } from "../../../../types";
-import type { Condition } from "../../common/validate-condition";
-import type { EntityHeadingBadgeConfig } from "../../heading-badges/types";
-import type { LovelaceGenericElementEditor } from "../../types";
-import "../conditions/ha-card-conditions-editor";
-import { configElementStyle } from "../config-elements/config-elements-style";
-import { actionConfigStruct } from "../structs/action-struct";
-import { entityNameStruct } from "../structs/entity-name-struct";
+} from '../../../../components/ha-form/types'
+import type { HomeAssistant } from '../../../../types'
+import type { Condition } from '../../common/validate-condition'
+import type { EntityHeadingBadgeConfig } from '../../heading-badges/types'
+import type { LovelaceGenericElementEditor } from '../../types'
+import '../conditions/ha-card-conditions-editor'
+import { configElementStyle } from '../config-elements/config-elements-style'
+import { actionConfigStruct } from '../structs/action-struct'
+import { entityNameStruct } from '../structs/entity-name-struct'
 
 export const DEFAULT_CONFIG: Partial<EntityHeadingBadgeConfig> = {
-  type: "entity",
+  type: 'entity',
   show_state: true,
   show_icon: true,
-};
+}
 
 const entityConfigStruct = object({
   type: optional(string()),
@@ -48,65 +48,65 @@ const entityConfigStruct = object({
   hold_action: optional(actionConfigStruct),
   double_tap_action: optional(actionConfigStruct),
   visibility: optional(array(any())),
-});
+})
 
 type FormData = EntityHeadingBadgeConfig & {
-  displayed_elements?: string[];
-};
+  displayed_elements?: string[]
+}
 
-@customElement("hui-heading-entity-editor")
+@customElement('hui-heading-entity-editor')
 export class HuiHeadingEntityEditor
   extends LitElement
   implements LovelaceGenericElementEditor
 {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ type: Boolean }) public preview = false;
+  @property({ type: Boolean }) public preview = false
 
-  @state() private _config?: EntityHeadingBadgeConfig;
+  @state() private _config?: EntityHeadingBadgeConfig
 
   public setConfig(config: EntityHeadingBadgeConfig): void {
-    assert(config, entityConfigStruct);
+    assert(config, entityConfigStruct)
     this._config = {
       ...DEFAULT_CONFIG,
       ...config,
-    };
+    }
   }
 
   private _schema = memoizeOne(
     (localize: LocalizeFunc) =>
       [
         {
-          name: "entity",
+          name: 'entity',
           selector: { entity: {} },
         },
         {
-          name: "content",
-          type: "expandable",
+          name: 'content',
+          type: 'expandable',
           flatten: true,
           iconPath: mdiTextShort,
           schema: [
             {
-              name: "",
-              type: "grid",
+              name: '',
+              type: 'grid',
               schema: [
                 {
-                  name: "name",
+                  name: 'name',
                   selector: {
                     entity_name: {},
                   },
-                  context: { entity: "entity" },
+                  context: { entity: 'entity' },
                 },
                 {
-                  name: "icon",
+                  name: 'icon',
                   selector: { icon: {} },
-                  context: { icon_entity: "entity" },
+                  context: { icon_entity: 'entity' },
                 },
                 {
-                  name: "color",
+                  name: 'color',
                   selector: {
                     ui_color: {
-                      default_color: "none",
+                      default_color: 'none',
                       include_state: true,
                       include_none: true,
                     },
@@ -115,20 +115,20 @@ export class HuiHeadingEntityEditor
               ],
             },
             {
-              name: "displayed_elements",
+              name: 'displayed_elements',
               selector: {
                 select: {
-                  mode: "list",
+                  mode: 'list',
                   multiple: true,
                   options: [
                     {
-                      value: "state",
+                      value: 'state',
                       label: localize(
                         `ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements_options.state`
                       ),
                     },
                     {
-                      value: "icon",
+                      value: 'icon',
                       label: localize(
                         `ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements_options.icon`
                       ),
@@ -138,36 +138,36 @@ export class HuiHeadingEntityEditor
               },
             },
             {
-              name: "state_content",
+              name: 'state_content',
               selector: { ui_state_content: { allow_name: true } },
-              context: { filter_entity: "entity" },
+              context: { filter_entity: 'entity' },
             },
           ],
         },
         {
-          name: "interactions",
-          type: "expandable",
+          name: 'interactions',
+          type: 'expandable',
           flatten: true,
           iconPath: mdiGestureTap,
           schema: [
             {
-              name: "tap_action",
+              name: 'tap_action',
               selector: {
                 ui_action: {
-                  default_action: "none",
+                  default_action: 'none',
                 },
               },
             },
             {
-              name: "",
-              type: "optional_actions",
+              name: '',
+              type: 'optional_actions',
               flatten: true,
-              schema: (["hold_action", "double_tap_action"] as const).map(
-                (action) => ({
+              schema: (['hold_action', 'double_tap_action'] as const).map(
+                action => ({
                   name: action,
                   selector: {
                     ui_action: {
-                      default_action: "none" as const,
+                      default_action: 'none' as const,
                     },
                   },
                 })
@@ -176,30 +176,30 @@ export class HuiHeadingEntityEditor
           ],
         },
       ] as const satisfies readonly HaFormSchema[]
-  );
+  )
 
   private _displayedElements = memoizeOne(
     (config: EntityHeadingBadgeConfig) => {
-      const elements: string[] = [];
-      if (config.show_state) elements.push("state");
-      if (config.show_icon) elements.push("icon");
-      return elements;
+      const elements: string[] = []
+      if (config.show_state) elements.push('state')
+      if (config.show_icon) elements.push('icon')
+      return elements
     }
-  );
+  )
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
-    const schema = this._schema(this.hass.localize);
+    const schema = this._schema(this.hass.localize)
 
     const data: FormData = {
       ...this._config,
       displayed_elements: this._displayedElements(this._config),
-    };
+    }
 
-    const conditions = this._config.visibility ?? [];
+    const conditions = this._config.visibility ?? []
     return html`
       <ha-form
         .hass=${this.hass}
@@ -210,16 +210,19 @@ export class HuiHeadingEntityEditor
         @value-changed=${this._valueChanged}
       ></ha-form>
       <ha-expansion-panel outlined>
-        <ha-svg-icon slot="leading-icon" .path=${mdiEye}></ha-svg-icon>
+        <ha-svg-icon
+          slot="leading-icon"
+          .path=${mdiEye}
+        ></ha-svg-icon>
         <h3 slot="header">
           ${this.hass!.localize(
-            "ui.panel.lovelace.editor.card.heading.entity_config.visibility"
+            'ui.panel.lovelace.editor.card.heading.entity_config.visibility'
           )}
         </h3>
         <div class="content">
           <p class="intro">
             ${this.hass.localize(
-              "ui.panel.lovelace.editor.card.heading.entity_config.visibility_explanation"
+              'ui.panel.lovelace.editor.card.heading.entity_config.visibility_explanation'
             )}
           </p>
           <ha-card-conditions-editor
@@ -230,78 +233,78 @@ export class HuiHeadingEntityEditor
           </ha-card-conditions-editor>
         </div>
       </ha-expansion-panel>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent): void {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!this._config || !this.hass) {
-      return;
+      return
     }
 
-    const config = { ...ev.detail.value } as FormData;
+    const config = { ...ev.detail.value } as FormData
 
     if (config.displayed_elements) {
-      config.show_state = config.displayed_elements.includes("state");
-      config.show_icon = config.displayed_elements.includes("icon");
-      delete config.displayed_elements;
+      config.show_state = config.displayed_elements.includes('state')
+      config.show_icon = config.displayed_elements.includes('icon')
+      delete config.displayed_elements
     }
 
-    fireEvent(this, "config-changed", { config });
+    fireEvent(this, 'config-changed', { config })
   }
 
   private _conditionChanged(ev: CustomEvent): void {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!this._config || !this.hass) {
-      return;
+      return
     }
 
-    const conditions = ev.detail.value as Condition[];
+    const conditions = ev.detail.value as Condition[]
 
     const newConfig: EntityHeadingBadgeConfig = {
       ...this._config,
       visibility: conditions,
-    };
+    }
     if (newConfig.visibility?.length === 0) {
-      delete newConfig.visibility;
+      delete newConfig.visibility
     }
 
-    fireEvent(this, "config-changed", { config: newConfig });
+    fireEvent(this, 'config-changed', { config: newConfig })
   }
 
   private _computeLabelCallback = (
     schema: SchemaUnion<ReturnType<typeof this._schema>>
   ) => {
     switch (schema.name) {
-      case "state_content":
-      case "displayed_elements":
-      case "color":
+      case 'state_content':
+      case 'displayed_elements':
+      case 'color':
         return this.hass!.localize(
           `ui.panel.lovelace.editor.card.heading.entity_config.${schema.name}`
-        );
+        )
       default:
         return this.hass!.localize(
           `ui.panel.lovelace.editor.card.generic.${schema.name}`
-        );
+        )
     }
-  };
+  }
 
   private _computeHelperCallback = (
     schema: SchemaUnion<ReturnType<typeof this._schema>>
   ) => {
     switch (schema.name) {
-      case "color":
+      case 'color':
         return this.hass!.localize(
           `ui.panel.lovelace.editor.card.heading.entity_config.${schema.name}_helper`
-        );
-      case "name":
+        )
+      case 'name':
         return this.hass!.localize(
           `ui.panel.lovelace.editor.card.heading.entity_config.name_helper`
-        );
+        )
       default:
-        return undefined;
+        return undefined
     }
-  };
+  }
 
   static get styles() {
     return [
@@ -321,12 +324,12 @@ export class HuiHeadingEntityEditor
           margin-bottom: 8px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-heading-entity-editor": HuiHeadingEntityEditor;
+    'hui-heading-entity-editor': HuiHeadingEntityEditor
   }
 }

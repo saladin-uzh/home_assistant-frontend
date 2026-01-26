@@ -1,83 +1,92 @@
-import { mdiBackupRestore, mdiCalendar, mdiInformation } from "@mdi/js";
-import { addHours, differenceInDays, isToday, isTomorrow } from "date-fns";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import memoizeOne from "memoize-one";
+import { mdiBackupRestore, mdiCalendar, mdiInformation } from '@mdi/js'
+import { addHours, differenceInDays, isToday, isTomorrow } from 'date-fns'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
 import {
   formatDate,
   formatDateWeekday,
-} from "../../../../../common/datetime/format_date";
-import { relativeTime } from "../../../../../common/datetime/relative_time";
-import type { LocalizeKeys } from "../../../../../common/translations/localize";
-import "../../../../../components/ha-button";
-import "../../../../../components/ha-card";
-import "../../../../../components/ha-icon-button";
-import "../../../../../components/ha-md-list";
-import "../../../../../components/ha-md-list-item";
-import "../../../../../components/ha-svg-icon";
-import type { BackupConfig, BackupContent } from "../../../../../data/backup";
+} from '../../../../../common/datetime/format_date'
+import { relativeTime } from '../../../../../common/datetime/relative_time'
+import type { LocalizeKeys } from '../../../../../common/translations/localize'
+import '../../../../../components/ha-button'
+import '../../../../../components/ha-card'
+import '../../../../../components/ha-icon-button'
+import '../../../../../components/ha-md-list'
+import '../../../../../components/ha-md-list-item'
+import '../../../../../components/ha-svg-icon'
+import type { BackupConfig, BackupContent } from '../../../../../data/backup'
 import {
   BackupScheduleRecurrence,
   getFormattedBackupTime,
-} from "../../../../../data/backup";
-import { haStyle } from "../../../../../resources/styles";
-import type { HomeAssistant } from "../../../../../types";
-import { showAlertDialog } from "../../../../lovelace/custom-card-helpers";
-import "../ha-backup-summary-card";
+} from '../../../../../data/backup'
+import { haStyle } from '../../../../../resources/styles'
+import type { HomeAssistant } from '../../../../../types'
+import { showAlertDialog } from '../../../../lovelace/custom-card-helpers'
+import '../ha-backup-summary-card'
 
-const OVERDUE_MARGIN_HOURS = 3;
+const OVERDUE_MARGIN_HOURS = 3
 
-@customElement("ha-backup-overview-summary")
+@customElement('ha-backup-overview-summary')
 class HaBackupOverviewBackups extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public backups: BackupContent[] = [];
+  @property({ attribute: false }) public backups: BackupContent[] = []
 
-  @property({ attribute: false }) public config!: BackupConfig;
+  @property({ attribute: false }) public config!: BackupConfig
 
-  @property({ type: Boolean }) public fetching = false;
+  @property({ type: Boolean }) public fetching = false
 
   private _sortedBackups = memoizeOne((backups: BackupContent[]) =>
     backups
-      .filter((backup) => backup.with_automatic_settings)
+      .filter(backup => backup.with_automatic_settings)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-  );
+  )
 
   private _lastBackup = memoizeOne((backups: BackupContent[]) => {
-    const sortedBackups = this._sortedBackups(backups);
-    return sortedBackups[0] as BackupContent | undefined;
-  });
+    const sortedBackups = this._sortedBackups(backups)
+    return sortedBackups[0] as BackupContent | undefined
+  })
 
   private _lastUploadedBackup = memoizeOne((backups: BackupContent[]) => {
-    const sortedBackups = this._sortedBackups(backups);
-    return sortedBackups.find(
-      (backup) => backup.failed_agent_ids?.length === 0
-    );
-  });
+    const sortedBackups = this._sortedBackups(backups)
+    return sortedBackups.find(backup => backup.failed_agent_ids?.length === 0)
+  })
 
   private _renderSummaryCard(
     heading: string,
-    status: "error" | "info" | "warning" | "loading" | "success",
+    status: 'error' | 'info' | 'warning' | 'loading' | 'success',
     headline: string | null,
     description?: string | null,
     lastCompletedDate?: Date
   ) {
     return html`
-      <ha-backup-summary-card .heading=${heading} .status=${status}>
+      <ha-backup-summary-card
+        .heading=${heading}
+        .status=${status}
+      >
         <ha-md-list>
           <ha-md-list-item>
-            <ha-svg-icon slot="start" .path=${mdiBackupRestore}></ha-svg-icon>
-            <span slot="headline" class=${headline === null ? "skeleton" : ""}
+            <ha-svg-icon
+              slot="start"
+              .path=${mdiBackupRestore}
+            ></ha-svg-icon>
+            <span
+              slot="headline"
+              class=${headline === null ? 'skeleton' : ''}
               >${headline}</span
             >
           </ha-md-list-item>
           ${description || description === null
             ? html`<ha-md-list-item>
-                <ha-svg-icon slot="start" .path=${mdiCalendar}></ha-svg-icon>
+                <ha-svg-icon
+                  slot="start"
+                  .path=${mdiCalendar}
+                ></ha-svg-icon>
                 <span
                   slot="headline"
-                  class=${description === null ? "skeleton" : ""}
+                  class=${description === null ? 'skeleton' : ''}
                   >${description}</span
                 >
 
@@ -94,43 +103,43 @@ class HaBackupOverviewBackups extends LitElement {
             : nothing}
         </ha-md-list>
       </ha-backup-summary-card>
-    `;
+    `
   }
 
   protected render() {
-    const now = new Date();
+    const now = new Date()
 
     if (this.fetching) {
       return this._renderSummaryCard(
-        this.hass.localize("ui.panel.config.backup.overview.summary.loading"),
-        "loading",
+        this.hass.localize('ui.panel.config.backup.overview.summary.loading'),
+        'loading',
         null,
         null
-      );
+      )
     }
 
-    const lastBackup = this._lastBackup(this.backups);
+    const lastBackup = this._lastBackup(this.backups)
 
     const lastAttemptDate = this.config.last_attempted_automatic_backup
       ? new Date(this.config.last_attempted_automatic_backup)
-      : new Date(0);
+      : new Date(0)
 
     const lastCompletedDate = this.config.last_completed_automatic_backup
       ? new Date(this.config.last_completed_automatic_backup)
-      : new Date(0);
+      : new Date(0)
 
     const nextAutomaticDate = this.config.next_automatic_backup
       ? new Date(this.config.next_automatic_backup)
-      : undefined;
+      : undefined
 
     const backupTime = getFormattedBackupTime(
       this.hass.locale,
       this.hass.config,
       nextAutomaticDate || this.config.schedule.time
-    );
+    )
 
     const showAdditionalBackupDescription =
-      this.config.next_automatic_backup_additional;
+      this.config.next_automatic_backup_additional
 
     const nextBackupDescription =
       this.config.schedule.recurrence === BackupScheduleRecurrence.NEVER ||
@@ -146,11 +155,11 @@ class HaBackupOverviewBackups extends LitElement {
               {
                 day: isTomorrow(nextAutomaticDate)
                   ? this.hass.localize(
-                      "ui.panel.config.backup.overview.summary.tomorrow"
+                      'ui.panel.config.backup.overview.summary.tomorrow'
                     )
                   : isToday(nextAutomaticDate)
                     ? this.hass.localize(
-                        "ui.panel.config.backup.overview.summary.today"
+                        'ui.panel.config.backup.overview.summary.today'
                       )
                     : formatDateWeekday(
                         nextAutomaticDate,
@@ -160,19 +169,19 @@ class HaBackupOverviewBackups extends LitElement {
                 time: backupTime,
               }
             )
-          : "";
+          : ''
 
     // If last attempt is after last completed backup, show error
     if (lastAttemptDate > lastCompletedDate) {
-      const lastUploadedBackup = this._lastUploadedBackup(this.backups);
+      const lastUploadedBackup = this._lastUploadedBackup(this.backups)
 
       return this._renderSummaryCard(
         this.hass.localize(
-          "ui.panel.config.backup.overview.summary.last_backup_failed_heading"
+          'ui.panel.config.backup.overview.summary.last_backup_failed_heading'
         ),
-        "error",
+        'error',
         this.hass.localize(
-          "ui.panel.config.backup.overview.summary.last_backup_failed_description",
+          'ui.panel.config.backup.overview.summary.last_backup_failed_description',
           {
             relative_time: relativeTime(
               lastAttemptDate,
@@ -185,7 +194,7 @@ class HaBackupOverviewBackups extends LitElement {
         lastUploadedBackup || nextBackupDescription
           ? lastUploadedBackup
             ? this.hass.localize(
-                "ui.panel.config.backup.overview.summary.last_successful_backup_description",
+                'ui.panel.config.backup.overview.summary.last_successful_backup_description',
                 {
                   relative_time: relativeTime(
                     new Date(lastUploadedBackup.date),
@@ -198,25 +207,25 @@ class HaBackupOverviewBackups extends LitElement {
               )
             : nextBackupDescription
           : undefined
-      );
+      )
     }
 
     // If no backups yet, show warning
     if (!lastBackup) {
       return this._renderSummaryCard(
         this.hass.localize(
-          "ui.panel.config.backup.overview.summary.no_backup_heading"
+          'ui.panel.config.backup.overview.summary.no_backup_heading'
         ),
-        "warning",
+        'warning',
         this.hass.localize(
-          "ui.panel.config.backup.overview.summary.no_backup_description"
+          'ui.panel.config.backup.overview.summary.no_backup_description'
         ),
         nextBackupDescription,
         showAdditionalBackupDescription ? lastCompletedDate : undefined
-      );
+      )
     }
 
-    const lastBackupDate = new Date(lastBackup.date);
+    const lastBackupDate = new Date(lastBackup.date)
 
     // if parts of the last backup failed
     if (
@@ -224,27 +233,27 @@ class HaBackupOverviewBackups extends LitElement {
       lastBackup.failed_addons?.length ||
       lastBackup.failed_folders?.length
     ) {
-      const lastUploadedBackup = this._lastUploadedBackup(this.backups);
+      const lastUploadedBackup = this._lastUploadedBackup(this.backups)
 
-      const failedTypes: string[] = [];
+      const failedTypes: string[] = []
 
       if (lastBackup.failed_agent_ids?.length) {
-        failedTypes.push("locations");
+        failedTypes.push('locations')
       }
       if (lastBackup.failed_addons?.length) {
-        failedTypes.push("addons");
+        failedTypes.push('addons')
       }
       if (lastBackup.failed_folders?.length) {
-        failedTypes.push("folders");
+        failedTypes.push('folders')
       }
 
-      const type = failedTypes.join("_");
+      const type = failedTypes.join('_')
 
       return this._renderSummaryCard(
         this.hass.localize(
-          "ui.panel.config.backup.overview.summary.last_backup_failed_heading"
+          'ui.panel.config.backup.overview.summary.last_backup_failed_heading'
         ),
-        "error",
+        'error',
         this.hass.localize(
           `ui.panel.config.backup.overview.summary.last_backup_failed_${type}_description` as LocalizeKeys,
           {
@@ -258,7 +267,7 @@ class HaBackupOverviewBackups extends LitElement {
         ),
         lastUploadedBackup
           ? this.hass.localize(
-              "ui.panel.config.backup.overview.summary.last_successful_backup_description",
+              'ui.panel.config.backup.overview.summary.last_successful_backup_description',
               {
                 relative_time: relativeTime(
                   new Date(lastUploadedBackup.date),
@@ -271,11 +280,11 @@ class HaBackupOverviewBackups extends LitElement {
             )
           : nextBackupDescription,
         showAdditionalBackupDescription ? lastCompletedDate : undefined
-      );
+      )
     }
 
     const lastSuccessfulBackupDescription = this.hass.localize(
-      "ui.panel.config.backup.overview.summary.last_successful_backup_description",
+      'ui.panel.config.backup.overview.summary.last_successful_backup_description',
       {
         relative_time: relativeTime(
           new Date(lastBackup.date),
@@ -285,36 +294,36 @@ class HaBackupOverviewBackups extends LitElement {
         ),
         count: Object.keys(lastBackup.agents).length,
       }
-    );
+    )
 
     const numberOfDays = differenceInDays(
       // Subtract a few hours to avoid showing as overdue if it's just a few hours (e.g. daylight saving)
       addHours(now, -OVERDUE_MARGIN_HOURS),
       lastBackupDate
-    );
+    )
 
     const isOverdue =
       (numberOfDays >= 1 &&
         this.config.schedule.recurrence === BackupScheduleRecurrence.DAILY) ||
-      numberOfDays >= 7;
+      numberOfDays >= 7
 
     return this._renderSummaryCard(
       this.hass.localize(
-        `ui.panel.config.backup.overview.summary.${isOverdue ? "backup_too_old_heading" : "backup_success_heading"}`,
+        `ui.panel.config.backup.overview.summary.${isOverdue ? 'backup_too_old_heading' : 'backup_success_heading'}`,
         { count: numberOfDays }
       ),
-      isOverdue ? "warning" : "success",
+      isOverdue ? 'warning' : 'success',
       lastSuccessfulBackupDescription,
       nextBackupDescription,
       showAdditionalBackupDescription ? lastCompletedDate : undefined
-    );
+    )
   }
 
   private _createAdditionalBackupDescription =
     (lastCompletedDate: Date) => () => {
       showAlertDialog(this, {
         text: this.hass.localize(
-          "ui.panel.config.backup.overview.summary.additional_backup_description",
+          'ui.panel.config.backup.overview.summary.additional_backup_description',
           {
             date: formatDate(
               lastCompletedDate,
@@ -323,8 +332,8 @@ class HaBackupOverviewBackups extends LitElement {
             ),
           }
         ),
-      });
-    };
+      })
+    }
 
   static get styles(): CSSResultGroup {
     return [
@@ -385,12 +394,12 @@ class HaBackupOverviewBackups extends LitElement {
           }
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-backup-overview-summary": HaBackupOverviewBackups;
+    'ha-backup-overview-summary': HaBackupOverviewBackups
   }
 }

@@ -1,139 +1,139 @@
-import { ResizeController } from "@lit-labs/observers/resize-controller";
-import { mdiMinus, mdiPlus } from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, query } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import { fireEvent } from "../common/dom/fire_event";
-import { conditionalClamp } from "../common/number/clamp";
-import { formatNumber } from "../common/number/format_number";
-import { blankBeforeUnit } from "../common/translations/blank_before_unit";
-import type { FrontendLocaleData } from "../data/translation";
-import "./ha-svg-icon";
+import { ResizeController } from '@lit-labs/observers/resize-controller'
+import { mdiMinus, mdiPlus } from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import { fireEvent } from '../common/dom/fire_event'
+import { conditionalClamp } from '../common/number/clamp'
+import { formatNumber } from '../common/number/format_number'
+import { blankBeforeUnit } from '../common/translations/blank_before_unit'
+import type { FrontendLocaleData } from '../data/translation'
+import './ha-svg-icon'
 
 const A11Y_KEY_CODES = new Set([
-  "ArrowRight",
-  "ArrowUp",
-  "ArrowLeft",
-  "ArrowDown",
-  "PageUp",
-  "PageDown",
-  "Home",
-  "End",
-]);
+  'ArrowRight',
+  'ArrowUp',
+  'ArrowLeft',
+  'ArrowDown',
+  'PageUp',
+  'PageDown',
+  'Home',
+  'End',
+])
 
-@customElement("ha-control-number-buttons")
+@customElement('ha-control-number-buttons')
 export class HaControlNumberButton extends LitElement {
-  @property({ attribute: false }) public locale?: FrontendLocaleData;
+  @property({ attribute: false }) public locale?: FrontendLocaleData
 
-  @property({ type: Boolean, reflect: true }) disabled = false;
+  @property({ type: Boolean, reflect: true }) disabled = false
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property({ type: Number }) public step?: number;
+  @property({ type: Number }) public step?: number
 
-  @property({ type: Number }) public value?: number;
+  @property({ type: Number }) public value?: number
 
-  @property({ type: Number }) public min?: number;
+  @property({ type: Number }) public min?: number
 
-  @property({ type: Number }) public max?: number;
+  @property({ type: Number }) public max?: number
 
-  @property() public unit?: string;
+  @property() public unit?: string
 
   @property({ attribute: false })
-  public formatOptions: Intl.NumberFormatOptions = {};
+  public formatOptions: Intl.NumberFormatOptions = {}
 
-  @query("#input") _input!: HTMLDivElement;
+  @query('#input') _input!: HTMLDivElement
 
   private _hideUnit = new ResizeController(this, {
-    callback: (entries) => {
-      const width = entries[0]?.contentRect.width;
-      return width < 100;
+    callback: entries => {
+      const width = entries[0]?.contentRect.width
+      return width < 100
     },
-  });
+  })
 
   private _boundedValue(value: number) {
-    const clamped = conditionalClamp(value, this.min, this.max);
-    return Math.round(clamped / this._step) * this._step;
+    const clamped = conditionalClamp(value, this.min, this.max)
+    return Math.round(clamped / this._step) * this._step
   }
 
   private get _step() {
-    return this.step ?? 1;
+    return this.step ?? 1
   }
 
   private get _value() {
-    return this.value ?? 0;
+    return this.value ?? 0
   }
 
   private get _tenPercentStep() {
-    if (this.max == null || this.min == null) return this._step;
-    const range = this.max - this.min / 10;
+    if (this.max == null || this.min == null) return this._step
+    const range = this.max - this.min / 10
 
-    if (range <= this._step) return this._step;
-    return Math.max(range / 10);
+    if (range <= this._step) return this._step
+    return Math.max(range / 10)
   }
 
   private _handlePlusButton() {
-    this._increment();
-    fireEvent(this, "value-changed", { value: this.value });
-    this._input.focus();
+    this._increment()
+    fireEvent(this, 'value-changed', { value: this.value })
+    this._input.focus()
   }
 
   private _handleMinusButton() {
-    this._decrement();
-    fireEvent(this, "value-changed", { value: this.value });
-    this._input.focus();
+    this._decrement()
+    fireEvent(this, 'value-changed', { value: this.value })
+    this._input.focus()
   }
 
   private _increment() {
-    this.value = this._boundedValue(this._value + this._step);
+    this.value = this._boundedValue(this._value + this._step)
   }
 
   private _decrement() {
-    this.value = this._boundedValue(this._value - this._step);
+    this.value = this._boundedValue(this._value - this._step)
   }
 
   private _handleKeyDown(e: KeyboardEvent) {
-    if (this.disabled) return;
-    if (!A11Y_KEY_CODES.has(e.code)) return;
-    e.preventDefault();
+    if (this.disabled) return
+    if (!A11Y_KEY_CODES.has(e.code)) return
+    e.preventDefault()
     switch (e.code) {
-      case "ArrowRight":
-      case "ArrowUp":
-        this._increment();
-        break;
-      case "ArrowLeft":
-      case "ArrowDown":
-        this._decrement();
-        break;
-      case "PageUp":
-        this.value = this._boundedValue(this._value + this._tenPercentStep);
-        break;
-      case "PageDown":
-        this.value = this._boundedValue(this._value - this._tenPercentStep);
-        break;
-      case "Home":
+      case 'ArrowRight':
+      case 'ArrowUp':
+        this._increment()
+        break
+      case 'ArrowLeft':
+      case 'ArrowDown':
+        this._decrement()
+        break
+      case 'PageUp':
+        this.value = this._boundedValue(this._value + this._tenPercentStep)
+        break
+      case 'PageDown':
+        this.value = this._boundedValue(this._value - this._tenPercentStep)
+        break
+      case 'Home':
         if (this.min != null) {
-          this.value = this.min;
+          this.value = this.min
         }
-        break;
-      case "End":
+        break
+      case 'End':
         if (this.max != null) {
-          this.value = this.max;
+          this.value = this.max
         }
-        break;
+        break
     }
-    fireEvent(this, "value-changed", { value: this.value });
+    fireEvent(this, 'value-changed', { value: this.value })
   }
 
   protected render(): TemplateResult {
     const value =
       this.value != null
         ? formatNumber(this.value, this.locale, this.formatOptions)
-        : "";
+        : ''
     const unit = this.unit
       ? `${blankBeforeUnit(this.unit, this.locale)}${this.unit}`
-      : "";
+      : ''
 
     return html`
       <div class="container">
@@ -141,7 +141,7 @@ export class HaControlNumberButton extends LitElement {
           id="input"
           class="value"
           role="spinbutton"
-          tabindex=${this.disabled ? "-1" : "0"}
+          tabindex=${this.disabled ? '-1' : '0'}
           aria-valuenow=${ifDefined(this.value)}
           aria-valuetext=${`${value}${unit}`}
           aria-valuemin=${ifDefined(this.min)}
@@ -178,7 +178,7 @@ export class HaControlNumberButton extends LitElement {
           <ha-svg-icon .path=${mdiPlus}></ha-svg-icon>
         </button>
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -232,7 +232,7 @@ export class HaControlNumberButton extends LitElement {
       outline: none;
     }
     .value::before {
-      content: "";
+      content: '';
       position: absolute;
       top: 0;
       left: 0;
@@ -283,11 +283,11 @@ export class HaControlNumberButton extends LitElement {
         display: none;
       }
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-control-number-buttons": HaControlNumberButton;
+    'ha-control-number-buttons': HaControlNumberButton
   }
 }

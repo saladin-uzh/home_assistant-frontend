@@ -1,128 +1,128 @@
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { resolveTimeZone } from "../../../../common/datetime/resolve-time-zone";
-import type { HomeAssistant } from "../../../../types";
-import type { ClockCardConfig } from "../types";
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { resolveTimeZone } from '../../../../common/datetime/resolve-time-zone'
+import type { HomeAssistant } from '../../../../types'
+import type { ClockCardConfig } from '../types'
 
 function romanize12HourClock(num: number) {
   const numerals = [
-    "", // 0 (not used)
-    "I", // 1
-    "II", // 2
-    "III", // 3
-    "IV", // 4
-    "V", // 5
-    "VI", // 6
-    "VII", // 7
-    "VIII", // 8
-    "IX", // 9
-    "X", // 10
-    "XI", // 11
-    "XII", // 12
-  ];
-  if (num < 1 || num > 12) return "";
-  return numerals[num];
+    '', // 0 (not used)
+    'I', // 1
+    'II', // 2
+    'III', // 3
+    'IV', // 4
+    'V', // 5
+    'VI', // 6
+    'VII', // 7
+    'VIII', // 8
+    'IX', // 9
+    'X', // 10
+    'XI', // 11
+    'XII', // 12
+  ]
+  if (num < 1 || num > 12) return ''
+  return numerals[num]
 }
 
-@customElement("hui-clock-card-analog")
+@customElement('hui-clock-card-analog')
 export class HuiClockCardAnalog extends LitElement {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ attribute: false }) public config?: ClockCardConfig;
+  @property({ attribute: false }) public config?: ClockCardConfig
 
-  @state() private _dateTimeFormat?: Intl.DateTimeFormat;
+  @state() private _dateTimeFormat?: Intl.DateTimeFormat
 
-  @state() private _hourOffsetSec?: number;
+  @state() private _hourOffsetSec?: number
 
-  @state() private _minuteOffsetSec?: number;
+  @state() private _minuteOffsetSec?: number
 
-  @state() private _secondOffsetSec?: number;
+  @state() private _secondOffsetSec?: number
 
   private _initDate() {
     if (!this.config || !this.hass) {
-      return;
+      return
     }
 
-    let locale = this.hass.locale;
+    let locale = this.hass.locale
     if (this.config.time_format) {
-      locale = { ...locale, time_format: this.config.time_format };
+      locale = { ...locale, time_format: this.config.time_format }
     }
 
     this._dateTimeFormat = new Intl.DateTimeFormat(this.hass.locale.language, {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hourCycle: "h12",
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hourCycle: 'h12',
       timeZone:
         this.config.time_zone ||
         resolveTimeZone(locale.time_zone, this.hass.config?.time_zone),
-    });
+    })
 
-    this._computeOffsets();
+    this._computeOffsets()
   }
 
   protected updated(changedProps: PropertyValues) {
-    if (changedProps.has("hass")) {
-      const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
+    if (changedProps.has('hass')) {
+      const oldHass = changedProps.get('hass') as HomeAssistant | undefined
       if (!oldHass || oldHass.locale !== this.hass?.locale) {
-        this._initDate();
+        this._initDate()
       }
     }
   }
 
   public connectedCallback() {
-    super.connectedCallback();
-    document.addEventListener("visibilitychange", this._handleVisibilityChange);
-    this._computeOffsets();
+    super.connectedCallback()
+    document.addEventListener('visibilitychange', this._handleVisibilityChange)
+    this._computeOffsets()
   }
 
   public disconnectedCallback() {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
     document.removeEventListener(
-      "visibilitychange",
+      'visibilitychange',
       this._handleVisibilityChange
-    );
+    )
   }
 
   private _handleVisibilityChange = () => {
     if (!document.hidden) {
-      this._computeOffsets();
+      this._computeOffsets()
     }
-  };
+  }
 
   private _computeOffsets() {
-    if (!this._dateTimeFormat) return;
+    if (!this._dateTimeFormat) return
 
-    const parts = this._dateTimeFormat.formatToParts();
-    const hourStr = parts.find((p) => p.type === "hour")?.value;
-    const minuteStr = parts.find((p) => p.type === "minute")?.value;
-    const secondStr = parts.find((p) => p.type === "second")?.value;
+    const parts = this._dateTimeFormat.formatToParts()
+    const hourStr = parts.find(p => p.type === 'hour')?.value
+    const minuteStr = parts.find(p => p.type === 'minute')?.value
+    const secondStr = parts.find(p => p.type === 'second')?.value
 
-    const hour = hourStr ? parseInt(hourStr, 10) : 0;
-    const minute = minuteStr ? parseInt(minuteStr, 10) : 0;
-    const second = secondStr ? parseInt(secondStr, 10) : 0;
-    const ms = new Date().getMilliseconds();
-    const secondsWithMs = second + ms / 1000;
+    const hour = hourStr ? parseInt(hourStr, 10) : 0
+    const minute = minuteStr ? parseInt(minuteStr, 10) : 0
+    const second = secondStr ? parseInt(secondStr, 10) : 0
+    const ms = new Date().getMilliseconds()
+    const secondsWithMs = second + ms / 1000
 
-    const hour12 = hour % 12;
+    const hour12 = hour % 12
 
-    this._secondOffsetSec = secondsWithMs;
-    this._minuteOffsetSec = minute * 60 + secondsWithMs;
-    this._hourOffsetSec = hour12 * 3600 + minute * 60 + secondsWithMs;
+    this._secondOffsetSec = secondsWithMs
+    this._minuteOffsetSec = minute * 60 + secondsWithMs
+    this._hourOffsetSec = hour12 * 3600 + minute * 60 + secondsWithMs
   }
 
   render() {
-    if (!this.config) return nothing;
+    if (!this.config) return nothing
 
     const sizeClass = this.config.clock_size
       ? `size-${this.config.clock_size}`
-      : "";
+      : ''
 
-    const isNumbers = this.config?.face_style?.startsWith("numbers");
-    const isRoman = this.config?.face_style?.startsWith("roman");
-    const isUpright = this.config?.face_style?.endsWith("upright");
+    const isNumbers = this.config?.face_style?.startsWith('numbers')
+    const isRoman = this.config?.face_style?.startsWith('roman')
+    const isUpright = this.config?.face_style?.endsWith('upright')
 
     const indicator = (number?: number) => html`
       <div
@@ -132,11 +132,11 @@ export class HuiClockCardAnalog extends LitElement {
           roman: isRoman,
         })}
       >
-        ${number && this.config?.face_style !== "markers"
+        ${number && this.config?.face_style !== 'markers'
           ? html`<div
               class=${classMap({
                 number: true,
-                [this.config?.clock_size ?? ""]: true,
+                [this.config?.clock_size ?? '']: true,
                 upright: isUpright,
               })}
             >
@@ -148,7 +148,7 @@ export class HuiClockCardAnalog extends LitElement {
             </div>`
           : nothing}
       </div>
-    `;
+    `
 
     return html`
       <div
@@ -159,12 +159,12 @@ export class HuiClockCardAnalog extends LitElement {
         <div
           class=${classMap({
             dial: true,
-            "dial-border": this.config.border ?? false,
+            'dial-border': this.config.border ?? false,
           })}
         >
-          ${this.config.ticks === "quarter"
+          ${this.config.ticks === 'quarter'
             ? Array.from({ length: 4 }, (_, i) => i).map(
-                (i) =>
+                i =>
                   // 4 ticks (12, 3, 6, 9) at 0°, 90°, 180°, 270°
                   html`
                     <div
@@ -177,9 +177,9 @@ export class HuiClockCardAnalog extends LitElement {
                   `
               )
             : !this.config.ticks || // Default to hour ticks
-                this.config.ticks === "hour"
+                this.config.ticks === 'hour'
               ? Array.from({ length: 12 }, (_, i) => i).map(
-                  (i) =>
+                  i =>
                     // 12 ticks (1-12)
                     html`
                       <div
@@ -191,14 +191,14 @@ export class HuiClockCardAnalog extends LitElement {
                       </div>
                     `
                 )
-              : this.config.ticks === "minute"
+              : this.config.ticks === 'minute'
                 ? Array.from({ length: 60 }, (_, i) => i).map(
-                    (i) =>
+                    i =>
                       // 60 ticks (1-60)
                       html`
                         <div
                           aria-hidden="true"
-                          class="tick ${i % 5 === 0 ? "hour" : "minute"}"
+                          class="tick ${i % 5 === 0 ? 'hour' : 'minute'}"
                           style=${`--tick-rotation: ${i * 6}deg;`}
                         >
                           ${i % 5 === 0
@@ -222,10 +222,10 @@ export class HuiClockCardAnalog extends LitElement {
                 class=${classMap({
                   hand: true,
                   second: true,
-                  step: this.config.seconds_motion === "tick",
+                  step: this.config.seconds_motion === 'tick',
                 })}
                 style=${`animation-delay: -${
-                  (this.config.seconds_motion === "tick"
+                  (this.config.seconds_motion === 'tick'
                     ? Math.floor(this._secondOffsetSec ?? 0)
                     : (this._secondOffsetSec ?? 0)) as number
                 }s;`}
@@ -233,7 +233,7 @@ export class HuiClockCardAnalog extends LitElement {
             : nothing}
         </div>
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -407,11 +407,11 @@ export class HuiClockCardAnalog extends LitElement {
         transform: translate(-50%, 0) rotate(360deg);
       }
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-clock-card-analog": HuiClockCardAnalog;
+    'hui-clock-card-analog': HuiClockCardAnalog
   }
 }

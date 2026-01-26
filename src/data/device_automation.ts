@@ -1,101 +1,101 @@
-import { computeStateName } from "../common/entity/compute_state_name";
-import type { HaFormSchema } from "../components/ha-form/types";
-import type { HomeAssistant } from "../types";
-import type { BaseTrigger } from "./automation";
-import { migrateAutomationTrigger } from "./automation";
-import type { EntityRegistryEntry } from "./entity_registry";
+import { computeStateName } from '../common/entity/compute_state_name'
+import type { HaFormSchema } from '../components/ha-form/types'
+import type { HomeAssistant } from '../types'
+import type { BaseTrigger } from './automation'
+import { migrateAutomationTrigger } from './automation'
+import type { EntityRegistryEntry } from './entity_registry'
 import {
   computeEntityRegistryName,
   entityRegistryByEntityId,
   entityRegistryById,
-} from "./entity_registry";
+} from './entity_registry'
 
 export interface DeviceAutomation {
-  alias?: string;
-  device_id: string;
-  domain: string;
-  entity_id?: string;
-  type?: string;
-  subtype?: string;
-  event?: string;
-  enabled?: boolean;
-  metadata?: { secondary: boolean };
+  alias?: string
+  device_id: string
+  domain: string
+  entity_id?: string
+  type?: string
+  subtype?: string
+  event?: string
+  enabled?: boolean
+  metadata?: { secondary: boolean }
 }
 
 export interface DeviceAction extends DeviceAutomation {
-  entity_id: string;
+  entity_id: string
 }
 
 export interface DeviceCondition extends DeviceAutomation {
-  condition: "device";
+  condition: 'device'
 }
 
 export type DeviceTrigger = DeviceAutomation &
   BaseTrigger & {
-    trigger: "device";
-  };
+    trigger: 'device'
+  }
 
 export interface DeviceCapabilities {
-  extra_fields: HaFormSchema[];
+  extra_fields: HaFormSchema[]
 }
 
 export const fetchDeviceActions = (hass: HomeAssistant, deviceId: string) =>
   hass.callWS<DeviceAction[]>({
-    type: "device_automation/action/list",
+    type: 'device_automation/action/list',
     device_id: deviceId,
-  });
+  })
 
 export const fetchDeviceConditions = (hass: HomeAssistant, deviceId: string) =>
   hass.callWS<DeviceCondition[]>({
-    type: "device_automation/condition/list",
+    type: 'device_automation/condition/list',
     device_id: deviceId,
-  });
+  })
 
 export const fetchDeviceTriggers = (hass: HomeAssistant, deviceId: string) =>
   hass
     .callWS<DeviceTrigger[]>({
-      type: "device_automation/trigger/list",
+      type: 'device_automation/trigger/list',
       device_id: deviceId,
     })
-    .then((triggers) => migrateAutomationTrigger(triggers) as DeviceTrigger[]);
+    .then(triggers => migrateAutomationTrigger(triggers) as DeviceTrigger[])
 
 export const fetchDeviceActionCapabilities = (
   hass: HomeAssistant,
   action: DeviceAction
 ) =>
   hass.callWS<DeviceCapabilities>({
-    type: "device_automation/action/capabilities",
+    type: 'device_automation/action/capabilities',
     action,
-  });
+  })
 
 export const fetchDeviceConditionCapabilities = (
   hass: HomeAssistant,
   condition: DeviceCondition
 ) =>
   hass.callWS<DeviceCapabilities>({
-    type: "device_automation/condition/capabilities",
+    type: 'device_automation/condition/capabilities',
     condition,
-  });
+  })
 
 export const fetchDeviceTriggerCapabilities = (
   hass: HomeAssistant,
   trigger: DeviceTrigger
 ) =>
   hass.callWS<DeviceCapabilities>({
-    type: "device_automation/trigger/capabilities",
+    type: 'device_automation/trigger/capabilities',
     trigger,
-  });
+  })
 
 const deviceAutomationIdentifiers = [
-  "device_id",
-  "domain",
-  "entity_id",
-  "type",
-  "subtype",
-  "event",
-  "condition",
-  "trigger",
-];
+  'device_id',
+  'domain',
+  'entity_id',
+  'type',
+  'subtype',
+  'event',
+  'condition',
+  'trigger',
+]
 
 export const deviceAutomationsEqual = (
   entityRegistry: EntityRegistryEntry[],
@@ -103,16 +103,16 @@ export const deviceAutomationsEqual = (
   b: DeviceAutomation
 ) => {
   if (typeof a !== typeof b) {
-    return false;
+    return false
   }
 
   for (const property in a) {
     if (!deviceAutomationIdentifiers.includes(property)) {
-      continue;
+      continue
     }
     if (
-      property === "entity_id" &&
-      a[property]?.includes(".") !== b[property]?.includes(".")
+      property === 'entity_id' &&
+      a[property]?.includes('.') !== b[property]?.includes('.')
     ) {
       // both entity_id and entity_reg_id could be used, we should compare the entity_reg_id
       if (
@@ -122,21 +122,21 @@ export const deviceAutomationsEqual = (
           b[property]
         )
       ) {
-        return false;
+        return false
       }
-      continue;
+      continue
     }
     if (!Object.is(a[property], b[property])) {
-      return false;
+      return false
     }
   }
   for (const property in b) {
     if (!deviceAutomationIdentifiers.includes(property)) {
-      continue;
+      continue
     }
     if (
-      property === "entity_id" &&
-      a[property]?.includes(".") !== b[property]?.includes(".")
+      property === 'entity_id' &&
+      a[property]?.includes('.') !== b[property]?.includes('.')
     ) {
       // both entity_id and entity_reg_id could be used, we should compare the entity_reg_id
       if (
@@ -146,17 +146,17 @@ export const deviceAutomationsEqual = (
           b[property]
         )
       ) {
-        return false;
+        return false
       }
-      continue;
+      continue
     }
     if (!Object.is(a[property], b[property])) {
-      return false;
+      return false
     }
   }
 
-  return true;
-};
+  return true
+}
 
 const compareEntityIdWithEntityRegId = (
   entityRegistry: EntityRegistryEntry[],
@@ -164,24 +164,24 @@ const compareEntityIdWithEntityRegId = (
   entityIdB?: string
 ) => {
   if (!entityIdA || !entityIdB) {
-    return false;
+    return false
   }
-  if (entityIdA.includes(".")) {
-    const entityA = entityRegistryByEntityId(entityRegistry)[entityIdA];
+  if (entityIdA.includes('.')) {
+    const entityA = entityRegistryByEntityId(entityRegistry)[entityIdA]
     if (!entityA) {
-      return false;
+      return false
     }
-    entityIdA = entityA.id;
+    entityIdA = entityA.id
   }
-  if (entityIdB.includes(".")) {
-    const entityB = entityRegistryByEntityId(entityRegistry)[entityIdB];
+  if (entityIdB.includes('.')) {
+    const entityB = entityRegistryByEntityId(entityRegistry)[entityIdB]
     if (!entityB) {
-      return false;
+      return false
     }
-    entityIdB = entityB.id;
+    entityIdB = entityB.id
   }
-  return entityIdA === entityIdB;
-};
+  return entityIdA === entityIdB
+}
 
 const getEntityName = (
   hass: HomeAssistant,
@@ -190,28 +190,28 @@ const getEntityName = (
 ): string => {
   if (!entityId) {
     return (
-      "<" +
-      hass.localize("ui.panel.config.automation.editor.unknown_entity") +
-      ">"
-    );
+      '<' +
+      hass.localize('ui.panel.config.automation.editor.unknown_entity') +
+      '>'
+    )
   }
-  if (entityId.includes(".")) {
-    const state = hass.states[entityId];
+  if (entityId.includes('.')) {
+    const state = hass.states[entityId]
     if (state) {
-      return computeStateName(state);
+      return computeStateName(state)
     }
-    return entityId;
+    return entityId
   }
-  const entityReg = entityRegistryById(entityRegistry)[entityId];
+  const entityReg = entityRegistryById(entityRegistry)[entityId]
   if (entityReg) {
-    return computeEntityRegistryName(hass, entityReg) || entityId;
+    return computeEntityRegistryName(hass, entityReg) || entityId
   }
   return (
-    "<" +
-    hass.localize("ui.panel.config.automation.editor.unknown_entity") +
-    ">"
-  );
-};
+    '<' +
+    hass.localize('ui.panel.config.automation.editor.unknown_entity') +
+    '>'
+  )
+}
 
 export const localizeDeviceAutomationAction = (
   hass: HomeAssistant,
@@ -226,9 +226,9 @@ export const localizeDeviceAutomationAction = (
         ? hass.localize(
             `component.${action.domain}.device_automation.action_subtype.${action.subtype}`
           ) || action.subtype
-        : "",
+        : '',
     }
-  ) || (action.subtype ? `"${action.subtype}" ${action.type}` : action.type!);
+  ) || (action.subtype ? `"${action.subtype}" ${action.type}` : action.type!)
 
 export const localizeDeviceAutomationCondition = (
   hass: HomeAssistant,
@@ -243,12 +243,12 @@ export const localizeDeviceAutomationCondition = (
         ? hass.localize(
             `component.${condition.domain}.device_automation.condition_subtype.${condition.subtype}`
           ) || condition.subtype
-        : "",
+        : '',
     }
   ) ||
   (condition.subtype
     ? `"${condition.subtype}" ${condition.type}`
-    : condition.type!);
+    : condition.type!)
 
 export const localizeDeviceAutomationTrigger = (
   hass: HomeAssistant,
@@ -263,10 +263,10 @@ export const localizeDeviceAutomationTrigger = (
         ? hass.localize(
             `component.${trigger.domain}.device_automation.trigger_subtype.${trigger.subtype}`
           ) || trigger.subtype
-        : "",
+        : '',
     }
   ) ||
-  (trigger.subtype ? `"${trigger.subtype}" ${trigger.type}` : trigger.type!);
+  (trigger.subtype ? `"${trigger.subtype}" ${trigger.type}` : trigger.type!)
 
 export const localizeExtraFieldsComputeLabelCallback =
   (hass: HomeAssistant, deviceAutomation: DeviceAutomation) =>
@@ -274,7 +274,7 @@ export const localizeExtraFieldsComputeLabelCallback =
   (schema): string =>
     hass.localize(
       `component.${deviceAutomation.domain}.device_automation.extra_fields.${schema.name}`
-    ) || schema.name;
+    ) || schema.name
 
 export const localizeExtraFieldsComputeHelperCallback =
   (hass: HomeAssistant, deviceAutomation: DeviceAutomation) =>
@@ -282,17 +282,17 @@ export const localizeExtraFieldsComputeHelperCallback =
   (schema): string | undefined =>
     hass.localize(
       `component.${deviceAutomation.domain}.device_automation.extra_fields_descriptions.${schema.name}`
-    );
+    )
 
 export const sortDeviceAutomations = (
   automationA: DeviceAutomation,
   automationB: DeviceAutomation
 ) => {
   if (automationA.metadata?.secondary && !automationB.metadata?.secondary) {
-    return 1;
+    return 1
   }
   if (!automationA.metadata?.secondary && automationB.metadata?.secondary) {
-    return -1;
+    return -1
   }
-  return 0;
-};
+  return 0
+}

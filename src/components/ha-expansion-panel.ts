@@ -1,31 +1,31 @@
-import { mdiChevronDown } from "@mdi/js";
-import type { PropertyValues, TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { fireEvent } from "../common/dom/fire_event";
-import { nextRender } from "../common/util/render-status";
-import "./ha-svg-icon";
+import { mdiChevronDown } from '@mdi/js'
+import type { PropertyValues, TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { fireEvent } from '../common/dom/fire_event'
+import { nextRender } from '../common/util/render-status'
+import './ha-svg-icon'
 
-@customElement("ha-expansion-panel")
+@customElement('ha-expansion-panel')
 export class HaExpansionPanel extends LitElement {
-  @property({ type: Boolean, reflect: true }) expanded = false;
+  @property({ type: Boolean, reflect: true }) expanded = false
 
-  @property({ type: Boolean, reflect: true }) outlined = false;
+  @property({ type: Boolean, reflect: true }) outlined = false
 
-  @property({ attribute: "left-chevron", type: Boolean, reflect: true })
-  public leftChevron = false;
+  @property({ attribute: 'left-chevron', type: Boolean, reflect: true })
+  public leftChevron = false
 
-  @property({ attribute: "no-collapse", type: Boolean, reflect: true })
-  public noCollapse = false;
+  @property({ attribute: 'no-collapse', type: Boolean, reflect: true })
+  public noCollapse = false
 
-  @property() header?: string;
+  @property() header?: string
 
-  @property() secondary?: string;
+  @property() secondary?: string
 
-  @state() _showContent = this.expanded;
+  @state() _showContent = this.expanded
 
-  @query(".container") private _container!: HTMLDivElement;
+  @query('.container') private _container!: HTMLDivElement
 
   protected render(): TemplateResult {
     const chevronIcon = this.noCollapse
@@ -35,7 +35,7 @@ export class HaExpansionPanel extends LitElement {
             .path=${mdiChevronDown}
             class="summary-icon ${classMap({ expanded: this.expanded })}"
           ></ha-svg-icon>
-        `;
+        `
     return html`
       <div class="top ${classMap({ expanded: this.expanded })}">
         <div
@@ -56,7 +56,11 @@ export class HaExpansionPanel extends LitElement {
           <slot name="header">
             <div class="header">
               ${this.header}
-              <slot class="secondary" name="secondary">${this.secondary}</slot>
+              <slot
+                class="secondary"
+                name="secondary"
+                >${this.secondary}</slot
+              >
             </div>
           </slot>
           ${!this.leftChevron ? chevronIcon : nothing}
@@ -71,70 +75,70 @@ export class HaExpansionPanel extends LitElement {
         aria-hidden=${!this.expanded}
         tabindex="-1"
       >
-        ${this._showContent ? html`<slot></slot>` : ""}
+        ${this._showContent ? html`<slot></slot>` : ''}
       </div>
-    `;
+    `
   }
 
   protected willUpdate(changedProps: PropertyValues) {
-    super.willUpdate(changedProps);
-    if (changedProps.has("expanded")) {
-      this._showContent = this.expanded;
+    super.willUpdate(changedProps)
+    if (changedProps.has('expanded')) {
+      this._showContent = this.expanded
       setTimeout(() => {
         // Verify we're still expanded
-        this._container.style.overflow = this.expanded ? "initial" : "hidden";
-      }, 300);
+        this._container.style.overflow = this.expanded ? 'initial' : 'hidden'
+      }, 300)
     }
   }
 
   private _handleTransitionEnd() {
-    this._container.style.removeProperty("height");
-    this._container.style.overflow = this.expanded ? "initial" : "hidden";
-    this._showContent = this.expanded;
+    this._container.style.removeProperty('height')
+    this._container.style.overflow = this.expanded ? 'initial' : 'hidden'
+    this._showContent = this.expanded
   }
 
   private async _toggleContainer(ev): Promise<void> {
     if (ev.defaultPrevented) {
-      return;
+      return
     }
-    if (ev.type === "keydown" && ev.key !== "Enter" && ev.key !== " ") {
-      return;
+    if (ev.type === 'keydown' && ev.key !== 'Enter' && ev.key !== ' ') {
+      return
     }
-    ev.preventDefault();
+    ev.preventDefault()
     if (this.noCollapse) {
-      return;
+      return
     }
-    const newExpanded = !this.expanded;
-    fireEvent(this, "expanded-will-change", { expanded: newExpanded });
-    this._container.style.overflow = "hidden";
+    const newExpanded = !this.expanded
+    fireEvent(this, 'expanded-will-change', { expanded: newExpanded })
+    this._container.style.overflow = 'hidden'
 
     if (newExpanded) {
-      this._showContent = true;
+      this._showContent = true
       // allow for dynamic content to be rendered
-      await nextRender();
+      await nextRender()
     }
 
-    const scrollHeight = this._container.scrollHeight;
-    this._container.style.height = `${scrollHeight}px`;
+    const scrollHeight = this._container.scrollHeight
+    this._container.style.height = `${scrollHeight}px`
 
     if (!newExpanded) {
       setTimeout(() => {
-        this._container.style.height = "0px";
-      }, 0);
+        this._container.style.height = '0px'
+      }, 0)
     }
 
-    this.expanded = newExpanded;
-    fireEvent(this, "expanded-changed", { expanded: this.expanded });
+    this.expanded = newExpanded
+    fireEvent(this, 'expanded-changed', { expanded: this.expanded })
   }
 
   private _focusChanged(ev) {
     if (this.noCollapse) {
-      return;
+      return
     }
-    this.shadowRoot!.querySelector(".top")!.classList.toggle(
-      "focused",
-      ev.type === "focus"
-    );
+    this.shadowRoot!.querySelector('.top')!.classList.toggle(
+      'focused',
+      ev.type === 'focus'
+    )
   }
 
   static styles = css`
@@ -179,7 +183,7 @@ export class HaExpansionPanel extends LitElement {
     }
 
     :host([left-chevron]) .summary-icon,
-    ::slotted([slot="leading-icon"]) {
+    ::slotted([slot='leading-icon']) {
       margin-left: 0;
       margin-right: 8px;
       margin-inline-start: 0;
@@ -206,7 +210,7 @@ export class HaExpansionPanel extends LitElement {
     }
 
     .header,
-    ::slotted([slot="header"]) {
+    ::slotted([slot='header']) {
       flex: 1;
       overflow-wrap: anywhere;
       color: var(--primary-text-color);
@@ -228,21 +232,21 @@ export class HaExpansionPanel extends LitElement {
       color: var(--secondary-text-color);
       font-size: var(--ha-font-size-s);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-expansion-panel": HaExpansionPanel;
+    'ha-expansion-panel': HaExpansionPanel
   }
 
   // for fire event
   interface HASSDomEvents {
-    "expanded-changed": {
-      expanded: boolean;
-    };
-    "expanded-will-change": {
-      expanded: boolean;
-    };
+    'expanded-changed': {
+      expanded: boolean
+    }
+    'expanded-will-change': {
+      expanded: boolean
+    }
   }
 }

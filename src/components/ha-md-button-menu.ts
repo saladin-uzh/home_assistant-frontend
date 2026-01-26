@@ -1,56 +1,59 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, query } from "lit/decorators";
-import { fireEvent } from "../common/dom/fire_event";
-import { FOCUS_TARGET } from "../dialogs/make-dialog-manager";
-import type { HaButton } from "./ha-button";
-import type { HaIconButton } from "./ha-icon-button";
-import "./ha-md-menu";
-import type { HaMdMenu } from "./ha-md-menu";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import { fireEvent } from '../common/dom/fire_event'
+import { FOCUS_TARGET } from '../dialogs/make-dialog-manager'
+import type { HaButton } from './ha-button'
+import type { HaIconButton } from './ha-icon-button'
+import './ha-md-menu'
+import type { HaMdMenu } from './ha-md-menu'
 
-@customElement("ha-md-button-menu")
+@customElement('ha-md-button-menu')
 export class HaMdButtonMenu extends LitElement {
-  protected readonly [FOCUS_TARGET];
+  protected readonly [FOCUS_TARGET]
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property() public positioning?: "fixed" | "absolute" | "popover";
+  @property() public positioning?: 'fixed' | 'absolute' | 'popover'
 
-  @property({ attribute: "anchor-corner" }) public anchorCorner:
-    | "start-start"
-    | "start-end"
-    | "end-start"
-    | "end-end" = "end-start";
+  @property({ attribute: 'anchor-corner' }) public anchorCorner:
+    | 'start-start'
+    | 'start-end'
+    | 'end-start'
+    | 'end-end' = 'end-start'
 
-  @property({ attribute: "menu-corner" }) public menuCorner:
-    | "start-start"
-    | "start-end"
-    | "end-start"
-    | "end-end" = "start-start";
+  @property({ attribute: 'menu-corner' }) public menuCorner:
+    | 'start-start'
+    | 'start-end'
+    | 'end-start'
+    | 'end-end' = 'start-start'
 
-  @property({ type: Boolean, attribute: "has-overflow" }) public hasOverflow =
-    false;
+  @property({ type: Boolean, attribute: 'has-overflow' }) public hasOverflow =
+    false
 
-  @property({ type: Boolean }) public quick = false;
+  @property({ type: Boolean }) public quick = false
 
-  @query("ha-md-menu", true) private _menu!: HaMdMenu;
+  @query('ha-md-menu', true) private _menu!: HaMdMenu
 
   public get items() {
-    return this._menu.items;
+    return this._menu.items
   }
 
   public override focus() {
     if (this._menu.open) {
-      this._menu.focus();
+      this._menu.focus()
     } else {
-      this._triggerButton?.focus();
+      this._triggerButton?.focus()
     }
   }
 
   protected render(): TemplateResult {
     return html`
       <div @click=${this._handleClick}>
-        <slot name="trigger" @slotchange=${this._setTriggerAria}></slot>
+        <slot
+          name="trigger"
+          @slotchange=${this._setTriggerAria}
+        ></slot>
       </div>
       <ha-md-menu
         .quick=${this.quick}
@@ -63,38 +66,38 @@ export class HaMdButtonMenu extends LitElement {
       >
         <slot></slot>
       </ha-md-menu>
-    `;
+    `
   }
 
   private _handleOpening(): void {
-    fireEvent(this, "opening", undefined, { composed: false });
+    fireEvent(this, 'opening', undefined, { composed: false })
   }
 
   private _handleClosing(): void {
-    fireEvent(this, "closing", undefined, { composed: false });
+    fireEvent(this, 'closing', undefined, { composed: false })
   }
 
   private _handleClick(): void {
     if (this.disabled) {
-      return;
+      return
     }
-    this._menu.anchorElement = this;
+    this._menu.anchorElement = this
     if (this._menu.open) {
-      this._menu.close();
+      this._menu.close()
     } else {
-      this._menu.show();
+      this._menu.show()
     }
   }
 
   private get _triggerButton() {
     return this.querySelector(
       'ha-icon-button[slot="trigger"], ha-button[slot="trigger"], ha-assist-chip[slot="trigger"]'
-    ) as HaIconButton | HaButton | null;
+    ) as HaIconButton | HaButton | null
   }
 
   private _setTriggerAria() {
     if (this._triggerButton) {
-      this._triggerButton.ariaHasPopup = "menu";
+      this._triggerButton.ariaHasPopup = 'menu'
     }
   }
 
@@ -106,18 +109,18 @@ export class HaMdButtonMenu extends LitElement {
     ::slotted([disabled]) {
       color: var(--disabled-text-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-md-button-menu": HaMdButtonMenu;
+    'ha-md-button-menu': HaMdButtonMenu
   }
 }
 
 declare global {
   interface HASSDomEvents {
-    opening: undefined;
-    closing: undefined;
+    opening: undefined
+    closing: undefined
   }
 }

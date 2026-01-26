@@ -1,11 +1,11 @@
-import { isSameDay, isSameYear } from "date-fns";
-import type { HassConfig } from "home-assistant-js-websocket";
-import type { FrontendLocaleData } from "../../data/translation";
+import { isSameDay, isSameYear } from 'date-fns'
+import type { HassConfig } from 'home-assistant-js-websocket'
+import type { FrontendLocaleData } from '../../data/translation'
 import {
   formatShortDateTime,
   formatShortDateTimeWithYear,
-} from "./format_date_time";
-import { formatTime } from "./format_time";
+} from './format_date_time'
+import { formatTime } from './format_time'
 
 export const absoluteTime = (
   from: Date,
@@ -13,13 +13,13 @@ export const absoluteTime = (
   config: HassConfig,
   to?: Date
 ): string => {
-  const _to = to ?? new Date();
+  const _to = to ?? new Date()
 
   if (isSameDay(from, _to)) {
-    return formatTime(from, locale, config);
+    return formatTime(from, locale, config)
   }
   if (isSameYear(from, _to)) {
-    return formatShortDateTime(from, locale, config);
+    return formatShortDateTime(from, locale, config)
   }
-  return formatShortDateTimeWithYear(from, locale, config);
-};
+  return formatShortDateTimeWithYear(from, locale, config)
+}

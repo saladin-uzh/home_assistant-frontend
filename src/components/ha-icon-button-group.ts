@@ -1,11 +1,11 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
 
-@customElement("ha-icon-button-group")
+@customElement('ha-icon-button-group')
 export class HaIconButtonGroup extends LitElement {
   protected render(): TemplateResult {
-    return html`<slot></slot>`;
+    return html`<slot></slot>`
   }
 
   static styles = css`
@@ -27,11 +27,11 @@ export class HaIconButtonGroup extends LitElement {
       margin: 0 1px;
       height: 40px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-icon-button-group": HaIconButtonGroup;
+    'ha-icon-button-group': HaIconButtonGroup
   }
 }

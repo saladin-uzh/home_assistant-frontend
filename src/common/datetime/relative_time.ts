@@ -1,11 +1,11 @@
-import memoizeOne from "memoize-one";
-import type { FrontendLocaleData } from "../../data/translation";
-import { selectUnit } from "../util/select-unit";
+import memoizeOne from 'memoize-one'
+import type { FrontendLocaleData } from '../../data/translation'
+import { selectUnit } from '../util/select-unit'
 
 const formatRelTimeMem = memoizeOne(
   (locale: FrontendLocaleData) =>
-    new Intl.RelativeTimeFormat(locale.language, { numeric: "auto" })
-);
+    new Intl.RelativeTimeFormat(locale.language, { numeric: 'auto' })
+)
 
 export const relativeTime = (
   from: Date,
@@ -13,13 +13,13 @@ export const relativeTime = (
   to?: Date,
   includeTense = true
 ): string => {
-  const diff = selectUnit(from, to, locale);
+  const diff = selectUnit(from, to, locale)
   if (includeTense) {
-    return formatRelTimeMem(locale).format(diff.value, diff.unit);
+    return formatRelTimeMem(locale).format(diff.value, diff.unit)
   }
   return Intl.NumberFormat(locale.language, {
-    style: "unit",
+    style: 'unit',
     unit: diff.unit,
-    unitDisplay: "long",
-  }).format(Math.abs(diff.value));
-};
+    unitDisplay: 'long',
+  }).format(Math.abs(diff.value))
+}

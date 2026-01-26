@@ -1,33 +1,33 @@
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import "../../../../../components/ha-card";
-import type { ZHADevice } from "../../../../../data/zha";
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import '../../../../../components/ha-card'
+import type { ZHADevice } from '../../../../../data/zha'
 import {
   CONFIGURED,
   INCOMPLETE_PAIRING_STATUSES,
   INITIALIZED,
   INTERVIEW_COMPLETE,
-} from "../../../../../data/zha";
-import { haStyle } from "../../../../../resources/styles";
-import type { HomeAssistant } from "../../../../../types";
-import { formatAsPaddedHex } from "./functions";
-import "./zha-device-card";
+} from '../../../../../data/zha'
+import { haStyle } from '../../../../../resources/styles'
+import type { HomeAssistant } from '../../../../../types'
+import { formatAsPaddedHex } from './functions'
+import './zha-device-card'
 
-@customElement("zha-device-pairing-status-card")
+@customElement('zha-device-pairing-status-card')
 class ZHADevicePairingStatusCard extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public device?: ZHADevice;
+  @property({ attribute: false }) public device?: ZHADevice
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @state() private _showHelp = false;
+  @state() private _showHelp = false
 
   protected render() {
     if (!this.hass || !this.device) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -55,7 +55,7 @@ class ZHADevicePairingStatusCard extends LitElement {
             ? html`
                 <div class="model">${this.device.model}</div>
                 <div class="manuf">
-                  ${this.hass.localize("ui.dialogs.zha_device_info.manuf", {
+                  ${this.hass.localize('ui.dialogs.zha_device_info.manuf', {
                     manufacturer: this.device.manufacturer,
                   })}
                 </div>
@@ -84,7 +84,7 @@ class ZHADevicePairingStatusCard extends LitElement {
             : nothing}
         </div>
       </ha-card>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -126,12 +126,12 @@ class ZHADevicePairingStatusCard extends LitElement {
           color: var(--secondary-text-color);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "zha-device-pairing-status-card": ZHADevicePairingStatusCard;
+    'zha-device-pairing-status-card': ZHADevicePairingStatusCard
   }
 }

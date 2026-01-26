@@ -1,57 +1,57 @@
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../common/dom/fire_event";
-import type { EnergyInfo, EnergyPreferences } from "../../../data/energy";
-import { getEnergyInfo, saveEnergyPreferences } from "../../../data/energy";
-import type { LovelaceCardConfig } from "../../../data/lovelace/config/card";
-import { showAlertDialog } from "../../../dialogs/generic/show-dialog-box";
-import { haStyle } from "../../../resources/styles";
-import type { HomeAssistant } from "../../../types";
-import "../../config/energy/components/ha-energy-battery-settings";
-import "../../config/energy/components/ha-energy-device-settings";
-import "../../config/energy/components/ha-energy-gas-settings";
-import "../../config/energy/components/ha-energy-grid-settings";
-import "../../config/energy/components/ha-energy-solar-settings";
-import "../../config/energy/components/ha-energy-water-settings";
-import "../../../components/ha-button";
-import type { Lovelace, LovelaceCard } from "../../lovelace/types";
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../common/dom/fire_event'
+import type { EnergyInfo, EnergyPreferences } from '../../../data/energy'
+import { getEnergyInfo, saveEnergyPreferences } from '../../../data/energy'
+import type { LovelaceCardConfig } from '../../../data/lovelace/config/card'
+import { showAlertDialog } from '../../../dialogs/generic/show-dialog-box'
+import { haStyle } from '../../../resources/styles'
+import type { HomeAssistant } from '../../../types'
+import '../../config/energy/components/ha-energy-battery-settings'
+import '../../config/energy/components/ha-energy-device-settings'
+import '../../config/energy/components/ha-energy-gas-settings'
+import '../../config/energy/components/ha-energy-grid-settings'
+import '../../config/energy/components/ha-energy-solar-settings'
+import '../../config/energy/components/ha-energy-water-settings'
+import '../../../components/ha-button'
+import type { Lovelace, LovelaceCard } from '../../lovelace/types'
 
-@customElement("energy-setup-wizard-card")
+@customElement('energy-setup-wizard-card')
 export class EnergySetupWizard extends LitElement implements LovelaceCard {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public lovelace?: Lovelace;
+  @property({ attribute: false }) public lovelace?: Lovelace
 
-  @state() private _info?: EnergyInfo;
+  @state() private _info?: EnergyInfo
 
-  @state() private _step = 0;
+  @state() private _step = 0
 
   @state() private _preferences: EnergyPreferences = {
     energy_sources: [],
     device_consumption: [],
     device_consumption_water: [],
-  };
+  }
 
   public getCardSize() {
-    return 10;
+    return 10
   }
 
   public setConfig(config: LovelaceCardConfig) {
     if (config.preferences) {
-      this._preferences = config.preferences;
+      this._preferences = config.preferences
     }
   }
 
   protected firstUpdated() {
-    this.hass.loadFragmentTranslation("config");
-    this._fetchconfig();
+    this.hass.loadFragmentTranslation('config')
+    this._fetchconfig()
   }
 
   protected render(): TemplateResult {
     return html`
       <p>
-        ${this.hass.localize("ui.panel.energy.setup.step", {
+        ${this.hass.localize('ui.panel.energy.setup.step', {
           step: this._step + 1,
           steps: 6,
         })}
@@ -94,46 +94,48 @@ export class EnergySetupWizard extends LitElement implements LovelaceCard {
                   ></ha-energy-device-settings>`}
       <div class="buttons">
         ${this._step > 0
-          ? html`<ha-button appearance="plain" @click=${this._back}
-              >${this.hass.localize("ui.panel.energy.setup.back")}</ha-button
+          ? html`<ha-button
+              appearance="plain"
+              @click=${this._back}
+              >${this.hass.localize('ui.panel.energy.setup.back')}</ha-button
             >`
           : html`<div></div>`}
         ${this._step < 4
           ? html`<ha-button @click=${this._next}
-              >${this.hass.localize("ui.panel.energy.setup.next")}</ha-button
+              >${this.hass.localize('ui.panel.energy.setup.next')}</ha-button
             >`
           : html`<ha-button @click=${this._setupDone}>
-              ${this.hass.localize("ui.panel.energy.setup.done")}
+              ${this.hass.localize('ui.panel.energy.setup.done')}
             </ha-button>`}
       </div>
-    `;
+    `
   }
 
   private async _fetchconfig() {
-    this._info = await getEnergyInfo(this.hass);
+    this._info = await getEnergyInfo(this.hass)
   }
 
   private _prefsChanged(ev: CustomEvent) {
-    this._preferences = ev.detail.value;
+    this._preferences = ev.detail.value
   }
 
   private _back() {
     if (this._step === 0) {
-      return;
+      return
     }
-    this._step--;
+    this._step--
   }
 
   private _next() {
     if (this._step === 5) {
-      return;
+      return
     }
-    this._step++;
+    this._step++
   }
 
   private async _setupDone() {
     if (!this._preferences) {
-      return;
+      return
     }
     // User made no selections during setup
     if (
@@ -142,23 +144,23 @@ export class EnergySetupWizard extends LitElement implements LovelaceCard {
     ) {
       showAlertDialog(this, {
         title: this.hass.localize(
-          "ui.panel.energy.setup.no_statistics_selected_title"
+          'ui.panel.energy.setup.no_statistics_selected_title'
         ),
         text: this.hass.localize(
-          "ui.panel.energy.setup.no_statistics_selected_description"
+          'ui.panel.energy.setup.no_statistics_selected_description'
         ),
-      });
-      return;
+      })
+      return
     }
     try {
       this._preferences = await saveEnergyPreferences(
         this.hass,
         this._preferences
-      );
+      )
     } catch (err: any) {
-      showAlertDialog(this, { title: `Failed to save config: ${err.message}` });
+      showAlertDialog(this, { title: `Failed to save config: ${err.message}` })
     }
-    fireEvent(this, "reload-energy-panel");
+    fireEvent(this, 'reload-energy-panel')
   }
 
   static get styles(): CSSResultGroup {
@@ -179,12 +181,12 @@ export class EnergySetupWizard extends LitElement implements LovelaceCard {
           justify-content: space-between;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "energy-setup-wizard-card": EnergySetupWizard;
+    'energy-setup-wizard-card': EnergySetupWizard
   }
 }

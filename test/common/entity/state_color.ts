@@ -1,1 +1,1 @@
-export {}; // for Babel to treat as a module
+export {} // for Babel to treat as a module

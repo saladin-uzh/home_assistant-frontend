@@ -1,4 +1,4 @@
-import { css } from "lit";
+import { css } from 'lit'
 
 export const buttonLinkStyle = css`
   button.link {
@@ -12,7 +12,7 @@ export const buttonLinkStyle = css`
     cursor: pointer;
     outline: none;
   }
-`;
+`
 
 export const haStyle = css`
   :host {
@@ -133,7 +133,7 @@ export const haStyle = css`
   .layout.justified {
     justify-content: space-between;
   }
-`;
+`
 
 export const haStyleDialog = css`
   /* mwc-dialog (ha-dialog) styles */
@@ -178,7 +178,7 @@ export const haStyleDialog = css`
   .error {
     color: var(--error-color);
   }
-`;
+`
 
 export const haStyleDialogFixedTop = css`
   ha-dialog {
@@ -209,7 +209,7 @@ export const haStyleDialogFixedTop = css`
       --mdc-dialog-max-height: 100svh;
     }
   }
-`;
+`
 
 export const haStyleScrollbar = css`
   .ha-scrollbar::-webkit-scrollbar {
@@ -227,7 +227,7 @@ export const haStyleScrollbar = css`
     scrollbar-color: var(--scrollbar-thumb-color) transparent;
     scrollbar-width: thin;
   }
-`;
+`
 
 export const baseEntrypointStyles = css`
   body {
@@ -236,4 +236,4 @@ export const baseEntrypointStyles = css`
     height: calc(100vh - 32px);
     width: 100vw;
   }
-`;
+`

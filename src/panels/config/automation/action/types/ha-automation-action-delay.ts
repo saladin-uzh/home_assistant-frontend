@@ -1,44 +1,44 @@
-import type { PropertyValues } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import { hasTemplate } from "../../../../../common/string/has-template";
-import type { HaDurationData } from "../../../../../components/ha-duration-input";
-import "../../../../../components/ha-duration-input";
-import type { DelayAction } from "../../../../../data/script";
-import type { HomeAssistant } from "../../../../../types";
-import type { ActionElement } from "../ha-automation-action-row";
-import { createDurationData } from "../../../../../common/datetime/create_duration_data";
+import type { PropertyValues } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import { hasTemplate } from '../../../../../common/string/has-template'
+import type { HaDurationData } from '../../../../../components/ha-duration-input'
+import '../../../../../components/ha-duration-input'
+import type { DelayAction } from '../../../../../data/script'
+import type { HomeAssistant } from '../../../../../types'
+import type { ActionElement } from '../ha-automation-action-row'
+import { createDurationData } from '../../../../../common/datetime/create_duration_data'
 
-@customElement("ha-automation-action-delay")
+@customElement('ha-automation-action-delay')
 export class HaDelayAction extends LitElement implements ActionElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ attribute: false }) public action!: DelayAction;
+  @property({ attribute: false }) public action!: DelayAction
 
-  @state() private _timeData?: HaDurationData;
+  @state() private _timeData?: HaDurationData
 
   public static get defaultConfig(): DelayAction {
-    return { delay: "" };
+    return { delay: '' }
   }
 
   public willUpdate(changedProperties: PropertyValues) {
-    if (!changedProperties.has("action")) {
-      return;
+    if (!changedProperties.has('action')) {
+      return
     }
     // Check for templates in action. If found, revert to YAML mode.
     if (this.action && hasTemplate(this.action)) {
       fireEvent(
         this,
-        "ui-mode-not-available",
-        Error(this.hass.localize("ui.errors.config.no_template_editor_support"))
-      );
-      return;
+        'ui-mode-not-available',
+        Error(this.hass.localize('ui.errors.config.no_template_editor_support'))
+      )
+      return
     }
 
-    this._timeData = createDurationData(this.action.delay);
+    this._timeData = createDurationData(this.action.delay)
   }
 
   protected render() {
@@ -51,23 +51,23 @@ export class HaDelayAction extends LitElement implements ActionElement {
       enable-millisecond
       required
       @value-changed=${this._valueChanged}
-    ></ha-duration-input>`;
+    ></ha-duration-input>`
   }
 
   private _valueChanged(ev: CustomEvent) {
-    ev.stopPropagation();
-    const value = ev.detail.value;
+    ev.stopPropagation()
+    const value = ev.detail.value
     if (!value) {
-      return;
+      return
     }
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: { ...this.action, delay: value },
-    });
+    })
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-action-delay": HaDelayAction;
+    'ha-automation-action-delay': HaDelayAction
   }
 }

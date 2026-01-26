@@ -1,136 +1,136 @@
-import type { Card } from "./types";
+import type { Card } from './types'
 
 export const coreCards: Card[] = [
   {
-    type: "alarm-panel",
+    type: 'alarm-panel',
     showElement: true,
   },
   {
-    type: "button",
+    type: 'button',
     showElement: true,
   },
   {
-    type: "calendar",
+    type: 'calendar',
     showElement: true,
   },
   {
-    type: "clock",
+    type: 'clock',
     showElement: true,
   },
   {
-    type: "entities",
+    type: 'entities',
     showElement: true,
   },
   {
-    type: "entity",
+    type: 'entity',
     showElement: true,
   },
   {
-    type: "gauge",
+    type: 'gauge',
     showElement: true,
   },
   {
-    type: "glance",
+    type: 'glance',
     showElement: true,
   },
   {
-    type: "history-graph",
+    type: 'history-graph',
     showElement: true,
   },
   {
-    type: "statistics-graph",
+    type: 'statistics-graph',
     showElement: false,
   },
   {
-    type: "statistic",
+    type: 'statistic',
     showElement: true,
   },
   {
-    type: "humidifier",
+    type: 'humidifier',
     showElement: true,
   },
   {
-    type: "light",
+    type: 'light',
     showElement: true,
   },
   {
-    type: "map",
+    type: 'map',
     showElement: true,
   },
   {
-    type: "markdown",
+    type: 'markdown',
     showElement: true,
   },
   {
-    type: "media-control",
+    type: 'media-control',
     showElement: true,
   },
   {
-    type: "picture",
+    type: 'picture',
     showElement: true,
   },
   {
-    type: "picture-elements",
+    type: 'picture-elements',
     showElement: true,
   },
   {
-    type: "picture-entity",
+    type: 'picture-entity',
     showElement: true,
   },
   {
-    type: "picture-glance",
+    type: 'picture-glance',
     showElement: true,
   },
   {
-    type: "plant-status",
+    type: 'plant-status',
     showElement: true,
   },
   {
-    type: "sensor",
+    type: 'sensor',
     showElement: true,
   },
   {
-    type: "thermostat",
+    type: 'thermostat',
     showElement: true,
   },
   {
-    type: "weather-forecast",
+    type: 'weather-forecast',
     showElement: true,
   },
   {
-    type: "area",
+    type: 'area',
     showElement: true,
   },
   {
-    type: "tile",
+    type: 'tile',
     showElement: true,
   },
   {
-    type: "conditional",
+    type: 'conditional',
   },
   {
-    type: "entity-filter",
+    type: 'entity-filter',
   },
   {
-    type: "grid",
+    type: 'grid',
   },
   {
-    type: "horizontal-stack",
+    type: 'horizontal-stack',
   },
   {
-    type: "iframe",
+    type: 'iframe',
   },
   {
-    type: "logbook",
+    type: 'logbook',
   },
   {
-    type: "vertical-stack",
+    type: 'vertical-stack',
   },
   {
-    type: "todo-list",
+    type: 'todo-list',
   },
   {
-    type: "heading",
+    type: 'heading',
     showElement: true,
   },
-];
+]

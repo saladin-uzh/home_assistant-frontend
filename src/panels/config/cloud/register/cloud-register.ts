@@ -1,100 +1,102 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/buttons/ha-progress-button";
-import "../../../../components/ha-alert";
-import "../../../../components/ha-card";
-import "../../../../components/ha-textfield";
-import type { HaTextField } from "../../../../components/ha-textfield";
-import { cloudRegister, cloudResendVerification } from "../../../../data/cloud";
-import "../../../../layouts/hass-subpage";
-import { haStyle } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import "../../ha-config-section";
-import "../../../../components/ha-password-field";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/buttons/ha-progress-button'
+import '../../../../components/ha-alert'
+import '../../../../components/ha-card'
+import '../../../../components/ha-textfield'
+import type { HaTextField } from '../../../../components/ha-textfield'
+import { cloudRegister, cloudResendVerification } from '../../../../data/cloud'
+import '../../../../layouts/hass-subpage'
+import { haStyle } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import '../../ha-config-section'
+import '../../../../components/ha-password-field'
 
-@customElement("cloud-register")
+@customElement('cloud-register')
 export class CloudRegister extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: "is-wide", type: Boolean }) public isWide = false;
+  @property({ attribute: 'is-wide', type: Boolean }) public isWide = false
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property() public email?: string;
+  @property() public email?: string
 
-  @state() private _requestInProgress = false;
+  @state() private _requestInProgress = false
 
-  @state() private _password = "";
+  @state() private _password = ''
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
-  @query("#email", true) private _emailField!: HaTextField;
+  @query('#email', true) private _emailField!: HaTextField
 
-  @query("#password", true) private _passwordField!: HaTextField;
+  @query('#password', true) private _passwordField!: HaTextField
 
   protected render(): TemplateResult {
     return html`
       <hass-subpage
         .hass=${this.hass}
         .narrow=${this.narrow}
-        .header=${this.hass.localize("ui.panel.config.cloud.register.title")}
+        .header=${this.hass.localize('ui.panel.config.cloud.register.title')}
       >
         <div class="content">
           <ha-config-section .isWide=${this.isWide}>
             <span slot="header"
               >${this.hass.localize(
-                "ui.panel.config.cloud.register.headline"
+                'ui.panel.config.cloud.register.headline'
               )}</span
             >
             <div slot="introduction">
               <p>
                 ${this.hass.localize(
-                  "ui.panel.config.cloud.register.information"
+                  'ui.panel.config.cloud.register.information'
                 )}
               </p>
               <p>
                 ${this.hass.localize(
-                  "ui.panel.config.cloud.register.information2"
+                  'ui.panel.config.cloud.register.information2'
                 )}
               </p>
               <ul>
                 <li>
                   ${this.hass.localize(
-                    "ui.panel.config.cloud.register.feature_remote_control"
+                    'ui.panel.config.cloud.register.feature_remote_control'
                   )}
                 </li>
                 <li>
                   ${this.hass.localize(
-                    "ui.panel.config.cloud.register.feature_google_home"
+                    'ui.panel.config.cloud.register.feature_google_home'
                   )}
                 </li>
                 <li>
                   ${this.hass.localize(
-                    "ui.panel.config.cloud.register.feature_amazon_alexa"
+                    'ui.panel.config.cloud.register.feature_amazon_alexa'
                   )}
                 </li>
                 <li>
                   ${this.hass.localize(
-                    "ui.panel.config.cloud.register.feature_webhook_apps"
+                    'ui.panel.config.cloud.register.feature_webhook_apps'
                   )}
                 </li>
               </ul>
               <p>
                 ${this.hass.localize(
-                  "ui.panel.config.cloud.register.information3"
+                  'ui.panel.config.cloud.register.information3'
                 )}
-                <a href="https://www.nabucasa.com" target="_blank"
+                <a
+                  href="https://www.nabucasa.com"
+                  target="_blank"
                   >Nabu&nbsp;Casa,&nbsp;Inc</a
                 >
                 ${this.hass.localize(
-                  "ui.panel.config.cloud.register.information3a"
+                  'ui.panel.config.cloud.register.information3a'
                 )}
               </p>
               <p>
                 ${this.hass.localize(
-                  "ui.panel.config.cloud.register.information4"
+                  'ui.panel.config.cloud.register.information4'
                 )}
               </p>
               <ul>
@@ -105,7 +107,7 @@ export class CloudRegister extends LitElement {
                     rel="noreferrer"
                   >
                     ${this.hass.localize(
-                      "ui.panel.config.cloud.register.link_terms_conditions"
+                      'ui.panel.config.cloud.register.link_terms_conditions'
                     )}
                   </a>
                 </li>
@@ -116,7 +118,7 @@ export class CloudRegister extends LitElement {
                     rel="noreferrer"
                   >
                     ${this.hass.localize(
-                      "ui.panel.config.cloud.register.link_privacy_policy"
+                      'ui.panel.config.cloud.register.link_privacy_policy'
                     )}
                   </a>
                 </li>
@@ -125,33 +127,33 @@ export class CloudRegister extends LitElement {
             <ha-card
               outlined
               .header=${this.hass.localize(
-                "ui.panel.config.cloud.register.create_account"
+                'ui.panel.config.cloud.register.create_account'
               )}
               ><div class="card-content register-form">
                 ${this._error
                   ? html`<ha-alert alert-type="error">${this._error}</ha-alert>`
-                  : ""}
+                  : ''}
                 <ha-textfield
                   autofocus
                   id="email"
                   name="email"
                   .label=${this.hass.localize(
-                    "ui.panel.config.cloud.register.email_address"
+                    'ui.panel.config.cloud.register.email_address'
                   )}
                   type="email"
                   autocomplete="email"
                   required
-                  .value=${this.email ?? ""}
+                  .value=${this.email ?? ''}
                   @keydown=${this._keyDown}
                   validationMessage=${this.hass.localize(
-                    "ui.panel.config.cloud.register.email_error_msg"
+                    'ui.panel.config.cloud.register.email_error_msg'
                   )}
                 ></ha-textfield>
                 <ha-password-field
                   id="password"
                   name="password"
                   .label=${this.hass.localize(
-                    "ui.panel.config.cloud.register.password"
+                    'ui.panel.config.cloud.register.password'
                   )}
                   .value=${this._password}
                   autocomplete="new-password"
@@ -159,7 +161,7 @@ export class CloudRegister extends LitElement {
                   required
                   @keydown=${this._keyDown}
                   validationMessage=${this.hass.localize(
-                    "ui.panel.config.cloud.register.password_error_msg"
+                    'ui.panel.config.cloud.register.password_error_msg'
                   )}
                 ></ha-password-field>
               </div>
@@ -170,14 +172,14 @@ export class CloudRegister extends LitElement {
                   @click=${this._handleResendVerifyEmail}
                 >
                   ${this.hass.localize(
-                    "ui.panel.config.cloud.register.resend_confirm_email"
+                    'ui.panel.config.cloud.register.resend_confirm_email'
                   )}
                 </button>
                 <ha-progress-button
                   @click=${this._handleRegister}
                   .progress=${this._requestInProgress}
                   >${this.hass.localize(
-                    "ui.panel.config.cloud.register.start_trial"
+                    'ui.panel.config.cloud.register.start_trial'
                   )}</ha-progress-button
                 >
               </div>
@@ -185,97 +187,95 @@ export class CloudRegister extends LitElement {
           </ha-config-section>
         </div>
       </hass-subpage>
-    `;
+    `
   }
 
   private _keyDown(ev: KeyboardEvent) {
-    if (ev.key === "Enter") {
-      this._handleRegister();
+    if (ev.key === 'Enter') {
+      this._handleRegister()
     }
   }
 
   private async _handleRegister() {
-    const emailField = this._emailField;
-    const passwordField = this._passwordField;
+    const emailField = this._emailField
+    const passwordField = this._passwordField
 
     if (!emailField.reportValidity()) {
-      passwordField.reportValidity();
-      emailField.focus();
-      return;
+      passwordField.reportValidity()
+      emailField.focus()
+      return
     }
 
     if (!passwordField.reportValidity()) {
-      passwordField.focus();
-      return;
+      passwordField.focus()
+      return
     }
 
-    const email = emailField.value.toLowerCase();
-    const password = passwordField.value;
+    const email = emailField.value.toLowerCase()
+    const password = passwordField.value
 
-    this._requestInProgress = true;
+    this._requestInProgress = true
 
     try {
-      await cloudRegister(this.hass, email, password);
-      this._verificationEmailSent(email);
+      await cloudRegister(this.hass, email, password)
+      this._verificationEmailSent(email)
     } catch (err: any) {
-      this._password = "";
-      this._requestInProgress = false;
+      this._password = ''
+      this._requestInProgress = false
       this._error =
-        err && err.body && err.body.message
-          ? err.body.message
-          : "Unknown error";
+        err && err.body && err.body.message ? err.body.message : 'Unknown error'
     }
   }
 
   private async _handleResendVerifyEmail() {
-    const emailField = this._emailField;
+    const emailField = this._emailField
 
     if (!emailField.reportValidity()) {
-      emailField.focus();
-      return;
+      emailField.focus()
+      return
     }
 
-    const email = emailField.value;
+    const email = emailField.value
 
     const doResend = async (username: string) => {
       try {
-        await cloudResendVerification(this.hass, username);
-        this._verificationEmailSent(username);
+        await cloudResendVerification(this.hass, username)
+        this._verificationEmailSent(username)
       } catch (err: any) {
-        const errCode = err && err.body && err.body.code;
-        if (errCode === "usernotfound" && username !== username.toLowerCase()) {
-          await doResend(username.toLowerCase());
+        const errCode = err && err.body && err.body.code
+        if (errCode === 'usernotfound' && username !== username.toLowerCase()) {
+          await doResend(username.toLowerCase())
         } else {
           this._error =
             err && err.body && err.body.message
               ? err.body.message
-              : "Unknown error";
+              : 'Unknown error'
         }
       }
-    };
+    }
 
-    await doResend(email);
+    await doResend(email)
   }
 
   private _verificationEmailSent(email: string) {
-    this._requestInProgress = false;
-    this._password = "";
-    fireEvent(this, "cloud-email-changed", { value: email });
-    fireEvent(this, "cloud-done", {
+    this._requestInProgress = false
+    this._password = ''
+    fireEvent(this, 'cloud-email-changed', { value: email })
+    fireEvent(this, 'cloud-done', {
       flashMessage: this.hass.localize(
-        "ui.panel.config.cloud.register.account_created"
+        'ui.panel.config.cloud.register.account_created'
       ),
-    });
+    })
   }
 
   static get styles() {
     return [
       haStyle,
       css`
-        [slot="introduction"] {
+        [slot='introduction'] {
           margin: -1em 0;
         }
-        [slot="introduction"] a {
+        [slot='introduction'] a {
           color: var(--primary-color);
         }
         a {
@@ -294,16 +294,16 @@ export class CloudRegister extends LitElement {
           align-items: center;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "cloud-register": CloudRegister;
+    'cloud-register': CloudRegister
   }
 
   interface HASSDomEvents {
-    "cloud-done": { flashMessage: string };
+    'cloud-done': { flashMessage: string }
   }
 }

@@ -1,11 +1,11 @@
-import { css } from "lit";
-import { customElement, property } from "lit/decorators";
-import { HaMdListItem, haMdListStyles } from "./ha-md-list-item";
+import { css } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { HaMdListItem, haMdListStyles } from './ha-md-list-item'
 
-@customElement("ha-combo-box-item")
+@customElement('ha-combo-box-item')
 export class HaComboBoxItem extends HaMdListItem {
-  @property({ type: Boolean, reflect: true, attribute: "border-top" })
-  public borderTop = false;
+  @property({ type: Boolean, reflect: true, attribute: 'border-top' })
+  public borderTop = false
 
   static override styles = [
     ...haMdListStyles,
@@ -17,15 +17,15 @@ export class HaComboBoxItem extends HaMdListItem {
       :host([border-top]) md-item {
         border-top: 1px solid var(--divider-color);
       }
-      [slot="start"] {
+      [slot='start'] {
         --state-icon-color: var(--secondary-text-color);
       }
-      [slot="headline"] {
+      [slot='headline'] {
         line-height: var(--ha-line-height-normal);
         font-size: var(--ha-font-size-m);
         white-space: nowrap;
       }
-      [slot="supporting-text"] {
+      [slot='supporting-text'] {
         line-height: var(--ha-line-height-normal);
         font-size: var(--ha-font-size-s);
         white-space: nowrap;
@@ -50,11 +50,11 @@ export class HaComboBoxItem extends HaMdListItem {
         white-space: nowrap;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-combo-box-item": HaComboBoxItem;
+    'ha-combo-box-item': HaComboBoxItem
   }
 }

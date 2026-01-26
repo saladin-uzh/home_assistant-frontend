@@ -1,16 +1,16 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import "./ha-ripple";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import './ha-ripple'
 
-@customElement("ha-tab")
+@customElement('ha-tab')
 export class HaTab extends LitElement {
-  @property({ type: Boolean, reflect: true }) public active = false;
+  @property({ type: Boolean, reflect: true }) public active = false
 
-  @property({ type: Boolean, reflect: true }) public narrow = false;
+  @property({ type: Boolean, reflect: true }) public narrow = false
 
-  @property() public name?: string;
+  @property() public name?: string
 
   protected render(): TemplateResult {
     return html`
@@ -21,16 +21,16 @@ export class HaTab extends LitElement {
         aria-label=${ifDefined(this.name)}
         @keydown=${this._handleKeyDown}
       >
-        ${this.narrow ? html`<slot name="icon"></slot>` : ""}
+        ${this.narrow ? html`<slot name="icon"></slot>` : ''}
         <span class="name">${this.name}</span>
         <ha-ripple></ha-ripple>
       </div>
-    `;
+    `
   }
 
   private _handleKeyDown(ev: KeyboardEvent): void {
-    if (ev.key === "Enter") {
-      (ev.target as HTMLElement).click();
+    if (ev.key === 'Enter') {
+      ;(ev.target as HTMLElement).click()
     }
   }
 
@@ -79,15 +79,15 @@ export class HaTab extends LitElement {
     div:focus-visible:before {
       position: absolute;
       display: block;
-      content: "";
+      content: '';
       inset: 0;
       background-color: var(--secondary-text-color);
       opacity: 0.08;
     }
-  `;
+  `
 }
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-tab": HaTab;
+    'ha-tab': HaTab
   }
 }

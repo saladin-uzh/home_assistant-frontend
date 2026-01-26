@@ -1,70 +1,70 @@
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../common/dom/fire_event";
-import { stopPropagation } from "../common/dom/stop_propagation";
-import { computeStateName } from "../common/entity/compute_state_name";
-import { debounce } from "../common/util/debounce";
-import type { STTEngine } from "../data/stt";
-import { listSTTEngines } from "../data/stt";
-import type { HomeAssistant } from "../types";
-import "./ha-list-item";
-import "./ha-select";
-import type { HaSelect } from "./ha-select";
-import { computeDomain } from "../common/entity/compute_domain";
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../common/dom/fire_event'
+import { stopPropagation } from '../common/dom/stop_propagation'
+import { computeStateName } from '../common/entity/compute_state_name'
+import { debounce } from '../common/util/debounce'
+import type { STTEngine } from '../data/stt'
+import { listSTTEngines } from '../data/stt'
+import type { HomeAssistant } from '../types'
+import './ha-list-item'
+import './ha-select'
+import type { HaSelect } from './ha-select'
+import { computeDomain } from '../common/entity/compute_domain'
 
-const NONE = "__NONE_OPTION__";
+const NONE = '__NONE_OPTION__'
 
-@customElement("ha-stt-picker")
+@customElement('ha-stt-picker')
 export class HaSTTPicker extends LitElement {
-  @property() public value?: string;
+  @property() public value?: string
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public language?: string;
+  @property() public language?: string
 
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean, reflect: true }) public disabled = false;
+  @property({ type: Boolean, reflect: true }) public disabled = false
 
-  @property({ type: Boolean }) public required = false;
+  @property({ type: Boolean }) public required = false
 
-  @state() _engines?: STTEngine[];
+  @state() _engines?: STTEngine[]
 
   protected render() {
     if (!this._engines) {
-      return nothing;
+      return nothing
     }
 
-    let value = this.value;
+    let value = this.value
     if (!value && this.required) {
       for (const entity of Object.values(this.hass.entities)) {
         if (
-          entity.platform === "cloud" &&
-          computeDomain(entity.entity_id) === "stt"
+          entity.platform === 'cloud' &&
+          computeDomain(entity.entity_id) === 'stt'
         ) {
-          value = entity.entity_id;
-          break;
+          value = entity.entity_id
+          break
         }
       }
 
       if (!value) {
         for (const sttEngine of this._engines) {
           if (sttEngine?.supported_languages?.length !== 0) {
-            value = sttEngine.engine_id;
-            break;
+            value = sttEngine.engine_id
+            break
           }
         }
       }
     }
     if (!value) {
-      value = NONE;
+      value = NONE
     }
 
     return html`
       <ha-select
         .label=${this.label ||
-        this.hass!.localize("ui.components.stt-picker.stt")}
+        this.hass!.localize('ui.components.stt-picker.stt')}
         .value=${value}
         .required=${this.required}
         .disabled=${this.disabled}
@@ -75,41 +75,41 @@ export class HaSTTPicker extends LitElement {
       >
         ${!this.required
           ? html`<ha-list-item .value=${NONE}>
-              ${this.hass!.localize("ui.components.stt-picker.none")}
+              ${this.hass!.localize('ui.components.stt-picker.none')}
             </ha-list-item>`
           : nothing}
-        ${this._engines.map((engine) => {
+        ${this._engines.map(engine => {
           if (engine.deprecated && engine.engine_id !== value) {
-            return nothing;
+            return nothing
           }
-          let label: string;
-          if (engine.engine_id.includes(".")) {
-            const stateObj = this.hass!.states[engine.engine_id];
-            label = stateObj ? computeStateName(stateObj) : engine.engine_id;
+          let label: string
+          if (engine.engine_id.includes('.')) {
+            const stateObj = this.hass!.states[engine.engine_id]
+            label = stateObj ? computeStateName(stateObj) : engine.engine_id
           } else {
-            label = engine.name || engine.engine_id;
+            label = engine.name || engine.engine_id
           }
           return html`<ha-list-item
             .value=${engine.engine_id}
             .disabled=${engine.supported_languages?.length === 0}
           >
             ${label}
-          </ha-list-item>`;
+          </ha-list-item>`
         })}
       </ha-select>
-    `;
+    `
   }
 
   protected willUpdate(changedProperties: PropertyValues<this>): void {
-    super.willUpdate(changedProperties);
+    super.willUpdate(changedProperties)
     if (!this.hasUpdated) {
-      this._updateEngines();
-    } else if (changedProperties.has("language")) {
-      this._debouncedUpdateEngines();
+      this._updateEngines()
+    } else if (changedProperties.has('language')) {
+      this._debouncedUpdateEngines()
     }
   }
 
-  private _debouncedUpdateEngines = debounce(() => this._updateEngines(), 500);
+  private _debouncedUpdateEngines = debounce(() => this._updateEngines(), 500)
 
   private async _updateEngines() {
     this._engines = (
@@ -118,23 +118,23 @@ export class HaSTTPicker extends LitElement {
         this.language,
         this.hass.config.country || undefined
       )
-    ).providers;
+    ).providers
 
     if (!this.value) {
-      return;
+      return
     }
 
     const selectedEngine = this._engines.find(
-      (engine) => engine.engine_id === this.value
-    );
+      engine => engine.engine_id === this.value
+    )
 
-    fireEvent(this, "supported-languages-changed", {
+    fireEvent(this, 'supported-languages-changed', {
       value: selectedEngine?.supported_languages,
-    });
+    })
 
     if (!selectedEngine || selectedEngine.supported_languages?.length === 0) {
-      this.value = undefined;
-      fireEvent(this, "value-changed", { value: this.value });
+      this.value = undefined
+      fireEvent(this, 'value-changed', { value: this.value })
     }
   }
 
@@ -142,29 +142,29 @@ export class HaSTTPicker extends LitElement {
     ha-select {
       width: 100%;
     }
-  `;
+  `
 
   private _changed(ev): void {
-    const target = ev.target as HaSelect;
+    const target = ev.target as HaSelect
     if (
       !this.hass ||
-      target.value === "" ||
+      target.value === '' ||
       target.value === this.value ||
       (this.value === undefined && target.value === NONE)
     ) {
-      return;
+      return
     }
-    this.value = target.value === NONE ? undefined : target.value;
-    fireEvent(this, "value-changed", { value: this.value });
-    fireEvent(this, "supported-languages-changed", {
-      value: this._engines!.find((engine) => engine.engine_id === this.value)
+    this.value = target.value === NONE ? undefined : target.value
+    fireEvent(this, 'value-changed', { value: this.value })
+    fireEvent(this, 'supported-languages-changed', {
+      value: this._engines!.find(engine => engine.engine_id === this.value)
         ?.supported_languages,
-    });
+    })
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-stt-picker": HaSTTPicker;
+    'ha-stt-picker': HaSTTPicker
   }
 }

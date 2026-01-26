@@ -1,29 +1,29 @@
-import { html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { TimeSelector } from "../../data/selector";
-import type { HomeAssistant } from "../../types";
-import "../ha-time-input";
+import { html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { TimeSelector } from '../../data/selector'
+import type { HomeAssistant } from '../../types'
+import '../ha-time-input'
 
-@customElement("ha-selector-time")
+@customElement('ha-selector-time')
 export class HaTimeSelector extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: TimeSelector;
+  @property({ attribute: false }) public selector!: TimeSelector
 
-  @property() public value?: string;
+  @property() public value?: string
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = false;
+  @property({ type: Boolean }) public required = false
 
   protected render() {
     return html`
       <ha-time-input
-        .value=${typeof this.value === "string" ? this.value : undefined}
+        .value=${typeof this.value === 'string' ? this.value : undefined}
         .locale=${this.hass.locale}
         .disabled=${this.disabled}
         .required=${this.required}
@@ -32,12 +32,12 @@ export class HaTimeSelector extends LitElement {
         .label=${this.label}
         .enableSecond=${!this.selector.time?.no_second}
       ></ha-time-input>
-    `;
+    `
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-time": HaTimeSelector;
+    'ha-selector-time': HaTimeSelector
   }
 }

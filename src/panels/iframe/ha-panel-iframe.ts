@@ -1,23 +1,23 @@
-import { html, css, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import "../../layouts/hass-error-screen";
-import "../../layouts/hass-subpage";
-import type { HomeAssistant, PanelInfo } from "../../types";
-import { IFRAME_SANDBOX } from "../../util/iframe";
+import { html, css, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import '../../layouts/hass-error-screen'
+import '../../layouts/hass-subpage'
+import type { HomeAssistant, PanelInfo } from '../../types'
+import { IFRAME_SANDBOX } from '../../util/iframe'
 
-@customElement("ha-panel-iframe")
+@customElement('ha-panel-iframe')
 class HaPanelIframe extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ attribute: false }) panel!: PanelInfo<{ url: string }>;
+  @property({ attribute: false }) panel!: PanelInfo<{ url: string }>
 
   render() {
     if (
-      location.protocol === "https:" &&
-      new URL(this.panel.config.url, location.toString()).protocol !== "https:"
+      location.protocol === 'https:' &&
+      new URL(this.panel.config.url, location.toString()).protocol !== 'https:'
     ) {
       return html`
         <hass-error-screen
@@ -26,7 +26,7 @@ class HaPanelIframe extends LitElement {
           error="Unable to load iframes that load websites over http:// if Home Assistant is served over https://."
           rootnav
         ></hass-error-screen>
-      `;
+      `
     }
 
     return html`
@@ -45,7 +45,7 @@ class HaPanelIframe extends LitElement {
           allow="fullscreen"
         ></iframe>
       </hass-subpage>
-    `;
+    `
   }
 
   static styles = css`
@@ -56,11 +56,11 @@ class HaPanelIframe extends LitElement {
       height: 100%;
       background-color: var(--primary-background-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-panel-iframe": HaPanelIframe;
+    'ha-panel-iframe': HaPanelIframe
   }
 }

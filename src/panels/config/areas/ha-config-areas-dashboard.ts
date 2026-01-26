@@ -1,4 +1,4 @@
-import type { ActionDetail } from "@material/mwc-list";
+import type { ActionDetail } from '@material/mwc-list'
 import {
   mdiDelete,
   mdiDotsVertical,
@@ -6,7 +6,7 @@ import {
   mdiHelpCircle,
   mdiPencil,
   mdiPlus,
-} from "@mdi/js";
+} from '@mdi/js'
 import {
   css,
   html,
@@ -14,108 +14,108 @@ import {
   nothing,
   type PropertyValues,
   type TemplateResult,
-} from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { styleMap } from "lit/directives/style-map";
-import memoizeOne from "memoize-one";
+} from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { styleMap } from 'lit/directives/style-map'
+import memoizeOne from 'memoize-one'
 import {
   getAreasFloorHierarchy,
   getAreasOrder,
   getFloorOrder,
   type AreasFloorHierarchy,
-} from "../../../common/areas/areas-floor-hierarchy";
-import { formatListWithAnds } from "../../../common/string/format-list";
-import "../../../components/ha-fab";
-import "../../../components/ha-floor-icon";
-import "../../../components/ha-icon-button";
-import "../../../components/ha-list-item";
-import "../../../components/ha-sortable";
-import type { HaSortableOptions } from "../../../components/ha-sortable";
-import "../../../components/ha-svg-icon";
-import type { AreaRegistryEntry } from "../../../data/area_registry";
+} from '../../../common/areas/areas-floor-hierarchy'
+import { formatListWithAnds } from '../../../common/string/format-list'
+import '../../../components/ha-fab'
+import '../../../components/ha-floor-icon'
+import '../../../components/ha-icon-button'
+import '../../../components/ha-list-item'
+import '../../../components/ha-sortable'
+import type { HaSortableOptions } from '../../../components/ha-sortable'
+import '../../../components/ha-svg-icon'
+import type { AreaRegistryEntry } from '../../../data/area_registry'
 import {
   createAreaRegistryEntry,
   reorderAreaRegistryEntries,
   updateAreaRegistryEntry,
-} from "../../../data/area_registry";
-import type { FloorRegistryEntry } from "../../../data/floor_registry";
+} from '../../../data/area_registry'
+import type { FloorRegistryEntry } from '../../../data/floor_registry'
 import {
   createFloorRegistryEntry,
   deleteFloorRegistryEntry,
   reorderFloorRegistryEntries,
   updateFloorRegistryEntry,
-} from "../../../data/floor_registry";
+} from '../../../data/floor_registry'
 import {
   showAlertDialog,
   showConfirmationDialog,
-} from "../../../dialogs/generic/show-dialog-box";
-import "../../../layouts/hass-tabs-subpage";
-import type { HomeAssistant, Route } from "../../../types";
-import { showToast } from "../../../util/toast";
-import "../ha-config-section";
-import { configSections } from "../ha-panel-config";
+} from '../../../dialogs/generic/show-dialog-box'
+import '../../../layouts/hass-tabs-subpage'
+import type { HomeAssistant, Route } from '../../../types'
+import { showToast } from '../../../util/toast'
+import '../ha-config-section'
+import { configSections } from '../ha-panel-config'
 import {
   loadAreaRegistryDetailDialog,
   showAreaRegistryDetailDialog,
-} from "./show-dialog-area-registry-detail";
-import { showFloorRegistryDetailDialog } from "./show-dialog-floor-registry-detail";
+} from './show-dialog-area-registry-detail'
+import { showFloorRegistryDetailDialog } from './show-dialog-floor-registry-detail'
 
-const UNASSIGNED_FLOOR = "__unassigned__";
+const UNASSIGNED_FLOOR = '__unassigned__'
 
 const SORT_OPTIONS: HaSortableOptions = {
   sort: true,
   delay: 500,
   delayOnTouchOnly: true,
-};
-
-interface AreaStats {
-  devices: number;
-  services: number;
-  entities: number;
 }
 
-@customElement("ha-config-areas-dashboard")
+interface AreaStats {
+  devices: number
+  services: number
+  entities: number
+}
+
+@customElement('ha-config-areas-dashboard')
 export class HaConfigAreasDashboard extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: "is-wide", type: Boolean }) public isWide = false;
+  @property({ attribute: 'is-wide', type: Boolean }) public isWide = false
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ attribute: false }) public route!: Route;
+  @property({ attribute: false }) public route!: Route
 
-  private _searchParms = new URLSearchParams(window.location.search);
+  private _searchParms = new URLSearchParams(window.location.search)
 
-  @state() private _hierarchy?: AreasFloorHierarchy;
+  @state() private _hierarchy?: AreasFloorHierarchy
 
-  private _blockHierarchyUpdate = false;
+  private _blockHierarchyUpdate = false
 
-  private _blockHierarchyUpdateTimeout?: number;
+  private _blockHierarchyUpdateTimeout?: number
 
   private _processAreasStats = memoizeOne(
     (
-      areas: HomeAssistant["areas"],
-      devices: HomeAssistant["devices"],
-      entities: HomeAssistant["entities"]
+      areas: HomeAssistant['areas'],
+      devices: HomeAssistant['devices'],
+      entities: HomeAssistant['entities']
     ): Map<string, AreaStats> => {
       const computeAreaStats = (area: AreaRegistryEntry) => {
-        let devicesCount = 0;
-        let servicesCount = 0;
-        let entitiesCount = 0;
+        let devicesCount = 0
+        let servicesCount = 0
+        let entitiesCount = 0
 
         for (const device of Object.values(devices)) {
           if (device.area_id === area.area_id) {
-            if (device.entry_type === "service") {
-              servicesCount++;
+            if (device.entry_type === 'service') {
+              servicesCount++
             } else {
-              devicesCount++;
+              devicesCount++
             }
           }
         }
 
         for (const entity of Object.values(entities)) {
           if (entity.area_id === area.area_id) {
-            entitiesCount++;
+            entitiesCount++
           }
         }
 
@@ -123,26 +123,26 @@ export class HaConfigAreasDashboard extends LitElement {
           devices: devicesCount,
           services: servicesCount,
           entities: entitiesCount,
-        };
-      };
-      const areaStats = new Map<string, AreaStats>();
-      Object.values(areas).forEach((area) => {
-        areaStats.set(area.area_id, computeAreaStats(area));
-      });
-      return areaStats;
+        }
+      }
+      const areaStats = new Map<string, AreaStats>()
+      Object.values(areas).forEach(area => {
+        areaStats.set(area.area_id, computeAreaStats(area))
+      })
+      return areaStats
     }
-  );
+  )
 
   protected willUpdate(changedProperties: PropertyValues<this>): void {
-    super.willUpdate(changedProperties);
-    if (changedProperties.has("hass")) {
-      const oldHass = changedProperties.get("hass");
+    super.willUpdate(changedProperties)
+    if (changedProperties.has('hass')) {
+      const oldHass = changedProperties.get('hass')
       if (
         (this.hass.areas !== oldHass?.areas ||
           this.hass.floors !== oldHass?.floors) &&
         !this._blockHierarchyUpdate
       ) {
-        this._computeHierarchy();
+        this._computeHierarchy()
       }
     }
   }
@@ -151,34 +151,34 @@ export class HaConfigAreasDashboard extends LitElement {
     this._hierarchy = getAreasFloorHierarchy(
       Object.values(this.hass.floors),
       Object.values(this.hass.areas)
-    );
+    )
   }
 
   protected render(): TemplateResult<1> | typeof nothing {
     if (!this._hierarchy) {
-      return nothing;
+      return nothing
     }
     const areasStats = this._processAreasStats(
       this.hass.areas,
       this.hass.devices,
       this.hass.entities
-    );
+    )
 
     return html`
       <hass-tabs-subpage
         .hass=${this.hass}
         .narrow=${this.narrow}
         .isWide=${this.isWide}
-        .backPath=${this._searchParms.has("historyBack")
+        .backPath=${this._searchParms.has('historyBack')
           ? undefined
-          : "/config"}
+          : '/config'}
         .tabs=${configSections.areas}
         .route=${this.route}
         has-fab
       >
         <ha-icon-button
           slot="toolbar-icon"
-          .label=${this.hass.localize("ui.common.help")}
+          .label=${this.hass.localize('ui.common.help')}
           .path=${mdiHelpCircle}
           @click=${this._showHelp}
         ></ha-icon-button>
@@ -193,9 +193,9 @@ export class HaConfigAreasDashboard extends LitElement {
           >
             <div class="floors">
               ${this._hierarchy.floors.map(({ areas, id }) => {
-                const floor = this.hass.floors[id];
+                const floor = this.hass.floors[id]
                 if (!floor) {
-                  return nothing;
+                  return nothing
                 }
                 return html`
                   <div class="floor">
@@ -223,17 +223,19 @@ export class HaConfigAreasDashboard extends LitElement {
                               slot="graphic"
                             ></ha-svg-icon
                             >${this.hass.localize(
-                              "ui.panel.config.areas.picker.floor.edit_floor"
+                              'ui.panel.config.areas.picker.floor.edit_floor'
                             )}</ha-list-item
                           >
-                          <ha-list-item class="warning" graphic="icon"
+                          <ha-list-item
+                            class="warning"
+                            graphic="icon"
                             ><ha-svg-icon
                               class="warning"
                               .path=${mdiDelete}
                               slot="graphic"
                             ></ha-svg-icon
                             >${this.hass.localize(
-                              "ui.panel.config.areas.picker.floor.delete_floor"
+                              'ui.panel.config.areas.picker.floor.delete_floor'
                             )}</ha-list-item
                           >
                         </ha-button-menu>
@@ -249,18 +251,18 @@ export class HaConfigAreasDashboard extends LitElement {
                       .floor=${floor.floor_id}
                     >
                       <div class="areas">
-                        ${areas.map((areaId) => {
-                          const area = this.hass.areas[areaId];
+                        ${areas.map(areaId => {
+                          const area = this.hass.areas[areaId]
                           if (!area) {
-                            return nothing;
+                            return nothing
                           }
-                          const stats = areasStats.get(area.area_id);
-                          return this._renderArea(area, stats);
+                          const stats = areasStats.get(area.area_id)
+                          return this._renderArea(area, stats)
                         })}
                       </div>
                     </ha-sortable>
                   </div>
-                `;
+                `
               })}
             </div>
           </ha-sortable>
@@ -271,7 +273,7 @@ export class HaConfigAreasDashboard extends LitElement {
                   <div class="header">
                     <h2>
                       ${this.hass.localize(
-                        "ui.panel.config.areas.picker.unassigned_areas"
+                        'ui.panel.config.areas.picker.unassigned_areas'
                       )}
                     </h2>
                   </div>
@@ -285,13 +287,13 @@ export class HaConfigAreasDashboard extends LitElement {
                     .floor=${UNASSIGNED_FLOOR}
                   >
                     <div class="areas">
-                      ${this._hierarchy.areas.map((areaId) => {
-                        const area = this.hass.areas[areaId];
+                      ${this._hierarchy.areas.map(areaId => {
+                        const area = this.hass.areas[areaId]
                         if (!area) {
-                          return nothing;
+                          return nothing
                         }
-                        const stats = areasStats.get(area.area_id);
-                        return this._renderArea(area, stats);
+                        const stats = areasStats.get(area.area_id)
+                        return this._renderArea(area, stats)
                       })}
                     </div>
                   </ha-sortable>
@@ -303,25 +305,31 @@ export class HaConfigAreasDashboard extends LitElement {
           slot="fab"
           class="floor"
           .label=${this.hass.localize(
-            "ui.panel.config.areas.picker.create_floor"
+            'ui.panel.config.areas.picker.create_floor'
           )}
           extended
           @click=${this._createFloor}
         >
-          <ha-svg-icon slot="icon" .path=${mdiPlus}></ha-svg-icon>
+          <ha-svg-icon
+            slot="icon"
+            .path=${mdiPlus}
+          ></ha-svg-icon>
         </ha-fab>
         <ha-fab
           slot="fab"
           .label=${this.hass.localize(
-            "ui.panel.config.areas.picker.create_area"
+            'ui.panel.config.areas.picker.create_area'
           )}
           extended
           @click=${this._createArea}
         >
-          <ha-svg-icon slot="icon" .path=${mdiPlus}></ha-svg-icon>
+          <ha-svg-icon
+            slot="icon"
+            .path=${mdiPlus}
+          ></ha-svg-icon>
         </ha-fab>
       </hass-tabs-subpage>
-    `;
+    `
   }
 
   private _renderArea(
@@ -329,7 +337,10 @@ export class HaConfigAreasDashboard extends LitElement {
     stats: AreaStats | undefined
   ): TemplateResult<1> {
     return html`
-      <a href=${`/config/areas/area/${area.area_id}`} .sortableData=${area}>
+      <a
+        href=${`/config/areas/area/${area.area_id}`}
+        .sortableData=${area}
+      >
         <ha-card outlined>
           <div
             style=${styleMap({
@@ -337,11 +348,11 @@ export class HaConfigAreasDashboard extends LitElement {
                 ? `url(${area.picture})`
                 : undefined,
             })}
-            class="picture ${!area.picture ? "placeholder" : ""}"
+            class="picture ${!area.picture ? 'placeholder' : ''}"
           >
             ${!area.picture && area.icon
               ? html`<ha-icon .icon=${area.icon}></ha-icon>`
-              : ""}
+              : ''}
           </div>
           <div class="card-header">
             ${area.name}
@@ -358,17 +369,17 @@ export class HaConfigAreasDashboard extends LitElement {
                 [
                   stats?.devices &&
                     this.hass.localize(
-                      "ui.panel.config.integrations.config_entry.devices",
+                      'ui.panel.config.integrations.config_entry.devices',
                       { count: stats.devices }
                     ),
                   stats?.services &&
                     this.hass.localize(
-                      "ui.panel.config.integrations.config_entry.services",
+                      'ui.panel.config.integrations.config_entry.services',
                       { count: stats.services }
                     ),
                   stats?.entities &&
                     this.hass.localize(
-                      "ui.panel.config.integrations.config_entry.entities",
+                      'ui.panel.config.integrations.config_entry.entities',
                       { count: stats.entities }
                     ),
                 ].filter((v): v is string => Boolean(v))
@@ -377,285 +388,284 @@ export class HaConfigAreasDashboard extends LitElement {
           </div>
         </ha-card>
       </a>
-    `;
+    `
   }
 
   protected firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
-    loadAreaRegistryDetailDialog();
+    super.firstUpdated(changedProps)
+    loadAreaRegistryDetailDialog()
   }
 
   private _openAreaDetails(ev) {
-    ev.preventDefault();
-    const area = ev.currentTarget.area;
+    ev.preventDefault()
+    const area = ev.currentTarget.area
     showAreaRegistryDetailDialog(this, {
       entry: area,
-      updateEntry: async (values) =>
+      updateEntry: async values =>
         updateAreaRegistryEntry(this.hass!, area.area_id, values),
-    });
+    })
   }
 
   private async _floorMoved(ev) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!this.hass || !this._hierarchy) {
-      return;
+      return
     }
-    const { oldIndex, newIndex } = ev.detail;
+    const { oldIndex, newIndex } = ev.detail
 
     const reorderFloors = (
-      floors: AreasFloorHierarchy["floors"],
+      floors: AreasFloorHierarchy['floors'],
       oldIdx: number,
       newIdx: number
     ) => {
-      const newFloors = [...floors];
-      const [movedFloor] = newFloors.splice(oldIdx, 1);
-      newFloors.splice(newIdx, 0, movedFloor);
-      return newFloors;
-    };
+      const newFloors = [...floors]
+      const [movedFloor] = newFloors.splice(oldIdx, 1)
+      newFloors.splice(newIdx, 0, movedFloor)
+      return newFloors
+    }
 
     // Optimistically update UI
     this._hierarchy = {
       ...this._hierarchy,
       floors: reorderFloors(this._hierarchy.floors, oldIndex, newIndex),
-    };
+    }
 
-    const areaOrder = getAreasOrder(this._hierarchy);
-    const floorOrder = getFloorOrder(this._hierarchy);
+    const areaOrder = getAreasOrder(this._hierarchy)
+    const floorOrder = getFloorOrder(this._hierarchy)
 
     // Block hierarchy updates for 500ms to avoid flickering
     // because of multiple async updates
-    this._blockHierarchyUpdateFor(500);
+    this._blockHierarchyUpdateFor(500)
 
     try {
-      await reorderAreaRegistryEntries(this.hass, areaOrder);
-      await reorderFloorRegistryEntries(this.hass, floorOrder);
+      await reorderAreaRegistryEntries(this.hass, areaOrder)
+      await reorderFloorRegistryEntries(this.hass, floorOrder)
     } catch {
       showToast(this, {
         message: this.hass.localize(
-          "ui.panel.config.areas.picker.floor_reorder_failed"
+          'ui.panel.config.areas.picker.floor_reorder_failed'
         ),
-      });
+      })
       // Revert on error
-      this._computeHierarchy();
+      this._computeHierarchy()
     }
   }
 
   private async _areaMoved(ev) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!this.hass || !this._hierarchy) {
-      return;
+      return
     }
-    const { floor } = ev.currentTarget;
-    const { oldIndex, newIndex } = ev.detail;
+    const { floor } = ev.currentTarget
+    const { oldIndex, newIndex } = ev.detail
 
-    const floorId = floor === UNASSIGNED_FLOOR ? null : floor;
+    const floorId = floor === UNASSIGNED_FLOOR ? null : floor
 
     // Reorder areas within the same floor
     const reorderAreas = (areas: string[], oldIdx: number, newIdx: number) => {
-      const newAreas = [...areas];
-      const [movedArea] = newAreas.splice(oldIdx, 1);
-      newAreas.splice(newIdx, 0, movedArea);
-      return newAreas;
-    };
+      const newAreas = [...areas]
+      const [movedArea] = newAreas.splice(oldIdx, 1)
+      newAreas.splice(newIdx, 0, movedArea)
+      return newAreas
+    }
 
     // Optimistically update UI
     this._hierarchy = {
       ...this._hierarchy,
-      floors: this._hierarchy.floors.map((f) => {
+      floors: this._hierarchy.floors.map(f => {
         if (f.id === floorId) {
           return {
             ...f,
             areas: reorderAreas(f.areas, oldIndex, newIndex),
-          };
+          }
         }
-        return f;
+        return f
       }),
       areas:
         floorId === null
           ? reorderAreas(this._hierarchy.areas, oldIndex, newIndex)
           : this._hierarchy.areas,
-    };
+    }
 
-    const areaOrder = getAreasOrder(this._hierarchy);
+    const areaOrder = getAreasOrder(this._hierarchy)
 
     try {
-      await reorderAreaRegistryEntries(this.hass, areaOrder);
+      await reorderAreaRegistryEntries(this.hass, areaOrder)
     } catch {
       showToast(this, {
         message: this.hass.localize(
-          "ui.panel.config.areas.picker.area_move_failed"
+          'ui.panel.config.areas.picker.area_move_failed'
         ),
-      });
+      })
       // Revert on error
-      this._computeHierarchy();
+      this._computeHierarchy()
     }
   }
 
   private async _areaAdded(ev) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!this.hass || !this._hierarchy) {
-      return;
+      return
     }
-    const { floor } = ev.currentTarget;
-    const { data: area, index } = ev.detail;
+    const { floor } = ev.currentTarget
+    const { data: area, index } = ev.detail
 
-    const newFloorId = floor === UNASSIGNED_FLOOR ? null : floor;
+    const newFloorId = floor === UNASSIGNED_FLOOR ? null : floor
 
     // Insert area at the specified index
     const insertAtIndex = (areas: string[], areaId: string, idx: number) => {
-      const newAreas = [...areas];
-      newAreas.splice(idx, 0, areaId);
-      return newAreas;
-    };
+      const newAreas = [...areas]
+      newAreas.splice(idx, 0, areaId)
+      return newAreas
+    }
 
     // Optimistically update UI
     this._hierarchy = {
       ...this._hierarchy,
-      floors: this._hierarchy.floors.map((f) => {
+      floors: this._hierarchy.floors.map(f => {
         if (f.id === newFloorId) {
           return {
             ...f,
             areas: insertAtIndex(f.areas, area.area_id, index),
-          };
+          }
         }
         return {
           ...f,
-          areas: f.areas.filter((id) => id !== area.area_id),
-        };
+          areas: f.areas.filter(id => id !== area.area_id),
+        }
       }),
       areas:
         newFloorId === null
           ? insertAtIndex(this._hierarchy.areas, area.area_id, index)
-          : this._hierarchy.areas.filter((id) => id !== area.area_id),
-    };
+          : this._hierarchy.areas.filter(id => id !== area.area_id),
+    }
 
-    const areaOrder = getAreasOrder(this._hierarchy);
+    const areaOrder = getAreasOrder(this._hierarchy)
 
     // Block hierarchy updates for 500ms to avoid flickering
     // because of multiple async updates
-    this._blockHierarchyUpdateFor(500);
+    this._blockHierarchyUpdateFor(500)
 
     try {
-      await reorderAreaRegistryEntries(this.hass, areaOrder);
+      await reorderAreaRegistryEntries(this.hass, areaOrder)
       await updateAreaRegistryEntry(this.hass, area.area_id, {
         floor_id: newFloorId,
-      });
+      })
     } catch {
       showToast(this, {
         message: this.hass.localize(
-          "ui.panel.config.areas.picker.area_move_failed"
+          'ui.panel.config.areas.picker.area_move_failed'
         ),
-      });
+      })
       // Revert on error
-      this._computeHierarchy();
+      this._computeHierarchy()
     }
   }
 
   private _blockHierarchyUpdateFor(time: number) {
-    this._blockHierarchyUpdate = true;
+    this._blockHierarchyUpdate = true
     if (this._blockHierarchyUpdateTimeout) {
-      window.clearTimeout(this._blockHierarchyUpdateTimeout);
+      window.clearTimeout(this._blockHierarchyUpdateTimeout)
     }
     this._blockHierarchyUpdateTimeout = window.setTimeout(() => {
-      this._blockHierarchyUpdate = false;
-    }, time);
+      this._blockHierarchyUpdate = false
+    }, time)
   }
 
   private _handleFloorAction(ev: CustomEvent<ActionDetail>) {
-    const floor = (ev.currentTarget as any).floor;
+    const floor = (ev.currentTarget as any).floor
     switch (ev.detail.index) {
       case 0:
-        this._editFloor(floor);
-        break;
+        this._editFloor(floor)
+        break
       case 1:
-        this._deleteFloor(floor);
-        break;
+        this._deleteFloor(floor)
+        break
     }
   }
 
   private _createFloor() {
-    this._openFloorDialog();
+    this._openFloorDialog()
   }
 
   private _editFloor(floor) {
-    this._openFloorDialog(floor);
+    this._openFloorDialog(floor)
   }
 
   private async _deleteFloor(floor) {
     const confirm = await showConfirmationDialog(this, {
       title: this.hass.localize(
-        "ui.panel.config.areas.picker.floor.confirm_delete"
+        'ui.panel.config.areas.picker.floor.confirm_delete'
       ),
       text: this.hass.localize(
-        "ui.panel.config.areas.picker.floor.confirm_delete_text"
+        'ui.panel.config.areas.picker.floor.confirm_delete_text'
       ),
-      confirmText: this.hass.localize("ui.common.delete"),
+      confirmText: this.hass.localize('ui.common.delete'),
       destructive: true,
-    });
+    })
     if (!confirm) {
-      return;
+      return
     }
-    await deleteFloorRegistryEntry(this.hass, floor.floor_id);
+    await deleteFloorRegistryEntry(this.hass, floor.floor_id)
   }
 
   private _createArea() {
-    this._openAreaDialog();
+    this._openAreaDialog()
   }
 
   private _showHelp() {
     showAlertDialog(this, {
-      title: this.hass.localize("ui.panel.config.areas.caption"),
+      title: this.hass.localize('ui.panel.config.areas.caption'),
       text: html`
-        ${this.hass.localize("ui.panel.config.areas.picker.introduction")}
+        ${this.hass.localize('ui.panel.config.areas.picker.introduction')}
         <p>
-          ${this.hass.localize("ui.panel.config.areas.picker.introduction2")}
+          ${this.hass.localize('ui.panel.config.areas.picker.introduction2')}
         </p>
         <a href="/config/integrations/dashboard">
           ${this.hass.localize(
-            "ui.panel.config.areas.picker.integrations_page"
+            'ui.panel.config.areas.picker.integrations_page'
           )}
         </a>
       `,
-    });
+    })
   }
 
   private _openAreaDialog(entry?: AreaRegistryEntry) {
     showAreaRegistryDetailDialog(this, {
       entry,
-      createEntry: async (values) =>
-        createAreaRegistryEntry(this.hass!, values),
-    });
+      createEntry: async values => createAreaRegistryEntry(this.hass!, values),
+    })
   }
 
   private _openFloorDialog(entry?: FloorRegistryEntry) {
     showFloorRegistryDetailDialog(this, {
       entry,
       createEntry: async (values, addedAreas) => {
-        const floor = await createFloorRegistryEntry(this.hass!, values);
-        addedAreas.forEach((areaId) => {
+        const floor = await createFloorRegistryEntry(this.hass!, values)
+        addedAreas.forEach(areaId => {
           updateAreaRegistryEntry(this.hass, areaId, {
             floor_id: floor.floor_id,
-          });
-        });
+          })
+        })
       },
       updateEntry: async (values, addedAreas, removedAreas) => {
         const floor = await updateFloorRegistryEntry(
           this.hass!,
           entry!.floor_id,
           values
-        );
-        addedAreas.forEach((areaId) => {
+        )
+        addedAreas.forEach(areaId => {
           updateAreaRegistryEntry(this.hass, areaId, {
             floor_id: floor.floor_id,
-          });
-        });
-        removedAreas.forEach((areaId) => {
+          })
+        })
+        removedAreas.forEach(areaId => {
           updateAreaRegistryEntry(this.hass, areaId, {
             floor_id: null,
-          });
-        });
+          })
+        })
       },
-    });
+    })
   }
 
   static styles = css`
@@ -720,7 +730,7 @@ export class HaConfigAreasDashboard extends LitElement {
     }
     .picture.placeholder::before {
       position: absolute;
-      content: "";
+      content: '';
       width: 100%;
       height: 100%;
       background-color: var(--sidebar-selected-icon-color);
@@ -739,11 +749,11 @@ export class HaConfigAreasDashboard extends LitElement {
     .warning {
       color: var(--error-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-config-areas-dashboard": HaConfigAreasDashboard;
+    'ha-config-areas-dashboard': HaConfigAreasDashboard
   }
 }

@@ -1,128 +1,128 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { ifDefined } from "lit/directives/if-defined";
-import { repeat } from "lit/directives/repeat";
-import { fireEvent } from "../common/dom/fire_event";
-import "./ha-icon";
-import "./ha-svg-icon";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { ifDefined } from 'lit/directives/if-defined'
+import { repeat } from 'lit/directives/repeat'
+import { fireEvent } from '../common/dom/fire_event'
+import './ha-icon'
+import './ha-svg-icon'
 
 export interface ControlSelectOption {
-  value: string;
-  label?: string;
-  icon?: TemplateResult;
-  path?: string;
+  value: string
+  label?: string
+  icon?: TemplateResult
+  path?: string
 }
 
-@customElement("ha-control-select")
+@customElement('ha-control-select')
 export class HaControlSelect extends LitElement {
-  @property({ type: Boolean }) disabled = false;
+  @property({ type: Boolean }) disabled = false
 
-  @property({ attribute: false }) public options?: ControlSelectOption[];
+  @property({ attribute: false }) public options?: ControlSelectOption[]
 
-  @property() public value?: string;
+  @property() public value?: string
 
   @property({ type: Boolean, reflect: true })
-  public vertical = false;
+  public vertical = false
 
-  @property({ type: Boolean, attribute: "hide-option-label" })
-  public hideOptionLabel = false;
+  @property({ type: Boolean, attribute: 'hide-option-label' })
+  public hideOptionLabel = false
 
   @property({ type: String })
-  public label?: string;
+  public label?: string
 
-  @state() private _activeIndex?: number;
+  @state() private _activeIndex?: number
 
   private _handleFocus(ev: FocusEvent) {
-    if (this.disabled || !this.options) return;
+    if (this.disabled || !this.options) return
 
     // Only handle focus if coming to the container
     if (ev.target === ev.currentTarget) {
       // Focus the selected radio or the first one
       const selectedIndex =
         this.value != null
-          ? this.options.findIndex((option) => option.value === this.value)
-          : -1;
-      const focusIndex = selectedIndex !== -1 ? selectedIndex : 0;
-      this._focusOption(focusIndex);
+          ? this.options.findIndex(option => option.value === this.value)
+          : -1
+      const focusIndex = selectedIndex !== -1 ? selectedIndex : 0
+      this._focusOption(focusIndex)
     }
   }
 
   private _focusOption(index: number) {
-    this._activeIndex = index;
-    this.requestUpdate();
+    this._activeIndex = index
+    this.requestUpdate()
     this.updateComplete.then(() => {
       const option = this.shadowRoot?.querySelector(
         `#option-${this.options![index].value}`
-      ) as HTMLElement;
-      option?.focus();
-    });
+      ) as HTMLElement
+      option?.focus()
+    })
   }
 
   private _handleBlur(ev: FocusEvent) {
     // Only reset if focus is leaving the entire component
     if (!this.contains(ev.relatedTarget as Node)) {
-      this._activeIndex = undefined;
+      this._activeIndex = undefined
     }
   }
 
   private _handleKeydown(ev: KeyboardEvent) {
-    if (!this.options || this.disabled) return;
+    if (!this.options || this.disabled) return
 
-    let newIndex = this._activeIndex ?? 0;
+    let newIndex = this._activeIndex ?? 0
 
     switch (ev.key) {
-      case " ":
-      case "Enter":
+      case ' ':
+      case 'Enter':
         if (this._activeIndex != null) {
-          const value = this.options[this._activeIndex].value;
-          this.value = value;
-          fireEvent(this, "value-changed", { value });
+          const value = this.options[this._activeIndex].value
+          this.value = value
+          fireEvent(this, 'value-changed', { value })
         }
-        break;
-      case "ArrowUp":
-      case "ArrowLeft":
-        newIndex = newIndex <= 0 ? this.options.length - 1 : newIndex - 1;
-        this._focusOption(newIndex);
-        break;
-      case "ArrowDown":
-      case "ArrowRight":
-        newIndex = (newIndex + 1) % this.options.length;
-        this._focusOption(newIndex);
-        break;
+        break
+      case 'ArrowUp':
+      case 'ArrowLeft':
+        newIndex = newIndex <= 0 ? this.options.length - 1 : newIndex - 1
+        this._focusOption(newIndex)
+        break
+      case 'ArrowDown':
+      case 'ArrowRight':
+        newIndex = (newIndex + 1) % this.options.length
+        this._focusOption(newIndex)
+        break
       default:
-        return;
+        return
     }
-    ev.preventDefault();
+    ev.preventDefault()
   }
 
   private _handleOptionClick(ev: MouseEvent) {
-    if (this.disabled) return;
-    const value = (ev.target as any).value;
-    this.value = value;
-    fireEvent(this, "value-changed", { value });
+    if (this.disabled) return
+    const value = (ev.target as any).value
+    this.value = value
+    fireEvent(this, 'value-changed', { value })
   }
 
   private _handleOptionMouseDown(ev: MouseEvent) {
-    if (this.disabled) return;
-    ev.preventDefault();
-    const value = (ev.target as any).value;
+    if (this.disabled) return
+    ev.preventDefault()
+    const value = (ev.target as any).value
     this._activeIndex = this.options?.findIndex(
-      (option) => option.value === value
-    );
+      option => option.value === value
+    )
   }
 
   private _handleOptionMouseUp(ev: MouseEvent) {
-    ev.preventDefault();
+    ev.preventDefault()
   }
 
   private _handleOptionFocus(ev: FocusEvent) {
-    if (this.disabled) return;
-    const value = (ev.target as any).value;
+    if (this.disabled) return
+    const value = (ev.target as any).value
     this._activeIndex = this.options?.findIndex(
-      (option) => option.value === value
-    );
+      option => option.value === value
+    )
   }
 
   protected render() {
@@ -139,16 +139,16 @@ export class HaControlSelect extends LitElement {
         ${this.options
           ? repeat(
               this.options,
-              (option) => option.value,
-              (option) => this._renderOption(option)
+              option => option.value,
+              option => this._renderOption(option)
             )
           : nothing}
       </div>
-    `;
+    `
   }
 
   private _renderOption(option: ControlSelectOption) {
-    const isSelected = this.value === option.value;
+    const isSelected = this.value === option.value
 
     return html`
       <div
@@ -158,9 +158,9 @@ export class HaControlSelect extends LitElement {
           selected: isSelected,
         })}
         role="radio"
-        tabindex=${isSelected ? "0" : "-1"}
+        tabindex=${isSelected ? '0' : '-1'}
         .value=${option.value}
-        aria-checked=${isSelected ? "true" : "false"}
+        aria-checked=${isSelected ? 'true' : 'false'}
         aria-label=${ifDefined(option.label)}
         title=${ifDefined(option.label)}
         @click=${this._handleOptionClick}
@@ -177,7 +177,7 @@ export class HaControlSelect extends LitElement {
             : nothing}
         </div>
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -222,7 +222,7 @@ export class HaControlSelect extends LitElement {
     }
     .container::before {
       position: absolute;
-      content: "";
+      content: '';
       top: 0;
       left: 0;
       height: 100%;
@@ -271,7 +271,7 @@ export class HaControlSelect extends LitElement {
     }
     .option::before {
       position: absolute;
-      content: "";
+      content: '';
       top: 0;
       left: 0;
       height: 100%;
@@ -323,11 +323,11 @@ export class HaControlSelect extends LitElement {
       margin-inline-end: initial;
       margin-bottom: var(--control-select-padding);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-control-select": HaControlSelect;
+    'ha-control-select': HaControlSelect
   }
 }

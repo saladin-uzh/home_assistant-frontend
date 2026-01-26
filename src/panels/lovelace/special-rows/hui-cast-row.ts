@@ -1,50 +1,50 @@
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import type { CastManager } from "../../../cast/cast_manager";
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import type { CastManager } from '../../../cast/cast_manager'
 import {
   castSendShowLovelaceView,
   ensureConnectedCastSession,
-} from "../../../cast/receiver_messages";
-import "../../../components/ha-button";
-import "../../../components/ha-icon";
-import type { HomeAssistant } from "../../../types";
-import type { CastConfig, LovelaceRow } from "../entity-rows/types";
+} from '../../../cast/receiver_messages'
+import '../../../components/ha-button'
+import '../../../components/ha-icon'
+import type { HomeAssistant } from '../../../types'
+import type { CastConfig, LovelaceRow } from '../entity-rows/types'
 
-@customElement("hui-cast-row")
+@customElement('hui-cast-row')
 class HuiCastRow extends LitElement implements LovelaceRow {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _config?: CastConfig;
+  @state() private _config?: CastConfig
 
-  @state() private _castManager?: CastManager | null;
+  @state() private _castManager?: CastManager | null
 
-  @state() private _noHTTPS = false;
+  @state() private _noHTTPS = false
 
   public setConfig(config: CastConfig): void {
     this._config = {
-      icon: "mdi:television",
-      name: "Home Assistant Cast",
+      icon: 'mdi:television',
+      name: 'Home Assistant Cast',
       view: 0,
       ...config,
-    };
+    }
   }
 
   protected shouldUpdate(changedProperties: PropertyValues) {
-    return !(changedProperties.size === 1 && changedProperties.has("hass"));
+    return !(changedProperties.size === 1 && changedProperties.has('hass'))
   }
 
   protected render() {
     if (!this._config) {
-      return nothing;
+      return nothing
     }
 
     const active =
       this._castManager &&
       this._castManager.status &&
       this._config.view === this._castManager.status.lovelacePath &&
-      this._config.dashboard === this._castManager.status.urlPath;
+      this._config.dashboard === this._castManager.status.urlPath
 
     return html`
       <ha-icon .icon=${this._config.icon}></ha-icon>
@@ -56,7 +56,7 @@ class HuiCastRow extends LitElement implements LovelaceRow {
             ? nothing
             : this._castManager === null
               ? html` Cast API unavailable `
-              : this._castManager.castState === "NO_DEVICES_AVAILABLE"
+              : this._castManager.castState === 'NO_DEVICES_AVAILABLE'
                 ? html` No devices found `
                 : html`
                     <div class="controls">
@@ -73,51 +73,51 @@ class HuiCastRow extends LitElement implements LovelaceRow {
                     </div>
                   `}
       </div>
-    `;
+    `
   }
 
   protected firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
-    if (location.protocol === "http:" && location.hostname !== "localhost") {
-      this._noHTTPS = true;
+    super.firstUpdated(changedProps)
+    if (location.protocol === 'http:' && location.hostname !== 'localhost') {
+      this._noHTTPS = true
     }
-    import("../../../cast/cast_manager").then(({ getCastManager }) =>
+    import('../../../cast/cast_manager').then(({ getCastManager }) =>
       getCastManager(this.hass.auth).then(
-        (mgr) => {
-          this._castManager = mgr;
-          mgr.addEventListener("connection-changed", () => {
-            this.requestUpdate();
-          });
-          mgr.addEventListener("state-changed", () => {
-            this.requestUpdate();
-          });
+        mgr => {
+          this._castManager = mgr
+          mgr.addEventListener('connection-changed', () => {
+            this.requestUpdate()
+          })
+          mgr.addEventListener('state-changed', () => {
+            this.requestUpdate()
+          })
         },
         () => {
-          this._castManager = null;
+          this._castManager = null
         }
       )
-    );
+    )
   }
 
   protected updated(changedProps) {
-    super.updated(changedProps);
+    super.updated(changedProps)
     if (this._config && this._config.hide_if_unavailable) {
       this.style.display =
         !this._castManager ||
-        this._castManager.castState === "NO_DEVICES_AVAILABLE"
-          ? "none"
-          : "";
+        this._castManager.castState === 'NO_DEVICES_AVAILABLE'
+          ? 'none'
+          : ''
     }
   }
 
   private async _sendLovelace() {
-    await ensureConnectedCastSession(this._castManager!, this.hass.auth);
+    await ensureConnectedCastSession(this._castManager!, this.hass.auth)
     castSendShowLovelaceView(
       this._castManager!,
       this.hass.auth.data.hassUrl,
       this._config!.view!,
       this._config!.dashboard
-    );
+    )
   }
 
   static styles = css`
@@ -159,11 +159,11 @@ class HuiCastRow extends LitElement implements LovelaceRow {
     .inactive {
       padding: 0 4px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-cast-row": HuiCastRow;
+    'hui-cast-row': HuiCastRow
   }
 }

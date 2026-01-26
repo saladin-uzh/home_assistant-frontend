@@ -1,4 +1,4 @@
-import type { Auth } from "home-assistant-js-websocket";
+import type { Auth } from 'home-assistant-js-websocket'
 
 export const fetchWithAuth = async (
   auth: Auth,
@@ -6,16 +6,16 @@ export const fetchWithAuth = async (
   init: RequestInit = {}
 ) => {
   if (auth.expired) {
-    await auth.refreshAccessToken();
+    await auth.refreshAccessToken()
   }
-  init.credentials = "same-origin";
+  init.credentials = 'same-origin'
   if (!init.headers) {
-    init.headers = {};
+    init.headers = {}
   }
   if (!init.headers) {
-    init.headers = {};
+    init.headers = {}
   }
   // @ts-ignore
-  init.headers.authorization = `Bearer ${auth.accessToken}`;
-  return fetch(input, init);
-};
+  init.headers.authorization = `Bearer ${auth.accessToken}`
+  return fetch(input, init)
+}

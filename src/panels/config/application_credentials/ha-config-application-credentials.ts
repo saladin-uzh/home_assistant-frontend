@@ -1,118 +1,118 @@
-import { mdiDelete, mdiPlus } from "@mdi/js";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import type { HASSDomEvent } from "../../../common/dom/fire_event";
-import type { LocalizeFunc } from "../../../common/translations/localize";
+import { mdiDelete, mdiPlus } from '@mdi/js'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import type { HASSDomEvent } from '../../../common/dom/fire_event'
+import type { LocalizeFunc } from '../../../common/translations/localize'
 import type {
   DataTableColumnContainer,
   SelectionChangedEvent,
   SortingChangedEvent,
-} from "../../../components/data-table/ha-data-table";
-import "../../../components/ha-fab";
-import "../../../components/ha-button";
-import "../../../components/ha-help-tooltip";
-import "../../../components/ha-svg-icon";
-import "../../../components/ha-icon-overflow-menu";
-import type { ApplicationCredential } from "../../../data/application_credential";
+} from '../../../components/data-table/ha-data-table'
+import '../../../components/ha-fab'
+import '../../../components/ha-button'
+import '../../../components/ha-help-tooltip'
+import '../../../components/ha-svg-icon'
+import '../../../components/ha-icon-overflow-menu'
+import type { ApplicationCredential } from '../../../data/application_credential'
 import {
   deleteApplicationCredential,
   fetchApplicationCredentials,
-} from "../../../data/application_credential";
-import { domainToName } from "../../../data/integration";
+} from '../../../data/application_credential'
+import { domainToName } from '../../../data/integration'
 import {
   showAlertDialog,
   showConfirmationDialog,
-} from "../../../dialogs/generic/show-dialog-box";
-import "../../../layouts/hass-tabs-subpage-data-table";
-import type { HaTabsSubpageDataTable } from "../../../layouts/hass-tabs-subpage-data-table";
-import type { HomeAssistant, Route } from "../../../types";
-import { configSections } from "../ha-panel-config";
-import { showAddApplicationCredentialDialog } from "./show-dialog-add-application-credential";
-import { storage } from "../../../common/decorators/storage";
+} from '../../../dialogs/generic/show-dialog-box'
+import '../../../layouts/hass-tabs-subpage-data-table'
+import type { HaTabsSubpageDataTable } from '../../../layouts/hass-tabs-subpage-data-table'
+import type { HomeAssistant, Route } from '../../../types'
+import { configSections } from '../ha-panel-config'
+import { showAddApplicationCredentialDialog } from './show-dialog-add-application-credential'
+import { storage } from '../../../common/decorators/storage'
 
-@customElement("ha-config-application-credentials")
+@customElement('ha-config-application-credentials')
 export class HaConfigApplicationCredentials extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() public _applicationCredentials: ApplicationCredential[] = [];
+  @state() public _applicationCredentials: ApplicationCredential[] = []
 
-  @property({ attribute: "is-wide", type: Boolean }) public isWide = false;
+  @property({ attribute: 'is-wide', type: Boolean }) public isWide = false
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ attribute: false }) public route!: Route;
+  @property({ attribute: false }) public route!: Route
 
-  @state() private _selected: string[] = [];
+  @state() private _selected: string[] = []
 
-  @query("hass-tabs-subpage-data-table", true)
-  private _dataTable!: HaTabsSubpageDataTable;
+  @query('hass-tabs-subpage-data-table', true)
+  private _dataTable!: HaTabsSubpageDataTable
 
   @storage({
-    key: "application-credentials-table-sort",
+    key: 'application-credentials-table-sort',
     state: false,
     subscribe: false,
   })
-  private _activeSorting?: SortingChangedEvent;
+  private _activeSorting?: SortingChangedEvent
 
   @storage({
-    key: "application-credentials-table-column-order",
+    key: 'application-credentials-table-column-order',
     state: false,
     subscribe: false,
   })
-  private _activeColumnOrder?: string[];
+  private _activeColumnOrder?: string[]
 
   @storage({
-    key: "application-credentials-table-hidden-columns",
+    key: 'application-credentials-table-hidden-columns',
     state: false,
     subscribe: false,
   })
-  private _activeHiddenColumns?: string[];
+  private _activeHiddenColumns?: string[]
 
   @state()
   @storage({
-    storage: "sessionStorage",
-    key: "application-credentials-table-search",
+    storage: 'sessionStorage',
+    key: 'application-credentials-table-search',
     state: true,
     subscribe: false,
   })
-  private _filter = "";
+  private _filter = ''
 
   private _columns = memoizeOne(
     (localize: LocalizeFunc): DataTableColumnContainer => {
       const columns: DataTableColumnContainer<ApplicationCredential> = {
         name: {
           title: localize(
-            "ui.panel.config.application_credentials.picker.headers.name"
+            'ui.panel.config.application_credentials.picker.headers.name'
           ),
           main: true,
           sortable: true,
           filterable: true,
-          direction: "asc",
+          direction: 'asc',
           flex: 2,
         },
         client_id: {
           title: localize(
-            "ui.panel.config.application_credentials.picker.headers.client_id"
+            'ui.panel.config.application_credentials.picker.headers.client_id'
           ),
           filterable: true,
         },
         localizedDomain: {
           title: localize(
-            "ui.panel.config.application_credentials.picker.headers.application"
+            'ui.panel.config.application_credentials.picker.headers.application'
           ),
           sortable: true,
           filterable: true,
         },
         actions: {
-          title: "",
-          label: localize("ui.panel.config.generic.headers.actions"),
-          type: "overflow-menu",
+          title: '',
+          label: localize('ui.panel.config.generic.headers.actions'),
+          type: 'overflow-menu',
           showNarrow: true,
           hideable: false,
           moveable: false,
-          template: (credential) => html`
+          template: credential => html`
             <ha-icon-overflow-menu
               .hass=${this.hass}
               narrow
@@ -120,7 +120,7 @@ export class HaConfigApplicationCredentials extends LitElement {
                 {
                   path: mdiDelete,
                   warning: true,
-                  label: this.hass.localize("ui.common.delete"),
+                  label: this.hass.localize('ui.common.delete'),
                   action: () => this._deleteCredential(credential),
                 },
               ]}
@@ -128,24 +128,24 @@ export class HaConfigApplicationCredentials extends LitElement {
             </ha-icon-overflow-menu>
           `,
         },
-      };
+      }
 
-      return columns;
+      return columns
     }
-  );
+  )
 
   private _getApplicationCredentials = memoizeOne(
     (applicationCredentials: ApplicationCredential[], localize: LocalizeFunc) =>
-      applicationCredentials.map((credential) => ({
+      applicationCredentials.map(credential => ({
         ...credential,
         localizedDomain: domainToName(localize, credential.domain),
       }))
-  );
+  )
 
   protected firstUpdated(changedProperties: PropertyValues) {
-    super.firstUpdated(changedProperties);
-    this._loadTranslations();
-    this._fetchApplicationCredentials();
+    super.firstUpdated(changedProperties)
+    this._loadTranslations()
+    this._fetchApplicationCredentials()
   }
 
   protected render() {
@@ -173,7 +173,10 @@ export class HaConfigApplicationCredentials extends LitElement {
         .filter=${this._filter}
         @search-changed=${this._handleSearchChange}
       >
-        <div class="header-btns" slot="selection-bar">
+        <div
+          class="header-btns"
+          slot="selection-bar"
+        >
           ${!this.narrow
             ? html`
                 <ha-button
@@ -182,7 +185,7 @@ export class HaConfigApplicationCredentials extends LitElement {
                   @click=${this._deleteSelected}
                   variant="danger"
                   >${this.hass.localize(
-                    "ui.panel.config.application_credentials.picker.remove_selected.button"
+                    'ui.panel.config.application_credentials.picker.remove_selected.button'
                   )}</ha-button
                 >
               `
@@ -192,11 +195,11 @@ export class HaConfigApplicationCredentials extends LitElement {
                   id="remove-btn"
                   @click=${this._deleteSelected}
                   .path=${mdiDelete}
-                  .label=${this.hass.localize("ui.common.remove")}
+                  .label=${this.hass.localize('ui.common.remove')}
                 ></ha-icon-button>
                 <ha-help-tooltip
                   .label=${this.hass.localize(
-                    "ui.panel.config.application_credentials.picker.remove_selected.button"
+                    'ui.panel.config.application_credentials.picker.remove_selected.button'
                   )}
                 >
                 </ha-help-tooltip>
@@ -205,41 +208,44 @@ export class HaConfigApplicationCredentials extends LitElement {
         <ha-fab
           slot="fab"
           .label=${this.hass.localize(
-            "ui.panel.config.application_credentials.picker.add_application_credential"
+            'ui.panel.config.application_credentials.picker.add_application_credential'
           )}
           extended
           @click=${this._addApplicationCredential}
         >
-          <ha-svg-icon slot="icon" .path=${mdiPlus}></ha-svg-icon>
+          <ha-svg-icon
+            slot="icon"
+            .path=${mdiPlus}
+          ></ha-svg-icon>
         </ha-fab>
       </hass-tabs-subpage-data-table>
-    `;
+    `
   }
 
   private _handleSelectionChanged(
     ev: HASSDomEvent<SelectionChangedEvent>
   ): void {
-    this._selected = ev.detail.value;
+    this._selected = ev.detail.value
   }
 
-  private _deleteCredential = async (credential) => {
+  private _deleteCredential = async credential => {
     const confirm = await showConfirmationDialog(this, {
       title: this.hass.localize(
         `ui.panel.config.application_credentials.picker.remove.confirm_title`
       ),
       text: this.hass.localize(
-        "ui.panel.config.application_credentials.picker.remove_selected.confirm_text"
+        'ui.panel.config.application_credentials.picker.remove_selected.confirm_text'
       ),
-      confirmText: this.hass.localize("ui.common.delete"),
-      dismissText: this.hass.localize("ui.common.cancel"),
+      confirmText: this.hass.localize('ui.common.delete'),
+      dismissText: this.hass.localize('ui.common.cancel'),
       destructive: true,
-    });
+    })
     if (!confirm) {
-      return;
+      return
     }
-    await deleteApplicationCredential(this.hass, credential.id);
-    await this._fetchApplicationCredentials();
-  };
+    await deleteApplicationCredential(this.hass, credential.id)
+    await this._fetchApplicationCredentials()
+  }
 
   private _deleteSelected() {
     showConfirmationDialog(this, {
@@ -248,42 +254,42 @@ export class HaConfigApplicationCredentials extends LitElement {
         { number: this._selected.length }
       ),
       text: this.hass.localize(
-        "ui.panel.config.application_credentials.picker.remove_selected.confirm_text"
+        'ui.panel.config.application_credentials.picker.remove_selected.confirm_text'
       ),
-      confirmText: this.hass.localize("ui.common.delete"),
-      dismissText: this.hass.localize("ui.common.cancel"),
+      confirmText: this.hass.localize('ui.common.delete'),
+      dismissText: this.hass.localize('ui.common.cancel'),
       destructive: true,
       confirm: async () => {
         try {
           await Promise.all(
-            this._selected.map(async (applicationCredential) => {
+            this._selected.map(async applicationCredential => {
               await deleteApplicationCredential(
                 this.hass,
                 applicationCredential
-              );
+              )
             })
-          );
+          )
         } catch (err: any) {
           showAlertDialog(this, {
             title: this.hass.localize(
-              "ui.panel.config.application_credentials.picker.remove_selected.error_title"
+              'ui.panel.config.application_credentials.picker.remove_selected.error_title'
             ),
             text: err.message,
-          });
-          return;
+          })
+          return
         }
-        this._dataTable.clearSelection();
-        await this._fetchApplicationCredentials();
+        this._dataTable.clearSelection()
+        await this._fetchApplicationCredentials()
       },
-    });
+    })
   }
 
   private async _loadTranslations() {
-    await this.hass.loadBackendTranslation("title", undefined, true);
+    await this.hass.loadBackendTranslation('title', undefined, true)
   }
 
   private async _fetchApplicationCredentials() {
-    this._applicationCredentials = await fetchApplicationCredentials(this.hass);
+    this._applicationCredentials = await fetchApplicationCredentials(this.hass)
   }
 
   private _addApplicationCredential() {
@@ -295,23 +301,23 @@ export class HaConfigApplicationCredentials extends LitElement {
           this._applicationCredentials = [
             ...this._applicationCredentials,
             applicationCredential,
-          ];
+          ]
         }
       },
-    });
+    })
   }
 
   private _handleSortingChanged(ev: CustomEvent) {
-    this._activeSorting = ev.detail;
+    this._activeSorting = ev.detail
   }
 
   private _handleColumnsChanged(ev: CustomEvent) {
-    this._activeColumnOrder = ev.detail.columnOrder;
-    this._activeHiddenColumns = ev.detail.hiddenColumns;
+    this._activeColumnOrder = ev.detail.columnOrder
+    this._activeHiddenColumns = ev.detail.hiddenColumns
   }
 
   private _handleSearchChange(ev: CustomEvent) {
-    this._filter = ev.detail.value;
+    this._filter = ev.detail.value
   }
 
   static styles = css`
@@ -365,11 +371,11 @@ export class HaConfigApplicationCredentials extends LitElement {
     .warning {
       --mdc-theme-primary: var(--error-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-config-application-credentials": HaConfigApplicationCredentials;
+    'ha-config-application-credentials': HaConfigApplicationCredentials
   }
 }

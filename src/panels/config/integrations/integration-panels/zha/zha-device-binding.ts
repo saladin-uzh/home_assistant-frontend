@@ -1,36 +1,36 @@
-import type { CSSResultGroup, PropertyValues, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { stopPropagation } from "../../../../../common/dom/stop_propagation";
-import "../../../../../components/buttons/ha-progress-button";
-import "../../../../../components/ha-card";
-import "../../../../../components/ha-select";
-import "../../../../../components/ha-list-item";
-import type { ZHADevice } from "../../../../../data/zha";
-import { bindDevices, unbindDevices } from "../../../../../data/zha";
-import { haStyle } from "../../../../../resources/styles";
-import type { HomeAssistant } from "../../../../../types";
-import type { ItemSelectedEvent } from "./types";
+import type { CSSResultGroup, PropertyValues, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { stopPropagation } from '../../../../../common/dom/stop_propagation'
+import '../../../../../components/buttons/ha-progress-button'
+import '../../../../../components/ha-card'
+import '../../../../../components/ha-select'
+import '../../../../../components/ha-list-item'
+import type { ZHADevice } from '../../../../../data/zha'
+import { bindDevices, unbindDevices } from '../../../../../data/zha'
+import { haStyle } from '../../../../../resources/styles'
+import type { HomeAssistant } from '../../../../../types'
+import type { ItemSelectedEvent } from './types'
 
-@customElement("zha-device-binding-control")
+@customElement('zha-device-binding-control')
 export class ZHADeviceBindingControl extends LitElement {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ attribute: false }) public device?: ZHADevice;
+  @property({ attribute: false }) public device?: ZHADevice
 
-  @state() private _bindTargetIndex = -1;
+  @state() private _bindTargetIndex = -1
 
-  @state() private bindableDevices: ZHADevice[] = [];
+  @state() private bindableDevices: ZHADevice[] = []
 
-  @state() private _deviceToBind?: ZHADevice;
+  @state() private _deviceToBind?: ZHADevice
 
-  @state() private _bindingOperationInProgress = false;
+  @state() private _bindingOperationInProgress = false
 
   protected updated(changedProperties: PropertyValues): void {
-    if (changedProperties.has("device")) {
-      this._bindTargetIndex = -1;
+    if (changedProperties.has('device')) {
+      this._bindTargetIndex = -1
     }
-    super.updated(changedProperties);
+    super.updated(changedProperties)
   }
 
   protected render(): TemplateResult {
@@ -39,7 +39,7 @@ export class ZHADeviceBindingControl extends LitElement {
         <div class="command-picker">
           <ha-select
             label=${this.hass!.localize(
-              "ui.panel.config.zha.device_binding.picker_label"
+              'ui.panel.config.zha.device_binding.picker_label'
             )}
             class="menu"
             .value=${String(this._bindTargetIndex)}
@@ -67,62 +67,62 @@ export class ZHADeviceBindingControl extends LitElement {
             variant="danger"
             appearance="plain"
           >
-            ${this.hass!.localize("ui.panel.config.zha.device_binding.unbind")}
+            ${this.hass!.localize('ui.panel.config.zha.device_binding.unbind')}
           </ha-progress-button>
           <ha-progress-button
             @click=${this._onBindDevicesClick}
             .disabled=${!(this._deviceToBind && this.device) ||
             this._bindingOperationInProgress}
           >
-            ${this.hass!.localize("ui.panel.config.zha.device_binding.bind")}
+            ${this.hass!.localize('ui.panel.config.zha.device_binding.bind')}
           </ha-progress-button>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   private _bindTargetIndexChanged(event: ItemSelectedEvent): void {
-    this._bindTargetIndex = Number(event.target!.value);
+    this._bindTargetIndex = Number(event.target!.value)
     this._deviceToBind =
       this._bindTargetIndex === -1
         ? undefined
-        : this.bindableDevices[this._bindTargetIndex];
+        : this.bindableDevices[this._bindTargetIndex]
   }
 
   private async _onBindDevicesClick(ev: CustomEvent): Promise<void> {
-    const button = ev.currentTarget as any;
+    const button = ev.currentTarget as any
     if (this.hass && this._deviceToBind && this.device) {
-      this._bindingOperationInProgress = true;
-      button.progress = true;
+      this._bindingOperationInProgress = true
+      button.progress = true
       try {
-        await bindDevices(this.hass, this.device.ieee, this._deviceToBind.ieee);
-        button.actionSuccess();
+        await bindDevices(this.hass, this.device.ieee, this._deviceToBind.ieee)
+        button.actionSuccess()
       } catch (_err: any) {
-        button.actionError();
+        button.actionError()
       } finally {
-        this._bindingOperationInProgress = false;
-        button.progress = false;
+        this._bindingOperationInProgress = false
+        button.progress = false
       }
     }
   }
 
   private async _onUnbindDevicesClick(ev: CustomEvent): Promise<void> {
-    const button = ev.currentTarget as any;
+    const button = ev.currentTarget as any
     if (this.hass && this._deviceToBind && this.device) {
-      this._bindingOperationInProgress = true;
-      button.progress = true;
+      this._bindingOperationInProgress = true
+      button.progress = true
       try {
         await unbindDevices(
           this.hass,
           this.device.ieee,
           this._deviceToBind.ieee
-        );
-        button.actionSuccess();
+        )
+        button.actionSuccess()
       } catch (_err: any) {
-        button.actionError();
+        button.actionError()
       } finally {
-        this._bindingOperationInProgress = false;
-        button.progress = false;
+        this._bindingOperationInProgress = false
+        button.progress = false
       }
     }
   }
@@ -157,12 +157,12 @@ export class ZHADeviceBindingControl extends LitElement {
           gap: var(--ha-space-1);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "zha-device-binding-control": ZHADeviceBindingControl;
+    'zha-device-binding-control': ZHADeviceBindingControl
   }
 }

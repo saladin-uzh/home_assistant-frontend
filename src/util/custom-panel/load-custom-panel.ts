@@ -1,60 +1,60 @@
-import { loadJS, loadModule } from "../../common/dom/load_resource";
-import type { CustomPanelConfig } from "../../data/panel_custom";
+import { loadJS, loadModule } from '../../common/dom/load_resource'
+import type { CustomPanelConfig } from '../../data/panel_custom'
 
 // Make sure we only import every JS-based panel once (HTML import has this built-in)
-const JS_CACHE = {};
+const JS_CACHE = {}
 
 export const getUrl = (
   panelConfig: CustomPanelConfig
-): { type: "module" | "html" | "js"; url: string } => {
+): { type: 'module' | 'html' | 'js'; url: string } => {
   if (panelConfig.html_url) {
     return {
-      type: "html",
+      type: 'html',
       url: panelConfig.html_url,
-    };
+    }
   }
 
   // if both module and JS provided, base url on frontend build
   if (panelConfig.module_url && panelConfig.js_url) {
-    if (__BUILD__ === "modern") {
+    if (__BUILD__ === 'modern') {
       return {
-        type: "module",
+        type: 'module',
         url: panelConfig.module_url,
-      };
+      }
     }
 
     return {
-      type: "js",
+      type: 'js',
       url: panelConfig.js_url,
-    };
+    }
   }
 
   if (panelConfig.module_url) {
     return {
-      type: "module",
+      type: 'module',
       url: panelConfig.module_url,
-    };
+    }
   }
 
   return {
-    type: "js",
+    type: 'js',
     url: panelConfig.js_url!,
-  };
-};
+  }
+}
 
 export const loadCustomPanel = (
   panelConfig: CustomPanelConfig
 ): Promise<unknown> => {
-  const panelSource = getUrl(panelConfig);
+  const panelSource = getUrl(panelConfig)
 
-  if (panelSource.type === "js") {
+  if (panelSource.type === 'js') {
     if (!(panelSource.url in JS_CACHE)) {
-      JS_CACHE[panelSource.url] = loadJS(panelSource.url);
+      JS_CACHE[panelSource.url] = loadJS(panelSource.url)
     }
-    return JS_CACHE[panelSource.url];
+    return JS_CACHE[panelSource.url]
   }
-  if (panelSource.type === "module") {
-    return loadModule(panelSource.url);
+  if (panelSource.type === 'module') {
+    return loadModule(panelSource.url)
   }
-  return Promise.reject("No valid url found in panel config.");
-};
+  return Promise.reject('No valid url found in panel config.')
+}

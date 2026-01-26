@@ -1,11 +1,11 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
 
-@customElement("onboarding-loading")
+@customElement('onboarding-loading')
 class OnboardingLoading extends LitElement {
   protected render(): TemplateResult {
-    return html`<div class="loader"></div>`;
+    return html`<div class="loader"></div>`
   }
 
   static styles = css`
@@ -51,11 +51,11 @@ class OnboardingLoading extends LitElement {
         transform: rotate(360deg);
       }
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "onboarding-loading": OnboardingLoading;
+    'onboarding-loading': OnboardingLoading
   }
 }

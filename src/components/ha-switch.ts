@@ -1,23 +1,23 @@
-import { SwitchBase } from "@material/mwc-switch/deprecated/mwc-switch-base";
-import { styles } from "@material/mwc-switch/deprecated/mwc-switch.css";
-import { css } from "lit";
-import { customElement, property } from "lit/decorators";
-import { forwardHaptic } from "../data/haptics";
+import { SwitchBase } from '@material/mwc-switch/deprecated/mwc-switch-base'
+import { styles } from '@material/mwc-switch/deprecated/mwc-switch.css'
+import { css } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { forwardHaptic } from '../data/haptics'
 
-@customElement("ha-switch")
+@customElement('ha-switch')
 export class HaSwitch extends SwitchBase {
   // Generate a haptic vibration.
   // Only set to true if the new value of the switch is applied right away when toggling.
   // Do not add haptic when a user is required to press save.
-  @property({ type: Boolean }) public haptic = false;
+  @property({ type: Boolean }) public haptic = false
 
   protected firstUpdated() {
-    super.firstUpdated();
-    this.addEventListener("change", () => {
+    super.firstUpdated()
+    this.addEventListener('change', () => {
       if (this.haptic) {
-        forwardHaptic(this, "light");
+        forwardHaptic(this, 'light')
       }
-    });
+    })
   }
 
   static override styles = [
@@ -43,11 +43,11 @@ export class HaSwitch extends SwitchBase {
         border-color: var(--switch-unchecked-track-color);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-switch": HaSwitch;
+    'ha-switch': HaSwitch
   }
 }

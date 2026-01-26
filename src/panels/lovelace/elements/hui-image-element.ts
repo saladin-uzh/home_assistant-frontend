@@ -1,60 +1,60 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import type { ImageEntity } from "../../../data/image";
-import { computeImageUrl } from "../../../data/image";
-import type { ActionHandlerEvent } from "../../../data/lovelace/action_handler";
-import type { HomeAssistant } from "../../../types";
-import { computeTooltip } from "../common/compute-tooltip";
-import { actionHandler } from "../common/directives/action-handler-directive";
-import { handleAction } from "../common/handle-action";
-import { hasAction } from "../common/has-action";
-import "../components/hui-image";
-import type { LovelacePictureElementEditor } from "../types";
-import type { ImageElementConfig, LovelaceElement } from "./types";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import type { ImageEntity } from '../../../data/image'
+import { computeImageUrl } from '../../../data/image'
+import type { ActionHandlerEvent } from '../../../data/lovelace/action_handler'
+import type { HomeAssistant } from '../../../types'
+import { computeTooltip } from '../common/compute-tooltip'
+import { actionHandler } from '../common/directives/action-handler-directive'
+import { handleAction } from '../common/handle-action'
+import { hasAction } from '../common/has-action'
+import '../components/hui-image'
+import type { LovelacePictureElementEditor } from '../types'
+import type { ImageElementConfig, LovelaceElement } from './types'
 
-@customElement("hui-image-element")
+@customElement('hui-image-element')
 export class HuiImageElement extends LitElement implements LovelaceElement {
   public static async getConfigElement(): Promise<LovelacePictureElementEditor> {
-    await import("../editor/config-elements/elements/hui-image-element-editor");
-    return document.createElement("hui-image-element-editor");
+    await import('../editor/config-elements/elements/hui-image-element-editor')
+    return document.createElement('hui-image-element-editor')
   }
 
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: ImageElementConfig;
+  @state() private _config?: ImageElementConfig
 
   public setConfig(config: ImageElementConfig): void {
     if (!config) {
-      throw Error("Invalid configuration");
+      throw Error('Invalid configuration')
     }
 
     this._config = {
-      tap_action: { action: "more-info" },
-      hold_action: { action: "more-info" },
+      tap_action: { action: 'more-info' },
+      hold_action: { action: 'more-info' },
       ...config,
-    };
+    }
 
     this.classList.toggle(
-      "clickable",
-      this._config.tap_action && this._config.tap_action.action !== "none"
-    );
+      'clickable',
+      this._config.tap_action && this._config.tap_action.action !== 'none'
+    )
   }
 
   protected render() {
     if (!this._config || !this.hass) {
-      return nothing;
+      return nothing
     }
-    let stateObj: ImageEntity | undefined;
+    let stateObj: ImageEntity | undefined
     if (this._config.image_entity) {
-      stateObj = this.hass.states[this._config.image_entity] as ImageEntity;
+      stateObj = this.hass.states[this._config.image_entity] as ImageEntity
     }
 
     const image = stateObj
       ? computeImageUrl(stateObj)
-      : (typeof this._config?.image === "object" &&
+      : (typeof this._config?.image === 'object' &&
           this._config.image.media_content_id) ||
-        (this._config.image as string | undefined);
+        (this._config.image as string | undefined)
 
     return html`
       <div
@@ -64,10 +64,10 @@ export class HuiImageElement extends LitElement implements LovelaceElement {
           hasDoubleClick: hasAction(this._config!.double_tap_action),
         })}
         tabindex=${ifDefined(
-          hasAction(this._config.tap_action) ? "0" : undefined
+          hasAction(this._config.tap_action) ? '0' : undefined
         )}
         role=${ifDefined(
-          hasAction(this._config.tap_action) ? "button" : undefined
+          hasAction(this._config.tap_action) ? 'button' : undefined
         )}
       >
         <hui-image
@@ -85,7 +85,7 @@ export class HuiImageElement extends LitElement implements LovelaceElement {
           .darkModeFilter=${this._config.dark_mode_filter}
         ></hui-image>
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -105,15 +105,15 @@ export class HuiImageElement extends LitElement implements LovelaceElement {
       background: var(--divider-color);
       border-radius: var(--ha-border-radius-pill);
     }
-  `;
+  `
 
   private _handleAction(ev: ActionHandlerEvent) {
-    handleAction(this, this.hass!, this._config!, ev.detail.action!);
+    handleAction(this, this.hass!, this._config!, ev.detail.action!)
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-image-element": HuiImageElement;
+    'hui-image-element': HuiImageElement
   }
 }

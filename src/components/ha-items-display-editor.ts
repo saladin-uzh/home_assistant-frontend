@@ -1,88 +1,88 @@
-import { ResizeController } from "@lit-labs/observers/resize-controller";
-import { mdiDragHorizontalVariant, mdiEye, mdiEyeOff } from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { ifDefined } from "lit/directives/if-defined";
-import { repeat } from "lit/directives/repeat";
-import { until } from "lit/directives/until";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../common/dom/fire_event";
-import { stopPropagation } from "../common/dom/stop_propagation";
-import { orderCompare } from "../common/string/compare";
-import type { HomeAssistant } from "../types";
-import "./ha-icon";
-import "./ha-icon-button";
-import "./ha-icon-next";
-import "./ha-md-list";
-import "./ha-md-list-item";
-import "./ha-sortable";
-import "./ha-svg-icon";
+import { ResizeController } from '@lit-labs/observers/resize-controller'
+import { mdiDragHorizontalVariant, mdiEye, mdiEyeOff } from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { ifDefined } from 'lit/directives/if-defined'
+import { repeat } from 'lit/directives/repeat'
+import { until } from 'lit/directives/until'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../common/dom/fire_event'
+import { stopPropagation } from '../common/dom/stop_propagation'
+import { orderCompare } from '../common/string/compare'
+import type { HomeAssistant } from '../types'
+import './ha-icon'
+import './ha-icon-button'
+import './ha-icon-next'
+import './ha-md-list'
+import './ha-md-list-item'
+import './ha-sortable'
+import './ha-svg-icon'
 
 export interface DisplayItem {
-  icon?: string | Promise<string | undefined>;
-  iconPath?: string;
-  value: string;
-  label: string;
-  description?: string;
-  disableSorting?: boolean;
-  disableHiding?: boolean;
+  icon?: string | Promise<string | undefined>
+  iconPath?: string
+  value: string
+  label: string
+  description?: string
+  disableSorting?: boolean
+  disableHiding?: boolean
 }
 
 export interface DisplayValue {
-  order: string[];
-  hidden: string[];
+  order: string[]
+  hidden: string[]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-items-display-editor": HaItemDisplayEditor;
+    'ha-items-display-editor': HaItemDisplayEditor
   }
   interface HASSDomEvents {
-    "item-display-navigate-clicked": { value: string };
+    'item-display-navigate-clicked': { value: string }
   }
 }
 
-@customElement("ha-items-display-editor")
+@customElement('ha-items-display-editor')
 export class HaItemDisplayEditor extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public items: DisplayItem[] = [];
+  @property({ attribute: false }) public items: DisplayItem[] = []
 
-  @property({ type: Boolean, attribute: "show-navigation-button" })
-  public showNavigationButton = false;
+  @property({ type: Boolean, attribute: 'show-navigation-button' })
+  public showNavigationButton = false
 
-  @property({ type: Boolean, attribute: "dont-sort-visible" })
-  public dontSortVisible = false;
+  @property({ type: Boolean, attribute: 'dont-sort-visible' })
+  public dontSortVisible = false
 
   @property({ attribute: false })
   public value: DisplayValue = {
     order: [],
     hidden: [],
-  };
+  }
 
   @property({ attribute: false }) public actionsRenderer?: (
     item: DisplayItem
-  ) => TemplateResult<1> | typeof nothing;
+  ) => TemplateResult<1> | typeof nothing
 
   /**
    * Used to sort items by keyboard navigation.
    */
-  @state() private _dragIndex: number | null = null;
+  @state() private _dragIndex: number | null = null
 
   private _showIcon = new ResizeController(this, {
-    callback: (entries) => entries[0]?.contentRect.width > 450,
-  });
+    callback: entries => entries[0]?.contentRect.width > 450,
+  })
 
   protected render() {
     const allItems = this._allItems(
       this.items,
       this.value.hidden,
       this.value.order
-    );
+    )
 
-    const showIcon = this._showIcon.value;
+    const showIcon = this._showIcon.value
     return html`
       <ha-sortable
         draggable-selector=".draggable"
@@ -92,9 +92,9 @@ export class HaItemDisplayEditor extends LitElement {
         <ha-md-list>
           ${repeat(
             allItems,
-            (item) => item.value,
+            item => item.value,
             (item: DisplayItem, idx) => {
-              const isVisible = !this.value.hidden.includes(item.value);
+              const isVisible = !this.value.hidden.includes(item.value)
               const {
                 label,
                 value,
@@ -103,7 +103,7 @@ export class HaItemDisplayEditor extends LitElement {
                 iconPath,
                 disableSorting,
                 disableHiding,
-              } = item;
+              } = item
               return html`
                 <ha-md-list-item
                   type="button"
@@ -114,7 +114,7 @@ export class HaItemDisplayEditor extends LitElement {
                   class=${classMap({
                     hidden: !isVisible,
                     draggable: isVisible && !disableSorting,
-                    "drag-selected": this._dragIndex === idx,
+                    'drag-selected': this._dragIndex === idx,
                   })}
                   @keydown=${isVisible && !disableSorting
                     ? this._listElementKeydown
@@ -131,7 +131,7 @@ export class HaItemDisplayEditor extends LitElement {
                       ? html`
                           <ha-icon
                             class="icon"
-                            .icon=${until(icon, "")}
+                            .icon=${until(icon, '')}
                             slot="start"
                           ></ha-icon>
                         `
@@ -147,12 +147,18 @@ export class HaItemDisplayEditor extends LitElement {
                   ${this.showNavigationButton
                     ? html`
                         <ha-icon-next slot="end"></ha-icon-next>
-                        <div slot="end" class="separator"></div>
+                        <div
+                          slot="end"
+                          class="separator"
+                        ></div>
                       `
                     : nothing}
                   ${this.actionsRenderer
                     ? html`
-                        <div slot="end" @click=${stopPropagation}>
+                        <div
+                          slot="end"
+                          @click=${stopPropagation}
+                        >
                           ${this.actionsRenderer(item)}
                         </div>
                       `
@@ -162,7 +168,7 @@ export class HaItemDisplayEditor extends LitElement {
                         .path=${isVisible ? mdiEye : mdiEyeOff}
                         slot="end"
                         .label=${this.hass.localize(
-                          `ui.components.items-display-editor.${isVisible ? "hide" : "show"}`,
+                          `ui.components.items-display-editor.${isVisible ? 'hide' : 'show'}`,
                           {
                             label: label,
                           }
@@ -176,7 +182,7 @@ export class HaItemDisplayEditor extends LitElement {
                     ? html`
                         <ha-svg-icon
                           tabindex=${ifDefined(
-                            this.showNavigationButton ? "0" : undefined
+                            this.showNavigationButton ? '0' : undefined
                           )}
                           .idx=${idx}
                           @keydown=${this.showNavigationButton
@@ -189,186 +195,185 @@ export class HaItemDisplayEditor extends LitElement {
                       `
                     : html`<ha-svg-icon slot="end"></ha-svg-icon>`}
                 </ha-md-list-item>
-              `;
+              `
             }
           )}
         </ha-md-list>
       </ha-sortable>
-    `;
+    `
   }
 
   private _toggle(ev) {
-    ev.stopPropagation();
-    this._dragIndex = null;
-    const value = ev.currentTarget.value;
+    ev.stopPropagation()
+    this._dragIndex = null
+    const value = ev.currentTarget.value
 
-    const hiddenItems = this._hiddenItems(this.items, this.value.hidden);
+    const hiddenItems = this._hiddenItems(this.items, this.value.hidden)
 
-    const newHidden = hiddenItems.map((item) => item.value);
+    const newHidden = hiddenItems.map(item => item.value)
 
     if (newHidden.includes(value)) {
-      newHidden.splice(newHidden.indexOf(value), 1);
+      newHidden.splice(newHidden.indexOf(value), 1)
     } else {
-      newHidden.push(value);
+      newHidden.push(value)
     }
 
     const newVisibleItems = this._visibleItems(
       this.items,
       newHidden,
       this.value.order
-    );
-    const newOrder = newVisibleItems.map((a) => a.value);
+    )
+    const newOrder = newVisibleItems.map(a => a.value)
 
     this.value = {
       hidden: newHidden,
       order: newOrder,
-    };
-    fireEvent(this, "value-changed", { value: this.value });
+    }
+    fireEvent(this, 'value-changed', { value: this.value })
   }
 
   private _itemMoved(ev: CustomEvent): void {
-    ev.stopPropagation();
-    const { oldIndex, newIndex } = ev.detail;
+    ev.stopPropagation()
+    const { oldIndex, newIndex } = ev.detail
 
-    this._moveItem(oldIndex, newIndex);
+    this._moveItem(oldIndex, newIndex)
   }
 
   private _moveItem(oldIndex, newIndex) {
     if (oldIndex === newIndex) {
-      return;
+      return
     }
 
     const visibleItems = this._visibleItems(
       this.items,
       this.value.hidden,
       this.value.order
-    );
-    const newOrder = visibleItems.map((item) => item.value);
+    )
+    const newOrder = visibleItems.map(item => item.value)
 
-    const movedItem = newOrder.splice(oldIndex, 1)[0];
-    newOrder.splice(newIndex, 0, movedItem);
+    const movedItem = newOrder.splice(oldIndex, 1)[0]
+    newOrder.splice(newIndex, 0, movedItem)
 
     this.value = {
       ...this.value,
       order: newOrder,
-    };
-    fireEvent(this, "value-changed", { value: this.value });
+    }
+    fireEvent(this, 'value-changed', { value: this.value })
   }
 
   private _navigate(ev) {
-    const value = ev.currentTarget.value;
-    fireEvent(this, "item-display-navigate-clicked", { value });
-    ev.stopPropagation();
+    const value = ev.currentTarget.value
+    fireEvent(this, 'item-display-navigate-clicked', { value })
+    ev.stopPropagation()
   }
 
   private _visibleItems = memoizeOne(
     (items: DisplayItem[], hidden: string[], order: string[]) => {
-      const compare = orderCompare(order);
+      const compare = orderCompare(order)
 
-      const visibleItems = items.filter((item) => !hidden.includes(item.value));
+      const visibleItems = items.filter(item => !hidden.includes(item.value))
       if (this.dontSortVisible) {
         return [
-          ...visibleItems.filter((item) => !item.disableSorting),
-          ...visibleItems.filter((item) => item.disableSorting),
-        ];
+          ...visibleItems.filter(item => !item.disableSorting),
+          ...visibleItems.filter(item => item.disableSorting),
+        ]
       }
 
       return visibleItems.sort((a, b) =>
         a.disableSorting && !b.disableSorting ? -1 : compare(a.value, b.value)
-      );
+      )
     }
-  );
+  )
 
   private _allItems = memoizeOne(
     (items: DisplayItem[], hidden: string[], order: string[]) => {
-      const visibleItems = this._visibleItems(items, hidden, order);
-      const hiddenItems = this._hiddenItems(items, hidden);
-      return [...visibleItems, ...hiddenItems];
+      const visibleItems = this._visibleItems(items, hidden, order)
+      const hiddenItems = this._hiddenItems(items, hidden)
+      return [...visibleItems, ...hiddenItems]
     }
-  );
+  )
 
   private _hiddenItems = memoizeOne((items: DisplayItem[], hidden: string[]) =>
-    items.filter((item) => hidden.includes(item.value))
-  );
+    items.filter(item => hidden.includes(item.value))
+  )
 
   private _maxSortableIndex = memoizeOne(
     (items: DisplayItem[], hidden: string[]) =>
-      items.filter(
-        (item) => !item.disableSorting && !hidden.includes(item.value)
-      ).length - 1
-  );
+      items.filter(item => !item.disableSorting && !hidden.includes(item.value))
+        .length - 1
+  )
 
   private _keyActivatedMove = (ev: KeyboardEvent, clearDragIndex = false) => {
-    const oldIndex = this._dragIndex;
+    const oldIndex = this._dragIndex
 
-    if (ev.key === "ArrowUp") {
-      this._dragIndex = Math.max(0, this._dragIndex! - 1);
+    if (ev.key === 'ArrowUp') {
+      this._dragIndex = Math.max(0, this._dragIndex! - 1)
     } else {
       this._dragIndex = Math.min(
         this._maxSortableIndex(this.items, this.value.hidden),
         this._dragIndex! + 1
-      );
+      )
     }
-    this._moveItem(oldIndex, this._dragIndex);
+    this._moveItem(oldIndex, this._dragIndex)
 
     // refocus the item after the sort
     setTimeout(async () => {
-      await this.updateComplete;
+      await this.updateComplete
       const selectedElement = this.shadowRoot?.querySelector(
         `ha-md-list-item:nth-child(${this._dragIndex! + 1})`
-      ) as HTMLElement | null;
-      selectedElement?.focus();
+      ) as HTMLElement | null
+      selectedElement?.focus()
       if (clearDragIndex) {
-        this._dragIndex = null;
+        this._dragIndex = null
       }
-    });
-  };
+    })
+  }
 
   private _sortKeydown = (ev: KeyboardEvent) => {
     if (
       this._dragIndex !== null &&
-      (ev.key === "ArrowUp" || ev.key === "ArrowDown")
+      (ev.key === 'ArrowUp' || ev.key === 'ArrowDown')
     ) {
-      ev.preventDefault();
-      this._keyActivatedMove(ev);
-    } else if (this._dragIndex !== null && ev.key === "Escape") {
-      ev.preventDefault();
-      ev.stopPropagation();
-      this._dragIndex = null;
-      this.removeEventListener("keydown", this._sortKeydown);
+      ev.preventDefault()
+      this._keyActivatedMove(ev)
+    } else if (this._dragIndex !== null && ev.key === 'Escape') {
+      ev.preventDefault()
+      ev.stopPropagation()
+      this._dragIndex = null
+      this.removeEventListener('keydown', this._sortKeydown)
     }
-  };
+  }
 
   private _listElementKeydown = (ev: KeyboardEvent) => {
-    if (ev.altKey && (ev.key === "ArrowUp" || ev.key === "ArrowDown")) {
-      ev.preventDefault();
-      this._dragIndex = (ev.target as any).idx;
-      this._keyActivatedMove(ev, true);
+    if (ev.altKey && (ev.key === 'ArrowUp' || ev.key === 'ArrowDown')) {
+      ev.preventDefault()
+      this._dragIndex = (ev.target as any).idx
+      this._keyActivatedMove(ev, true)
     } else if (
-      (!this.showNavigationButton && ev.key === "Enter") ||
-      ev.key === " "
+      (!this.showNavigationButton && ev.key === 'Enter') ||
+      ev.key === ' '
     ) {
-      this._dragHandleKeydown(ev);
+      this._dragHandleKeydown(ev)
     }
-  };
+  }
 
   private _dragHandleKeydown(ev: KeyboardEvent): void {
-    if (ev.key === "Enter" || ev.key === " ") {
-      ev.preventDefault();
-      ev.stopPropagation();
+    if (ev.key === 'Enter' || ev.key === ' ') {
+      ev.preventDefault()
+      ev.stopPropagation()
       if (this._dragIndex === null) {
-        this._dragIndex = (ev.target as any).idx;
-        this.addEventListener("keydown", this._sortKeydown);
+        this._dragIndex = (ev.target as any).idx
+        this.addEventListener('keydown', this._sortKeydown)
       } else {
-        this.removeEventListener("keydown", this._sortKeydown);
-        this._dragIndex = null;
+        this.removeEventListener('keydown', this._sortKeydown)
+        this._dragIndex = null
       }
     }
   }
 
   disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.removeEventListener("keydown", this._sortKeydown);
+    super.disconnectedCallback()
+    this.removeEventListener('keydown', this._sortKeydown)
   }
 
   static styles = css`
@@ -417,11 +422,11 @@ export class HaItemDisplayEditor extends LitElement {
     ha-md-list-item.hidden .icon {
       color: var(--disabled-text-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-items-display-editor": HaItemDisplayEditor;
+    'ha-items-display-editor': HaItemDisplayEditor
   }
 }

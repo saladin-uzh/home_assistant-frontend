@@ -1,7 +1,7 @@
-import type { HomeAssistant } from "../types";
+import type { HomeAssistant } from '../types'
 
 export interface NumberDeviceClassUnits {
-  units: string[];
+  units: string[]
 }
 
 export const getNumberDeviceClassConvertibleUnits = (
@@ -9,6 +9,6 @@ export const getNumberDeviceClassConvertibleUnits = (
   deviceClass: string
 ): Promise<NumberDeviceClassUnits> =>
   hass.callWS({
-    type: "number/device_class_convertible_units",
+    type: 'number/device_class_convertible_units',
     device_class: deviceClass,
-  });
+  })

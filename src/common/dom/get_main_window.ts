@@ -1,4 +1,4 @@
-import { MAIN_WINDOW_NAME } from "../../data/main_window";
+import { MAIN_WINDOW_NAME } from '../../data/main_window'
 
 export const mainWindow = (() => {
   try {
@@ -6,8 +6,8 @@ export const mainWindow = (() => {
       ? window
       : parent.name === MAIN_WINDOW_NAME
         ? parent
-        : top!;
+        : top!
   } catch {
-    return window;
+    return window
   }
-})();
+})()

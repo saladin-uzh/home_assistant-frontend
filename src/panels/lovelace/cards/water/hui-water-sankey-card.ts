@@ -1,63 +1,63 @@
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import "../../../../components/ha-card";
-import "../../../../components/ha-svg-icon";
-import type { EnergyData } from "../../../../data/energy";
-import { getEnergyDataCollection } from "../../../../data/energy";
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import '../../../../components/ha-card'
+import '../../../../components/ha-svg-icon'
+import type { EnergyData } from '../../../../data/energy'
+import { getEnergyDataCollection } from '../../../../data/energy'
 import {
   calculateStatisticSumGrowth,
   getStatisticLabel,
-} from "../../../../data/recorder";
-import { SubscribeMixin } from "../../../../mixins/subscribe-mixin";
-import type { HomeAssistant } from "../../../../types";
-import type { LovelaceCard, LovelaceGridOptions } from "../../types";
-import type { WaterSankeyCardConfig } from "../types";
-import "../../../../components/chart/ha-sankey-chart";
-import type { Link, Node } from "../../../../components/chart/ha-sankey-chart";
-import { getGraphColorByIndex } from "../../../../common/color/colors";
-import { formatNumber } from "../../../../common/number/format_number";
-import { getEntityContext } from "../../../../common/entity/context/get_entity_context";
-import { MobileAwareMixin } from "../../../../mixins/mobile-aware-mixin";
+} from '../../../../data/recorder'
+import { SubscribeMixin } from '../../../../mixins/subscribe-mixin'
+import type { HomeAssistant } from '../../../../types'
+import type { LovelaceCard, LovelaceGridOptions } from '../../types'
+import type { WaterSankeyCardConfig } from '../types'
+import '../../../../components/chart/ha-sankey-chart'
+import type { Link, Node } from '../../../../components/chart/ha-sankey-chart'
+import { getGraphColorByIndex } from '../../../../common/color/colors'
+import { formatNumber } from '../../../../common/number/format_number'
+import { getEntityContext } from '../../../../common/entity/context/get_entity_context'
+import { MobileAwareMixin } from '../../../../mixins/mobile-aware-mixin'
 
 const DEFAULT_CONFIG: Partial<WaterSankeyCardConfig> = {
   group_by_floor: true,
   group_by_area: true,
-};
+}
 
-@customElement("hui-water-sankey-card")
+@customElement('hui-water-sankey-card')
 class HuiWaterSankeyCard
   extends SubscribeMixin(MobileAwareMixin(LitElement))
   implements LovelaceCard
 {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public layout?: string;
+  @property({ attribute: false }) public layout?: string
 
-  @state() private _config?: WaterSankeyCardConfig;
+  @state() private _config?: WaterSankeyCardConfig
 
-  @state() private _data?: EnergyData;
+  @state() private _data?: EnergyData
 
-  protected hassSubscribeRequiredHostProps = ["_config"];
+  protected hassSubscribeRequiredHostProps = ['_config']
 
   public setConfig(config: WaterSankeyCardConfig): void {
-    this._config = { ...DEFAULT_CONFIG, ...config };
+    this._config = { ...DEFAULT_CONFIG, ...config }
   }
 
   public hassSubscribe(): UnsubscribeFunc[] {
     return [
       getEnergyDataCollection(this.hass, {
         key: this._config?.collection_key,
-      }).subscribe((data) => {
-        this._data = data;
+      }).subscribe(data => {
+        this._data = data
       }),
-    ];
+    ]
   }
 
   public getCardSize(): Promise<number> | number {
-    return 5;
+    return 5
   }
 
   getGridOptions(): LovelaceGridOptions {
@@ -66,37 +66,37 @@ class HuiWaterSankeyCard
       min_columns: 6,
       rows: 6,
       min_rows: 2,
-    };
+    }
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     return (
-      changedProps.has("_config") ||
-      changedProps.has("_data") ||
-      changedProps.has("_isMobileSize")
-    );
+      changedProps.has('_config') ||
+      changedProps.has('_data') ||
+      changedProps.has('_isMobileSize')
+    )
   }
 
   protected render() {
     if (!this._config) {
-      return nothing;
+      return nothing
     }
 
     if (!this._data) {
       return html`${this.hass.localize(
-        "ui.panel.lovelace.cards.energy.loading"
-      )}`;
+        'ui.panel.lovelace.cards.energy.loading'
+      )}`
     }
 
-    const prefs = this._data.prefs;
+    const prefs = this._data.prefs
     const waterSources = prefs.energy_sources.filter(
-      (source) => source.type === "water"
-    );
+      source => source.type === 'water'
+    )
 
-    const computedStyle = getComputedStyle(this);
+    const computedStyle = getComputedStyle(this)
 
-    const nodes: Node[] = [];
-    const links: Link[] = [];
+    const nodes: Node[] = []
+    const links: Link[] = []
 
     // Calculate total water consumption from all sources or devices
     const totalDownstreamConsumption = prefs.device_consumption_water.reduce(
@@ -106,54 +106,54 @@ class HuiWaterSankeyCard
             ? calculateStatisticSumGrowth(
                 this._data!.stats[device.stat_consumption]
               ) || 0
-            : 0;
-        return total + value;
+            : 0
+        return total + value
       },
       0
-    );
+    )
     const totalSourceSupply = waterSources.reduce((total, source) => {
       const value =
         source.stat_energy_from in this._data!.stats
           ? calculateStatisticSumGrowth(
               this._data!.stats[source.stat_energy_from]
             ) || 0
-          : 0;
-      return total + value;
-    }, 0);
+          : 0
+      return total + value
+    }, 0)
     const totalWaterConsumption = Math.max(
       totalDownstreamConsumption,
       totalSourceSupply
-    );
+    )
 
     // Create home/consumption node
     const homeNode: Node = {
-      id: "home",
+      id: 'home',
       label: this.hass.localize(
-        "ui.panel.lovelace.cards.energy.energy_distribution.home"
+        'ui.panel.lovelace.cards.energy.energy_distribution.home'
       ),
       value: Math.max(0, totalWaterConsumption),
-      color: computedStyle.getPropertyValue("--primary-color").trim(),
+      color: computedStyle.getPropertyValue('--primary-color').trim(),
       index: 1,
-    };
-    nodes.push(homeNode);
+    }
+    nodes.push(homeNode)
 
     // Add water source nodes
     const waterColor = computedStyle
-      .getPropertyValue("--energy-water-color")
-      .trim();
-    waterSources.forEach((source) => {
-      if (source.type !== "water") {
-        return;
+      .getPropertyValue('--energy-water-color')
+      .trim()
+    waterSources.forEach(source => {
+      if (source.type !== 'water') {
+        return
       }
       const value =
         source.stat_energy_from in this._data!.stats
           ? calculateStatisticSumGrowth(
               this._data!.stats[source.stat_energy_from]
             ) || 0
-          : 0;
+          : 0
 
       if (value < 0.01) {
-        return;
+        return
       }
 
       nodes.push({
@@ -166,27 +166,27 @@ class HuiWaterSankeyCard
         value,
         color: waterColor,
         index: 0,
-      });
+      })
 
       links.push({
         source: source.stat_energy_from,
-        target: "home",
+        target: 'home',
         value,
-      });
-    });
+      })
+    })
 
-    let untrackedConsumption = homeNode.value;
-    const deviceNodes: Node[] = [];
-    const parentLinks: Record<string, string> = {};
+    let untrackedConsumption = homeNode.value
+    const deviceNodes: Node[] = []
+    const parentLinks: Record<string, string> = {}
     prefs.device_consumption_water.forEach((device, idx) => {
       const value =
         device.stat_consumption in this._data!.stats
           ? calculateStatisticSumGrowth(
               this._data!.stats[device.stat_consumption]
             ) || 0
-          : 0;
+          : 0
       if (value < 0.01) {
-        return;
+        return
       }
       const node = {
         id: device.stat_consumption,
@@ -201,25 +201,25 @@ class HuiWaterSankeyCard
         color: getGraphColorByIndex(idx, computedStyle),
         index: 4,
         parent: device.included_in_stat,
-      };
+      }
       if (node.parent) {
-        parentLinks[node.id] = node.parent;
+        parentLinks[node.id] = node.parent
         links.push({
           source: node.parent,
           target: node.id,
-        });
+        })
       } else {
-        untrackedConsumption -= value;
+        untrackedConsumption -= value
       }
-      deviceNodes.push(node);
-    });
+      deviceNodes.push(node)
+    })
     const devicesWithoutParent = deviceNodes.filter(
-      (node) => !parentLinks[node.id]
-    );
+      node => !parentLinks[node.id]
+    )
 
-    const { group_by_area, group_by_floor } = this._config;
+    const { group_by_area, group_by_floor } = this._config
     if (group_by_area || group_by_floor) {
-      const { areas, floors } = this._groupByFloorAndArea(devicesWithoutParent);
+      const { areas, floors } = this._groupByFloorAndArea(devicesWithoutParent)
 
       Object.keys(floors)
         .sort(
@@ -227,107 +227,107 @@ class HuiWaterSankeyCard
             (this.hass.floors[b]?.level ?? -Infinity) -
             (this.hass.floors[a]?.level ?? -Infinity)
         )
-        .forEach((floorId) => {
-          let floorNodeId = `floor_${floorId}`;
-          if (floorId === "no_floor" || !group_by_floor) {
+        .forEach(floorId => {
+          let floorNodeId = `floor_${floorId}`
+          if (floorId === 'no_floor' || !group_by_floor) {
             // link "no_floor" areas to home
-            floorNodeId = "home";
+            floorNodeId = 'home'
           } else {
             nodes.push({
               id: floorNodeId,
               label: this.hass.floors[floorId].name,
               value: floors[floorId].value,
               index: 2,
-              color: computedStyle.getPropertyValue("--primary-color").trim(),
-            });
+              color: computedStyle.getPropertyValue('--primary-color').trim(),
+            })
             links.push({
-              source: "home",
+              source: 'home',
               target: floorNodeId,
-            });
+            })
           }
-          floors[floorId].areas.forEach((areaId) => {
-            let targetNodeId: string;
+          floors[floorId].areas.forEach(areaId => {
+            let targetNodeId: string
 
-            if (areaId === "no_area" || !group_by_area) {
+            if (areaId === 'no_area' || !group_by_area) {
               // If group_by_area is false, link devices to floor or home
-              targetNodeId = floorNodeId;
+              targetNodeId = floorNodeId
             } else {
               // Create area node and link it to floor
-              const areaNodeId = `area_${areaId}`;
+              const areaNodeId = `area_${areaId}`
               nodes.push({
                 id: areaNodeId,
                 label: this.hass.areas[areaId]!.name,
                 value: areas[areaId].value,
                 index: 3,
-                color: computedStyle.getPropertyValue("--primary-color").trim(),
-              });
+                color: computedStyle.getPropertyValue('--primary-color').trim(),
+              })
               links.push({
                 source: floorNodeId,
                 target: areaNodeId,
                 value: areas[areaId].value,
-              });
-              targetNodeId = areaNodeId;
+              })
+              targetNodeId = areaNodeId
             }
 
             // Link devices to the appropriate target (area, floor, or home)
-            areas[areaId].devices.forEach((device) => {
+            areas[areaId].devices.forEach(device => {
               links.push({
                 source: targetNodeId,
                 target: device.id,
                 value: device.value,
-              });
-            });
-          });
-        });
+              })
+            })
+          })
+        })
     } else {
-      devicesWithoutParent.forEach((deviceNode) => {
+      devicesWithoutParent.forEach(deviceNode => {
         links.push({
-          source: "home",
+          source: 'home',
           target: deviceNode.id,
           value: deviceNode.value,
-        });
-      });
+        })
+      })
     }
-    const deviceSections = this._getDeviceSections(parentLinks, deviceNodes);
+    const deviceSections = this._getDeviceSections(parentLinks, deviceNodes)
     deviceSections.forEach((section, index) => {
       section.forEach((node: Node) => {
-        nodes.push({ ...node, index: 4 + index });
-      });
-    });
+        nodes.push({ ...node, index: 4 + index })
+      })
+    })
 
     // untracked consumption
     if (untrackedConsumption > 0) {
       nodes.push({
-        id: "untracked",
+        id: 'untracked',
         label: this.hass.localize(
-          "ui.panel.lovelace.cards.energy.energy_devices_detail_graph.untracked_consumption"
+          'ui.panel.lovelace.cards.energy.energy_devices_detail_graph.untracked_consumption'
         ),
         value: untrackedConsumption,
         color: computedStyle
-          .getPropertyValue("--state-unavailable-color")
+          .getPropertyValue('--state-unavailable-color')
           .trim(),
         index: 3 + deviceSections.length,
-      });
+      })
       links.push({
-        source: "home",
-        target: "untracked",
+        source: 'home',
+        target: 'untracked',
         value: untrackedConsumption,
-      });
+      })
     }
 
-    const hasData = nodes.some((node) => node.value > 0);
+    const hasData = nodes.some(node => node.value > 0)
 
     const vertical =
-      this._config.layout === "vertical" ||
-      (this._config.layout !== "horizontal" && this._isMobileSize);
+      this._config.layout === 'vertical' ||
+      (this._config.layout !== 'horizontal' && this._isMobileSize)
 
     return html`
       <ha-card
         .header=${this._config.title}
         class=${classMap({
-          "is-grid": this.layout === "grid",
-          "is-panel": this.layout === "panel",
-          "is-vertical": vertical,
+          'is-grid': this.layout === 'grid',
+          'is-panel': this.layout === 'panel',
+          'is-vertical': vertical,
         })}
       >
         <div class="card-content">
@@ -338,15 +338,15 @@ class HuiWaterSankeyCard
                 .valueFormatter=${this._valueFormatter}
               ></ha-sankey-chart>`
             : html`${this.hass.localize(
-                "ui.panel.lovelace.cards.energy.no_data_period"
+                'ui.panel.lovelace.cards.energy.no_data_period'
               )}`}
         </div>
       </ha-card>
-    `;
+    `
   }
 
   private _valueFormatter = (value: number) =>
-    `${formatNumber(value, this.hass.locale, value < 0.1 ? { maximumFractionDigits: 3 } : undefined)} ${this._data!.waterUnit}`;
+    `${formatNumber(value, this.hass.locale, value < 0.1 ? { maximumFractionDigits: 3 } : undefined)} ${this._data!.waterUnit}`
 
   protected _groupByFloorAndArea(deviceNodes: Node[]) {
     const areas: Record<string, { value: number; devices: Node[] }> = {
@@ -354,15 +354,15 @@ class HuiWaterSankeyCard
         value: 0,
         devices: [],
       },
-    };
+    }
     const floors: Record<string, { value: number; areas: string[] }> = {
       no_floor: {
         value: 0,
-        areas: ["no_area"],
+        areas: ['no_area'],
       },
-    };
-    deviceNodes.forEach((deviceNode) => {
-      const entity = this.hass.states[deviceNode.id];
+    }
+    deviceNodes.forEach(deviceNode => {
+      const entity = this.hass.states[deviceNode.id]
       const { area, floor } = entity
         ? getEntityContext(
             entity,
@@ -371,42 +371,42 @@ class HuiWaterSankeyCard
             this.hass.areas,
             this.hass.floors
           )
-        : { area: null, floor: null };
+        : { area: null, floor: null }
       if (area) {
         if (area.area_id in areas) {
-          areas[area.area_id].value += deviceNode.value;
-          areas[area.area_id].devices.push(deviceNode);
+          areas[area.area_id].value += deviceNode.value
+          areas[area.area_id].devices.push(deviceNode)
         } else {
           areas[area.area_id] = {
             value: deviceNode.value,
             devices: [deviceNode],
-          };
+          }
         }
         // see if the area has a floor
         if (floor) {
           if (floor.floor_id in floors) {
-            floors[floor.floor_id].value += deviceNode.value;
+            floors[floor.floor_id].value += deviceNode.value
             if (!floors[floor.floor_id].areas.includes(area.area_id)) {
-              floors[floor.floor_id].areas.push(area.area_id);
+              floors[floor.floor_id].areas.push(area.area_id)
             }
           } else {
             floors[floor.floor_id] = {
               value: deviceNode.value,
               areas: [area.area_id],
-            };
+            }
           }
         } else {
-          floors.no_floor.value += deviceNode.value;
+          floors.no_floor.value += deviceNode.value
           if (!floors.no_floor.areas.includes(area.area_id)) {
-            floors.no_floor.areas.unshift(area.area_id);
+            floors.no_floor.areas.unshift(area.area_id)
           }
         }
       } else {
-        areas.no_area.value += deviceNode.value;
-        areas.no_area.devices.push(deviceNode);
+        areas.no_area.value += deviceNode.value
+        areas.no_area.devices.push(deviceNode)
       }
-    });
-    return { areas, floors };
+    })
+    return { areas, floors }
   }
 
   /**
@@ -416,39 +416,39 @@ class HuiWaterSankeyCard
     parentLinks: Record<string, string>,
     deviceNodes: Node[]
   ): Node[][] {
-    const parentSection: Node[] = [];
-    const childSection: Node[] = [];
-    const parentIds = Object.values(parentLinks);
-    const remainingLinks: typeof parentLinks = {};
+    const parentSection: Node[] = []
+    const childSection: Node[] = []
+    const parentIds = Object.values(parentLinks)
+    const remainingLinks: typeof parentLinks = {}
 
-    deviceNodes.forEach((deviceNode) => {
-      const isChild = deviceNode.id in parentLinks;
-      const isParent = parentIds.includes(deviceNode.id);
+    deviceNodes.forEach(deviceNode => {
+      const isChild = deviceNode.id in parentLinks
+      const isParent = parentIds.includes(deviceNode.id)
       if (isParent && !isChild) {
         // Top-level parents (have children but no parents themselves)
-        parentSection.push(deviceNode);
+        parentSection.push(deviceNode)
       } else {
-        childSection.push(deviceNode);
+        childSection.push(deviceNode)
       }
-    });
+    })
 
     // Filter out links where parent is already in current parent section
     Object.entries(parentLinks).forEach(([child, parent]) => {
-      if (!parentSection.some((node) => node.id === parent)) {
-        remainingLinks[child] = parent;
+      if (!parentSection.some(node => node.id === parent)) {
+        remainingLinks[child] = parent
       }
-    });
+    })
 
     if (parentSection.length > 0) {
       // Recursively process child section with remaining links
       return [
         parentSection,
         ...this._getDeviceSections(remainingLinks, childSection),
-      ];
+      ]
     }
 
     // Base case: no more parent-child relationships to process
-    return [deviceNodes];
+    return [deviceNodes]
   }
 
   static styles = css`
@@ -469,11 +469,11 @@ class HuiWaterSankeyCard
       flex: 1;
       display: flex;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-water-sankey-card": HuiWaterSankeyCard;
+    'hui-water-sankey-card': HuiWaterSankeyCard
   }
 }

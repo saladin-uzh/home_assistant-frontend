@@ -1,5 +1,5 @@
 ---
-title: "Logo"
+title: 'Logo'
 ---
 
 # Our logo

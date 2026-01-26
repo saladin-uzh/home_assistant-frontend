@@ -1,6 +1,6 @@
-import type { TemplateResult } from "lit";
-import { fireEvent } from "../../common/dom/fire_event";
-import type { HaFormSchema } from "../../components/ha-form/types";
+import type { TemplateResult } from 'lit'
+import { fireEvent } from '../../common/dom/fire_event'
+import type { HaFormSchema } from '../../components/ha-form/types'
 import type {
   DataEntryFlowStep,
   DataEntryFlowStepAbort,
@@ -10,183 +10,180 @@ import type {
   DataEntryFlowStepMenu,
   DataEntryFlowStepProgress,
   FlowType,
-} from "../../data/data_entry_flow";
-import type { IntegrationManifest } from "../../data/integration";
-import type { HomeAssistant } from "../../types";
+} from '../../data/data_entry_flow'
+import type { IntegrationManifest } from '../../data/integration'
+import type { HomeAssistant } from '../../types'
 
 export interface FlowConfig {
-  flowType: FlowType;
+  flowType: FlowType
 
-  showDevices: boolean;
+  showDevices: boolean
 
-  createFlow(hass: HomeAssistant, handler: string): Promise<DataEntryFlowStep>;
+  createFlow(hass: HomeAssistant, handler: string): Promise<DataEntryFlowStep>
 
-  fetchFlow(hass: HomeAssistant, flowId: string): Promise<DataEntryFlowStep>;
+  fetchFlow(hass: HomeAssistant, flowId: string): Promise<DataEntryFlowStep>
 
   handleFlowStep(
     hass: HomeAssistant,
     flowId: string,
     data: Record<string, any>
-  ): Promise<DataEntryFlowStep>;
+  ): Promise<DataEntryFlowStep>
 
-  deleteFlow(hass: HomeAssistant, flowId: string): Promise<unknown>;
+  deleteFlow(hass: HomeAssistant, flowId: string): Promise<unknown>
 
-  renderAbortHeader?(hass: HomeAssistant, step: DataEntryFlowStepAbort): string;
+  renderAbortHeader?(hass: HomeAssistant, step: DataEntryFlowStepAbort): string
 
   renderAbortSubheader?(
     hass: HomeAssistant,
     step: DataEntryFlowStepAbort
-  ): string | TemplateResult;
+  ): string | TemplateResult
 
   renderAbortDescription(
     hass: HomeAssistant,
     step: DataEntryFlowStepAbort
-  ): TemplateResult | string;
+  ): TemplateResult | string
 
   renderShowFormStepHeader(
     hass: HomeAssistant,
     step: DataEntryFlowStepForm
-  ): string;
+  ): string
 
   renderShowFormStepSubheader?(
     hass: HomeAssistant,
     step: DataEntryFlowStepForm
-  ): string | TemplateResult;
+  ): string | TemplateResult
 
   renderShowFormStepDescription(
     hass: HomeAssistant,
     step: DataEntryFlowStepForm
-  ): TemplateResult | "";
+  ): TemplateResult | ''
 
   renderShowFormStepFieldLabel(
     hass: HomeAssistant,
     step: DataEntryFlowStepForm,
     field: HaFormSchema,
     options: { path?: string[]; [key: string]: any }
-  ): string;
+  ): string
 
   renderShowFormStepFieldHelper(
     hass: HomeAssistant,
     step: DataEntryFlowStepForm,
     field: HaFormSchema,
     options: { path?: string[]; [key: string]: any }
-  ): TemplateResult | string;
+  ): TemplateResult | string
 
   renderShowFormStepFieldError(
     hass: HomeAssistant,
     step: DataEntryFlowStepForm,
     error: string
-  ): string;
+  ): string
 
   renderShowFormStepFieldLocalizeValue(
     hass: HomeAssistant,
     step: DataEntryFlowStepForm,
     key: string
-  ): string;
+  ): string
 
   renderShowFormStepSubmitButton(
     hass: HomeAssistant,
     step: DataEntryFlowStepForm
-  ): string;
+  ): string
 
   renderExternalStepHeader(
     hass: HomeAssistant,
     step: DataEntryFlowStepExternal
-  ): string;
+  ): string
 
   renderExternalStepDescription(
     hass: HomeAssistant,
     step: DataEntryFlowStepExternal
-  ): TemplateResult | "";
+  ): TemplateResult | ''
 
   renderCreateEntryDescription(
     hass: HomeAssistant,
     step: DataEntryFlowStepCreateEntry
-  ): TemplateResult | "";
+  ): TemplateResult | ''
 
   renderShowFormProgressHeader(
     hass: HomeAssistant,
     step: DataEntryFlowStepProgress
-  ): string;
+  ): string
 
   renderShowFormProgressSubheader?(
     hass: HomeAssistant,
     step: DataEntryFlowStepProgress
-  ): string | TemplateResult;
+  ): string | TemplateResult
 
   renderShowFormProgressDescription(
     hass: HomeAssistant,
     step: DataEntryFlowStepProgress
-  ): TemplateResult | "";
+  ): TemplateResult | ''
 
-  renderMenuHeader(hass: HomeAssistant, step: DataEntryFlowStepMenu): string;
+  renderMenuHeader(hass: HomeAssistant, step: DataEntryFlowStepMenu): string
 
   renderMenuSubheader?(
     hass: HomeAssistant,
     step: DataEntryFlowStepMenu
-  ): string | TemplateResult;
+  ): string | TemplateResult
 
   renderMenuDescription(
     hass: HomeAssistant,
     step: DataEntryFlowStepMenu
-  ): TemplateResult | "";
+  ): TemplateResult | ''
 
   renderMenuOption(
     hass: HomeAssistant,
     step: DataEntryFlowStepMenu,
     option: string
-  ): string;
+  ): string
 
   renderMenuOptionDescription(
     hass: HomeAssistant,
     step: DataEntryFlowStepMenu,
     option: string
-  ): string;
+  ): string
 
   renderLoadingDescription(
     hass: HomeAssistant,
     loadingReason: LoadingReason,
     handler?: string,
     step?: DataEntryFlowStep | null
-  ): string;
+  ): string
 }
 
-export type LoadingReason =
-  | "loading_handlers"
-  | "loading_flow"
-  | "loading_step";
+export type LoadingReason = 'loading_handlers' | 'loading_flow' | 'loading_step'
 
 export interface DataEntryFlowDialogParams {
-  startFlowHandler?: string;
-  searchQuery?: string;
-  continueFlowId?: string;
-  manifest?: IntegrationManifest | null;
-  domain?: string;
+  startFlowHandler?: string
+  searchQuery?: string
+  continueFlowId?: string
+  manifest?: IntegrationManifest | null
+  domain?: string
   dialogClosedCallback?: (params: {
-    flowFinished: boolean;
-    entryId?: string;
-  }) => void;
-  flowConfig: FlowConfig;
-  showAdvanced?: boolean;
-  dialogParentElement?: HTMLElement;
-  navigateToResult?: boolean;
-  carryOverDevices?: string[];
+    flowFinished: boolean
+    entryId?: string
+  }) => void
+  flowConfig: FlowConfig
+  showAdvanced?: boolean
+  dialogParentElement?: HTMLElement
+  navigateToResult?: boolean
+  carryOverDevices?: string[]
 }
 
-export const loadDataEntryFlowDialog = () => import("./dialog-data-entry-flow");
+export const loadDataEntryFlowDialog = () => import('./dialog-data-entry-flow')
 
 export const showFlowDialog = (
   element: HTMLElement,
-  dialogParams: Omit<DataEntryFlowDialogParams, "flowConfig">,
+  dialogParams: Omit<DataEntryFlowDialogParams, 'flowConfig'>,
   flowConfig: FlowConfig
 ): void => {
-  fireEvent(element, "show-dialog", {
-    dialogTag: "dialog-data-entry-flow",
+  fireEvent(element, 'show-dialog', {
+    dialogTag: 'dialog-data-entry-flow',
     dialogImport: loadDataEntryFlowDialog,
     dialogParams: {
       ...dialogParams,
       flowConfig,
       dialogParentElement: element,
     },
-  });
-};
+  })
+}

@@ -1,37 +1,37 @@
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../../src/components/ha-spinner";
-import type { HassioAddonDetails } from "../../../../src/data/hassio/addon";
-import type { Supervisor } from "../../../../src/data/supervisor/supervisor";
-import { haStyle } from "../../../../src/resources/styles";
-import type { HomeAssistant } from "../../../../src/types";
-import { hassioStyle } from "../../resources/hassio-style";
-import "../info/hassio-addon-system-managed";
-import "./hassio-addon-audio";
-import "./hassio-addon-config";
-import "./hassio-addon-network";
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../../src/components/ha-spinner'
+import type { HassioAddonDetails } from '../../../../src/data/hassio/addon'
+import type { Supervisor } from '../../../../src/data/supervisor/supervisor'
+import { haStyle } from '../../../../src/resources/styles'
+import type { HomeAssistant } from '../../../../src/types'
+import { hassioStyle } from '../../resources/hassio-style'
+import '../info/hassio-addon-system-managed'
+import './hassio-addon-audio'
+import './hassio-addon-config'
+import './hassio-addon-network'
 
-@customElement("hassio-addon-config-tab")
+@customElement('hassio-addon-config-tab')
 class HassioAddonConfigDashboard extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public supervisor!: Supervisor;
+  @property({ attribute: false }) public supervisor!: Supervisor
 
-  @property({ attribute: false }) public addon?: HassioAddonDetails;
+  @property({ attribute: false }) public addon?: HassioAddonDetails
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ type: Boolean, attribute: "control-enabled" })
-  public controlEnabled = false;
+  @property({ type: Boolean, attribute: 'control-enabled' })
+  public controlEnabled = false
 
   protected render(): TemplateResult {
     if (!this.addon) {
-      return html`<ha-spinner></ha-spinner>`;
+      return html`<ha-spinner></ha-spinner>`
     }
     const hasConfiguration =
       (this.addon.options && Object.keys(this.addon.options).length) ||
-      (this.addon.schema && Object.keys(this.addon.schema).length);
+      (this.addon.schema && Object.keys(this.addon.schema).length)
 
     return html`
       <div class="content">
@@ -81,9 +81,9 @@ class HassioAddonConfigDashboard extends LitElement {
                   `
                 : nothing}
             `
-          : this.supervisor.localize("addon.configuration.no_configuration")}
+          : this.supervisor.localize('addon.configuration.no_configuration')}
       </div>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -102,12 +102,12 @@ class HassioAddonConfigDashboard extends LitElement {
           margin-bottom: 24px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hassio-addon-config-tab": HassioAddonConfigDashboard;
+    'hassio-addon-config-tab': HassioAddonConfigDashboard
   }
 }

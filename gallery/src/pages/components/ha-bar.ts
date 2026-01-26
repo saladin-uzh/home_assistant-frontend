@@ -1,16 +1,16 @@
-import type { TemplateResult } from "lit";
-import { html, css, LitElement } from "lit";
-import { customElement } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import "../../../../src/components/ha-bar";
-import "../../../../src/components/ha-card";
+import type { TemplateResult } from 'lit'
+import { html, css, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import '../../../../src/components/ha-bar'
+import '../../../../src/components/ha-card'
 
 const bars: {
-  min?: number;
-  max?: number;
-  value: number;
-  warning?: number;
-  error?: number;
+  min?: number
+  max?: number
+  value: number
+  warning?: number
+  error?: number
 }[] = [
   {
     value: 33,
@@ -33,16 +33,16 @@ const bars: {
     value: 4,
     min: 13,
   },
-];
+]
 
-@customElement("demo-components-ha-bar")
+@customElement('demo-components-ha-bar')
 export class DemoHaBar extends LitElement {
   protected render(): TemplateResult {
     return html`
       ${bars
-        .map((bar) => ({ min: 0, max: 100, warning: 70, error: 90, ...bar }))
+        .map(bar => ({ min: 0, max: 100, warning: 70, error: 90, ...bar }))
         .map(
-          (bar) => html`
+          bar => html`
             <ha-card>
               <div class="card-content">
                 <pre>Config: ${JSON.stringify(bar)}</pre>
@@ -60,7 +60,7 @@ export class DemoHaBar extends LitElement {
             </ha-card>
           `
         )}
-    `;
+    `
   }
 
   static styles = css`
@@ -74,11 +74,11 @@ export class DemoHaBar extends LitElement {
     .error {
       --ha-bar-primary-color: var(--error-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-components-ha-bar": DemoHaBar;
+    'demo-components-ha-bar': DemoHaBar
   }
 }

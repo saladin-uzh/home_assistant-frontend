@@ -1,40 +1,40 @@
-import { mdiDotsVertical } from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { haStyle } from "../resources/styles";
-import type { HomeAssistant } from "../types";
-import "./ha-md-button-menu";
-import "./ha-icon-button";
-import "./ha-svg-icon";
-import "./ha-tooltip";
-import "./ha-md-menu-item";
-import "./ha-md-divider";
+import { mdiDotsVertical } from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { haStyle } from '../resources/styles'
+import type { HomeAssistant } from '../types'
+import './ha-md-button-menu'
+import './ha-icon-button'
+import './ha-svg-icon'
+import './ha-tooltip'
+import './ha-md-menu-item'
+import './ha-md-divider'
 
 export interface IconOverflowMenuItem {
-  [key: string]: any;
-  path: string;
-  label: string;
-  narrowOnly?: boolean;
-  disabled?: boolean;
-  tooltip?: string;
-  action: () => any;
-  warning?: boolean;
-  divider?: boolean;
+  [key: string]: any
+  path: string
+  label: string
+  narrowOnly?: boolean
+  disabled?: boolean
+  tooltip?: string
+  action: () => any
+  warning?: boolean
+  divider?: boolean
 }
 
-@customElement("ha-icon-overflow-menu")
+@customElement('ha-icon-overflow-menu')
 export class HaIconOverflowMenu extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Array }) public items: IconOverflowMenuItem[] = [];
+  @property({ type: Array }) public items: IconOverflowMenuItem[] = []
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
   protected render(): TemplateResult | typeof nothing {
     if (this.items.length === 0) {
-      return nothing;
+      return nothing
     }
     return html`
       ${this.narrow
@@ -44,12 +44,12 @@ export class HaIconOverflowMenu extends LitElement {
               positioning="popover"
             >
               <ha-icon-button
-                .label=${this.hass.localize("ui.common.overflow_menu")}
+                .label=${this.hass.localize('ui.common.overflow_menu')}
                 .path=${mdiDotsVertical}
                 slot="trigger"
               ></ha-icon-button>
 
-              ${this.items.map((item) =>
+              ${this.items.map(item =>
                 item.divider
                   ? html`<ha-md-divider
                       role="separator"
@@ -71,7 +71,7 @@ export class HaIconOverflowMenu extends LitElement {
             </ha-md-button-menu>`
         : html`
             <!-- Icon representation for big screens -->
-            ${this.items.map((item) =>
+            ${this.items.map(item =>
               item.narrowOnly
                 ? nothing
                 : item.divider
@@ -79,7 +79,7 @@ export class HaIconOverflowMenu extends LitElement {
                   : html`<ha-tooltip
                         .disabled=${!item.tooltip}
                         .for="icon-button-${item.label}"
-                        >${item.tooltip ?? ""} </ha-tooltip
+                        >${item.tooltip ?? ''} </ha-tooltip
                       ><ha-icon-button
                         .id="icon-button-${item.label}"
                         @click=${item.action}
@@ -89,11 +89,11 @@ export class HaIconOverflowMenu extends LitElement {
                       ></ha-icon-button> `
             )}
           `}
-    `;
+    `
   }
 
   protected _handleIconOverflowMenuOpened(e) {
-    e.stopPropagation();
+    e.stopPropagation()
   }
 
   static get styles() {
@@ -105,17 +105,17 @@ export class HaIconOverflowMenu extends LitElement {
           justify-content: flex-end;
           cursor: initial;
         }
-        div[role="separator"] {
+        div[role='separator'] {
           border-right: 1px solid var(--divider-color);
           width: 1px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-icon-overflow-menu": HaIconOverflowMenu;
+    'ha-icon-overflow-menu': HaIconOverflowMenu
   }
 }

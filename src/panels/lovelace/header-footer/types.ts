@@ -1,31 +1,31 @@
-import type { ActionConfig } from "../../../data/lovelace/config/action";
-import type { EntitiesCardEntityConfig } from "../cards/types";
+import type { ActionConfig } from '../../../data/lovelace/config/action'
+import type { EntitiesCardEntityConfig } from '../cards/types'
 
 export interface LovelaceHeaderFooterConfig {
-  type: "buttons" | "graph" | "picture";
+  type: 'buttons' | 'graph' | 'picture'
 }
 
 export interface ButtonsHeaderFooterConfig extends LovelaceHeaderFooterConfig {
-  type: "buttons";
-  entities: (string | EntitiesCardEntityConfig)[];
+  type: 'buttons'
+  entities: (string | EntitiesCardEntityConfig)[]
 }
 
 export interface GraphHeaderFooterConfig extends LovelaceHeaderFooterConfig {
-  type: "graph";
-  entity: string;
-  detail?: number;
-  hours_to_show?: number;
+  type: 'graph'
+  entity: string
+  detail?: number
+  hours_to_show?: number
   limits?: {
-    min?: number;
-    max?: number;
-  };
+    min?: number
+    max?: number
+  }
 }
 
 export interface PictureHeaderFooterConfig extends LovelaceHeaderFooterConfig {
-  type: "picture";
-  image: string;
-  tap_action?: ActionConfig;
-  hold_action?: ActionConfig;
-  double_tap_action?: ActionConfig;
-  alt_text?: string;
+  type: 'picture'
+  image: string
+  tap_action?: ActionConfig
+  hold_action?: ActionConfig
+  double_tap_action?: ActionConfig
+  alt_text?: string
 }

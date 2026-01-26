@@ -1,29 +1,29 @@
-import type { PropertyValues, TemplateResult } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, query } from "lit/decorators";
-import { getEntity } from "../../../../src/fake_data/entity";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import "../../components/demo-cards";
-import { mockIcons } from "../../../../demo/src/stubs/icons";
+import type { PropertyValues, TemplateResult } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, query } from 'lit/decorators'
+import { getEntity } from '../../../../src/fake_data/entity'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import '../../components/demo-cards'
+import { mockIcons } from '../../../../demo/src/stubs/icons'
 
 const ENTITIES = [
-  getEntity("light", "controller_1", "on", {
-    friendly_name: "Controller 1",
+  getEntity('light', 'controller_1', 'on', {
+    friendly_name: 'Controller 1',
   }),
-  getEntity("light", "controller_2", "on", {
-    friendly_name: "Controller 2",
+  getEntity('light', 'controller_2', 'on', {
+    friendly_name: 'Controller 2',
   }),
-  getEntity("light", "floor", "off", {
-    friendly_name: "Floor light",
+  getEntity('light', 'floor', 'off', {
+    friendly_name: 'Floor light',
   }),
-  getEntity("light", "kitchen", "on", {
-    friendly_name: "Kitchen light",
+  getEntity('light', 'kitchen', 'on', {
+    friendly_name: 'Kitchen light',
   }),
-];
+]
 
 const CONFIGS = [
   {
-    heading: "Controller",
+    heading: 'Controller',
     config: `
 - type: entities
   entities:
@@ -35,7 +35,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Demo",
+    heading: 'Demo',
     config: `
 - type: conditional
   conditions:
@@ -52,28 +52,31 @@ const CONFIGS = [
       - light.kitchen
     `,
   },
-];
+]
 
-@customElement("demo-lovelace-conditional-card")
+@customElement('demo-lovelace-conditional-card')
 class DemoConditional extends LitElement {
-  @query("#demos") private _demoRoot!: HTMLElement;
+  @query('#demos') private _demoRoot!: HTMLElement
 
   protected render(): TemplateResult {
-    return html`<demo-cards id="demos" .configs=${CONFIGS}></demo-cards>`;
+    return html`<demo-cards
+      id="demos"
+      .configs=${CONFIGS}
+    ></demo-cards>`
   }
 
   protected firstUpdated(changedProperties: PropertyValues) {
-    super.firstUpdated(changedProperties);
-    const hass = provideHass(this._demoRoot);
-    hass.updateTranslations(null, "en");
-    hass.updateTranslations("lovelace", "en");
-    hass.addEntities(ENTITIES);
-    mockIcons(hass);
+    super.firstUpdated(changedProperties)
+    const hass = provideHass(this._demoRoot)
+    hass.updateTranslations(null, 'en')
+    hass.updateTranslations('lovelace', 'en')
+    hass.addEntities(ENTITIES)
+    mockIcons(hass)
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-lovelace-conditional-card": DemoConditional;
+    'demo-lovelace-conditional-card': DemoConditional
   }
 }

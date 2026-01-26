@@ -1,3 +1,3 @@
-import { framework } from "./cast_framework";
+import { framework } from './cast_framework'
 
-export const castContext = framework.CastReceiverContext.getInstance();
+export const castContext = framework.CastReceiverContext.getInstance()

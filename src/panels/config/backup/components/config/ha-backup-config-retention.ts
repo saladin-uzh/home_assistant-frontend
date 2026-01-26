@@ -1,27 +1,27 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import { clamp } from "../../../../../common/number/clamp";
-import "../../../../../components/ha-expansion-panel";
-import "../../../../../components/ha-md-list-item";
-import "../../../../../components/ha-md-select";
-import type { HaMdSelect } from "../../../../../components/ha-md-select";
-import "../../../../../components/ha-md-select-option";
-import "../../../../../components/ha-md-textfield";
-import type { HaMdTextfield } from "../../../../../components/ha-md-textfield";
-import type { BackupConfig, Retention } from "../../../../../data/backup";
-import type { HomeAssistant } from "../../../../../types";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import { clamp } from '../../../../../common/number/clamp'
+import '../../../../../components/ha-expansion-panel'
+import '../../../../../components/ha-md-list-item'
+import '../../../../../components/ha-md-select'
+import type { HaMdSelect } from '../../../../../components/ha-md-select'
+import '../../../../../components/ha-md-select-option'
+import '../../../../../components/ha-md-textfield'
+import type { HaMdTextfield } from '../../../../../components/ha-md-textfield'
+import type { BackupConfig, Retention } from '../../../../../data/backup'
+import type { HomeAssistant } from '../../../../../types'
 
-export type BackupConfigSchedule = Pick<BackupConfig, "schedule" | "retention">;
+export type BackupConfigSchedule = Pick<BackupConfig, 'schedule' | 'retention'>
 
-const MIN_VALUE = 1;
-const MAX_VALUE = 9999; // because of input width
+const MIN_VALUE = 1
+const MAX_VALUE = 9999 // because of input width
 
 export enum RetentionPreset {
-  GLOBAL = "global",
-  COPIES_3 = "copies_3",
-  FOREVER = "forever",
-  CUSTOM = "custom",
+  GLOBAL = 'global',
+  COPIES_3 = 'copies_3',
+  FOREVER = 'forever',
+  CUSTOM = 'custom',
 }
 
 const PRESET_MAP: Record<
@@ -31,61 +31,61 @@ const PRESET_MAP: Record<
   copies_3: { copies: 3, days: null },
   forever: { copies: null, days: null },
   global: null,
-};
-
-export interface RetentionData {
-  type: "copies" | "days" | "forever";
-  value: number;
 }
 
-@customElement("ha-backup-config-retention")
+export interface RetentionData {
+  type: 'copies' | 'days' | 'forever'
+  value: number
+}
+
+@customElement('ha-backup-config-retention')
 class HaBackupConfigRetention extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public retention?: Retention | null;
+  @property({ attribute: false }) public retention?: Retention | null
 
-  @property() public headline?: string;
+  @property() public headline?: string
 
-  @property({ type: Boolean, attribute: "location-specific" })
-  public locationSpecific = false;
+  @property({ type: Boolean, attribute: 'location-specific' })
+  public locationSpecific = false
 
-  @state() private _preset: RetentionPreset = RetentionPreset.COPIES_3;
+  @state() private _preset: RetentionPreset = RetentionPreset.COPIES_3
 
-  @state() private _type: "copies" | "days" = "copies";
+  @state() private _type: 'copies' | 'days' = 'copies'
 
-  @state() private _value = 3;
+  @state() private _value = 3
 
-  @query("#value") private _customValueField?: HaMdTextfield;
+  @query('#value') private _customValueField?: HaMdTextfield
 
-  @query("#type") private _customTypeField?: HaMdSelect;
+  @query('#type') private _customTypeField?: HaMdSelect
 
-  private _configLoaded = false;
+  private _configLoaded = false
 
   private presetOptions = [
     RetentionPreset.COPIES_3,
     RetentionPreset.FOREVER,
     RetentionPreset.CUSTOM,
-  ];
+  ]
 
   public willUpdate() {
     if (!this._configLoaded && this.retention !== undefined) {
-      this._configLoaded = true;
+      this._configLoaded = true
       if (!this.retention) {
-        this._preset = RetentionPreset.GLOBAL;
+        this._preset = RetentionPreset.GLOBAL
       } else if (
         this.retention?.days === null &&
         this.retention?.copies === null
       ) {
-        this._preset = RetentionPreset.FOREVER;
+        this._preset = RetentionPreset.FOREVER
       } else {
-        this._value = this.retention.copies || this.retention.days || 3;
+        this._value = this.retention.copies || this.retention.days || 3
         if (
           this.retention.days ||
           this.locationSpecific ||
           this.retention.copies !== 3
         ) {
-          this._preset = RetentionPreset.CUSTOM;
-          this._type = this.retention?.copies ? "copies" : "days";
+          this._preset = RetentionPreset.CUSTOM
+          this._type = this.retention?.copies ? 'copies' : 'days'
         }
       }
 
@@ -94,14 +94,14 @@ class HaBackupConfigRetention extends LitElement {
           RetentionPreset.GLOBAL,
           RetentionPreset.FOREVER,
           RetentionPreset.CUSTOM,
-        ];
+        ]
       }
     }
   }
 
   protected render() {
     if (!this._configLoaded) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -121,7 +121,7 @@ class HaBackupConfigRetention extends LitElement {
           .value=${this._preset}
         >
           ${this.presetOptions.map(
-            (option) => html`
+            option => html`
               <ha-md-select-option .value=${option}>
                 <div slot="headline">
                   ${this.hass.localize(
@@ -138,14 +138,14 @@ class HaBackupConfigRetention extends LitElement {
         ? html`<ha-expansion-panel
             expanded
             .header=${this.hass.localize(
-              "ui.panel.config.backup.schedule.custom_retention"
+              'ui.panel.config.backup.schedule.custom_retention'
             )}
             outlined
           >
             <ha-md-list-item>
               <span slot="headline">
                 ${this.hass.localize(
-                  "ui.panel.config.backup.schedule.custom_retention_label"
+                  'ui.panel.config.backup.schedule.custom_retention_label'
                 )}
               </span>
               <ha-md-textfield
@@ -168,77 +168,77 @@ class HaBackupConfigRetention extends LitElement {
                 <ha-md-select-option value="days">
                   <div slot="headline">
                     ${this.hass.localize(
-                      "ui.panel.config.backup.schedule.retention_units.days"
+                      'ui.panel.config.backup.schedule.retention_units.days'
                     )}
                   </div>
                 </ha-md-select-option>
                 <ha-md-select-option value="copies">
                   ${this.hass.localize(
-                    "ui.panel.config.backup.schedule.retention_units.copies"
+                    'ui.panel.config.backup.schedule.retention_units.copies'
                   )}
                 </ha-md-select-option>
               </ha-md-select>
             </ha-md-list-item></ha-expansion-panel
           > `
         : nothing}
-    `;
+    `
   }
 
   private _retentionPresetChanged(ev) {
-    ev.stopPropagation();
-    const target = ev.currentTarget as HaMdSelect;
-    let value = target.value as RetentionPreset;
+    ev.stopPropagation()
+    const target = ev.currentTarget as HaMdSelect
+    let value = target.value as RetentionPreset
 
     if (
       value === RetentionPreset.CUSTOM &&
       (this.locationSpecific || this._preset === RetentionPreset.FOREVER)
     ) {
-      this._preset = value;
+      this._preset = value
       // custom needs to have a type of days or copies, set it to default copies 3
-      value = RetentionPreset.COPIES_3;
+      value = RetentionPreset.COPIES_3
     } else {
-      this._preset = value;
+      this._preset = value
     }
 
     if (this.locationSpecific || value !== RetentionPreset.CUSTOM) {
-      const retention = PRESET_MAP[value];
+      const retention = PRESET_MAP[value]
 
-      fireEvent(this, "value-changed", {
+      fireEvent(this, 'value-changed', {
         value: retention,
-      });
+      })
     }
   }
 
   private _retentionValueChanged(ev) {
-    ev.stopPropagation();
-    const target = ev.currentTarget as HaMdSelect;
-    const value = parseInt(target.value);
-    const clamped = clamp(value, MIN_VALUE, MAX_VALUE);
-    target.value = clamped.toString();
+    ev.stopPropagation()
+    const target = ev.currentTarget as HaMdSelect
+    const value = parseInt(target.value)
+    const clamped = clamp(value, MIN_VALUE, MAX_VALUE)
+    target.value = clamped.toString()
 
-    const type = this._customTypeField?.value;
+    const type = this._customTypeField?.value
 
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: {
-        copies: type === "copies" ? clamped : null,
-        days: type === "days" ? clamped : null,
+        copies: type === 'copies' ? clamped : null,
+        days: type === 'days' ? clamped : null,
       },
-    });
+    })
   }
 
   private _retentionTypeChanged(ev) {
-    ev.stopPropagation();
-    const target = ev.currentTarget as HaMdSelect;
-    const type = target.value as "copies" | "days";
+    ev.stopPropagation()
+    const target = ev.currentTarget as HaMdSelect
+    const type = target.value as 'copies' | 'days'
 
-    const value = this._customValueField?.value;
+    const value = this._customValueField?.value
 
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: {
-        copies: type === "copies" ? Number(value) : null,
-        days: type === "days" ? Number(value) : null,
+        copies: type === 'copies' ? Number(value) : null,
+        days: type === 'days' ? Number(value) : null,
       },
-    });
+    })
   }
 
   static styles = css`
@@ -278,11 +278,11 @@ class HaBackupConfigRetention extends LitElement {
     ha-md-list-item.days {
       --md-item-align-items: flex-start;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-backup-config-retention": HaBackupConfigRetention;
+    'ha-backup-config-retention': HaBackupConfigRetention
   }
 }

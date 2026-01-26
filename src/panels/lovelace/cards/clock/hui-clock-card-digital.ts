@@ -1,106 +1,106 @@
-import { css, html, LitElement, nothing } from "lit";
-import type { PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import type { ClockCardConfig } from "../types";
-import type { HomeAssistant } from "../../../../types";
-import { useAmPm } from "../../../../common/datetime/use_am_pm";
-import { resolveTimeZone } from "../../../../common/datetime/resolve-time-zone";
+import { css, html, LitElement, nothing } from 'lit'
+import type { PropertyValues } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import type { ClockCardConfig } from '../types'
+import type { HomeAssistant } from '../../../../types'
+import { useAmPm } from '../../../../common/datetime/use_am_pm'
+import { resolveTimeZone } from '../../../../common/datetime/resolve-time-zone'
 
-const INTERVAL = 1000;
+const INTERVAL = 1000
 
-@customElement("hui-clock-card-digital")
+@customElement('hui-clock-card-digital')
 export class HuiClockCardDigital extends LitElement {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ attribute: false }) public config?: ClockCardConfig;
+  @property({ attribute: false }) public config?: ClockCardConfig
 
-  @state() private _dateTimeFormat?: Intl.DateTimeFormat;
+  @state() private _dateTimeFormat?: Intl.DateTimeFormat
 
-  @state() private _timeHour?: string;
+  @state() private _timeHour?: string
 
-  @state() private _timeMinute?: string;
+  @state() private _timeMinute?: string
 
-  @state() private _timeSecond?: string;
+  @state() private _timeSecond?: string
 
-  @state() private _timeAmPm?: string;
+  @state() private _timeAmPm?: string
 
-  private _tickInterval?: undefined | number;
+  private _tickInterval?: undefined | number
 
   private _initDate() {
     if (!this.config || !this.hass) {
-      return;
+      return
     }
 
-    let locale = this.hass?.locale;
+    let locale = this.hass?.locale
 
     if (this.config?.time_format) {
-      locale = { ...locale, time_format: this.config.time_format };
+      locale = { ...locale, time_format: this.config.time_format }
     }
 
-    const h12 = useAmPm(locale);
+    const h12 = useAmPm(locale)
     this._dateTimeFormat = new Intl.DateTimeFormat(this.hass.locale.language, {
-      hour: h12 ? "numeric" : "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hourCycle: h12 ? "h12" : "h23",
+      hour: h12 ? 'numeric' : '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hourCycle: h12 ? 'h12' : 'h23',
       timeZone:
         this.config?.time_zone ||
         resolveTimeZone(locale.time_zone, this.hass.config?.time_zone),
-    });
+    })
 
-    this._tick();
+    this._tick()
   }
 
   protected updated(changedProps: PropertyValues) {
-    if (changedProps.has("hass")) {
-      const oldHass = changedProps.get("hass");
+    if (changedProps.has('hass')) {
+      const oldHass = changedProps.get('hass')
       if (!oldHass || oldHass.locale !== this.hass?.locale) {
-        this._initDate();
+        this._initDate()
       }
     }
   }
 
   public connectedCallback() {
-    super.connectedCallback();
-    this._startTick();
+    super.connectedCallback()
+    this._startTick()
   }
 
   public disconnectedCallback() {
-    super.disconnectedCallback();
-    this._stopTick();
+    super.disconnectedCallback()
+    this._stopTick()
   }
 
   private _startTick() {
-    this._tickInterval = window.setInterval(() => this._tick(), INTERVAL);
-    this._tick();
+    this._tickInterval = window.setInterval(() => this._tick(), INTERVAL)
+    this._tick()
   }
 
   private _stopTick() {
     if (this._tickInterval) {
-      clearInterval(this._tickInterval);
-      this._tickInterval = undefined;
+      clearInterval(this._tickInterval)
+      this._tickInterval = undefined
     }
   }
 
   private _tick() {
-    if (!this._dateTimeFormat) return;
+    if (!this._dateTimeFormat) return
 
-    const parts = this._dateTimeFormat.formatToParts();
+    const parts = this._dateTimeFormat.formatToParts()
 
-    this._timeHour = parts.find((part) => part.type === "hour")?.value;
-    this._timeMinute = parts.find((part) => part.type === "minute")?.value;
+    this._timeHour = parts.find(part => part.type === 'hour')?.value
+    this._timeMinute = parts.find(part => part.type === 'minute')?.value
     this._timeSecond = this.config?.show_seconds
-      ? parts.find((part) => part.type === "second")?.value
-      : undefined;
-    this._timeAmPm = parts.find((part) => part.type === "dayPeriod")?.value;
+      ? parts.find(part => part.type === 'second')?.value
+      : undefined
+    this._timeAmPm = parts.find(part => part.type === 'dayPeriod')?.value
   }
 
   render() {
-    if (!this.config) return nothing;
+    if (!this.config) return nothing
 
     const sizeClass = this.config.clock_size
       ? `size-${this.config.clock_size}`
-      : "";
+      : ''
 
     return html`
       <div class="time-parts ${sizeClass}">
@@ -113,7 +113,7 @@ export class HuiClockCardDigital extends LitElement {
           ? html`<div class="time-part am-pm">${this._timeAmPm}</div>`
           : nothing}
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -125,8 +125,8 @@ export class HuiClockCardDigital extends LitElement {
       align-items: center;
       display: grid;
       grid-template-areas:
-        "hour minute second"
-        "hour minute am-pm";
+        'hour minute second'
+        'hour minute am-pm';
 
       font-size: 1.5rem;
       font-weight: var(--ha-font-weight-medium);
@@ -185,14 +185,14 @@ export class HuiClockCardDigital extends LitElement {
     }
 
     .time-parts .time-part.hour:after {
-      content: ":";
+      content: ':';
       margin: 0 2px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-clock-card-digital": HuiClockCardDigital;
+    'hui-clock-card-digital': HuiClockCardDigital
   }
 }

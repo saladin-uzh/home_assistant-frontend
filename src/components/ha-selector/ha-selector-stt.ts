@@ -1,28 +1,28 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { STTSelector } from "../../data/selector";
-import type { HomeAssistant } from "../../types";
-import "../ha-stt-picker";
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { STTSelector } from '../../data/selector'
+import type { HomeAssistant } from '../../types'
+import '../ha-stt-picker'
 
-@customElement("ha-selector-stt")
+@customElement('ha-selector-stt')
 export class HaSTTSelector extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public selector!: STTSelector;
+  @property({ attribute: false }) public selector!: STTSelector
 
-  @property() public value?: any;
+  @property() public value?: any
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = true;
+  @property({ type: Boolean }) public required = true
 
   @property({ attribute: false }) public context?: {
-    language?: string;
-  };
+    language?: string
+  }
 
   protected render() {
     return html`<ha-stt-picker
@@ -33,18 +33,18 @@ export class HaSTTSelector extends LitElement {
       .language=${this.selector.stt?.language || this.context?.language}
       .disabled=${this.disabled}
       .required=${this.required}
-    ></ha-stt-picker>`;
+    ></ha-stt-picker>`
   }
 
   static styles = css`
     ha-stt-picker {
       width: 100%;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-selector-stt": HaSTTSelector;
+    'ha-selector-stt': HaSTTSelector
   }
 }

@@ -1,15 +1,15 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { styleMap } from "lit/directives/style-map";
-import { computeAttributeNameDisplay } from "../../common/entity/compute_attribute_display";
-import { stateActive } from "../../common/entity/state_active";
-import { stateColorCss } from "../../common/entity/state_color";
-import "../../components/ha-control-select";
-import type { ControlSelectOption } from "../../components/ha-control-select";
-import "../../components/ha-control-slider";
-import { UNAVAILABLE } from "../../data/entity";
-import { DOMAIN_ATTRIBUTES_UNITS } from "../../data/entity_attributes";
-import type { FanEntity, FanSpeed } from "../../data/fan";
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { styleMap } from 'lit/directives/style-map'
+import { computeAttributeNameDisplay } from '../../common/entity/compute_attribute_display'
+import { stateActive } from '../../common/entity/state_active'
+import { stateColorCss } from '../../common/entity/state_color'
+import '../../components/ha-control-select'
+import type { ControlSelectOption } from '../../components/ha-control-select'
+import '../../components/ha-control-slider'
+import { UNAVAILABLE } from '../../data/entity'
+import { DOMAIN_ATTRIBUTES_UNITS } from '../../data/entity_attributes'
+import type { FanEntity, FanSpeed } from '../../data/fan'
 import {
   computeFanSpeedCount,
   computeFanSpeedIcon,
@@ -17,74 +17,74 @@ import {
   FAN_SPEEDS,
   fanPercentageToSpeed,
   fanSpeedToPercentage,
-} from "../../data/fan";
-import type { HomeAssistant } from "../../types";
+} from '../../data/fan'
+import type { HomeAssistant } from '../../types'
 
-@customElement("ha-state-control-fan-speed")
+@customElement('ha-state-control-fan-speed')
 export class HaStateControlFanSpeed extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj!: FanEntity;
+  @property({ attribute: false }) public stateObj!: FanEntity
 
-  @state() sliderValue?: number;
+  @state() sliderValue?: number
 
-  @state() speedValue?: FanSpeed;
+  @state() speedValue?: FanSpeed
 
   protected updated(changedProp: Map<string | number | symbol, unknown>): void {
-    if (changedProp.has("stateObj")) {
+    if (changedProp.has('stateObj')) {
       const percentage = stateActive(this.stateObj)
         ? (this.stateObj.attributes.percentage ?? 0)
-        : 0;
-      this.sliderValue = Math.max(Math.round(percentage), 0);
-      this.speedValue = fanPercentageToSpeed(this.stateObj, percentage);
+        : 0
+      this.sliderValue = Math.max(Math.round(percentage), 0)
+      this.speedValue = fanPercentageToSpeed(this.stateObj, percentage)
     }
   }
 
   private _speedValueChanged(ev: CustomEvent) {
-    const speed = (ev.detail as any).value as FanSpeed;
+    const speed = (ev.detail as any).value as FanSpeed
 
-    this.speedValue = speed;
+    this.speedValue = speed
 
-    const percentage = fanSpeedToPercentage(this.stateObj, speed);
+    const percentage = fanSpeedToPercentage(this.stateObj, speed)
 
-    this.hass.callService("fan", "set_percentage", {
+    this.hass.callService('fan', 'set_percentage', {
       entity_id: this.stateObj!.entity_id,
       percentage: percentage,
-    });
+    })
   }
 
   private _valueChanged(ev: CustomEvent) {
-    const value = (ev.detail as any).value;
-    if (isNaN(value)) return;
+    const value = (ev.detail as any).value
+    if (isNaN(value)) return
 
-    this.sliderValue = value;
+    this.sliderValue = value
 
-    this.hass.callService("fan", "set_percentage", {
+    this.hass.callService('fan', 'set_percentage', {
       entity_id: this.stateObj!.entity_id,
       percentage: value,
-    });
+    })
   }
 
   private _localizeSpeed(speed: FanSpeed) {
-    if (speed === "on" || speed === "off") {
-      return this.hass.formatEntityState(this.stateObj, speed);
+    if (speed === 'on' || speed === 'off') {
+      return this.hass.formatEntityState(this.stateObj, speed)
     }
-    return this.hass.localize(`ui.card.fan.speed.${speed}`) || speed;
+    return this.hass.localize(`ui.card.fan.speed.${speed}`) || speed
   }
 
   protected render() {
-    const color = stateColorCss(this.stateObj);
+    const color = stateColorCss(this.stateObj)
 
-    const speedCount = computeFanSpeedCount(this.stateObj);
+    const speedCount = computeFanSpeedCount(this.stateObj)
 
     if (speedCount <= FAN_SPEED_COUNT_MAX_FOR_BUTTONS) {
       const options = FAN_SPEEDS[speedCount]!.map<ControlSelectOption>(
-        (speed) => ({
+        speed => ({
           value: speed,
           label: this._localizeSpeed(speed),
           path: computeFanSpeedIcon(this.stateObj, speed),
         })
-      ).reverse();
+      ).reverse()
 
       return html`
         <ha-control-select
@@ -96,16 +96,16 @@ export class HaStateControlFanSpeed extends LitElement {
             this.hass.localize,
             this.stateObj,
             this.hass.entities,
-            "percentage"
+            'percentage'
           )}
           style=${styleMap({
-            "--control-select-color": color,
-            "--control-select-background": color,
+            '--control-select-color': color,
+            '--control-select-background': color,
           })}
           .disabled=${this.stateObj.state === UNAVAILABLE}
         >
         </ha-control-select>
-      `;
+      `
     }
 
     return html`
@@ -121,18 +121,18 @@ export class HaStateControlFanSpeed extends LitElement {
           this.hass.localize,
           this.stateObj,
           this.hass.entities,
-          "percentage"
+          'percentage'
         )}
         style=${styleMap({
-          "--control-slider-color": color,
-          "--control-slider-background": color,
+          '--control-slider-color': color,
+          '--control-slider-background': color,
         })}
         .disabled=${this.stateObj.state === UNAVAILABLE}
         .unit=${DOMAIN_ATTRIBUTES_UNITS.fan.percentage}
         .locale=${this.hass.locale}
       >
       </ha-control-slider>
-    `;
+    `
   }
 
   static styles = css`
@@ -157,11 +157,11 @@ export class HaStateControlFanSpeed extends LitElement {
       --control-select-background: var(--disabled-color);
       --control-select-background-opacity: 0.2;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-state-control-fan-speed": HaStateControlFanSpeed;
+    'ha-state-control-fan-speed': HaStateControlFanSpeed
   }
 }

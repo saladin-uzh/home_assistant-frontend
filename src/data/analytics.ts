@@ -1,27 +1,27 @@
-import type { HomeAssistant } from "../types";
+import type { HomeAssistant } from '../types'
 
 export interface AnalyticsPreferences {
-  base?: boolean;
-  diagnostics?: boolean;
-  usage?: boolean;
-  statistics?: boolean;
-  snapshots?: boolean;
+  base?: boolean
+  diagnostics?: boolean
+  usage?: boolean
+  statistics?: boolean
+  snapshots?: boolean
 }
 
 export interface Analytics {
-  preferences: AnalyticsPreferences;
+  preferences: AnalyticsPreferences
 }
 
 export const getAnalyticsDetails = (hass: HomeAssistant) =>
   hass.callWS<Analytics>({
-    type: "analytics",
-  });
+    type: 'analytics',
+  })
 
 export const setAnalyticsPreferences = (
   hass: HomeAssistant,
   preferences: AnalyticsPreferences
 ) =>
   hass.callWS<AnalyticsPreferences>({
-    type: "analytics/preferences",
+    type: 'analytics/preferences',
     preferences,
-  });
+  })

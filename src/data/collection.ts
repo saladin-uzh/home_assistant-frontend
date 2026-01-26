@@ -2,12 +2,12 @@ import type {
   Collection,
   Connection,
   UnsubscribeFunc,
-} from "home-assistant-js-websocket";
-import { getCollection } from "home-assistant-js-websocket";
-import type { Store } from "home-assistant-js-websocket/dist/store";
+} from 'home-assistant-js-websocket'
+import { getCollection } from 'home-assistant-js-websocket'
+import type { Store } from 'home-assistant-js-websocket/dist/store'
 
 interface OptimisticCollection<T> extends Collection<T> {
-  save(data: T): Promise<unknown>;
+  save(data: T): Promise<unknown>
 }
 
 /**
@@ -26,7 +26,7 @@ export const getOptimisticCollection = <StateType>(
     store: Store<StateType>
   ) => Promise<UnsubscribeFunc>
 ): OptimisticCollection<StateType> => {
-  const updateKey = `${key}-optimistic`;
+  const updateKey = `${key}-optimistic`
 
   const collection = getCollection<StateType>(
     conn,
@@ -36,39 +36,39 @@ export const getOptimisticCollection = <StateType>(
       // Subscribe to original updates
       const subUpResult = subscribeUpdates
         ? subscribeUpdates(conn, store)
-        : undefined;
+        : undefined
       // Store the store
-      conn[updateKey] = store;
+      conn[updateKey] = store
 
       // Unsub function to undo both
       return () => {
         if (subUpResult) {
-          subUpResult.then((unsub) => unsub());
+          subUpResult.then(unsub => unsub())
         }
-        conn[updateKey] = undefined;
-      };
+        conn[updateKey] = undefined
+      }
     }
-  );
+  )
   return {
     ...collection,
     async save(data: StateType) {
-      const store: Store<StateType> | undefined = conn[updateKey];
-      let current;
+      const store: Store<StateType> | undefined = conn[updateKey]
+      let current
 
       // Can be undefined if currently no subscribers
       if (store) {
-        current = store.state;
-        store.setState(data, true);
+        current = store.state
+        store.setState(data, true)
       }
 
       try {
-        return await saveCollection(conn, data);
+        return await saveCollection(conn, data)
       } catch (err: any) {
         if (store) {
-          store.setState(current as any, true);
+          store.setState(current as any, true)
         }
-        throw err;
+        throw err
       }
     },
-  };
-};
+  }
+}

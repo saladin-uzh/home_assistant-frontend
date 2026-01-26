@@ -10,119 +10,119 @@ import {
   mdiVolumeMinus,
   mdiVolumeOff,
   mdiVolumePlus,
-} from "@mdi/js";
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { PropertyValues } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { stateActive } from "../../../common/entity/state_active";
-import { supportsFeature } from "../../../common/entity/supports-feature";
-import { debounce } from "../../../common/util/debounce";
-import "../../../components/ha-icon-button";
-import "../../../components/ha-slider";
-import { isUnavailableState } from "../../../data/entity";
+} from '@mdi/js'
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { PropertyValues } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { stateActive } from '../../../common/entity/state_active'
+import { supportsFeature } from '../../../common/entity/supports-feature'
+import { debounce } from '../../../common/util/debounce'
+import '../../../components/ha-icon-button'
+import '../../../components/ha-slider'
+import { isUnavailableState } from '../../../data/entity'
 import type {
   ControlButton,
   MediaPlayerEntity,
-} from "../../../data/media-player";
+} from '../../../data/media-player'
 import {
   MediaPlayerEntityFeature,
   computeMediaDescription,
-} from "../../../data/media-player";
-import type { HomeAssistant } from "../../../types";
-import { hasConfigOrEntityChanged } from "../common/has-changed";
-import "../components/hui-generic-entity-row";
-import { createEntityNotFoundWarning } from "../components/hui-warning";
-import type { EntityConfig, LovelaceRow } from "./types";
+} from '../../../data/media-player'
+import type { HomeAssistant } from '../../../types'
+import { hasConfigOrEntityChanged } from '../common/has-changed'
+import '../components/hui-generic-entity-row'
+import { createEntityNotFoundWarning } from '../components/hui-warning'
+import type { EntityConfig, LovelaceRow } from './types'
 
-@customElement("hui-media-player-entity-row")
+@customElement('hui-media-player-entity-row')
 class HuiMediaPlayerEntityRow extends LitElement implements LovelaceRow {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: EntityConfig;
+  @state() private _config?: EntityConfig
 
-  @state() private _narrow?: boolean = false;
+  @state() private _narrow?: boolean = false
 
-  @state() private _veryNarrow?: boolean = false;
+  @state() private _veryNarrow?: boolean = false
 
-  private _resizeObserver?: ResizeObserver;
+  private _resizeObserver?: ResizeObserver
 
   public setConfig(config: EntityConfig): void {
     if (!config || !config.entity) {
-      throw new Error("Entity must be specified");
+      throw new Error('Entity must be specified')
     }
 
-    this._config = config;
+    this._config = config
   }
 
   public connectedCallback(): void {
-    super.connectedCallback();
-    this._attachObserver();
+    super.connectedCallback()
+    this._attachObserver()
   }
 
   public disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this._resizeObserver?.unobserve(this);
+    super.disconnectedCallback()
+    this._resizeObserver?.unobserve(this)
   }
 
   public willUpdate(): void {
     if (!this.hasUpdated) {
-      this._measureCard();
+      this._measureCard()
     }
   }
 
   protected firstUpdated(): void {
-    this._attachObserver();
+    this._attachObserver()
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     return (
       hasConfigOrEntityChanged(this, changedProps) ||
       changedProps.size > 1 ||
-      !changedProps.has("hass")
-    );
+      !changedProps.has('hass')
+    )
   }
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
-    const stateObj = this.hass.states[this._config.entity] as MediaPlayerEntity;
+    const stateObj = this.hass.states[this._config.entity] as MediaPlayerEntity
 
     if (!stateObj) {
       return html`
         <hui-warning .hass=${this.hass}>
           ${createEntityNotFoundWarning(this.hass, this._config.entity)}
         </hui-warning>
-      `;
+      `
     }
 
-    const entityState = stateObj.state;
-    const controlButton = this._computeControlButton(stateObj);
-    const assumedState = stateObj.attributes.assumed_state === true;
+    const entityState = stateObj.state
+    const controlButton = this._computeControlButton(stateObj)
+    const assumedState = stateObj.attributes.assumed_state === true
 
     const buttons = html`
       ${!this._narrow &&
-      (entityState === "playing" || assumedState) &&
+      (entityState === 'playing' || assumedState) &&
       supportsFeature(stateObj, MediaPlayerEntityFeature.PREVIOUS_TRACK)
         ? html`
             <ha-icon-button
               .path=${mdiSkipPrevious}
               .label=${this.hass.localize(
-                "ui.card.media_player.media_previous_track"
+                'ui.card.media_player.media_previous_track'
               )}
               @click=${this._previousTrack}
             ></ha-icon-button>
           `
-        : ""}
+        : ''}
       ${!assumedState &&
-      ((entityState === "playing" &&
+      ((entityState === 'playing' &&
         (supportsFeature(stateObj, MediaPlayerEntityFeature.PAUSE) ||
           supportsFeature(stateObj, MediaPlayerEntityFeature.STOP))) ||
-        ((entityState === "paused" || entityState === "idle") &&
+        ((entityState === 'paused' || entityState === 'idle') &&
           supportsFeature(stateObj, MediaPlayerEntityFeature.PLAY)) ||
-        (entityState === "on" &&
+        (entityState === 'on' &&
           (supportsFeature(stateObj, MediaPlayerEntityFeature.PLAY) ||
             supportsFeature(stateObj, MediaPlayerEntityFeature.PAUSE))))
         ? html`
@@ -134,7 +134,7 @@ class HuiMediaPlayerEntityRow extends LitElement implements LovelaceRow {
               @click=${this._playPauseStop}
             ></ha-icon-button>
           `
-        : ""}
+        : ''}
       ${assumedState && supportsFeature(stateObj, MediaPlayerEntityFeature.PLAY)
         ? html`
             <ha-icon-button
@@ -143,7 +143,7 @@ class HuiMediaPlayerEntityRow extends LitElement implements LovelaceRow {
               @click=${this._play}
             ></ha-icon-button>
           `
-        : ""}
+        : ''}
       ${assumedState &&
       supportsFeature(stateObj, MediaPlayerEntityFeature.PAUSE)
         ? html`
@@ -153,7 +153,7 @@ class HuiMediaPlayerEntityRow extends LitElement implements LovelaceRow {
               @click=${this._pause}
             ></ha-icon-button>
           `
-        : ""}
+        : ''}
       ${assumedState &&
       supportsFeature(stateObj, MediaPlayerEntityFeature.STOP) &&
       !supportsFeature(stateObj, MediaPlayerEntityFeature.VOLUME_SET)
@@ -164,8 +164,8 @@ class HuiMediaPlayerEntityRow extends LitElement implements LovelaceRow {
               @click=${this._stop}
             ></ha-icon-button>
           `
-        : ""}
-      ${(entityState === "playing" ||
+        : ''}
+      ${(entityState === 'playing' ||
         (assumedState &&
           !supportsFeature(stateObj, MediaPlayerEntityFeature.VOLUME_SET))) &&
       supportsFeature(stateObj, MediaPlayerEntityFeature.NEXT_TRACK)
@@ -173,15 +173,15 @@ class HuiMediaPlayerEntityRow extends LitElement implements LovelaceRow {
             <ha-icon-button
               .path=${mdiSkipNext}
               .label=${this.hass.localize(
-                "ui.card.media_player.media_next_track"
+                'ui.card.media_player.media_next_track'
               )}
               @click=${this._nextTrack}
             ></ha-icon-button>
           `
-        : ""}
-    `;
+        : ''}
+    `
 
-    const mediaDescription = computeMediaDescription(stateObj);
+    const mediaDescription = computeMediaDescription(stateObj)
 
     return html`
       <hui-generic-entity-row
@@ -197,24 +197,24 @@ class HuiMediaPlayerEntityRow extends LitElement implements LovelaceRow {
             ? html`
                 <ha-icon-button
                   .path=${mdiPower}
-                  .label=${this.hass.localize("ui.card.media_player.turn_on")}
+                  .label=${this.hass.localize('ui.card.media_player.turn_on')}
                   @click=${this._togglePower}
                 ></ha-icon-button>
               `
             : !supportsFeature(stateObj, MediaPlayerEntityFeature.VOLUME_SET) &&
                 !supportsFeature(stateObj, MediaPlayerEntityFeature.VOLUME_STEP)
               ? buttons
-              : ""}
+              : ''}
           ${supportsFeature(stateObj, MediaPlayerEntityFeature.TURN_OFF) &&
           stateActive(stateObj)
             ? html`
                 <ha-icon-button
                   .path=${mdiPower}
-                  .label=${this.hass.localize("ui.card.media_player.turn_off")}
+                  .label=${this.hass.localize('ui.card.media_player.turn_off')}
                   @click=${this._togglePower}
                 ></ha-icon-button>
               `
-            : ""}
+            : ''}
         </div>
       </hui-generic-entity-row>
       ${(supportsFeature(stateObj, MediaPlayerEntityFeature.VOLUME_STEP) ||
@@ -235,14 +235,14 @@ class HuiMediaPlayerEntityRow extends LitElement implements LovelaceRow {
                         .label=${this.hass.localize(
                           `ui.card.media_player.${
                             stateObj.attributes.is_volume_muted
-                              ? "media_volume_mute"
-                              : "media_volume_unmute"
+                              ? 'media_volume_mute'
+                              : 'media_volume_unmute'
                           }`
                         )}
                         @click=${this._toggleMute}
                       ></ha-icon-button>
                     `
-                  : ""}
+                  : ''}
                 ${!this._veryNarrow &&
                 supportsFeature(stateObj, MediaPlayerEntityFeature.VOLUME_SET)
                   ? html`
@@ -262,137 +262,137 @@ class HuiMediaPlayerEntityRow extends LitElement implements LovelaceRow {
                         <ha-icon-button
                           .path=${mdiVolumeMinus}
                           .label=${this.hass.localize(
-                            "ui.card.media_player.media_volume_down"
+                            'ui.card.media_player.media_volume_down'
                           )}
                           @click=${this._volumeDown}
                         ></ha-icon-button>
                         <ha-icon-button
                           .path=${mdiVolumePlus}
                           .label=${this.hass.localize(
-                            "ui.card.media_player.media_volume_up"
+                            'ui.card.media_player.media_volume_up'
                           )}
                           @click=${this._volumeUp}
                         ></ha-icon-button>
                       `
-                    : ""}
+                    : ''}
               </div>
 
               <div class="controls">${buttons}</div>
             </div>
           `
-        : ""}
-    `;
+        : ''}
+    `
   }
 
   private async _attachObserver(): Promise<void> {
     if (!this._resizeObserver) {
       this._resizeObserver = new ResizeObserver(
         debounce(() => this._measureCard(), 250, false)
-      );
+      )
     }
-    this._resizeObserver.observe(this);
+    this._resizeObserver.observe(this)
   }
 
   private _measureCard() {
     if (!this.isConnected) {
-      return;
+      return
     }
-    this._narrow = (this.clientWidth || 0) < 300;
-    this._veryNarrow = (this.clientWidth || 0) < 225;
+    this._narrow = (this.clientWidth || 0) < 300
+    this._veryNarrow = (this.clientWidth || 0) < 225
   }
 
   private _computeControlButton(stateObj: HassEntity): ControlButton {
-    return stateObj.state === "on"
-      ? { icon: mdiPlayPause, action: "media_play_pause" }
-      : stateObj.state !== "playing"
-        ? { icon: mdiPlay, action: "media_play" }
+    return stateObj.state === 'on'
+      ? { icon: mdiPlayPause, action: 'media_play_pause' }
+      : stateObj.state !== 'playing'
+        ? { icon: mdiPlay, action: 'media_play' }
         : supportsFeature(stateObj, MediaPlayerEntityFeature.PAUSE)
-          ? { icon: mdiPause, action: "media_pause" }
-          : { icon: mdiStop, action: "media_stop" };
+          ? { icon: mdiPause, action: 'media_pause' }
+          : { icon: mdiStop, action: 'media_stop' }
   }
 
   private _togglePower(): void {
-    const stateObj = this.hass!.states[this._config!.entity];
+    const stateObj = this.hass!.states[this._config!.entity]
 
     this.hass!.callService(
-      "media_player",
-      stateActive(stateObj) ? "turn_off" : "turn_on",
+      'media_player',
+      stateActive(stateObj) ? 'turn_off' : 'turn_on',
       {
         entity_id: this._config!.entity,
       }
-    );
+    )
   }
 
   private _playPauseStop(): void {
-    const stateObj = this.hass!.states[this._config!.entity];
+    const stateObj = this.hass!.states[this._config!.entity]
 
     const service =
-      stateObj.state !== "playing"
-        ? "media_play"
+      stateObj.state !== 'playing'
+        ? 'media_play'
         : supportsFeature(stateObj, MediaPlayerEntityFeature.PAUSE)
-          ? "media_pause"
-          : "media_stop";
+          ? 'media_pause'
+          : 'media_stop'
 
-    this.hass!.callService("media_player", service, {
+    this.hass!.callService('media_player', service, {
       entity_id: this._config!.entity,
-    });
+    })
   }
 
   private _play(): void {
-    this.hass!.callService("media_player", "media_play", {
+    this.hass!.callService('media_player', 'media_play', {
       entity_id: this._config!.entity,
-    });
+    })
   }
 
   private _pause(): void {
-    this.hass!.callService("media_player", "media_pause", {
+    this.hass!.callService('media_player', 'media_pause', {
       entity_id: this._config!.entity,
-    });
+    })
   }
 
   private _stop(): void {
-    this.hass!.callService("media_player", "media_stop", {
+    this.hass!.callService('media_player', 'media_stop', {
       entity_id: this._config!.entity,
-    });
+    })
   }
 
   private _previousTrack(): void {
-    this.hass!.callService("media_player", "media_previous_track", {
+    this.hass!.callService('media_player', 'media_previous_track', {
       entity_id: this._config!.entity,
-    });
+    })
   }
 
   private _nextTrack(): void {
-    this.hass!.callService("media_player", "media_next_track", {
+    this.hass!.callService('media_player', 'media_next_track', {
       entity_id: this._config!.entity,
-    });
+    })
   }
 
   private _toggleMute() {
-    this.hass!.callService("media_player", "volume_mute", {
+    this.hass!.callService('media_player', 'volume_mute', {
       entity_id: this._config!.entity,
       is_volume_muted:
         !this.hass!.states[this._config!.entity].attributes.is_volume_muted,
-    });
+    })
   }
 
   private _volumeDown() {
-    this.hass!.callService("media_player", "volume_down", {
+    this.hass!.callService('media_player', 'volume_down', {
       entity_id: this._config!.entity,
-    });
+    })
   }
 
   private _volumeUp() {
-    this.hass!.callService("media_player", "volume_up", {
+    this.hass!.callService('media_player', 'volume_up', {
       entity_id: this._config!.entity,
-    });
+    })
   }
 
   private _selectedValueChanged(ev): void {
-    this.hass!.callService("media_player", "volume_set", {
+    this.hass!.callService('media_player', 'volume_set', {
       entity_id: this._config!.entity,
       volume_level: ev.target.value / 100,
-    });
+    })
   }
 
   static styles = css`
@@ -420,11 +420,11 @@ class HuiMediaPlayerEntityRow extends LitElement implements LovelaceRow {
       width: 100%;
       margin: 1px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-media-player-entity-row": HuiMediaPlayerEntityRow;
+    'hui-media-player-entity-row': HuiMediaPlayerEntityRow
   }
 }

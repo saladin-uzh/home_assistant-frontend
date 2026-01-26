@@ -1,61 +1,61 @@
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import type { LocalizeFunc } from "../../../../common/translations/localize";
-import { computeRTL } from "../../../../common/util/compute_rtl";
-import "../../../../components/ha-form/ha-form";
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import type { LocalizeFunc } from '../../../../common/translations/localize'
+import { computeRTL } from '../../../../common/util/compute_rtl'
+import '../../../../components/ha-form/ha-form'
 import type {
   HaFormSchema,
   SchemaUnion,
-} from "../../../../components/ha-form/types";
+} from '../../../../components/ha-form/types'
 import type {
   LovelaceViewConfig,
   LovelaceViewHeaderConfig,
-} from "../../../../data/lovelace/config/view";
-import type { HomeAssistant } from "../../../../types";
+} from '../../../../data/lovelace/config/view'
+import type { HomeAssistant } from '../../../../types'
 import {
   DEFAULT_VIEW_HEADER_BADGES_POSITION,
   DEFAULT_VIEW_HEADER_BADGES_WRAP,
   DEFAULT_VIEW_HEADER_LAYOUT,
-} from "../../views/hui-view-header";
-import { listenMediaQuery } from "../../../../common/dom/media_query";
+} from '../../views/hui-view-header'
+import { listenMediaQuery } from '../../../../common/dom/media_query'
 
-@customElement("hui-view-header-settings-editor")
+@customElement('hui-view-header-settings-editor')
 export class HuiViewHeaderSettingsEditor extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public config?: LovelaceViewHeaderConfig;
+  @property({ attribute: false }) public config?: LovelaceViewHeaderConfig
 
-  @state({ attribute: false }) private narrow = false;
+  @state({ attribute: false }) private narrow = false
 
-  private _unsubMql?: () => void;
+  private _unsubMql?: () => void
 
   connectedCallback(): void {
-    super.connectedCallback();
-    this._unsubMql = listenMediaQuery("(max-width: 600px)", (matches) => {
-      this.narrow = matches;
-    });
+    super.connectedCallback()
+    this._unsubMql = listenMediaQuery('(max-width: 600px)', matches => {
+      this.narrow = matches
+    })
   }
 
   public disconnectedCallback() {
-    super.disconnectedCallback();
-    this._unsubMql?.();
-    this._unsubMql = undefined;
+    super.disconnectedCallback()
+    this._unsubMql?.()
+    this._unsubMql = undefined
   }
 
   private _schema = memoizeOne(
     (localize: LocalizeFunc, isRTL: boolean, narrow: boolean) =>
       [
         {
-          name: "layout",
+          name: 'layout',
           selector: {
             select: {
-              mode: "box",
+              mode: 'box',
               box_max_columns: narrow ? 1 : 3,
-              options: ["responsive", "start", "center"].map((value) => {
+              options: ['responsive', 'start', 'center'].map(value => {
                 const labelKey =
-                  value === "start" && isRTL ? `${value}_rtl` : value;
+                  value === 'start' && isRTL ? `${value}_rtl` : value
                 return {
                   value,
                   label: localize(
@@ -69,17 +69,17 @@ export class HuiViewHeaderSettingsEditor extends LitElement {
                     src_dark: `/static/images/form/view_header_layout_${value}_dark.svg`,
                     flip_rtl: true,
                   },
-                };
+                }
               }),
             },
           },
         },
         {
-          name: "badges_position",
+          name: 'badges_position',
           selector: {
             select: {
-              mode: "box",
-              options: ["bottom", "top"].map((value) => ({
+              mode: 'box',
+              options: ['bottom', 'top'].map(value => ({
                 value,
                 label: localize(
                   `ui.panel.lovelace.editor.edit_view_header.settings.badges_position_options.${value}`
@@ -94,16 +94,16 @@ export class HuiViewHeaderSettingsEditor extends LitElement {
           },
         },
         {
-          name: "badges_wrap",
+          name: 'badges_wrap',
           selector: {
             select: {
-              mode: "box",
-              options: ["wrap", "scroll"].map((value) => ({
+              mode: 'box',
+              options: ['wrap', 'scroll'].map(value => ({
                 value,
                 label: localize(
                   `ui.panel.lovelace.editor.edit_view_header.settings.badges_wrap_options.${value}`
                 ),
-                ...(value === "scroll" && {
+                ...(value === 'scroll' && {
                   description: localize(
                     `ui.panel.lovelace.editor.edit_view_header.settings.badges_wrap_options.${value}_description`
                   ),
@@ -118,11 +118,11 @@ export class HuiViewHeaderSettingsEditor extends LitElement {
           },
         },
       ] as const satisfies HaFormSchema[]
-  );
+  )
 
   protected render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
 
     const data = {
@@ -130,11 +130,11 @@ export class HuiViewHeaderSettingsEditor extends LitElement {
       badges_position:
         this.config?.badges_position || DEFAULT_VIEW_HEADER_BADGES_POSITION,
       badges_wrap: this.config?.badges_wrap || DEFAULT_VIEW_HEADER_BADGES_WRAP,
-    };
+    }
 
-    const narrow = this.narrow;
-    const isRTL = computeRTL(this.hass);
-    const schema = this._schema(this.hass.localize, isRTL, narrow);
+    const narrow = this.narrow
+    const isRTL = computeRTL(this.hass)
+    const schema = this._schema(this.hass.localize, isRTL, narrow)
 
     return html`
       <ha-form
@@ -144,39 +144,39 @@ export class HuiViewHeaderSettingsEditor extends LitElement {
         .computeLabel=${this._computeLabel}
         @value-changed=${this._valueChanged}
       ></ha-form>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent): void {
-    ev.stopPropagation();
-    const newData = ev.detail.value as LovelaceViewConfig;
+    ev.stopPropagation()
+    const newData = ev.detail.value as LovelaceViewConfig
 
     const config: LovelaceViewHeaderConfig = {
       ...this.config,
       ...newData,
-    };
+    }
 
-    fireEvent(this, "config-changed", { config });
+    fireEvent(this, 'config-changed', { config })
   }
 
   private _computeLabel = (
     schema: SchemaUnion<ReturnType<typeof this._schema>>
   ) => {
     switch (schema.name) {
-      case "layout":
-      case "badges_position":
-      case "badges_wrap":
+      case 'layout':
+      case 'badges_position':
+      case 'badges_wrap':
         return this.hass.localize(
           `ui.panel.lovelace.editor.edit_view_header.settings.${schema.name}`
-        );
+        )
       default:
-        return "";
+        return ''
     }
-  };
+  }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-view-header-settings-editor": HuiViewHeaderSettingsEditor;
+    'hui-view-header-settings-editor': HuiViewHeaderSettingsEditor
   }
 }

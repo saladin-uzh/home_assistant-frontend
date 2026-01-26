@@ -1,52 +1,52 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { repeat } from "lit/directives/repeat";
-import { fireEvent } from "../../common/dom/fire_event";
-import type { ValueChangedEvent, HomeAssistant } from "../../types";
-import "./ha-statistic-picker";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { repeat } from 'lit/directives/repeat'
+import { fireEvent } from '../../common/dom/fire_event'
+import type { ValueChangedEvent, HomeAssistant } from '../../types'
+import './ha-statistic-picker'
 
-@customElement("ha-statistics-picker")
+@customElement('ha-statistics-picker')
 class HaStatisticsPicker extends LitElement {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ type: Array }) public value?: string[];
+  @property({ type: Array }) public value?: string[]
 
-  @property({ attribute: false, type: Array }) public statisticIds?: string[];
+  @property({ attribute: false, type: Array }) public statisticIds?: string[]
 
-  @property({ attribute: "statistic-types" })
-  public statisticTypes?: "mean" | "sum";
-
-  @property({ type: String })
-  public label?: string;
+  @property({ attribute: 'statistic-types' })
+  public statisticTypes?: 'mean' | 'sum'
 
   @property({ type: String })
-  public placeholder?: string;
+  public label?: string
 
-  @property({ type: Boolean, attribute: "allow-custom-entity" })
-  public allowCustomEntity;
+  @property({ type: String })
+  public placeholder?: string
+
+  @property({ type: Boolean, attribute: 'allow-custom-entity' })
+  public allowCustomEntity
 
   /**
    * Show only statistics natively stored with these units of measurements.
    * @attr include-statistics-unit-of-measurement
    */
   @property({
-    attribute: "include-statistics-unit-of-measurement",
+    attribute: 'include-statistics-unit-of-measurement',
   })
-  public includeStatisticsUnitOfMeasurement?: string[] | string;
+  public includeStatisticsUnitOfMeasurement?: string[] | string
 
   /**
    * Show only statistics with these unit classes.
    * @attr include-unit-class
    */
-  @property({ attribute: "include-unit-class" })
-  public includeUnitClass?: string | string[];
+  @property({ attribute: 'include-unit-class' })
+  public includeUnitClass?: string | string[]
 
   /**
    * Show only statistics with these device classes.
    * @attr include-device-class
    */
-  @property({ attribute: "include-device-class" })
-  public includeDeviceClass?: string | string[];
+  @property({ attribute: 'include-device-class' })
+  public includeDeviceClass?: string | string[]
 
   /**
    * Ignore filtering of statistics type and units when only a single statistic is selected.
@@ -55,38 +55,38 @@ class HaStatisticsPicker extends LitElement {
    */
   @property({
     type: Boolean,
-    attribute: "ignore-restrictions-on-first-statistic",
+    attribute: 'ignore-restrictions-on-first-statistic',
   })
-  public ignoreRestrictionsOnFirstStatistic = false;
+  public ignoreRestrictionsOnFirstStatistic = false
 
   protected render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
 
     const ignoreRestriction =
       this.ignoreRestrictionsOnFirstStatistic &&
-      this._currentStatistics.length <= 1;
+      this._currentStatistics.length <= 1
 
     const includeStatisticsUnitCurrent = ignoreRestriction
       ? undefined
-      : this.includeStatisticsUnitOfMeasurement;
+      : this.includeStatisticsUnitOfMeasurement
     const includeUnitClassCurrent = ignoreRestriction
       ? undefined
-      : this.includeUnitClass;
+      : this.includeUnitClass
     const includeDeviceClassCurrent = ignoreRestriction
       ? undefined
-      : this.includeDeviceClass;
+      : this.includeDeviceClass
     const includeStatisticTypesCurrent = ignoreRestriction
       ? undefined
-      : this.statisticTypes;
+      : this.statisticTypes
 
     return html`
       ${this.label ? html`<label>${this.label}</label>` : nothing}
       ${repeat(
         this._currentStatistics,
-        (statisticId) => statisticId,
-        (statisticId) => html`
+        statisticId => statisticId,
+        statisticId => html`
           <div>
             <ha-statistic-picker
               .curValue=${statisticId}
@@ -119,56 +119,54 @@ class HaStatisticsPicker extends LitElement {
           @value-changed=${this._addStatistic}
         ></ha-statistic-picker>
       </div>
-    `;
+    `
   }
 
   private get _currentStatistics() {
-    return this.value || [];
+    return this.value || []
   }
 
   private async _updateStatistics(entities) {
-    this.value = entities;
+    this.value = entities
 
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: entities,
-    });
+    })
   }
 
   private _statisticChanged(event: ValueChangedEvent<string>) {
-    event.stopPropagation();
-    const oldValue = (event.currentTarget as any).curValue;
-    const newValue = event.detail.value;
+    event.stopPropagation()
+    const oldValue = (event.currentTarget as any).curValue
+    const newValue = event.detail.value
     if (newValue === oldValue) {
-      return;
+      return
     }
-    const currentStatistics = this._currentStatistics;
+    const currentStatistics = this._currentStatistics
     if (!newValue || currentStatistics.includes(newValue)) {
-      this._updateStatistics(
-        currentStatistics.filter((ent) => ent !== oldValue)
-      );
-      return;
+      this._updateStatistics(currentStatistics.filter(ent => ent !== oldValue))
+      return
     }
     this._updateStatistics(
-      currentStatistics.map((ent) => (ent === oldValue ? newValue : ent))
-    );
+      currentStatistics.map(ent => (ent === oldValue ? newValue : ent))
+    )
   }
 
   private async _addStatistic(event: ValueChangedEvent<string>) {
-    event.stopPropagation();
-    const toAdd = event.detail.value;
+    event.stopPropagation()
+    const toAdd = event.detail.value
     if (!toAdd) {
-      return;
+      return
     }
-    (event.currentTarget as any).value = "";
+    ;(event.currentTarget as any).value = ''
     if (!toAdd) {
-      return;
+      return
     }
-    const currentEntities = this._currentStatistics;
+    const currentEntities = this._currentStatistics
     if (currentEntities.includes(toAdd)) {
-      return;
+      return
     }
 
-    this._updateStatistics([...currentEntities, toAdd]);
+    this._updateStatistics([...currentEntities, toAdd])
   }
 
   static styles = css`
@@ -184,11 +182,11 @@ class HaStatisticsPicker extends LitElement {
       display: block;
       margin-bottom: 0 0 8px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-statistics-picker": HaStatisticsPicker;
+    'ha-statistics-picker': HaStatisticsPicker
   }
 }

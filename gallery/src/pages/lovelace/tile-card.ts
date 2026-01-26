@@ -1,97 +1,97 @@
-import type { PropertyValues, TemplateResult } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, query } from "lit/decorators";
-import { CoverEntityFeature } from "../../../../src/data/cover";
-import { LightColorMode } from "../../../../src/data/light";
-import { LockEntityFeature } from "../../../../src/data/lock";
-import { MediaPlayerEntityFeature } from "../../../../src/data/media-player";
-import { VacuumEntityFeature } from "../../../../src/data/vacuum";
-import { getEntity } from "../../../../src/fake_data/entity";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import "../../components/demo-cards";
-import { mockIcons } from "../../../../demo/src/stubs/icons";
-import { ClimateEntityFeature } from "../../../../src/data/climate";
-import { FanEntityFeature } from "../../../../src/data/fan";
+import type { PropertyValues, TemplateResult } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, query } from 'lit/decorators'
+import { CoverEntityFeature } from '../../../../src/data/cover'
+import { LightColorMode } from '../../../../src/data/light'
+import { LockEntityFeature } from '../../../../src/data/lock'
+import { MediaPlayerEntityFeature } from '../../../../src/data/media-player'
+import { VacuumEntityFeature } from '../../../../src/data/vacuum'
+import { getEntity } from '../../../../src/fake_data/entity'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import '../../components/demo-cards'
+import { mockIcons } from '../../../../demo/src/stubs/icons'
+import { ClimateEntityFeature } from '../../../../src/data/climate'
+import { FanEntityFeature } from '../../../../src/data/fan'
 
 const ENTITIES = [
-  getEntity("switch", "tv_outlet", "on", {
-    friendly_name: "TV outlet",
-    device_class: "outlet",
+  getEntity('switch', 'tv_outlet', 'on', {
+    friendly_name: 'TV outlet',
+    device_class: 'outlet',
   }),
-  getEntity("light", "bed_light", "on", {
-    friendly_name: "Bed Light",
+  getEntity('light', 'bed_light', 'on', {
+    friendly_name: 'Bed Light',
     supported_color_modes: [LightColorMode.HS, LightColorMode.COLOR_TEMP],
   }),
-  getEntity("light", "unavailable", "unavailable", {
-    friendly_name: "Unavailable entity",
+  getEntity('light', 'unavailable', 'unavailable', {
+    friendly_name: 'Unavailable entity',
   }),
-  getEntity("lock", "front_door", "locked", {
-    friendly_name: "Front Door Lock",
-    device_class: "lock",
+  getEntity('lock', 'front_door', 'locked', {
+    friendly_name: 'Front Door Lock',
+    device_class: 'lock',
     supported_features: LockEntityFeature.OPEN,
   }),
-  getEntity("media_player", "living_room", "playing", {
-    friendly_name: "Living room speaker",
+  getEntity('media_player', 'living_room', 'playing', {
+    friendly_name: 'Living room speaker',
     supported_features: MediaPlayerEntityFeature.VOLUME_SET,
   }),
-  getEntity("climate", "thermostat", "heat", {
+  getEntity('climate', 'thermostat', 'heat', {
     current_temperature: 73,
     min_temp: 45,
     max_temp: 95,
     temperature: 80,
-    hvac_modes: ["heat", "cool", "auto", "off"],
-    friendly_name: "Thermostat",
-    hvac_action: "heating",
+    hvac_modes: ['heat', 'cool', 'auto', 'off'],
+    friendly_name: 'Thermostat',
+    hvac_action: 'heating',
   }),
-  getEntity("person", "paulus", "home", {
-    friendly_name: "Paulus",
+  getEntity('person', 'paulus', 'home', {
+    friendly_name: 'Paulus',
   }),
-  getEntity("vacuum", "first_floor_vacuum", "docked", {
-    friendly_name: "First floor vacuum",
+  getEntity('vacuum', 'first_floor_vacuum', 'docked', {
+    friendly_name: 'First floor vacuum',
     supported_features:
       VacuumEntityFeature.START +
       VacuumEntityFeature.STOP +
       VacuumEntityFeature.RETURN_HOME,
   }),
-  getEntity("cover", "kitchen_shutter", "open", {
-    friendly_name: "Kitchen shutter",
-    device_class: "shutter",
+  getEntity('cover', 'kitchen_shutter', 'open', {
+    friendly_name: 'Kitchen shutter',
+    device_class: 'shutter',
     supported_features:
       CoverEntityFeature.CLOSE +
       CoverEntityFeature.OPEN +
       CoverEntityFeature.STOP,
   }),
-  getEntity("cover", "pergola_roof", "open", {
-    friendly_name: "Pergola Roof",
+  getEntity('cover', 'pergola_roof', 'open', {
+    friendly_name: 'Pergola Roof',
     supported_features:
       CoverEntityFeature.CLOSE_TILT +
       CoverEntityFeature.OPEN_TILT +
       CoverEntityFeature.STOP_TILT,
   }),
-  getEntity("input_number", "counter", "1.0", {
-    friendly_name: "Counter",
+  getEntity('input_number', 'counter', '1.0', {
+    friendly_name: 'Counter',
     initial: 0,
     min: 0,
     max: 100,
     step: 1,
-    mode: "slider",
+    mode: 'slider',
   }),
-  getEntity("climate", "dual_thermostat", "heat/cool", {
-    friendly_name: "Dual thermostat",
-    hvac_modes: ["off", "cool", "heat_cool", "auto", "dry", "fan_only"],
+  getEntity('climate', 'dual_thermostat', 'heat/cool', {
+    friendly_name: 'Dual thermostat',
+    hvac_modes: ['off', 'cool', 'heat_cool', 'auto', 'dry', 'fan_only'],
     min_temp: 7,
     max_temp: 35,
-    fan_modes: ["on_low", "on_high", "auto_low", "auto_high", "off"],
-    preset_modes: ["home", "eco", "away"],
-    swing_modes: ["auto", "1", "2", "3", "off"],
-    switch_horizontal_modes: ["auto", "4", "5", "6", "off"],
+    fan_modes: ['on_low', 'on_high', 'auto_low', 'auto_high', 'off'],
+    preset_modes: ['home', 'eco', 'away'],
+    swing_modes: ['auto', '1', '2', '3', 'off'],
+    switch_horizontal_modes: ['auto', '4', '5', '6', 'off'],
     current_temperature: 23,
     target_temp_high: 24,
     target_temp_low: 21,
-    fan_mode: "auto_low",
-    preset_mode: "home",
-    swing_mode: "auto",
-    swing_horizontal_mode: "off",
+    fan_mode: 'auto_low',
+    preset_mode: 'home',
+    swing_mode: 'auto',
+    swing_horizontal_mode: 'off',
     supported_features:
       ClimateEntityFeature.TURN_ON +
       ClimateEntityFeature.TURN_OFF +
@@ -101,27 +101,27 @@ const ENTITIES = [
       ClimateEntityFeature.FAN_MODE +
       ClimateEntityFeature.TARGET_TEMPERATURE_RANGE,
   }),
-  getEntity("fan", "fan_demo", "on", {
-    friendly_name: "Ceiling fan",
-    device_class: "fan",
-    direction: "reverse",
+  getEntity('fan', 'fan_demo', 'on', {
+    friendly_name: 'Ceiling fan',
+    device_class: 'fan',
+    direction: 'reverse',
     supported_features:
       FanEntityFeature.DIRECTION +
       FanEntityFeature.SET_SPEED +
       FanEntityFeature.OSCILLATE,
   }),
-];
+]
 
 const CONFIGS = [
   {
-    heading: "Basic example",
+    heading: 'Basic example',
     config: `
 - type: tile
   entity: switch.tv_outlet
     `,
   },
   {
-    heading: "Vertical example",
+    heading: 'Vertical example',
     config: `
 - type: tile
   entity: switch.tv_outlet
@@ -129,7 +129,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Custom color",
+    heading: 'Custom color',
     config: `
 - type: tile
   entity: switch.tv_outlet
@@ -137,7 +137,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Whole tile tap action",
+    heading: 'Whole tile tap action',
     config: `
 - type: tile
   entity: switch.tv_outlet
@@ -149,35 +149,35 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Unknown entity",
+    heading: 'Unknown entity',
     config: `
 - type: tile
   entity: light.unknown
     `,
   },
   {
-    heading: "Unavailable entity",
+    heading: 'Unavailable entity',
     config: `
 - type: tile
   entity: light.unavailable
     `,
   },
   {
-    heading: "Climate",
+    heading: 'Climate',
     config: `
 - type: tile
   entity: climate.thermostat
     `,
   },
   {
-    heading: "Person",
+    heading: 'Person',
     config: `
 - type: tile
   entity: person.paulus
     `,
   },
   {
-    heading: "Light brightness feature",
+    heading: 'Light brightness feature',
     config: `
 - type: tile
   entity: light.bed_light
@@ -186,7 +186,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Light color temperature feature",
+    heading: 'Light color temperature feature',
     config: `
 - type: tile
   entity: light.bed_light
@@ -195,7 +195,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Lock commands feature",
+    heading: 'Lock commands feature',
     config: `
 - type: tile
   entity: lock.front_door
@@ -204,7 +204,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Lock open door feature",
+    heading: 'Lock open door feature',
     config: `
 - type: tile
   entity: lock.front_door
@@ -213,7 +213,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Media player volume slider feature",
+    heading: 'Media player volume slider feature',
     config: `
 - type: tile
   entity: media_player.living_room
@@ -222,7 +222,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Vacuum commands feature",
+    heading: 'Vacuum commands feature',
     config: `
 - type: tile
   entity: vacuum.first_floor_vacuum
@@ -235,7 +235,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Cover open close feature",
+    heading: 'Cover open close feature',
     config: `
 - type: tile
   entity: cover.kitchen_shutter
@@ -244,7 +244,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Cover tilt feature",
+    heading: 'Cover tilt feature',
     config: `
 - type: tile
   entity: cover.pergola_roof
@@ -253,7 +253,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Number buttons feature",
+    heading: 'Number buttons feature',
     config: `
 - type: tile
   entity: input_number.counter
@@ -263,7 +263,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Dual thermostat feature",
+    heading: 'Dual thermostat feature',
     config: `
 - type: tile
   entity: climate.dual_thermostat
@@ -272,7 +272,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Fan direction feature",
+    heading: 'Fan direction feature',
     config: `
 - type: tile
   entity: fan.fan_demo
@@ -281,7 +281,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Fan speed feature",
+    heading: 'Fan speed feature',
     config: `
 - type: tile
   entity: fan.fan_demo
@@ -290,7 +290,7 @@ const CONFIGS = [
     `,
   },
   {
-    heading: "Fan oscillate feature",
+    heading: 'Fan oscillate feature',
     config: `
 - type: tile
   entity: fan.fan_demo
@@ -298,28 +298,31 @@ const CONFIGS = [
   - type: fan-oscillate
     `,
   },
-];
+]
 
-@customElement("demo-lovelace-tile-card")
+@customElement('demo-lovelace-tile-card')
 class DemoTile extends LitElement {
-  @query("#demos") private _demoRoot!: HTMLElement;
+  @query('#demos') private _demoRoot!: HTMLElement
 
   protected render(): TemplateResult {
-    return html`<demo-cards id="demos" .configs=${CONFIGS}></demo-cards>`;
+    return html`<demo-cards
+      id="demos"
+      .configs=${CONFIGS}
+    ></demo-cards>`
   }
 
   protected firstUpdated(changedProperties: PropertyValues) {
-    super.firstUpdated(changedProperties);
-    const hass = provideHass(this._demoRoot);
-    hass.updateTranslations(null, "en");
-    hass.updateTranslations("lovelace", "en");
-    hass.addEntities(ENTITIES);
-    mockIcons(hass);
+    super.firstUpdated(changedProperties)
+    const hass = provideHass(this._demoRoot)
+    hass.updateTranslations(null, 'en')
+    hass.updateTranslations('lovelace', 'en')
+    hass.addEntities(ENTITIES)
+    mockIcons(hass)
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-lovelace-tile-card": DemoTile;
+    'demo-lovelace-tile-card': DemoTile
   }
 }

@@ -1,18 +1,18 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
-@customElement("ha-settings-row")
+@customElement('ha-settings-row')
 export class HaSettingsRow extends LitElement {
-  @property({ type: Boolean, reflect: true }) public narrow = false;
+  @property({ type: Boolean, reflect: true }) public narrow = false
 
-  @property({ type: Boolean, reflect: true }) public slim = false; // remove padding and min-height
+  @property({ type: Boolean, reflect: true }) public slim = false // remove padding and min-height
 
-  @property({ type: Boolean, attribute: "three-line" })
-  public threeLine = false;
+  @property({ type: Boolean, attribute: 'three-line' })
+  public threeLine = false
 
-  @property({ type: Boolean, attribute: "wrap-heading", reflect: true })
-  public wrapHeading = false;
+  @property({ type: Boolean, attribute: 'wrap-heading', reflect: true })
+  public wrapHeading = false
 
   protected render(): TemplateResult {
     return html`
@@ -28,7 +28,7 @@ export class HaSettingsRow extends LitElement {
         </div>
       </div>
       <div class="content"><slot></slot></div>
-    `;
+    `
   }
 
   static styles = css`
@@ -122,10 +122,10 @@ export class HaSettingsRow extends LitElement {
     :host([slim]) .body {
       min-height: 0;
     }
-  `;
+  `
 }
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-settings-row": HaSettingsRow;
+    'ha-settings-row': HaSettingsRow
   }
 }

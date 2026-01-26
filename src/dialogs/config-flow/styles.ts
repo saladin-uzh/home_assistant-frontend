@@ -1,4 +1,4 @@
-import { css } from "lit";
+import { css } from 'lit'
 
 export const configFlowContentStyles = css`
   h2 {
@@ -51,4 +51,4 @@ export const configFlowContentStyles = css`
     display: block;
     margin: 0 auto;
   }
-`;
+`

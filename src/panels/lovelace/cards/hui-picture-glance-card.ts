@@ -1,41 +1,41 @@
-import type { PropertyValues, TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { ifDefined } from "lit/directives/if-defined";
-import { DOMAINS_TOGGLE } from "../../../common/const";
-import { applyThemesOnElement } from "../../../common/dom/apply_themes_on_element";
-import { computeDomain } from "../../../common/entity/compute_domain";
-import { computeStateName } from "../../../common/entity/compute_state_name";
-import { stateActive } from "../../../common/entity/state_active";
-import "../../../components/ha-card";
-import "../../../components/ha-icon-button";
-import "../../../components/ha-state-icon";
-import type { ImageEntity } from "../../../data/image";
-import { computeImageUrl } from "../../../data/image";
-import type { ActionHandlerEvent } from "../../../data/lovelace/action_handler";
-import type { HomeAssistant } from "../../../types";
-import { actionHandler } from "../common/directives/action-handler-directive";
-import { findEntities } from "../common/find-entities";
-import { handleAction } from "../common/handle-action";
-import { hasAction } from "../common/has-action";
-import { hasConfigOrEntityChanged } from "../common/has-changed";
-import { processConfigEntities } from "../common/process-config-entities";
-import "../components/hui-image";
-import { createEntityNotFoundWarning } from "../components/hui-warning";
-import "../components/hui-warning-element";
-import type { LovelaceCard, LovelaceCardEditor } from "../types";
+import type { PropertyValues, TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { ifDefined } from 'lit/directives/if-defined'
+import { DOMAINS_TOGGLE } from '../../../common/const'
+import { applyThemesOnElement } from '../../../common/dom/apply_themes_on_element'
+import { computeDomain } from '../../../common/entity/compute_domain'
+import { computeStateName } from '../../../common/entity/compute_state_name'
+import { stateActive } from '../../../common/entity/state_active'
+import '../../../components/ha-card'
+import '../../../components/ha-icon-button'
+import '../../../components/ha-state-icon'
+import type { ImageEntity } from '../../../data/image'
+import { computeImageUrl } from '../../../data/image'
+import type { ActionHandlerEvent } from '../../../data/lovelace/action_handler'
+import type { HomeAssistant } from '../../../types'
+import { actionHandler } from '../common/directives/action-handler-directive'
+import { findEntities } from '../common/find-entities'
+import { handleAction } from '../common/handle-action'
+import { hasAction } from '../common/has-action'
+import { hasConfigOrEntityChanged } from '../common/has-changed'
+import { processConfigEntities } from '../common/process-config-entities'
+import '../components/hui-image'
+import { createEntityNotFoundWarning } from '../components/hui-warning'
+import '../components/hui-warning-element'
+import type { LovelaceCard, LovelaceCardEditor } from '../types'
 import type {
   PictureGlanceCardConfig,
   PictureGlanceEntityConfig,
-} from "./types";
-import type { PersonEntity } from "../../../data/person";
+} from './types'
+import type { PersonEntity } from '../../../data/person'
 
-@customElement("hui-picture-glance-card")
+@customElement('hui-picture-glance-card')
 class HuiPictureGlanceCard extends LitElement implements LovelaceCard {
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import("../editor/config-elements/hui-picture-glance-card-editor");
-    return document.createElement("hui-picture-glance-card-editor");
+    await import('../editor/config-elements/hui-picture-glance-card-editor')
+    return document.createElement('hui-picture-glance-card-editor')
   }
 
   public static getStubConfig(
@@ -43,35 +43,35 @@ class HuiPictureGlanceCard extends LitElement implements LovelaceCard {
     entities: string[],
     entitiesFallback: string[]
   ): PictureGlanceCardConfig {
-    const maxEntities = 2;
+    const maxEntities = 2
     const foundEntities = findEntities(
       hass,
       maxEntities,
       entities,
       entitiesFallback,
-      ["sensor", "binary_sensor"]
-    );
+      ['sensor', 'binary_sensor']
+    )
 
     return {
-      type: "picture-glance",
-      title: "Kitchen",
-      image: "https://demo.home-assistant.io/stub_config/kitchen.png",
+      type: 'picture-glance',
+      title: 'Kitchen',
+      image: 'https://demo.home-assistant.io/stub_config/kitchen.png',
       entities: foundEntities,
-    };
+    }
   }
 
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public layout?: string;
+  @property({ attribute: false }) public layout?: string
 
-  @state() private _config?: PictureGlanceCardConfig;
+  @state() private _config?: PictureGlanceCardConfig
 
-  private _entitiesDialog?: PictureGlanceEntityConfig[];
+  private _entitiesDialog?: PictureGlanceEntityConfig[]
 
-  private _entitiesToggle?: PictureGlanceEntityConfig[];
+  private _entitiesToggle?: PictureGlanceEntityConfig[]
 
   public getCardSize(): number {
-    return 3;
+    return 3
   }
 
   public setConfig(config: PictureGlanceCardConfig): void {
@@ -87,44 +87,44 @@ class HuiPictureGlanceCard extends LitElement implements LovelaceCard {
       ) ||
       (config.state_image && !config.entity)
     ) {
-      throw new Error("Invalid configuration");
+      throw new Error('Invalid configuration')
     }
 
-    const entities = processConfigEntities(config.entities);
-    this._entitiesDialog = [];
-    this._entitiesToggle = [];
+    const entities = processConfigEntities(config.entities)
+    this._entitiesDialog = []
+    this._entitiesToggle = []
 
-    entities.forEach((item) => {
+    entities.forEach(item => {
       if (
         config.force_dialog ||
         !DOMAINS_TOGGLE.has(computeDomain(item.entity))
       ) {
-        this._entitiesDialog!.push(item);
+        this._entitiesDialog!.push(item)
       } else {
-        this._entitiesToggle!.push(item);
+        this._entitiesToggle!.push(item)
       }
-    });
+    })
 
-    this._config = config;
+    this._config = config
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     if (!this._config || hasConfigOrEntityChanged(this, changedProps)) {
-      return true;
+      return true
     }
 
-    if (!changedProps.has("hass")) {
-      return false;
+    if (!changedProps.has('hass')) {
+      return false
     }
 
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined
 
     if (
       !oldHass ||
       oldHass.themes !== this.hass.themes ||
       oldHass.locale !== this.hass.locale
     ) {
-      return true;
+      return true
     }
 
     if (
@@ -132,13 +132,13 @@ class HuiPictureGlanceCard extends LitElement implements LovelaceCard {
       oldHass.states[this._config.image_entity] !==
         this.hass.states[this._config.image_entity]
     ) {
-      return true;
+      return true
     }
 
     if (this._entitiesDialog) {
       for (const entity of this._entitiesDialog) {
         if (oldHass.states[entity.entity] !== this.hass.states[entity.entity]) {
-          return true;
+          return true
         }
       }
     }
@@ -146,23 +146,23 @@ class HuiPictureGlanceCard extends LitElement implements LovelaceCard {
     if (this._entitiesToggle) {
       for (const entity of this._entitiesToggle) {
         if (oldHass.states[entity.entity] !== this.hass.states[entity.entity]) {
-          return true;
+          return true
         }
       }
     }
 
-    return false;
+    return false
   }
 
   protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
+    super.updated(changedProps)
     if (!this._config || !this.hass) {
-      return;
+      return
     }
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
-    const oldConfig = changedProps.get("_config") as
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined
+    const oldConfig = changedProps.get('_config') as
       | PictureGlanceCardConfig
-      | undefined;
+      | undefined
 
     if (
       !oldHass ||
@@ -170,38 +170,38 @@ class HuiPictureGlanceCard extends LitElement implements LovelaceCard {
       oldHass.themes !== this.hass.themes ||
       oldConfig.theme !== this._config.theme
     ) {
-      applyThemesOnElement(this, this.hass.themes, this._config.theme);
+      applyThemesOnElement(this, this.hass.themes, this._config.theme)
     }
   }
 
   protected render() {
     if (!this._config || !this.hass) {
-      return nothing;
+      return nothing
     }
 
     let image: string | undefined =
-      (typeof this._config?.image === "object" &&
+      (typeof this._config?.image === 'object' &&
         this._config.image.media_content_id) ||
-      (this._config.image as string | undefined);
+      (this._config.image as string | undefined)
     if (this._config.image_entity) {
       const stateObj: ImageEntity | PersonEntity | undefined =
-        this.hass.states[this._config.image_entity];
-      const domain: string = computeDomain(this._config.image_entity);
+        this.hass.states[this._config.image_entity]
+      const domain: string = computeDomain(this._config.image_entity)
       switch (domain) {
-        case "image":
-          image = computeImageUrl(stateObj as ImageEntity);
-          break;
-        case "person":
+        case 'image':
+          image = computeImageUrl(stateObj as ImageEntity)
+          break
+        case 'person':
           if ((stateObj as PersonEntity).attributes.entity_picture) {
-            image = (stateObj as PersonEntity).attributes.entity_picture;
+            image = (stateObj as PersonEntity).attributes.entity_picture
           }
-          break;
+          break
       }
     }
 
     const ignoreAspectRatio =
-      this.layout === "grid" &&
-      typeof this._config.grid_options?.rows === "number";
+      this.layout === 'grid' &&
+      typeof this._config.grid_options?.rows === 'number'
 
     const hasTapAction =
       hasAction(this._config.tap_action) ||
@@ -210,7 +210,7 @@ class HuiPictureGlanceCard extends LitElement implements LovelaceCard {
           (this._config.camera_image ||
             this._config.image_entity ||
             this._config.entity)
-      );
+      )
 
     return html`
       <ha-card>
@@ -227,8 +227,8 @@ class HuiPictureGlanceCard extends LitElement implements LovelaceCard {
             hasHold: hasAction(this._config.hold_action),
             hasDoubleClick: hasAction(this._config.double_tap_action),
           })}
-          tabindex=${ifDefined(hasTapAction ? "0" : undefined)}
-          role=${ifDefined(hasTapAction ? "button" : undefined)}
+          tabindex=${ifDefined(hasTapAction ? '0' : undefined)}
+          role=${ifDefined(hasTapAction ? 'button' : undefined)}
           .config=${this._config}
         >
           <hui-image
@@ -248,40 +248,40 @@ class HuiPictureGlanceCard extends LitElement implements LovelaceCard {
         <div class="box">
           ${this._config.title
             ? html`<div class="title">${this._config.title}</div>`
-            : ""}
+            : ''}
           <div class="row">
-            ${this._entitiesDialog!.map((entityConf) =>
+            ${this._entitiesDialog!.map(entityConf =>
               this._renderEntity(entityConf, true)
             )}
           </div>
           <div class="row">
-            ${this._entitiesToggle!.map((entityConf) =>
+            ${this._entitiesToggle!.map(entityConf =>
               this._renderEntity(entityConf, false)
             )}
           </div>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   private _renderEntity(
     entityConf: PictureGlanceEntityConfig,
     dialog: boolean
   ): TemplateResult {
-    const stateObj = this.hass!.states[entityConf.entity];
+    const stateObj = this.hass!.states[entityConf.entity]
 
     entityConf = {
-      tap_action: { action: dialog ? "more-info" : "toggle" },
-      hold_action: { action: "more-info" },
+      tap_action: { action: dialog ? 'more-info' : 'toggle' },
+      hold_action: { action: 'more-info' },
       ...entityConf,
-    };
+    }
 
     if (!stateObj) {
       return html`
         <hui-warning-element
           .label=${createEntityNotFoundWarning(this.hass!, entityConf.entity)}
         ></hui-warning-element>
-      `;
+      `
     }
 
     return html`
@@ -293,12 +293,12 @@ class HuiPictureGlanceCard extends LitElement implements LovelaceCard {
             hasDoubleClick: hasAction(entityConf.double_tap_action),
           })}
           tabindex=${ifDefined(
-            !hasAction(entityConf.tap_action) ? "-1" : undefined
+            !hasAction(entityConf.tap_action) ? '-1' : undefined
           )}
           .disabled=${!hasAction(entityConf.tap_action)}
           .config=${entityConf}
           class=${classMap({
-            "state-on": stateActive(stateObj),
+            'state-on': stateActive(stateObj),
           })}
           title=${`${computeStateName(
             stateObj
@@ -325,12 +325,12 @@ class HuiPictureGlanceCard extends LitElement implements LovelaceCard {
               </div>
             `}
       </div>
-    `;
+    `
   }
 
   private _handleAction(ev: ActionHandlerEvent) {
-    const config = (ev.currentTarget as any).config as any;
-    handleAction(this, this.hass!, config, ev.detail.action!);
+    const config = (ev.currentTarget as any).config as any
+    handleAction(this, this.hass!, config, ev.detail.action!)
   }
 
   static styles = css`
@@ -411,11 +411,11 @@ class HuiPictureGlanceCard extends LitElement implements LovelaceCard {
       flex-direction: column;
       width: 40px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-picture-glance-card": HuiPictureGlanceCard;
+    'hui-picture-glance-card': HuiPictureGlanceCard
   }
 }

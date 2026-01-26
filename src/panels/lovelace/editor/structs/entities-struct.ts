@@ -1,10 +1,10 @@
-import { union, object, string, optional, boolean, enums } from "superstruct";
-import { TIMESTAMP_RENDERING_FORMATS } from "../../components/types";
+import { union, object, string, optional, boolean, enums } from 'superstruct'
+import { TIMESTAMP_RENDERING_FORMATS } from '../../components/types'
 import {
   actionConfigStruct,
   actionConfigStructConfirmation,
-} from "./action-struct";
-import { entityNameStruct } from "./entity-name-struct";
+} from './action-struct'
+import { entityNameStruct } from './entity-name-struct'
 
 export const entitiesConfigStruct = union([
   object({
@@ -23,4 +23,4 @@ export const entitiesConfigStruct = union([
     show_state: optional(boolean()),
   }),
   string(),
-]);
+])

@@ -3,7 +3,7 @@ name: Design deployment
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: '0 0 * * *'
 
 env:
   NODE_OPTIONS: --max_old_space_size=6144
@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
-          node-version-file: ".nvmrc"
+          node-version-file: '.nvmrc'
           cache: yarn
 
       - name: Install dependencies

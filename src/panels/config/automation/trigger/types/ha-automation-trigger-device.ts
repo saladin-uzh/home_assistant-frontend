@@ -1,72 +1,72 @@
-import { consume } from "@lit/context";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import { deepEqual } from "../../../../../common/util/deep-equal";
-import "../../../../../components/device/ha-device-picker";
-import "../../../../../components/device/ha-device-trigger-picker";
-import "../../../../../components/ha-form/ha-form";
-import { computeInitialHaFormData } from "../../../../../components/ha-form/compute-initial-ha-form-data";
-import { fullEntitiesContext } from "../../../../../data/context";
+import { consume } from '@lit/context'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import { deepEqual } from '../../../../../common/util/deep-equal'
+import '../../../../../components/device/ha-device-picker'
+import '../../../../../components/device/ha-device-trigger-picker'
+import '../../../../../components/ha-form/ha-form'
+import { computeInitialHaFormData } from '../../../../../components/ha-form/compute-initial-ha-form-data'
+import { fullEntitiesContext } from '../../../../../data/context'
 import type {
   DeviceCapabilities,
   DeviceTrigger,
-} from "../../../../../data/device_automation";
+} from '../../../../../data/device_automation'
 import {
   deviceAutomationsEqual,
   fetchDeviceTriggerCapabilities,
   localizeExtraFieldsComputeLabelCallback,
   localizeExtraFieldsComputeHelperCallback,
-} from "../../../../../data/device_automation";
-import type { EntityRegistryEntry } from "../../../../../data/entity_registry";
-import type { HomeAssistant } from "../../../../../types";
+} from '../../../../../data/device_automation'
+import type { EntityRegistryEntry } from '../../../../../data/entity_registry'
+import type { HomeAssistant } from '../../../../../types'
 
-@customElement("ha-automation-trigger-device")
+@customElement('ha-automation-trigger-device')
 export class HaDeviceTrigger extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Object }) public trigger!: DeviceTrigger;
+  @property({ type: Object }) public trigger!: DeviceTrigger
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @state() private _deviceId?: string;
+  @state() private _deviceId?: string
 
-  @state() private _capabilities?: DeviceCapabilities;
+  @state() private _capabilities?: DeviceCapabilities
 
   @state()
   @consume({ context: fullEntitiesContext, subscribe: true })
-  _entityReg!: EntityRegistryEntry[];
+  _entityReg!: EntityRegistryEntry[]
 
-  private _origTrigger?: DeviceTrigger;
+  private _origTrigger?: DeviceTrigger
 
   public static get defaultConfig(): DeviceTrigger {
     return {
-      trigger: "device",
-      device_id: "",
-      domain: "",
-      entity_id: "",
-    };
+      trigger: 'device',
+      device_id: '',
+      domain: '',
+      entity_id: '',
+    }
   }
 
   private _extraFieldsData = memoizeOne(
     (trigger: DeviceTrigger, capabilities: DeviceCapabilities) => {
       const extraFieldsData = computeInitialHaFormData(
         capabilities.extra_fields
-      );
-      capabilities.extra_fields.forEach((item) => {
+      )
+      capabilities.extra_fields.forEach(item => {
         if (trigger[item.name] !== undefined) {
-          extraFieldsData![item.name] = trigger[item.name];
+          extraFieldsData![item.name] = trigger[item.name]
         }
-      });
-      return extraFieldsData;
+      })
+      return extraFieldsData
     }
-  );
+  )
 
   public shouldUpdate(changedProperties: PropertyValues) {
-    if (!changedProperties.has("trigger")) {
-      return true;
+    if (!changedProperties.has('trigger')) {
+      return true
     }
     if (
       this.trigger.device_id &&
@@ -74,20 +74,20 @@ export class HaDeviceTrigger extends LitElement {
     ) {
       fireEvent(
         this,
-        "ui-mode-not-available",
+        'ui-mode-not-available',
         Error(
           this.hass.localize(
-            "ui.panel.config.automation.editor.edit_unknown_device"
+            'ui.panel.config.automation.editor.edit_unknown_device'
           )
         )
-      );
-      return false;
+      )
+      return false
     }
-    return true;
+    return true
   }
 
   protected render() {
-    const deviceId = this._deviceId || this.trigger.device_id;
+    const deviceId = this._deviceId || this.trigger.device_id
 
     return html`
       <ha-device-picker
@@ -96,7 +96,7 @@ export class HaDeviceTrigger extends LitElement {
         .hass=${this.hass}
         .disabled=${this.disabled}
         .label=${this.hass.localize(
-          "ui.panel.config.automation.editor.triggers.type.device.label"
+          'ui.panel.config.automation.editor.triggers.type.device.label'
         )}
       ></ha-device-picker>
       <ha-device-trigger-picker
@@ -106,7 +106,7 @@ export class HaDeviceTrigger extends LitElement {
         .hass=${this.hass}
         .disabled=${this.disabled}
         .label=${this.hass.localize(
-          "ui.panel.config.automation.editor.triggers.type.device.trigger"
+          'ui.panel.config.automation.editor.triggers.type.device.trigger'
         )}
       ></ha-device-trigger-picker>
       ${this._capabilities?.extra_fields
@@ -127,88 +127,88 @@ export class HaDeviceTrigger extends LitElement {
               @value-changed=${this._extraFieldsChanged}
             ></ha-form>
           `
-        : ""}
-    `;
+        : ''}
+    `
   }
 
   protected firstUpdated() {
-    this.hass.loadBackendTranslation("device_automation");
+    this.hass.loadBackendTranslation('device_automation')
     if (!this._capabilities) {
-      this._getCapabilities();
+      this._getCapabilities()
     }
     if (this.trigger) {
-      this._origTrigger = this.trigger;
+      this._origTrigger = this.trigger
     }
   }
 
   protected updated(changedProps) {
-    if (!changedProps.has("trigger")) {
-      return;
+    if (!changedProps.has('trigger')) {
+      return
     }
-    const prevTrigger = changedProps.get("trigger");
+    const prevTrigger = changedProps.get('trigger')
     if (
       prevTrigger &&
       !deviceAutomationsEqual(this._entityReg, prevTrigger, this.trigger)
     ) {
-      this._getCapabilities();
+      this._getCapabilities()
     }
   }
 
   private async _getCapabilities() {
-    const trigger = this.trigger;
+    const trigger = this.trigger
 
     this._capabilities = trigger.domain
       ? await fetchDeviceTriggerCapabilities(this.hass, trigger)
-      : undefined;
+      : undefined
 
     if (this._capabilities) {
       // Match yaml to what is displayed in the form from computeInitialHaFormData
       const newTrigger = {
         ...this.trigger,
         ...this._extraFieldsData(this.trigger, this._capabilities),
-      };
+      }
 
       if (!deepEqual(this.trigger, newTrigger)) {
-        fireEvent(this, "value-changed", {
+        fireEvent(this, 'value-changed', {
           value: newTrigger,
-        });
+        })
       }
     }
   }
 
   private _devicePicked(ev) {
-    ev.stopPropagation();
-    this._deviceId = ev.target.value;
+    ev.stopPropagation()
+    this._deviceId = ev.target.value
     if (this._deviceId === undefined) {
-      fireEvent(this, "value-changed", {
-        value: { ...HaDeviceTrigger.defaultConfig, trigger: "device" },
-      });
+      fireEvent(this, 'value-changed', {
+        value: { ...HaDeviceTrigger.defaultConfig, trigger: 'device' },
+      })
     }
   }
 
   private _deviceTriggerPicked(ev) {
-    ev.stopPropagation();
-    let trigger = ev.detail.value;
+    ev.stopPropagation()
+    let trigger = ev.detail.value
     if (
       this._origTrigger &&
       deviceAutomationsEqual(this._entityReg, this._origTrigger, trigger)
     ) {
-      trigger = this._origTrigger;
+      trigger = this._origTrigger
     }
     if (this.trigger.id) {
-      trigger.id = this.trigger.id;
+      trigger.id = this.trigger.id
     }
-    fireEvent(this, "value-changed", { value: trigger });
+    fireEvent(this, 'value-changed', { value: trigger })
   }
 
   private _extraFieldsChanged(ev: CustomEvent) {
-    ev.stopPropagation();
-    fireEvent(this, "value-changed", {
+    ev.stopPropagation()
+    fireEvent(this, 'value-changed', {
       value: {
         ...this.trigger,
         ...ev.detail.value,
       },
-    });
+    })
   }
 
   static styles = css`
@@ -221,11 +221,11 @@ export class HaDeviceTrigger extends LitElement {
       display: block;
       margin-top: 24px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-trigger-device": HaDeviceTrigger;
+    'ha-automation-trigger-device': HaDeviceTrigger
   }
 }

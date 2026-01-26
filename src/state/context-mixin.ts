@@ -1,5 +1,5 @@
-import { ContextProvider } from "@lit/context";
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
+import { ContextProvider } from '@lit/context'
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
 import {
   areasContext,
   configContext,
@@ -16,16 +16,16 @@ import {
   themesContext,
   userContext,
   userDataContext,
-} from "../data/context";
-import { subscribeLabelRegistry } from "../data/label_registry";
-import type { Constructor, HomeAssistant } from "../types";
-import type { HassBaseEl } from "./hass-base-mixin";
+} from '../data/context'
+import { subscribeLabelRegistry } from '../data/label_registry'
+import type { Constructor, HomeAssistant } from '../types'
+import type { HassBaseEl } from './hass-base-mixin'
 
 export const contextMixin = <T extends Constructor<HassBaseEl>>(
   superClass: T
 ) =>
   class extends superClass {
-    private _unsubscribeLabels?: UnsubscribeFunc;
+    private _unsubscribeLabels?: UnsubscribeFunc
 
     private __contextProviders: Record<
       string,
@@ -101,35 +101,35 @@ export const contextMixin = <T extends Constructor<HassBaseEl>>(
         context: labelsContext,
         initialValue: [],
       }),
-    };
+    }
 
     protected hassConnected() {
-      super.hassConnected();
+      super.hassConnected()
       for (const [key, value] of Object.entries(this.hass!)) {
         if (key in this.__contextProviders) {
-          this.__contextProviders[key]!.setValue(value);
+          this.__contextProviders[key]!.setValue(value)
         }
       }
 
       this._unsubscribeLabels = subscribeLabelRegistry(
         this.hass!.connection!,
-        (labels) => {
-          this.__contextProviders.labels!.setValue(labels);
+        labels => {
+          this.__contextProviders.labels!.setValue(labels)
         }
-      );
+      )
     }
 
     protected _updateHass(obj: Partial<HomeAssistant>) {
-      super._updateHass(obj);
+      super._updateHass(obj)
       for (const [key, value] of Object.entries(obj)) {
         if (key in this.__contextProviders) {
-          this.__contextProviders[key]!.setValue(value);
+          this.__contextProviders[key]!.setValue(value)
         }
       }
     }
 
     public disconnectedCallback() {
-      super.disconnectedCallback();
-      this._unsubscribeLabels?.();
+      super.disconnectedCallback()
+      this._unsubscribeLabels?.()
     }
-  };
+  }

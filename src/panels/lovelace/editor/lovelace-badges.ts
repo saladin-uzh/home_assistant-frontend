@@ -1,8 +1,8 @@
-import type { Badge } from "./types";
+import type { Badge } from './types'
 
 export const coreBadges: Badge[] = [
   {
-    type: "entity",
+    type: 'entity',
     showElement: true,
   },
-];
+]

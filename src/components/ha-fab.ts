@@ -1,14 +1,14 @@
-import { FabBase } from "@material/mwc-fab/mwc-fab-base";
-import { styles } from "@material/mwc-fab/mwc-fab.css";
-import { customElement } from "lit/decorators";
-import { css } from "lit";
-import { mainWindow } from "../common/dom/get_main_window";
+import { FabBase } from '@material/mwc-fab/mwc-fab-base'
+import { styles } from '@material/mwc-fab/mwc-fab.css'
+import { customElement } from 'lit/decorators'
+import { css } from 'lit'
+import { mainWindow } from '../common/dom/get_main_window'
 
-@customElement("ha-fab")
+@customElement('ha-fab')
 export class HaFab extends FabBase {
   protected firstUpdated(changedProperties) {
-    super.firstUpdated(changedProperties);
-    this.style.setProperty("--mdc-theme-secondary", "var(--primary-color)");
+    super.firstUpdated(changedProperties)
+    this.style.setProperty('--mdc-theme-secondary', 'var(--primary-color)')
   }
 
   static override styles = [
@@ -43,18 +43,18 @@ export class HaFab extends FabBase {
       }
     `,
     // safari workaround - must be explicit
-    mainWindow.document.dir === "rtl"
+    mainWindow.document.dir === 'rtl'
       ? css`
           :host .mdc-fab--extended .mdc-fab__icon {
             direction: rtl;
           }
         `
       : css``,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-fab": HaFab;
+    'ha-fab': HaFab
   }
 }

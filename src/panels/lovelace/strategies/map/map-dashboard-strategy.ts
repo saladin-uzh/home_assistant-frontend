@@ -1,11 +1,11 @@
-import { ReactiveElement } from "lit";
-import { customElement } from "lit/decorators";
-import type { LovelaceConfig } from "../../../../data/lovelace/config/types";
-import type { MapViewStrategyConfig } from "./map-view-strategy";
+import { ReactiveElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import type { LovelaceConfig } from '../../../../data/lovelace/config/types'
+import type { MapViewStrategyConfig } from './map-view-strategy'
 
-export type MapDashboardStrategyConfig = MapViewStrategyConfig;
+export type MapDashboardStrategyConfig = MapViewStrategyConfig
 
-@customElement("map-dashboard-strategy")
+@customElement('map-dashboard-strategy')
 export class MapDashboardStrategy extends ReactiveElement {
   static async generate(
     config: MapDashboardStrategyConfig
@@ -16,14 +16,14 @@ export class MapDashboardStrategy extends ReactiveElement {
           strategy: config,
         },
       ],
-    };
+    }
   }
 
-  static noEditor = true;
+  static noEditor = true
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "map-dashboard-strategy": MapDashboardStrategy;
+    'map-dashboard-strategy': MapDashboardStrategy
   }
 }

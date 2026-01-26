@@ -1,56 +1,56 @@
-import type { CSSResultGroup, PropertyValues, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state, query } from "lit/decorators";
-import type { HASSDomEvent } from "../../../../../common/dom/fire_event";
-import { stopPropagation } from "../../../../../common/dom/stop_propagation";
-import "../../../../../components/buttons/ha-progress-button";
-import type { SelectionChangedEvent } from "../../../../../components/data-table/ha-data-table";
-import "../../../../../components/ha-card";
-import "../../../../../components/ha-select";
-import "../../../../../components/ha-list-item";
-import type { Cluster, ZHADevice, ZHAGroup } from "../../../../../data/zha";
+import type { CSSResultGroup, PropertyValues, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state, query } from 'lit/decorators'
+import type { HASSDomEvent } from '../../../../../common/dom/fire_event'
+import { stopPropagation } from '../../../../../common/dom/stop_propagation'
+import '../../../../../components/buttons/ha-progress-button'
+import type { SelectionChangedEvent } from '../../../../../components/data-table/ha-data-table'
+import '../../../../../components/ha-card'
+import '../../../../../components/ha-select'
+import '../../../../../components/ha-list-item'
+import type { Cluster, ZHADevice, ZHAGroup } from '../../../../../data/zha'
 import {
   bindDeviceToGroup,
   fetchClustersForZhaDevice,
   unbindDeviceFromGroup,
-} from "../../../../../data/zha";
-import { haStyle } from "../../../../../resources/styles";
-import type { HomeAssistant } from "../../../../../types";
-import type { ItemSelectedEvent } from "./types";
-import "./zha-clusters-data-table";
-import type { ZHAClustersDataTable } from "./zha-clusters-data-table";
+} from '../../../../../data/zha'
+import { haStyle } from '../../../../../resources/styles'
+import type { HomeAssistant } from '../../../../../types'
+import type { ItemSelectedEvent } from './types'
+import './zha-clusters-data-table'
+import type { ZHAClustersDataTable } from './zha-clusters-data-table'
 
-@customElement("zha-group-binding-control")
+@customElement('zha-group-binding-control')
 export class ZHAGroupBindingControl extends LitElement {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ attribute: false }) public device?: ZHADevice;
+  @property({ attribute: false }) public device?: ZHADevice
 
-  @state() private _bindTargetIndex = -1;
+  @state() private _bindTargetIndex = -1
 
-  @state() private groups: ZHAGroup[] = [];
+  @state() private groups: ZHAGroup[] = []
 
-  @state() private _selectedClusters: string[] = [];
+  @state() private _selectedClusters: string[] = []
 
-  @state() private _clusters: Cluster[] = [];
+  @state() private _clusters: Cluster[] = []
 
-  @state() private _bindingOperationInProgress = false;
+  @state() private _bindingOperationInProgress = false
 
-  private _groupToBind?: ZHAGroup;
+  private _groupToBind?: ZHAGroup
 
-  private _clustersToBind?: Cluster[];
+  private _clustersToBind?: Cluster[]
 
-  @query("zha-clusters-data-table", true)
-  private _zhaClustersDataTable!: ZHAClustersDataTable;
+  @query('zha-clusters-data-table', true)
+  private _zhaClustersDataTable!: ZHAClustersDataTable
 
   protected updated(changedProperties: PropertyValues): void {
-    if (changedProperties.has("device")) {
-      this._bindTargetIndex = -1;
-      this._selectedClusters = [];
-      this._clustersToBind = [];
-      this._fetchClustersForZhaNode();
+    if (changedProperties.has('device')) {
+      this._bindTargetIndex = -1
+      this._selectedClusters = []
+      this._clustersToBind = []
+      this._fetchClustersForZhaNode()
     }
-    super.updated(changedProperties);
+    super.updated(changedProperties)
   }
 
   protected render(): TemplateResult {
@@ -59,7 +59,7 @@ export class ZHAGroupBindingControl extends LitElement {
           <div class="command-picker">
             <ha-select
               .label=${this.hass!.localize(
-                "ui.panel.config.zha.group_binding.group_picker_label"
+                'ui.panel.config.zha.group_binding.group_picker_label'
               )}
               class="menu"
               .value=${String(this._bindTargetIndex)}
@@ -92,7 +92,7 @@ export class ZHAGroupBindingControl extends LitElement {
             appearance="plain"
           >
             ${this.hass!.localize(
-              "ui.panel.config.zha.group_binding.unbind_button_label"
+              'ui.panel.config.zha.group_binding.unbind_button_label'
             )}
           </ha-progress-button>
               <ha-progress-button
@@ -100,65 +100,65 @@ export class ZHAGroupBindingControl extends LitElement {
                       .disabled=${!this._canBind || this._bindingOperationInProgress}
               >
                   ${this.hass!.localize(
-                    "ui.panel.config.zha.group_binding.bind_button_label"
+                    'ui.panel.config.zha.group_binding.bind_button_label'
                   )}
               </ha-progress-button>
           </div>
         </ha-card>
       </ha-config-section>
-    `;
+    `
   }
 
   private _bindTargetIndexChanged(event: ItemSelectedEvent): void {
-    this._bindTargetIndex = Number(event.target!.value);
+    this._bindTargetIndex = Number(event.target!.value)
     this._groupToBind =
       this._bindTargetIndex === -1
         ? undefined
-        : this.groups[this._bindTargetIndex];
+        : this.groups[this._bindTargetIndex]
   }
 
   private async _onBindGroupClick(ev: CustomEvent): Promise<void> {
-    const button = ev.currentTarget as any;
+    const button = ev.currentTarget as any
     if (this.hass && this._canBind) {
-      this._bindingOperationInProgress = true;
-      button.progress = true;
+      this._bindingOperationInProgress = true
+      button.progress = true
       try {
         await bindDeviceToGroup(
           this.hass,
           this.device!.ieee,
           this._groupToBind!.group_id,
           this._clustersToBind!
-        );
-        this._zhaClustersDataTable.clearSelection();
-        button.actionSuccess();
+        )
+        this._zhaClustersDataTable.clearSelection()
+        button.actionSuccess()
       } catch (_err: any) {
-        button.actionError();
+        button.actionError()
       } finally {
-        this._bindingOperationInProgress = false;
-        button.progress = false;
+        this._bindingOperationInProgress = false
+        button.progress = false
       }
     }
   }
 
   private async _onUnbindGroupClick(ev: CustomEvent): Promise<void> {
-    const button = ev.currentTarget as any;
+    const button = ev.currentTarget as any
     if (this.hass && this._canBind) {
-      this._bindingOperationInProgress = true;
-      button.progress = true;
+      this._bindingOperationInProgress = true
+      button.progress = true
       try {
         await unbindDeviceFromGroup(
           this.hass,
           this.device!.ieee,
           this._groupToBind!.group_id,
           this._clustersToBind!
-        );
-        this._zhaClustersDataTable.clearSelection();
-        button.actionSuccess();
+        )
+        this._zhaClustersDataTable.clearSelection()
+        button.actionSuccess()
       } catch (_err: any) {
-        button.actionError();
+        button.actionError()
       } finally {
-        this._bindingOperationInProgress = false;
-        button.progress = false;
+        this._bindingOperationInProgress = false
+        button.progress = false
       }
     }
   }
@@ -166,14 +166,14 @@ export class ZHAGroupBindingControl extends LitElement {
   private _handleClusterSelectionChanged(
     ev: HASSDomEvent<SelectionChangedEvent>
   ): void {
-    this._selectedClusters = ev.detail.value;
+    this._selectedClusters = ev.detail.value
 
-    this._clustersToBind = [];
+    this._clustersToBind = []
     for (const clusterIndex of this._selectedClusters) {
       const selectedCluster = this._clusters.find(
-        (cluster) => clusterIndex === cluster.endpoint_id + "-" + cluster.id
-      );
-      this._clustersToBind.push(selectedCluster!);
+        cluster => clusterIndex === cluster.endpoint_id + '-' + cluster.id
+      )
+      this._clustersToBind.push(selectedCluster!)
     }
   }
 
@@ -182,10 +182,10 @@ export class ZHAGroupBindingControl extends LitElement {
       this._clusters = await fetchClustersForZhaDevice(
         this.hass,
         this.device!.ieee
-      );
+      )
       this._clusters = this._clusters
-        .filter((cluster) => cluster.type.toLowerCase() === "out")
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .filter(cluster => cluster.type.toLowerCase() === 'out')
+        .sort((a, b) => a.name.localeCompare(b.name))
     }
   }
 
@@ -195,7 +195,7 @@ export class ZHAGroupBindingControl extends LitElement {
         this._clustersToBind &&
         this._clustersToBind?.length > 0 &&
         this.device
-    );
+    )
   }
 
   static get styles(): CSSResultGroup {
@@ -237,12 +237,12 @@ export class ZHAGroupBindingControl extends LitElement {
           gap: var(--ha-space-1);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "zha-group-binding-control": ZHAGroupBindingControl;
+    'zha-group-binding-control': ZHAGroupBindingControl
   }
 }

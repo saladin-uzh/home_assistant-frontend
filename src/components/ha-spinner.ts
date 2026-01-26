@@ -1,32 +1,32 @@
-import Spinner from "@home-assistant/webawesome/dist/components/spinner/spinner";
-import type { CSSResultGroup, PropertyValues } from "lit";
-import { css } from "lit";
-import { customElement, property } from "lit/decorators";
+import Spinner from '@home-assistant/webawesome/dist/components/spinner/spinner'
+import type { CSSResultGroup, PropertyValues } from 'lit'
+import { css } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
-@customElement("ha-spinner")
+@customElement('ha-spinner')
 export class HaSpinner extends Spinner {
-  @property() public size?: "tiny" | "small" | "medium" | "large";
+  @property() public size?: 'tiny' | 'small' | 'medium' | 'large'
 
   protected updated(changedProps: PropertyValues) {
-    super.updated(changedProps);
+    super.updated(changedProps)
 
-    if (changedProps.has("size")) {
+    if (changedProps.has('size')) {
       switch (this.size) {
-        case "tiny":
-          this.style.setProperty("--ha-spinner-size", "16px");
-          break;
-        case "small":
-          this.style.setProperty("--ha-spinner-size", "28px");
-          break;
-        case "medium":
-          this.style.setProperty("--ha-spinner-size", "48px");
-          break;
-        case "large":
-          this.style.setProperty("--ha-spinner-size", "68px");
-          break;
+        case 'tiny':
+          this.style.setProperty('--ha-spinner-size', '16px')
+          break
+        case 'small':
+          this.style.setProperty('--ha-spinner-size', '28px')
+          break
+        case 'medium':
+          this.style.setProperty('--ha-spinner-size', '48px')
+          break
+        case 'large':
+          this.style.setProperty('--ha-spinner-size', '68px')
+          break
         case undefined:
-          this.style.removeProperty("--ha-progress-ring-size");
-          break;
+          this.style.removeProperty('--ha-progress-ring-size')
+          break
       }
     }
   }
@@ -46,12 +46,12 @@ export class HaSpinner extends Spinner {
           font-size: var(--ha-spinner-size, 48px);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-spinner": HaSpinner;
+    'ha-spinner': HaSpinner
   }
 }

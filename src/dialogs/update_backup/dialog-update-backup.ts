@@ -1,24 +1,24 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../common/dom/fire_event";
-import "../../components/ha-button";
-import { createCloseHeading } from "../../components/ha-dialog";
-import type { HomeAssistant } from "../../types";
-import type { UpdateBackupDialogParams } from "./show-update-backup-dialog";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../common/dom/fire_event'
+import '../../components/ha-button'
+import { createCloseHeading } from '../../components/ha-dialog'
+import type { HomeAssistant } from '../../types'
+import type { UpdateBackupDialogParams } from './show-update-backup-dialog'
 
-@customElement("dialog-update-backup")
+@customElement('dialog-update-backup')
 class DialogBox extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _params?: UpdateBackupDialogParams;
+  @state() private _params?: UpdateBackupDialogParams
 
   public async showDialog(params: UpdateBackupDialogParams): Promise<void> {
-    this._params = params;
+    this._params = params
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -28,42 +28,49 @@ class DialogBox extends LitElement {
         defaultAction="ignore"
         .heading=${createCloseHeading(
           this.hass,
-          this.hass.localize("ui.dialogs.update_backup.title")
+          this.hass.localize('ui.dialogs.update_backup.title')
         )}
       >
-        <p>${this.hass.localize("ui.dialogs.update_backup.text")}</p>
-        <ha-button appearance="plain" @click=${this._no} slot="secondaryAction">
-          ${this.hass!.localize("ui.common.no")}
+        <p>${this.hass.localize('ui.dialogs.update_backup.text')}</p>
+        <ha-button
+          appearance="plain"
+          @click=${this._no}
+          slot="secondaryAction"
+        >
+          ${this.hass!.localize('ui.common.no')}
         </ha-button>
-        <ha-button @click=${this._yes} slot="primaryAction">
-          ${this.hass.localize("ui.dialogs.update_backup.create")}
+        <ha-button
+          @click=${this._yes}
+          slot="primaryAction"
+        >
+          ${this.hass.localize('ui.dialogs.update_backup.create')}
         </ha-button>
       </ha-dialog>
-    `;
+    `
   }
 
   private _no(): void {
     if (this._params!.submit) {
-      this._params!.submit(false);
+      this._params!.submit(false)
     }
-    this.closeDialog();
+    this.closeDialog()
   }
 
   private _yes(): void {
     if (this._params!.submit) {
-      this._params!.submit(true);
+      this._params!.submit(true)
     }
-    this.closeDialog();
+    this.closeDialog()
   }
 
   private _cancel(): void {
-    this._params?.cancel?.();
-    this.closeDialog();
+    this._params?.cancel?.()
+    this.closeDialog()
   }
 
   public closeDialog(): void {
-    this._params = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   static styles = css`
@@ -80,11 +87,11 @@ class DialogBox extends LitElement {
         --mdc-dialog-min-width: 400px;
       }
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-update-backup": DialogBox;
+    'dialog-update-backup': DialogBox
   }
 }

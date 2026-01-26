@@ -1,37 +1,37 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../common/dom/fire_event";
-import type { LocalizeFunc } from "../common/translations/localize";
-import "../components/ha-icon-next";
-import "../components/ha-list";
-import "../components/ha-list-item";
-import type { AuthProvider } from "../data/auth";
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../common/dom/fire_event'
+import type { LocalizeFunc } from '../common/translations/localize'
+import '../components/ha-icon-next'
+import '../components/ha-list'
+import '../components/ha-list-item'
+import type { AuthProvider } from '../data/auth'
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-pick-auth-provider": HaPickAuthProvider;
+    'ha-pick-auth-provider': HaPickAuthProvider
   }
   interface HASSDomEvents {
-    "pick-auth-provider": AuthProvider;
+    'pick-auth-provider': AuthProvider
   }
 }
 
-@customElement("ha-pick-auth-provider")
+@customElement('ha-pick-auth-provider')
 export class HaPickAuthProvider extends LitElement {
-  @property({ attribute: false }) public authProviders: AuthProvider[] = [];
+  @property({ attribute: false }) public authProviders: AuthProvider[] = []
 
-  @property({ attribute: false }) public localize!: LocalizeFunc;
+  @property({ attribute: false }) public localize!: LocalizeFunc
 
   protected render() {
     return html`
       <h3>
         <span
-          >${this.localize("ui.panel.page-authorize.pick_auth_provider")}</span
+          >${this.localize('ui.panel.page-authorize.pick_auth_provider')}</span
         >
       </h3>
       <ha-list>
         ${this.authProviders.map(
-          (provider) => html`
+          provider => html`
             <ha-list-item
               hasMeta
               role="button"
@@ -44,11 +44,11 @@ export class HaPickAuthProvider extends LitElement {
           `
         )}
       </ha-list>
-    `;
+    `
   }
 
   private _handlePick(ev) {
-    fireEvent(this, "pick-auth-provider", ev.currentTarget.auth_provider);
+    fireEvent(this, 'pick-auth-provider', ev.currentTarget.auth_provider)
   }
 
   static styles = css`
@@ -63,7 +63,7 @@ export class HaPickAuthProvider extends LitElement {
     }
     h3:before {
       border-top: 1px solid var(--divider-color);
-      content: "";
+      content: '';
       margin: 0 auto;
       position: absolute;
       top: 50%;
@@ -81,5 +81,5 @@ export class HaPickAuthProvider extends LitElement {
       margin: 16px -16px 0;
       --mdc-list-side-padding: 24px;
     }
-  `;
+  `
 }

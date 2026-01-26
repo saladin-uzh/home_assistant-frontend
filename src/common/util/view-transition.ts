@@ -21,10 +21,10 @@ export const withViewTransition = (
   callback: (viewTransitionAvailable: boolean) => void | Promise<void>
 ): Promise<void> => {
   if (document.startViewTransition) {
-    return document.startViewTransition(() => callback(true)).finished;
+    return document.startViewTransition(() => callback(true)).finished
   }
 
   // Fallback: Execute callback directly without transition
-  const result = callback(false);
-  return result instanceof Promise ? result : Promise.resolve();
-};
+  const result = callback(false)
+  return result instanceof Promise ? result : Promise.resolve()
+}

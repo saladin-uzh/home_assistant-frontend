@@ -9,23 +9,18 @@ import {
   getDay,
   isLastDayOfMonth,
   isSameMonth,
-} from "date-fns";
-import type { Options, WeekdayStr } from "rrule";
-import { Frequency, RRule, Weekday } from "rrule";
-import { formatDate } from "../../common/datetime/format_date";
-import { capitalizeFirstLetter } from "../../common/string/capitalize-first-letter";
-import { dayNames } from "../../common/translations/day_names";
-import { monthNames } from "../../common/translations/month_names";
-import type { HomeAssistant } from "../../types";
+} from 'date-fns'
+import type { Options, WeekdayStr } from 'rrule'
+import { Frequency, RRule, Weekday } from 'rrule'
+import { formatDate } from '../../common/datetime/format_date'
+import { capitalizeFirstLetter } from '../../common/string/capitalize-first-letter'
+import { dayNames } from '../../common/translations/day_names'
+import { monthNames } from '../../common/translations/month_names'
+import type { HomeAssistant } from '../../types'
 
-export type RepeatFrequency =
-  | "none"
-  | "yearly"
-  | "monthly"
-  | "weekly"
-  | "daily";
+export type RepeatFrequency = 'none' | 'yearly' | 'monthly' | 'weekly' | 'daily'
 
-export type RepeatEnd = "never" | "on" | "after";
+export type RepeatEnd = 'never' | 'on' | 'after'
 
 export const DEFAULT_COUNT = {
   none: 1,
@@ -33,28 +28,28 @@ export const DEFAULT_COUNT = {
   monthly: 12,
   weekly: 13,
   daily: 30,
-};
+}
 
 export interface MonthlyRepeatItem {
-  value: string;
-  byday?: Weekday;
-  bymonthday?: number;
-  label: string;
+  value: string
+  byday?: Weekday
+  bymonthday?: number
+  label: string
 }
 
 export function untilValue(freq: RepeatFrequency): Date {
-  const today = new Date();
-  const increment = DEFAULT_COUNT[freq];
+  const today = new Date()
+  const increment = DEFAULT_COUNT[freq]
   switch (freq) {
-    case "yearly":
-      return addYears(today, increment);
-    case "monthly":
-      return addMonths(today, increment);
-    case "weekly":
-      return addWeeks(today, increment);
-    case "daily":
+    case 'yearly':
+      return addYears(today, increment)
+    case 'monthly':
+      return addMonths(today, increment)
+    case 'weekly':
+      return addWeeks(today, increment)
+    case 'daily':
     default:
-      return addDays(today, increment);
+      return addDays(today, increment)
   }
 }
 
@@ -63,34 +58,34 @@ export const convertFrequency = (
 ): RepeatFrequency | undefined => {
   switch (freq) {
     case Frequency.YEARLY:
-      return "yearly";
+      return 'yearly'
     case Frequency.MONTHLY:
-      return "monthly";
+      return 'monthly'
     case Frequency.WEEKLY:
-      return "weekly";
+      return 'weekly'
     case Frequency.DAILY:
-      return "daily";
+      return 'daily'
     default:
-      return undefined;
+      return undefined
   }
-};
+}
 
 export const convertRepeatFrequency = (
   freq: RepeatFrequency
 ): Frequency | undefined => {
   switch (freq) {
-    case "yearly":
-      return Frequency.YEARLY;
-    case "monthly":
-      return Frequency.MONTHLY;
-    case "weekly":
-      return Frequency.WEEKLY;
-    case "daily":
-      return Frequency.DAILY;
+    case 'yearly':
+      return Frequency.YEARLY
+    case 'monthly':
+      return Frequency.MONTHLY
+    case 'weekly':
+      return Frequency.WEEKLY
+    case 'daily':
+      return Frequency.DAILY
     default:
-      return undefined;
+      return undefined
   }
-};
+}
 
 export const WEEKDAYS = [
   RRule.SU,
@@ -100,51 +95,51 @@ export const WEEKDAYS = [
   RRule.TH,
   RRule.FR,
   RRule.SA,
-];
+]
 
 /** Return a weekday number compatible with rrule.js weekdays */
 export function getWeekday(dtstart: Date): number {
-  let weekDay = getDay(dtstart) - 1;
+  let weekDay = getDay(dtstart) - 1
   if (weekDay < 0) {
-    weekDay += 7;
+    weekDay += 7
   }
-  return weekDay;
+  return weekDay
 }
 
 export function getWeekdays(firstDay?: number): Weekday[] {
   if (firstDay === undefined || firstDay === 0) {
-    return WEEKDAYS;
+    return WEEKDAYS
   }
-  let iterator = firstDay;
-  const weekDays: Weekday[] = [...WEEKDAYS];
+  let iterator = firstDay
+  const weekDays: Weekday[] = [...WEEKDAYS]
   while (iterator > 0) {
-    weekDays.push(weekDays.shift() as Weekday);
-    iterator -= 1;
+    weekDays.push(weekDays.shift() as Weekday)
+    iterator -= 1
   }
-  return weekDays;
+  return weekDays
 }
 
 export function ruleByWeekDay(weekdays: Set<WeekdayStr>): Weekday[] {
   return Array.from(weekdays).map((value: string) => {
     switch (value) {
-      case "MO":
-        return RRule.MO;
-      case "TU":
-        return RRule.TU;
-      case "WE":
-        return RRule.WE;
-      case "TH":
-        return RRule.TH;
-      case "FR":
-        return RRule.FR;
-      case "SA":
-        return RRule.SA;
-      case "SU":
-        return RRule.SU;
+      case 'MO':
+        return RRule.MO
+      case 'TU':
+        return RRule.TU
+      case 'WE':
+        return RRule.WE
+      case 'TH':
+        return RRule.TH
+      case 'FR':
+        return RRule.FR
+      case 'SA':
+        return RRule.SA
+      case 'SU':
+        return RRule.SU
       default:
-        return RRule.MO;
+        return RRule.MO
     }
-  });
+  })
 }
 
 /**
@@ -153,18 +148,18 @@ export function ruleByWeekDay(weekdays: Set<WeekdayStr>): Weekday[] {
  * particular week of the month like "first Saturday" or "last Friday".
  */
 function getWeekydaysForMonth(dtstart: Date): Weekday[] {
-  const weekDay = getWeekday(dtstart);
-  const dayOfMonth = getDate(dtstart);
-  const nthWeekdayOfMonth = Math.floor((dayOfMonth - 1) / 7) + 1;
-  const isLastWeekday = !isSameMonth(dtstart, addDays(dtstart, 7));
-  const byweekdays: Weekday[] = [];
+  const weekDay = getWeekday(dtstart)
+  const dayOfMonth = getDate(dtstart)
+  const nthWeekdayOfMonth = Math.floor((dayOfMonth - 1) / 7) + 1
+  const isLastWeekday = !isSameMonth(dtstart, addDays(dtstart, 7))
+  const byweekdays: Weekday[] = []
   if (!isLastWeekday || dayOfMonth <= 28) {
-    byweekdays.push(new Weekday(weekDay, nthWeekdayOfMonth));
+    byweekdays.push(new Weekday(weekDay, nthWeekdayOfMonth))
   }
   if (isLastWeekday) {
-    byweekdays.push(new Weekday(weekDay, -1));
+    byweekdays.push(new Weekday(weekDay, -1))
   }
-  return byweekdays;
+  return byweekdays
 }
 
 /**
@@ -176,7 +171,7 @@ export function getMonthlyRepeatItems(
   dtstart: Date
 ): MonthlyRepeatItem[] {
   const getLabel = (repeatValue: string) =>
-    renderRRuleAsText(hass, `FREQ=MONTHLY;INTERVAL=${interval};${repeatValue}`);
+    renderRRuleAsText(hass, `FREQ=MONTHLY;INTERVAL=${interval};${repeatValue}`)
 
   const result: MonthlyRepeatItem[] = [
     // The default repeat rule is on day of month e.g. 3rd day of month
@@ -185,27 +180,27 @@ export function getMonthlyRepeatItems(
       label: getLabel(`BYMONTHDAY=${getDate(dtstart)}`)!,
     },
     // Additional optional rules based on the week of month e.g. 2nd sunday of month
-    ...getWeekydaysForMonth(dtstart).map((item) => ({
+    ...getWeekydaysForMonth(dtstart).map(item => ({
       value: `BYDAY=${item.toString()}`,
       byday: item,
       label: getLabel(`BYDAY=${item.toString()}`)!,
     })),
-  ];
+  ]
   if (isLastDayOfMonth(dtstart)) {
     result.push({
-      value: "BYMONTHDAY=-1",
+      value: 'BYMONTHDAY=-1',
       bymonthday: -1,
       label: getLabel(`BYMONTHDAY=-1`)!,
-    });
+    })
   }
-  return result;
+  return result
 }
 
 export function getMonthlyRepeatWeekdayFromRule(
   rrule: Partial<Options>
 ): Weekday | undefined {
   if (rrule.freq !== Frequency.MONTHLY) {
-    return undefined;
+    return undefined
   }
   if (
     rrule.byweekday &&
@@ -213,38 +208,38 @@ export function getMonthlyRepeatWeekdayFromRule(
     rrule.byweekday.length === 1 &&
     rrule.byweekday[0] instanceof Weekday
   ) {
-    return rrule.byweekday[0];
+    return rrule.byweekday[0]
   }
-  return undefined;
+  return undefined
 }
 
 export function getMonthdayRepeatFromRule(
   rrule: Partial<Options>
 ): number | undefined {
   if (rrule.freq !== Frequency.MONTHLY || !rrule.bymonthday) {
-    return undefined;
+    return undefined
   }
   if (Array.isArray(rrule.bymonthday)) {
-    return rrule.bymonthday[0];
+    return rrule.bymonthday[0]
   }
-  return rrule.bymonthday;
+  return rrule.bymonthday
 }
 
 /**
  * A wrapper around RRule.toText that assists with translation.
  */
 export function renderRRuleAsText(hass: HomeAssistant, value: string) {
-  const rule = RRule.fromString(`RRULE:${value}`);
+  const rule = RRule.fromString(`RRULE:${value}`)
   if (!rule.isFullyConvertibleToText()) {
-    return undefined;
+    return undefined
   }
   return capitalizeFirstLetter(
     rule.toText(
       (id: string | number | Weekday): string => {
-        if (typeof id === "string") {
-          return hass.localize(`ui.components.calendar.event.rrule.${id}`);
+        if (typeof id === 'string') {
+          return hass.localize(`ui.components.calendar.event.rrule.${id}`)
         }
-        return "";
+        return ''
       },
       {
         dayNames: dayNames(hass.locale, hass.config),
@@ -254,19 +249,19 @@ export function renderRRuleAsText(hass: HomeAssistant, value: string) {
       // Format the date
       (year: number, month: string, day: number): string => {
         if (!year || !month || !day) {
-          return "";
+          return ''
         }
         // Build date so we can then format it
-        const date = new Date();
-        date.setFullYear(year);
+        const date = new Date()
+        date.setFullYear(year)
         // As input we already get the localized month name, so we now unfortunately
         // need to convert it back to something Date can work with. The already localized
         // months names are a must in the RRule.Language structure (an empty string[] would
         // mean we get undefined months input in this method here).
-        date.setMonth(monthNames(hass.locale, hass.config).indexOf(month));
-        date.setDate(day);
-        return formatDate(date, hass.locale, hass.config);
+        date.setMonth(monthNames(hass.locale, hass.config).indexOf(month))
+        date.setDate(day)
+        return formatDate(date, hass.locale, hass.config)
       }
     )
-  );
+  )
 }

@@ -1,410 +1,410 @@
-import type { ComponentIcons } from "../data/icons";
+import type { ComponentIcons } from '../data/icons'
 
 export const ENTITY_COMPONENT_ICONS: Record<string, ComponentIcons> = {
   person: {
     _: {
-      default: "mdi:account",
+      default: 'mdi:account',
       state: {
-        not_home: "mdi:account-arrow-right",
+        not_home: 'mdi:account-arrow-right',
       },
     },
   },
   number: {
     _: {
-      default: "mdi:ray-vertex",
+      default: 'mdi:ray-vertex',
     },
     apparent_power: {
-      default: "mdi:flash",
+      default: 'mdi:flash',
     },
     aqi: {
-      default: "mdi:air-filter",
+      default: 'mdi:air-filter',
     },
     atmospheric_pressure: {
-      default: "mdi:thermometer-lines",
+      default: 'mdi:thermometer-lines',
     },
     battery: {
-      default: "mdi:battery",
+      default: 'mdi:battery',
     },
     carbon_dioxide: {
-      default: "mdi:molecule-co2",
+      default: 'mdi:molecule-co2',
     },
     carbon_monoxide: {
-      default: "mdi:molecule-co",
+      default: 'mdi:molecule-co',
     },
     current: {
-      default: "mdi:current-ac",
+      default: 'mdi:current-ac',
     },
     data_rate: {
-      default: "mdi:transmission-tower",
+      default: 'mdi:transmission-tower',
     },
     data_size: {
-      default: "mdi:database",
+      default: 'mdi:database',
     },
     distance: {
-      default: "mdi:arrow-left-right",
+      default: 'mdi:arrow-left-right',
     },
     duration: {
-      default: "mdi:progress-clock",
+      default: 'mdi:progress-clock',
     },
     energy: {
-      default: "mdi:lightning-bolt",
+      default: 'mdi:lightning-bolt',
     },
     energy_storage: {
-      default: "mdi:car-battery",
+      default: 'mdi:car-battery',
     },
     frequency: {
-      default: "mdi:sine-wave",
+      default: 'mdi:sine-wave',
     },
     gas: {
-      default: "mdi:meter-gas",
+      default: 'mdi:meter-gas',
     },
     humidity: {
-      default: "mdi:water-percent",
+      default: 'mdi:water-percent',
     },
     illuminance: {
-      default: "mdi:brightness-5",
+      default: 'mdi:brightness-5',
     },
     irradiance: {
-      default: "mdi:sun-wireless",
+      default: 'mdi:sun-wireless',
     },
     moisture: {
-      default: "mdi:water-percent",
+      default: 'mdi:water-percent',
     },
     monetary: {
-      default: "mdi:cash",
+      default: 'mdi:cash',
     },
     nitrogen_dioxide: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     nitrogen_monoxide: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     nitrous_oxide: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     ozone: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     ph: {
-      default: "mdi:ph",
+      default: 'mdi:ph',
     },
     pm1: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     pm10: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     pm25: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     pm4: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     power: {
-      default: "mdi:flash",
+      default: 'mdi:flash',
     },
     power_factor: {
-      default: "mdi:angle-acute",
+      default: 'mdi:angle-acute',
     },
     precipitation: {
-      default: "mdi:weather-rainy",
+      default: 'mdi:weather-rainy',
     },
     precipitation_intensity: {
-      default: "mdi:weather-pouring",
+      default: 'mdi:weather-pouring',
     },
     pressure: {
-      default: "mdi:gauge",
+      default: 'mdi:gauge',
     },
     reactive_power: {
-      default: "mdi:flash",
+      default: 'mdi:flash',
     },
     signal_strength: {
-      default: "mdi:wifi",
+      default: 'mdi:wifi',
     },
     sound_pressure: {
-      default: "mdi:ear-hearing",
+      default: 'mdi:ear-hearing',
     },
     speed: {
-      default: "mdi:speedometer",
+      default: 'mdi:speedometer',
     },
     sulfur_dioxide: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     temperature: {
-      default: "mdi:thermometer",
+      default: 'mdi:thermometer',
     },
     volatile_organic_compounds: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     volatile_organic_compounds_parts: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     voltage: {
-      default: "mdi:sine-wave",
+      default: 'mdi:sine-wave',
     },
     volume: {
-      default: "mdi:car-coolant-level",
+      default: 'mdi:car-coolant-level',
     },
     volume_storage: {
-      default: "mdi:storage-tank",
+      default: 'mdi:storage-tank',
     },
     water: {
-      default: "mdi:water",
+      default: 'mdi:water',
     },
     weight: {
-      default: "mdi:weight",
+      default: 'mdi:weight',
     },
     wind_speed: {
-      default: "mdi:weather-windy",
+      default: 'mdi:weather-windy',
     },
   },
   select: {
     _: {
-      default: "mdi:format-list-bulleted",
+      default: 'mdi:format-list-bulleted',
     },
   },
   tts: {
     _: {
-      default: "mdi:speaker-message",
+      default: 'mdi:speaker-message',
     },
   },
   datetime: {
     _: {
-      default: "mdi:calendar-clock",
+      default: 'mdi:calendar-clock',
     },
   },
   vacuum: {
     _: {
-      default: "mdi:robot-vacuum",
+      default: 'mdi:robot-vacuum',
     },
   },
   wake_word: {
     _: {
-      default: "mdi:chat-sleep",
+      default: 'mdi:chat-sleep',
     },
   },
   light: {
     _: {
-      default: "mdi:lightbulb",
+      default: 'mdi:lightbulb',
     },
   },
   alarm_control_panel: {
     _: {
-      default: "mdi:shield",
+      default: 'mdi:shield',
       state: {
-        armed_away: "mdi:shield-lock",
-        armed_custom_bypass: "mdi:security",
-        armed_home: "mdi:shield-home",
-        armed_night: "mdi:shield-moon",
-        armed_vacation: "mdi:shield-airplane",
-        disarmed: "mdi:shield-off",
-        pending: "mdi:shield-outline",
-        triggered: "mdi:bell-ring",
+        armed_away: 'mdi:shield-lock',
+        armed_custom_bypass: 'mdi:security',
+        armed_home: 'mdi:shield-home',
+        armed_night: 'mdi:shield-moon',
+        armed_vacation: 'mdi:shield-airplane',
+        disarmed: 'mdi:shield-off',
+        pending: 'mdi:shield-outline',
+        triggered: 'mdi:bell-ring',
       },
     },
   },
   text: {
     _: {
-      default: "mdi:form-textbox",
+      default: 'mdi:form-textbox',
     },
   },
   lawn_mower: {
     _: {
-      default: "mdi:robot-mower",
+      default: 'mdi:robot-mower',
     },
   },
   siren: {
     _: {
-      default: "mdi:bullhorn",
+      default: 'mdi:bullhorn',
     },
   },
   input_boolean: {
     _: {
-      default: "mdi:check-circle-outline",
+      default: 'mdi:check-circle-outline',
       state: {
-        off: "mdi:close-circle-outline",
+        off: 'mdi:close-circle-outline',
       },
     },
   },
   lock: {
     _: {
-      default: "mdi:lock",
+      default: 'mdi:lock',
       state: {
-        jammed: "mdi:lock-alert",
-        locking: "mdi:lock-clock",
-        unlocked: "mdi:lock-open",
-        unlocking: "mdi:lock-clock",
-        opening: "mdi:lock-clock",
-        open: "mdi:lock-open-variant",
+        jammed: 'mdi:lock-alert',
+        locking: 'mdi:lock-clock',
+        unlocked: 'mdi:lock-open',
+        unlocking: 'mdi:lock-clock',
+        opening: 'mdi:lock-clock',
+        open: 'mdi:lock-open-variant',
       },
     },
   },
   calendar: {
     _: {
-      default: "mdi:calendar",
+      default: 'mdi:calendar',
       state: {
-        on: "mdi:calendar-check",
-        off: "mdi:calendar-blank",
+        on: 'mdi:calendar-check',
+        off: 'mdi:calendar-blank',
       },
     },
   },
   image: {
     _: {
-      default: "mdi:image",
+      default: 'mdi:image',
     },
   },
   device_tracker: {
     _: {
-      default: "mdi:account",
+      default: 'mdi:account',
       state: {
-        not_home: "mdi:account-arrow-right",
+        not_home: 'mdi:account-arrow-right',
       },
     },
   },
   scene: {
     _: {
-      default: "mdi:palette",
+      default: 'mdi:palette',
     },
   },
   script: {
     _: {
-      default: "mdi:script-text",
+      default: 'mdi:script-text',
       state: {
-        on: "mdi:script-text-play",
+        on: 'mdi:script-text-play',
       },
     },
   },
   todo: {
     _: {
-      default: "mdi:clipboard-list",
+      default: 'mdi:clipboard-list',
     },
   },
   cover: {
     _: {
-      default: "mdi:window-open",
+      default: 'mdi:window-open',
       state: {
-        closed: "mdi:window-closed",
-        closing: "mdi:arrow-down-box",
-        opening: "mdi:arrow-up-box",
+        closed: 'mdi:window-closed',
+        closing: 'mdi:arrow-down-box',
+        opening: 'mdi:arrow-up-box',
       },
     },
     blind: {
-      default: "mdi:blinds-horizontal",
+      default: 'mdi:blinds-horizontal',
       state: {
-        closed: "mdi:blinds-horizontal-closed",
-        closing: "mdi:arrow-down-box",
-        opening: "mdi:arrow-up-box",
+        closed: 'mdi:blinds-horizontal-closed',
+        closing: 'mdi:arrow-down-box',
+        opening: 'mdi:arrow-up-box',
       },
     },
     curtain: {
-      default: "mdi:curtains",
+      default: 'mdi:curtains',
       state: {
-        closed: "mdi:curtains-closed",
-        closing: "mdi:arrow-collapse-horizontal",
-        opening: "mdi:arrow-split-vertical",
+        closed: 'mdi:curtains-closed',
+        closing: 'mdi:arrow-collapse-horizontal',
+        opening: 'mdi:arrow-split-vertical',
       },
     },
     damper: {
-      default: "mdi:circle",
+      default: 'mdi:circle',
       state: {
-        closed: "mdi:circle-slice-8",
+        closed: 'mdi:circle-slice-8',
       },
     },
     door: {
-      default: "mdi:door-open",
+      default: 'mdi:door-open',
       state: {
-        closed: "mdi:door-closed",
+        closed: 'mdi:door-closed',
       },
     },
     garage: {
-      default: "mdi:garage-open",
+      default: 'mdi:garage-open',
       state: {
-        closed: "mdi:garage",
-        closing: "mdi:arrow-down-box",
-        opening: "mdi:arrow-up-box",
+        closed: 'mdi:garage',
+        closing: 'mdi:arrow-down-box',
+        opening: 'mdi:arrow-up-box',
       },
     },
     gate: {
-      default: "mdi:gate-open",
+      default: 'mdi:gate-open',
       state: {
-        closed: "mdi:gate",
-        closing: "mdi:arrow-right",
-        opening: "mdi:arrow-right",
+        closed: 'mdi:gate',
+        closing: 'mdi:arrow-right',
+        opening: 'mdi:arrow-right',
       },
     },
     shade: {
-      default: "mdi:roller-shade",
+      default: 'mdi:roller-shade',
       state: {
-        closed: "mdi:roller-shade-closed",
-        closing: "mdi:arrow-down-box",
-        opening: "mdi:arrow-up-box",
+        closed: 'mdi:roller-shade-closed',
+        closing: 'mdi:arrow-down-box',
+        opening: 'mdi:arrow-up-box',
       },
     },
     shutter: {
-      default: "mdi:window-shutter-open",
+      default: 'mdi:window-shutter-open',
       state: {
-        closed: "mdi:window-shutter",
-        closing: "mdi:arrow-down-box",
-        opening: "mdi:arrow-up-box",
+        closed: 'mdi:window-shutter',
+        closing: 'mdi:arrow-down-box',
+        opening: 'mdi:arrow-up-box',
       },
     },
     window: {
-      default: "mdi:window-open",
+      default: 'mdi:window-open',
       state: {
-        closed: "mdi:window-closed",
-        closing: "mdi:arrow-down-box",
-        opening: "mdi:arrow-up-box",
+        closed: 'mdi:window-closed',
+        closing: 'mdi:arrow-down-box',
+        opening: 'mdi:arrow-up-box',
       },
     },
   },
   switch: {
     _: {
-      default: "mdi:toggle-switch-variant",
+      default: 'mdi:toggle-switch-variant',
     },
     switch: {
-      default: "mdi:toggle-switch-variant",
+      default: 'mdi:toggle-switch-variant',
       state: {
-        off: "mdi:toggle-switch-variant-off",
+        off: 'mdi:toggle-switch-variant-off',
       },
     },
     outlet: {
-      default: "mdi:power-plug",
+      default: 'mdi:power-plug',
       state: {
-        off: "mdi:power-plug-off",
+        off: 'mdi:power-plug-off',
       },
     },
   },
   button: {
     _: {
-      default: "mdi:button-pointer",
+      default: 'mdi:button-pointer',
     },
     restart: {
-      default: "mdi:restart",
+      default: 'mdi:restart',
     },
     identify: {
-      default: "mdi:crosshairs-question",
+      default: 'mdi:crosshairs-question',
     },
     update: {
-      default: "mdi:package-up",
+      default: 'mdi:package-up',
     },
   },
   water_heater: {
     _: {
-      default: "mdi:water-boiler",
+      default: 'mdi:water-boiler',
       state: {
-        off: "mdi:water-boiler-off",
+        off: 'mdi:water-boiler-off',
       },
       state_attributes: {
         operation_mode: {
-          default: "mdi:circle-medium",
+          default: 'mdi:circle-medium',
           state: {
-            eco: "mdi:leaf",
-            electric: "mdi:lightning-bolt",
-            gas: "mdi:fire-circle",
-            heat_pump: "mdi:heat-wave",
-            high_demand: "mdi:finance",
-            off: "mdi:power",
-            performance: "mdi:rocket-launch",
+            eco: 'mdi:leaf',
+            electric: 'mdi:lightning-bolt',
+            gas: 'mdi:fire-circle',
+            heat_pump: 'mdi:heat-wave',
+            high_demand: 'mdi:finance',
+            off: 'mdi:power',
+            performance: 'mdi:rocket-launch',
           },
         },
       },
@@ -412,363 +412,363 @@ export const ENTITY_COMPONENT_ICONS: Record<string, ComponentIcons> = {
   },
   binary_sensor: {
     _: {
-      default: "mdi:radiobox-blank",
+      default: 'mdi:radiobox-blank',
       state: {
-        on: "mdi:checkbox-marked-circle",
+        on: 'mdi:checkbox-marked-circle',
       },
     },
     battery: {
-      default: "mdi:battery",
+      default: 'mdi:battery',
       state: {
-        on: "mdi:battery-outline",
+        on: 'mdi:battery-outline',
       },
     },
     battery_charging: {
-      default: "mdi:battery",
+      default: 'mdi:battery',
       state: {
-        on: "mdi:battery-charging",
+        on: 'mdi:battery-charging',
       },
     },
     carbon_monoxide: {
-      default: "mdi:smoke-detector",
+      default: 'mdi:smoke-detector',
       state: {
-        on: "mdi:smoke-detector-alert",
+        on: 'mdi:smoke-detector-alert',
       },
     },
     cold: {
-      default: "mdi:thermometer",
+      default: 'mdi:thermometer',
       state: {
-        on: "mdi:snowflake",
+        on: 'mdi:snowflake',
       },
     },
     connectivity: {
-      default: "mdi:close-network-outline",
+      default: 'mdi:close-network-outline',
       state: {
-        on: "mdi:check-network-outline",
+        on: 'mdi:check-network-outline',
       },
     },
     door: {
-      default: "mdi:door-closed",
+      default: 'mdi:door-closed',
       state: {
-        on: "mdi:door-open",
+        on: 'mdi:door-open',
       },
     },
     garage_door: {
-      default: "mdi:garage",
+      default: 'mdi:garage',
       state: {
-        on: "mdi:garage-open",
+        on: 'mdi:garage-open',
       },
     },
     gas: {
-      default: "mdi:check-circle",
+      default: 'mdi:check-circle',
       state: {
-        on: "mdi:alert-circle",
+        on: 'mdi:alert-circle',
       },
     },
     heat: {
-      default: "mdi:thermometer",
+      default: 'mdi:thermometer',
       state: {
-        on: "mdi:fire",
+        on: 'mdi:fire',
       },
     },
     light: {
-      default: "mdi:brightness-5",
+      default: 'mdi:brightness-5',
       state: {
-        on: "mdi:brightness-7",
+        on: 'mdi:brightness-7',
       },
     },
     lock: {
-      default: "mdi:lock",
+      default: 'mdi:lock',
       state: {
-        on: "mdi:lock-open",
+        on: 'mdi:lock-open',
       },
     },
     moisture: {
-      default: "mdi:water-off",
+      default: 'mdi:water-off',
       state: {
-        on: "mdi:water",
+        on: 'mdi:water',
       },
     },
     motion: {
-      default: "mdi:motion-sensor-off",
+      default: 'mdi:motion-sensor-off',
       state: {
-        on: "mdi:motion-sensor",
+        on: 'mdi:motion-sensor',
       },
     },
     moving: {
-      default: "mdi:arrow-right",
+      default: 'mdi:arrow-right',
       state: {
-        on: "mdi:octagon",
+        on: 'mdi:octagon',
       },
     },
     occupancy: {
-      default: "mdi:home-outline",
+      default: 'mdi:home-outline',
       state: {
-        on: "mdi:home",
+        on: 'mdi:home',
       },
     },
     opening: {
-      default: "mdi:square",
+      default: 'mdi:square',
       state: {
-        on: "mdi:square-outline",
+        on: 'mdi:square-outline',
       },
     },
     plug: {
-      default: "mdi:power-plug-off",
+      default: 'mdi:power-plug-off',
       state: {
-        on: "mdi:power-plug",
+        on: 'mdi:power-plug',
       },
     },
     power: {
-      default: "mdi:power-plug-off",
+      default: 'mdi:power-plug-off',
       state: {
-        on: "mdi:power-plug",
+        on: 'mdi:power-plug',
       },
     },
     presence: {
-      default: "mdi:home-outline",
+      default: 'mdi:home-outline',
       state: {
-        on: "mdi:home",
+        on: 'mdi:home',
       },
     },
     problem: {
-      default: "mdi:check-circle",
+      default: 'mdi:check-circle',
       state: {
-        on: "mdi:alert-circle",
+        on: 'mdi:alert-circle',
       },
     },
     running: {
-      default: "mdi:stop",
+      default: 'mdi:stop',
       state: {
-        on: "mdi:play",
+        on: 'mdi:play',
       },
     },
     safety: {
-      default: "mdi:check-circle",
+      default: 'mdi:check-circle',
       state: {
-        on: "mdi:alert-circle",
+        on: 'mdi:alert-circle',
       },
     },
     smoke: {
-      default: "mdi:smoke-detector-variant",
+      default: 'mdi:smoke-detector-variant',
       state: {
-        on: "mdi:smoke-detector-variant-alert",
+        on: 'mdi:smoke-detector-variant-alert',
       },
     },
     sound: {
-      default: "mdi:music-note-off",
+      default: 'mdi:music-note-off',
       state: {
-        on: "mdi:music-note",
+        on: 'mdi:music-note',
       },
     },
     tamper: {
-      default: "mdi:check-circle",
+      default: 'mdi:check-circle',
       state: {
-        on: "mdi:alert-circle",
+        on: 'mdi:alert-circle',
       },
     },
     update: {
-      default: "mdi:package",
+      default: 'mdi:package',
       state: {
-        on: "mdi:package-up",
+        on: 'mdi:package-up',
       },
     },
     vibration: {
-      default: "mdi:crop-portrait",
+      default: 'mdi:crop-portrait',
       state: {
-        on: "mdi:vibrate",
+        on: 'mdi:vibrate',
       },
     },
     window: {
-      default: "mdi:window-closed",
+      default: 'mdi:window-closed',
       state: {
-        on: "mdi:window-open",
+        on: 'mdi:window-open',
       },
     },
   },
   sensor: {
     _: {
-      default: "mdi:eye",
+      default: 'mdi:eye',
     },
     apparent_power: {
-      default: "mdi:flash",
+      default: 'mdi:flash',
     },
     aqi: {
-      default: "mdi:air-filter",
+      default: 'mdi:air-filter',
     },
     atmospheric_pressure: {
-      default: "mdi:thermometer-lines",
+      default: 'mdi:thermometer-lines',
     },
     carbon_dioxide: {
-      default: "mdi:molecule-co2",
+      default: 'mdi:molecule-co2',
     },
     carbon_monoxide: {
-      default: "mdi:molecule-co",
+      default: 'mdi:molecule-co',
     },
     current: {
-      default: "mdi:current-ac",
+      default: 'mdi:current-ac',
     },
     data_rate: {
-      default: "mdi:transmission-tower",
+      default: 'mdi:transmission-tower',
     },
     data_size: {
-      default: "mdi:database",
+      default: 'mdi:database',
     },
     date: {
-      default: "mdi:calendar",
+      default: 'mdi:calendar',
     },
     distance: {
-      default: "mdi:arrow-left-right",
+      default: 'mdi:arrow-left-right',
     },
     duration: {
-      default: "mdi:progress-clock",
+      default: 'mdi:progress-clock',
     },
     energy: {
-      default: "mdi:lightning-bolt",
+      default: 'mdi:lightning-bolt',
     },
     energy_storage: {
-      default: "mdi:car-battery",
+      default: 'mdi:car-battery',
     },
     enum: {
-      default: "mdi:eye",
+      default: 'mdi:eye',
     },
     frequency: {
-      default: "mdi:sine-wave",
+      default: 'mdi:sine-wave',
     },
     gas: {
-      default: "mdi:meter-gas",
+      default: 'mdi:meter-gas',
     },
     humidity: {
-      default: "mdi:water-percent",
+      default: 'mdi:water-percent',
     },
     illuminance: {
-      default: "mdi:brightness-5",
+      default: 'mdi:brightness-5',
     },
     irradiance: {
-      default: "mdi:sun-wireless",
+      default: 'mdi:sun-wireless',
     },
     moisture: {
-      default: "mdi:water-percent",
+      default: 'mdi:water-percent',
     },
     monetary: {
-      default: "mdi:cash",
+      default: 'mdi:cash',
     },
     nitrogen_dioxide: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     nitrogen_monoxide: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     nitrous_oxide: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     ozone: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     ph: {
-      default: "mdi:ph",
+      default: 'mdi:ph',
     },
     pm1: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     pm10: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     pm25: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     pm4: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     power: {
-      default: "mdi:flash",
+      default: 'mdi:flash',
     },
     power_factor: {
-      default: "mdi:angle-acute",
+      default: 'mdi:angle-acute',
     },
     precipitation: {
-      default: "mdi:weather-rainy",
+      default: 'mdi:weather-rainy',
     },
     precipitation_intensity: {
-      default: "mdi:weather-pouring",
+      default: 'mdi:weather-pouring',
     },
     pressure: {
-      default: "mdi:gauge",
+      default: 'mdi:gauge',
     },
     reactive_power: {
-      default: "mdi:flash",
+      default: 'mdi:flash',
     },
     signal_strength: {
-      default: "mdi:wifi",
+      default: 'mdi:wifi',
     },
     sound_pressure: {
-      default: "mdi:ear-hearing",
+      default: 'mdi:ear-hearing',
     },
     speed: {
-      default: "mdi:speedometer",
+      default: 'mdi:speedometer',
     },
     sulfur_dioxide: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     temperature: {
-      default: "mdi:thermometer",
+      default: 'mdi:thermometer',
     },
     timestamp: {
-      default: "mdi:clock",
+      default: 'mdi:clock',
     },
     volatile_organic_compounds: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     volatile_organic_compounds_parts: {
-      default: "mdi:molecule",
+      default: 'mdi:molecule',
     },
     voltage: {
-      default: "mdi:sine-wave",
+      default: 'mdi:sine-wave',
     },
     volume: {
-      default: "mdi:car-coolant-level",
+      default: 'mdi:car-coolant-level',
     },
     volume_storage: {
-      default: "mdi:storage-tank",
+      default: 'mdi:storage-tank',
     },
     water: {
-      default: "mdi:water",
+      default: 'mdi:water',
     },
     weight: {
-      default: "mdi:weight",
+      default: 'mdi:weight',
     },
     wind_speed: {
-      default: "mdi:weather-windy",
+      default: 'mdi:weather-windy',
     },
   },
   humidifier: {
     _: {
-      default: "mdi:air-humidifier",
+      default: 'mdi:air-humidifier',
       state: {
-        off: "mdi:air-humidifier-off",
+        off: 'mdi:air-humidifier-off',
       },
       state_attributes: {
         action: {
-          default: "mdi:circle-medium",
+          default: 'mdi:circle-medium',
           state: {
-            drying: "mdi:arrow-down-bold",
-            humidifying: "mdi:arrow-up-bold",
-            idle: "mdi:clock-outline",
-            off: "mdi:power",
+            drying: 'mdi:arrow-down-bold',
+            humidifying: 'mdi:arrow-up-bold',
+            idle: 'mdi:clock-outline',
+            off: 'mdi:power',
           },
         },
         mode: {
-          default: "mdi:circle-medium",
+          default: 'mdi:circle-medium',
           state: {
-            auto: "mdi:refresh-auto",
-            away: "mdi:account-arrow-right",
-            baby: "mdi:baby-carriage",
-            boost: "mdi:rocket-launch",
-            comfort: "mdi:sofa",
-            eco: "mdi:leaf",
-            home: "mdi:home",
-            normal: "mdi:water-percent",
-            sleep: "mdi:power-sleep",
+            auto: 'mdi:refresh-auto',
+            away: 'mdi:account-arrow-right',
+            baby: 'mdi:baby-carriage',
+            boost: 'mdi:rocket-launch',
+            comfort: 'mdi:sofa',
+            eco: 'mdi:leaf',
+            home: 'mdi:home',
+            normal: 'mdi:water-percent',
+            sleep: 'mdi:power-sleep',
           },
         },
       },
@@ -776,81 +776,81 @@ export const ENTITY_COMPONENT_ICONS: Record<string, ComponentIcons> = {
   },
   valve: {
     _: {
-      default: "mdi:pipe-valve",
+      default: 'mdi:pipe-valve',
     },
     gas: {
-      default: "mdi:meter-gas",
+      default: 'mdi:meter-gas',
     },
     water: {
-      default: "mdi:pipe-valve",
+      default: 'mdi:pipe-valve',
     },
   },
   time: {
     _: {
-      default: "mdi:clock",
+      default: 'mdi:clock',
     },
   },
   media_player: {
     _: {
-      default: "mdi:cast",
+      default: 'mdi:cast',
       state: {
-        off: "mdi:cast-off",
-        paused: "mdi:cast-connected",
-        playing: "mdi:cast-connected",
+        off: 'mdi:cast-off',
+        paused: 'mdi:cast-connected',
+        playing: 'mdi:cast-connected',
       },
     },
     receiver: {
-      default: "mdi:audio-video",
+      default: 'mdi:audio-video',
       state: {
-        off: "mdi:audio-video-off",
+        off: 'mdi:audio-video-off',
       },
     },
     speaker: {
-      default: "mdi:speaker",
+      default: 'mdi:speaker',
       state: {
-        off: "mdi:speaker-off",
-        paused: "mdi:speaker-pause",
-        playing: "mdi:speaker-play",
+        off: 'mdi:speaker-off',
+        paused: 'mdi:speaker-pause',
+        playing: 'mdi:speaker-play',
       },
     },
     tv: {
-      default: "mdi:television",
+      default: 'mdi:television',
       state: {
-        off: "mdi:television-off",
-        paused: "mdi:television-pause",
-        playing: "mdi:television-play",
+        off: 'mdi:television-off',
+        paused: 'mdi:television-pause',
+        playing: 'mdi:television-play',
       },
     },
   },
   air_quality: {
     _: {
-      default: "mdi:air-filter",
+      default: 'mdi:air-filter',
     },
   },
   camera: {
     _: {
-      default: "mdi:video",
+      default: 'mdi:video',
       state: {
-        off: "mdi:video-off",
+        off: 'mdi:video-off',
       },
     },
   },
   date: {
     _: {
-      default: "mdi:calendar",
+      default: 'mdi:calendar',
     },
   },
   fan: {
     _: {
-      default: "mdi:fan",
+      default: 'mdi:fan',
       state: {
-        off: "mdi:fan-off",
+        off: 'mdi:fan-off',
       },
       state_attributes: {
         direction: {
-          default: "mdi:rotate-right",
+          default: 'mdi:rotate-right',
           state: {
-            reverse: "mdi:rotate-left",
+            reverse: 'mdi:rotate-left',
           },
         },
       },
@@ -858,84 +858,84 @@ export const ENTITY_COMPONENT_ICONS: Record<string, ComponentIcons> = {
   },
   automation: {
     _: {
-      default: "mdi:robot",
+      default: 'mdi:robot',
       state: {
-        off: "mdi:robot-off",
-        unavailable: "mdi:robot-confused",
+        off: 'mdi:robot-off',
+        unavailable: 'mdi:robot-confused',
       },
     },
   },
   weather: {
     _: {
-      default: "mdi:weather-partly-cloudy",
+      default: 'mdi:weather-partly-cloudy',
       state: {
-        "clear-night": "mdi:weather-night",
-        cloudy: "mdi:weather-cloudy",
-        exceptional: "mdi:alert-circle-outline",
-        fog: "mdi:weather-fog",
-        hail: "mdi:weather-hail",
-        lightning: "mdi:weather-lightning",
-        "lightning-rainy": "mdi:weather-lightning-rainy",
-        pouring: "mdi:weather-pouring",
-        rainy: "mdi:weather-rainy",
-        snowy: "mdi:weather-snowy",
-        "snowy-rainy": "mdi:weather-snowy-rainy",
-        sunny: "mdi:weather-sunny",
-        windy: "mdi:weather-windy",
-        "windy-variant": "mdi:weather-windy-variant",
+        'clear-night': 'mdi:weather-night',
+        cloudy: 'mdi:weather-cloudy',
+        exceptional: 'mdi:alert-circle-outline',
+        fog: 'mdi:weather-fog',
+        hail: 'mdi:weather-hail',
+        lightning: 'mdi:weather-lightning',
+        'lightning-rainy': 'mdi:weather-lightning-rainy',
+        pouring: 'mdi:weather-pouring',
+        rainy: 'mdi:weather-rainy',
+        snowy: 'mdi:weather-snowy',
+        'snowy-rainy': 'mdi:weather-snowy-rainy',
+        sunny: 'mdi:weather-sunny',
+        windy: 'mdi:weather-windy',
+        'windy-variant': 'mdi:weather-windy-variant',
       },
     },
   },
   climate: {
     _: {
-      default: "mdi:thermostat",
+      default: 'mdi:thermostat',
       state_attributes: {
         fan_mode: {
-          default: "mdi:circle-medium",
+          default: 'mdi:circle-medium',
           state: {
-            diffuse: "mdi:weather-windy",
-            focus: "mdi:target",
-            high: "mdi:speedometer",
-            low: "mdi:speedometer-slow",
-            medium: "mdi:speedometer-medium",
-            middle: "mdi:speedometer-medium",
-            off: "mdi:fan-off",
-            on: "mdi:fan",
+            diffuse: 'mdi:weather-windy',
+            focus: 'mdi:target',
+            high: 'mdi:speedometer',
+            low: 'mdi:speedometer-slow',
+            medium: 'mdi:speedometer-medium',
+            middle: 'mdi:speedometer-medium',
+            off: 'mdi:fan-off',
+            on: 'mdi:fan',
           },
         },
         hvac_action: {
-          default: "mdi:circle-medium",
+          default: 'mdi:circle-medium',
           state: {
-            cooling: "mdi:snowflake",
-            drying: "mdi:water-percent",
-            fan: "mdi:fan",
-            heating: "mdi:fire",
-            idle: "mdi:clock-outline",
-            off: "mdi:power",
-            preheating: "mdi:heat-wave",
-            defrosting: "mdi:snowflake-melt",
+            cooling: 'mdi:snowflake',
+            drying: 'mdi:water-percent',
+            fan: 'mdi:fan',
+            heating: 'mdi:fire',
+            idle: 'mdi:clock-outline',
+            off: 'mdi:power',
+            preheating: 'mdi:heat-wave',
+            defrosting: 'mdi:snowflake-melt',
           },
         },
         preset_mode: {
-          default: "mdi:circle-medium",
+          default: 'mdi:circle-medium',
           state: {
-            activity: "mdi:motion-sensor",
-            away: "mdi:account-arrow-right",
-            boost: "mdi:rocket-launch",
-            comfort: "mdi:sofa",
-            eco: "mdi:leaf",
-            home: "mdi:home",
-            sleep: "mdi:bed",
+            activity: 'mdi:motion-sensor',
+            away: 'mdi:account-arrow-right',
+            boost: 'mdi:rocket-launch',
+            comfort: 'mdi:sofa',
+            eco: 'mdi:leaf',
+            home: 'mdi:home',
+            sleep: 'mdi:bed',
           },
         },
         swing_mode: {
-          default: "mdi:circle-medium",
+          default: 'mdi:circle-medium',
           state: {
-            both: "mdi:arrow-all",
-            horizontal: "mdi:arrow-left-right",
-            off: "mdi:arrow-oscillating-off",
-            on: "mdi:arrow-oscillating",
-            vertical: "mdi:arrow-up-down",
+            both: 'mdi:arrow-all',
+            horizontal: 'mdi:arrow-left-right',
+            off: 'mdi:arrow-oscillating-off',
+            on: 'mdi:arrow-oscillating',
+            vertical: 'mdi:arrow-up-down',
           },
         },
       },
@@ -943,29 +943,29 @@ export const ENTITY_COMPONENT_ICONS: Record<string, ComponentIcons> = {
   },
   stt: {
     _: {
-      default: "mdi:microphone-message",
+      default: 'mdi:microphone-message',
     },
   },
   update: {
     _: {
-      default: "mdi:package-up",
+      default: 'mdi:package-up',
       state: {
-        off: "mdi:package",
+        off: 'mdi:package',
       },
     },
   },
   event: {
     _: {
-      default: "mdi:eye-check",
+      default: 'mdi:eye-check',
     },
     button: {
-      default: "mdi:gesture-tap-button",
+      default: 'mdi:gesture-tap-button',
     },
     doorbell: {
-      default: "mdi:doorbell",
+      default: 'mdi:doorbell',
     },
     motion: {
-      default: "mdi:motion-sensor",
+      default: 'mdi:motion-sensor',
     },
   },
-};
+}

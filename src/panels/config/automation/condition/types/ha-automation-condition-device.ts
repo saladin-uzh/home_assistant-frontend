@@ -1,68 +1,68 @@
-import { consume } from "@lit/context";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import "../../../../../components/device/ha-device-condition-picker";
-import "../../../../../components/device/ha-device-picker";
-import "../../../../../components/ha-form/ha-form";
-import { fullEntitiesContext } from "../../../../../data/context";
+import { consume } from '@lit/context'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import '../../../../../components/device/ha-device-condition-picker'
+import '../../../../../components/device/ha-device-picker'
+import '../../../../../components/ha-form/ha-form'
+import { fullEntitiesContext } from '../../../../../data/context'
 import type {
   DeviceCapabilities,
   DeviceCondition,
-} from "../../../../../data/device_automation";
+} from '../../../../../data/device_automation'
 import {
   deviceAutomationsEqual,
   fetchDeviceConditionCapabilities,
   localizeExtraFieldsComputeLabelCallback,
   localizeExtraFieldsComputeHelperCallback,
-} from "../../../../../data/device_automation";
-import type { EntityRegistryEntry } from "../../../../../data/entity_registry";
-import type { HomeAssistant } from "../../../../../types";
+} from '../../../../../data/device_automation'
+import type { EntityRegistryEntry } from '../../../../../data/entity_registry'
+import type { HomeAssistant } from '../../../../../types'
 
-@customElement("ha-automation-condition-device")
+@customElement('ha-automation-condition-device')
 export class HaDeviceCondition extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Object }) public condition!: DeviceCondition;
+  @property({ type: Object }) public condition!: DeviceCondition
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @state() private _deviceId?: string;
+  @state() private _deviceId?: string
 
-  @state() private _capabilities?: DeviceCapabilities;
+  @state() private _capabilities?: DeviceCapabilities
 
   @state()
   @consume({ context: fullEntitiesContext, subscribe: true })
-  _entityReg!: EntityRegistryEntry[];
+  _entityReg!: EntityRegistryEntry[]
 
-  private _origCondition?: DeviceCondition;
+  private _origCondition?: DeviceCondition
 
   public static get defaultConfig(): DeviceCondition {
     return {
-      condition: "device",
-      device_id: "",
-      domain: "",
-      entity_id: "",
-    };
+      condition: 'device',
+      device_id: '',
+      domain: '',
+      entity_id: '',
+    }
   }
 
   private _extraFieldsData = memoizeOne(
     (condition: DeviceCondition, capabilities: DeviceCapabilities) => {
-      const extraFieldsData: Record<string, any> = {};
-      capabilities.extra_fields.forEach((item) => {
+      const extraFieldsData: Record<string, any> = {}
+      capabilities.extra_fields.forEach(item => {
         if (condition[item.name] !== undefined) {
-          extraFieldsData![item.name] = condition[item.name];
+          extraFieldsData![item.name] = condition[item.name]
         }
-      });
-      return extraFieldsData;
+      })
+      return extraFieldsData
     }
-  );
+  )
 
   public shouldUpdate(changedProperties: PropertyValues) {
-    if (!changedProperties.has("condition")) {
-      return true;
+    if (!changedProperties.has('condition')) {
+      return true
     }
     if (
       this.condition.device_id &&
@@ -70,20 +70,20 @@ export class HaDeviceCondition extends LitElement {
     ) {
       fireEvent(
         this,
-        "ui-mode-not-available",
+        'ui-mode-not-available',
         Error(
           this.hass.localize(
-            "ui.panel.config.automation.editor.edit_unknown_device"
+            'ui.panel.config.automation.editor.edit_unknown_device'
           )
         )
-      );
-      return false;
+      )
+      return false
     }
-    return true;
+    return true
   }
 
   protected render() {
-    const deviceId = this._deviceId || this.condition.device_id;
+    const deviceId = this._deviceId || this.condition.device_id
 
     return html`
       <ha-device-picker
@@ -92,7 +92,7 @@ export class HaDeviceCondition extends LitElement {
         .hass=${this.hass}
         .disabled=${this.disabled}
         .label=${this.hass.localize(
-          "ui.panel.config.automation.editor.conditions.type.device.label"
+          'ui.panel.config.automation.editor.conditions.type.device.label'
         )}
       ></ha-device-picker>
       <ha-device-condition-picker
@@ -102,7 +102,7 @@ export class HaDeviceCondition extends LitElement {
         .hass=${this.hass}
         .disabled=${this.disabled}
         .label=${this.hass.localize(
-          "ui.panel.config.automation.editor.conditions.type.device.condition"
+          'ui.panel.config.automation.editor.conditions.type.device.condition'
         )}
       ></ha-device-condition-picker>
       ${this._capabilities?.extra_fields
@@ -123,68 +123,68 @@ export class HaDeviceCondition extends LitElement {
               @value-changed=${this._extraFieldsChanged}
             ></ha-form>
           `
-        : ""}
-    `;
+        : ''}
+    `
   }
 
   protected firstUpdated() {
-    this.hass.loadBackendTranslation("device_automation");
+    this.hass.loadBackendTranslation('device_automation')
     if (!this._capabilities) {
-      this._getCapabilities();
+      this._getCapabilities()
     }
     if (this.condition) {
-      this._origCondition = this.condition;
+      this._origCondition = this.condition
     }
   }
 
   protected updated(changedProps) {
-    const prevCondition = changedProps.get("condition");
+    const prevCondition = changedProps.get('condition')
     if (
       prevCondition &&
       !deviceAutomationsEqual(this._entityReg, prevCondition, this.condition)
     ) {
-      this._getCapabilities();
+      this._getCapabilities()
     }
   }
 
   private async _getCapabilities() {
-    const condition = this.condition;
+    const condition = this.condition
 
     this._capabilities = condition.domain
       ? await fetchDeviceConditionCapabilities(this.hass, condition)
-      : undefined;
+      : undefined
   }
 
   private _devicePicked(ev) {
-    ev.stopPropagation();
-    this._deviceId = ev.target.value;
+    ev.stopPropagation()
+    this._deviceId = ev.target.value
     if (this._deviceId === undefined) {
-      fireEvent(this, "value-changed", {
-        value: { ...HaDeviceCondition.defaultConfig, condition: "device" },
-      });
+      fireEvent(this, 'value-changed', {
+        value: { ...HaDeviceCondition.defaultConfig, condition: 'device' },
+      })
     }
   }
 
   private _deviceConditionPicked(ev) {
-    ev.stopPropagation();
-    let condition = ev.detail.value;
+    ev.stopPropagation()
+    let condition = ev.detail.value
     if (
       this._origCondition &&
       deviceAutomationsEqual(this._entityReg, this._origCondition, condition)
     ) {
-      condition = this._origCondition;
+      condition = this._origCondition
     }
-    fireEvent(this, "value-changed", { value: condition });
+    fireEvent(this, 'value-changed', { value: condition })
   }
 
   private _extraFieldsChanged(ev) {
-    ev.stopPropagation();
-    fireEvent(this, "value-changed", {
+    ev.stopPropagation()
+    fireEvent(this, 'value-changed', {
       value: {
         ...this.condition,
         ...ev.detail.value,
       },
-    });
+    })
   }
 
   static styles = css`
@@ -197,11 +197,11 @@ export class HaDeviceCondition extends LitElement {
       display: block;
       margin-top: 24px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-condition-device": HaDeviceCondition;
+    'ha-automation-condition-device': HaDeviceCondition
   }
 }

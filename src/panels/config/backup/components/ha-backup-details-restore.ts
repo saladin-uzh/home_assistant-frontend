@@ -1,35 +1,32 @@
-import memoizeOne from "memoize-one";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import "../../../../components/ha-card";
-import "../../../../components/ha-md-list";
-import "../../../../components/ha-md-list-item";
-import "../../../../components/ha-button";
-import "./ha-backup-data-picker";
-import type { HomeAssistant } from "../../../../types";
-import type { LocalizeFunc } from "../../../../common/translations/localize";
-import type {
-  BackupContentExtended,
-  BackupData,
-} from "../../../../data/backup";
-import { fireEvent } from "../../../../common/dom/fire_event";
+import memoizeOne from 'memoize-one'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import '../../../../components/ha-card'
+import '../../../../components/ha-md-list'
+import '../../../../components/ha-md-list-item'
+import '../../../../components/ha-button'
+import './ha-backup-data-picker'
+import type { HomeAssistant } from '../../../../types'
+import type { LocalizeFunc } from '../../../../common/translations/localize'
+import type { BackupContentExtended, BackupData } from '../../../../data/backup'
+import { fireEvent } from '../../../../common/dom/fire_event'
 
-@customElement("ha-backup-details-restore")
+@customElement('ha-backup-details-restore')
 class HaBackupDetailsRestore extends LitElement {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property({ attribute: false }) public localize!: LocalizeFunc;
+  @property({ attribute: false }) public localize!: LocalizeFunc
 
-  @property({ type: Object }) public backup!: BackupContentExtended;
+  @property({ type: Object }) public backup!: BackupContentExtended
 
-  @property({ type: Boolean, attribute: "ha-required" })
-  public haRequired = false;
+  @property({ type: Boolean, attribute: 'ha-required' })
+  public haRequired = false
 
-  @property({ attribute: "translation-key-panel" }) public translationKeyPanel:
-    | "page-onboarding.restore"
-    | "config.backup" = "config.backup";
+  @property({ attribute: 'translation-key-panel' }) public translationKeyPanel:
+    | 'page-onboarding.restore'
+    | 'config.backup' = 'config.backup'
 
-  @state() private _selectedData?: BackupData;
+  @state() private _selectedData?: BackupData
 
   protected willUpdate() {
     if (!this.hasUpdated && this.haRequired) {
@@ -39,7 +36,7 @@ class HaBackupDetailsRestore extends LitElement {
         addons: [],
         homeassistant_version: this.backup.homeassistant_version,
         database_included: this.backup.database_included,
-      };
+      }
     }
   }
 
@@ -76,21 +73,21 @@ class HaBackupDetailsRestore extends LitElement {
           </ha-button>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   private _restore() {
-    fireEvent(this, "backup-restore", { selectedData: this._selectedData });
+    fireEvent(this, 'backup-restore', { selectedData: this._selectedData })
   }
 
   private _selectedBackupChanged(ev: CustomEvent) {
-    ev.stopPropagation();
-    this._selectedData = ev.detail.value;
+    ev.stopPropagation()
+    this._selectedData = ev.detail.value
   }
 
   private _isHomeAssistantRequired = memoizeOne((required: boolean) =>
-    required ? ["config"] : []
-  );
+    required ? ['config'] : []
+  )
 
   private get _isRestoreDisabled(): boolean {
     return (
@@ -102,7 +99,7 @@ class HaBackupDetailsRestore extends LitElement {
         this._selectedData.addons.length ||
         this._selectedData.folders.length
       )
-    );
+    )
   }
 
   static styles = css`
@@ -129,21 +126,21 @@ class HaBackupDetailsRestore extends LitElement {
       --md-list-item-trailing-space: 0;
       --md-list-item-two-line-container-height: 64px;
     }
-    ha-md-list-item [slot="supporting-text"] {
+    ha-md-list-item [slot='supporting-text'] {
       display: flex;
       align-items: center;
       flex-direction: row;
       gap: var(--ha-space-2);
       line-height: var(--ha-line-height-condensed);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-backup-details-restore": HaBackupDetailsRestore;
+    'ha-backup-details-restore': HaBackupDetailsRestore
   }
   interface HASSDomEvents {
-    "backup-restore": { selectedData?: BackupData };
+    'backup-restore': { selectedData?: BackupData }
   }
 }

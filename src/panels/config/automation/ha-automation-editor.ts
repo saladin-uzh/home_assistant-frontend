@@ -1,4 +1,4 @@
-import { consume } from "@lit/context";
+import { consume } from '@lit/context'
 import {
   mdiAppleKeyboardCommand,
   mdiCog,
@@ -19,34 +19,34 @@ import {
   mdiTag,
   mdiTransitConnection,
   mdiUndo,
-} from "@mdi/js";
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { CSSResultGroup, PropertyValues, TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { property, query, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { transform } from "../../../common/decorators/transform";
-import { fireEvent } from "../../../common/dom/fire_event";
-import { goBack, navigate } from "../../../common/navigate";
-import { promiseTimeout } from "../../../common/util/promise-timeout";
-import { afterNextRender } from "../../../common/util/render-status";
-import "../../../components/ha-button";
-import "../../../components/ha-button-menu";
-import "../../../components/ha-fab";
-import "../../../components/ha-fade-in";
-import "../../../components/ha-icon";
-import "../../../components/ha-icon-button";
-import "../../../components/ha-list-item";
-import "../../../components/ha-spinner";
-import "../../../components/ha-svg-icon";
-import "../../../components/ha-yaml-editor";
+} from '@mdi/js'
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { CSSResultGroup, PropertyValues, TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { property, query, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { transform } from '../../../common/decorators/transform'
+import { fireEvent } from '../../../common/dom/fire_event'
+import { goBack, navigate } from '../../../common/navigate'
+import { promiseTimeout } from '../../../common/util/promise-timeout'
+import { afterNextRender } from '../../../common/util/render-status'
+import '../../../components/ha-button'
+import '../../../components/ha-button-menu'
+import '../../../components/ha-fab'
+import '../../../components/ha-fade-in'
+import '../../../components/ha-icon'
+import '../../../components/ha-icon-button'
+import '../../../components/ha-list-item'
+import '../../../components/ha-spinner'
+import '../../../components/ha-svg-icon'
+import '../../../components/ha-yaml-editor'
 import type {
   AutomationConfig,
   AutomationEntity,
   BlueprintAutomationConfig,
   Condition,
   Trigger,
-} from "../../../data/automation";
+} from '../../../data/automation'
 import {
   deleteAutomation,
   fetchAutomationFileConfig,
@@ -56,152 +56,152 @@ import {
   saveAutomationConfig,
   showAutomationEditor,
   triggerAutomationActions,
-} from "../../../data/automation";
-import { substituteBlueprint } from "../../../data/blueprint";
-import { validateConfig } from "../../../data/config";
-import { fullEntitiesContext } from "../../../data/context";
-import { UNAVAILABLE } from "../../../data/entity";
+} from '../../../data/automation'
+import { substituteBlueprint } from '../../../data/blueprint'
+import { validateConfig } from '../../../data/config'
+import { fullEntitiesContext } from '../../../data/context'
+import { UNAVAILABLE } from '../../../data/entity'
 import {
   type EntityRegistryEntry,
   updateEntityRegistryEntry,
-} from "../../../data/entity_registry";
-import type { Action } from "../../../data/script";
+} from '../../../data/entity_registry'
+import type { Action } from '../../../data/script'
 import {
   showAlertDialog,
   showConfirmationDialog,
-} from "../../../dialogs/generic/show-dialog-box";
-import { showMoreInfoDialog } from "../../../dialogs/more-info/show-ha-more-info-dialog";
-import "../../../layouts/hass-subpage";
-import { KeyboardShortcutMixin } from "../../../mixins/keyboard-shortcut-mixin";
-import { PreventUnsavedMixin } from "../../../mixins/prevent-unsaved-mixin";
-import { UndoRedoController } from "../../../common/controllers/undo-redo-controller";
-import { haStyle } from "../../../resources/styles";
-import type { Entries, HomeAssistant, Route } from "../../../types";
-import { isMac } from "../../../util/is_mac";
-import { showToast } from "../../../util/toast";
-import { showAssignCategoryDialog } from "../category/show-dialog-assign-category";
-import "../ha-config-section";
-import { showAutomationModeDialog } from "./automation-mode-dialog/show-dialog-automation-mode";
+} from '../../../dialogs/generic/show-dialog-box'
+import { showMoreInfoDialog } from '../../../dialogs/more-info/show-ha-more-info-dialog'
+import '../../../layouts/hass-subpage'
+import { KeyboardShortcutMixin } from '../../../mixins/keyboard-shortcut-mixin'
+import { PreventUnsavedMixin } from '../../../mixins/prevent-unsaved-mixin'
+import { UndoRedoController } from '../../../common/controllers/undo-redo-controller'
+import { haStyle } from '../../../resources/styles'
+import type { Entries, HomeAssistant, Route } from '../../../types'
+import { isMac } from '../../../util/is_mac'
+import { showToast } from '../../../util/toast'
+import { showAssignCategoryDialog } from '../category/show-dialog-assign-category'
+import '../ha-config-section'
+import { showAutomationModeDialog } from './automation-mode-dialog/show-dialog-automation-mode'
 import {
   type EntityRegistryUpdate,
   showAutomationSaveDialog,
-} from "./automation-save-dialog/show-dialog-automation-save";
-import "./blueprint-automation-editor";
-import "./manual-automation-editor";
-import type { HaManualAutomationEditor } from "./manual-automation-editor";
-import { showAutomationSaveTimeoutDialog } from "./automation-save-timeout-dialog/show-dialog-automation-save-timeout";
+} from './automation-save-dialog/show-dialog-automation-save'
+import './blueprint-automation-editor'
+import './manual-automation-editor'
+import type { HaManualAutomationEditor } from './manual-automation-editor'
+import { showAutomationSaveTimeoutDialog } from './automation-save-timeout-dialog/show-dialog-automation-save-timeout'
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-editor": HaAutomationEditor;
+    'ha-automation-editor': HaAutomationEditor
   }
   // for fire event
   interface HASSDomEvents {
-    "subscribe-automation-config": {
-      callback: (config: AutomationConfig) => void;
-      unsub?: UnsubscribeFunc;
-    };
-    "ui-mode-not-available": Error;
-    "move-down": undefined;
-    "move-up": undefined;
-    duplicate: undefined;
-    "insert-after": {
-      value: Trigger | Condition | Action | Trigger[] | Condition[] | Action[];
-    };
-    "save-automation": undefined;
+    'subscribe-automation-config': {
+      callback: (config: AutomationConfig) => void
+      unsub?: UnsubscribeFunc
+    }
+    'ui-mode-not-available': Error
+    'move-down': undefined
+    'move-up': undefined
+    duplicate: undefined
+    'insert-after': {
+      value: Trigger | Condition | Action | Trigger[] | Condition[] | Action[]
+    }
+    'save-automation': undefined
   }
 }
 
 export class HaAutomationEditor extends PreventUnsavedMixin(
   KeyboardShortcutMixin(LitElement)
 ) {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public automationId: string | null = null;
+  @property({ attribute: false }) public automationId: string | null = null
 
-  @property({ attribute: false }) public entityId: string | null = null;
+  @property({ attribute: false }) public entityId: string | null = null
 
-  @property({ attribute: false }) public automations!: AutomationEntity[];
+  @property({ attribute: false }) public automations!: AutomationEntity[]
 
-  @property({ attribute: "is-wide", type: Boolean }) public isWide = false;
+  @property({ attribute: 'is-wide', type: Boolean }) public isWide = false
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ attribute: false }) public route!: Route;
+  @property({ attribute: false }) public route!: Route
 
-  @state() private _config?: AutomationConfig;
+  @state() private _config?: AutomationConfig
 
-  @state() private _dirty = false;
+  @state() private _dirty = false
 
-  @state() private _errors?: string;
+  @state() private _errors?: string
 
-  @state() private _yamlErrors?: string;
+  @state() private _yamlErrors?: string
 
-  @state() private _entityId?: string;
+  @state() private _entityId?: string
 
-  @state() private _mode: "gui" | "yaml" = "gui";
+  @state() private _mode: 'gui' | 'yaml' = 'gui'
 
-  @state() private _readOnly = false;
+  @state() private _readOnly = false
 
-  @state() private _validationErrors?: (string | TemplateResult)[];
+  @state() private _validationErrors?: (string | TemplateResult)[]
 
-  @state() private _blueprintConfig?: BlueprintAutomationConfig;
+  @state() private _blueprintConfig?: BlueprintAutomationConfig
 
   @state()
   @consume({ context: fullEntitiesContext, subscribe: true })
   @transform<EntityRegistryEntry[], EntityRegistryEntry>({
     transformer: function (this: HaAutomationEditor, value) {
-      return value.find(({ entity_id }) => entity_id === this._entityId);
+      return value.find(({ entity_id }) => entity_id === this._entityId)
     },
-    watch: ["_entityId"],
+    watch: ['_entityId'],
   })
-  private _registryEntry?: EntityRegistryEntry;
+  private _registryEntry?: EntityRegistryEntry
 
-  @state() private _saving = false;
+  @state() private _saving = false
 
   @state()
   @consume({ context: fullEntitiesContext, subscribe: true })
-  _entityRegistry!: EntityRegistryEntry[];
+  _entityRegistry!: EntityRegistryEntry[]
 
-  @query("manual-automation-editor")
-  private _manualEditor?: HaManualAutomationEditor;
+  @query('manual-automation-editor')
+  private _manualEditor?: HaManualAutomationEditor
 
   private _configSubscriptions: Record<
     string,
     (config?: AutomationConfig) => void
-  > = {};
+  > = {}
 
-  private _configSubscriptionsId = 1;
+  private _configSubscriptionsId = 1
 
-  private _entityRegistryUpdate?: EntityRegistryUpdate;
+  private _entityRegistryUpdate?: EntityRegistryUpdate
 
-  private _newAutomationId?: string;
+  private _newAutomationId?: string
 
   private _entityRegCreated?: (
     value: PromiseLike<EntityRegistryEntry> | EntityRegistryEntry
-  ) => void;
+  ) => void
 
   private _undoRedoController = new UndoRedoController<AutomationConfig>(this, {
-    apply: (config) => this._applyUndoRedo(config),
+    apply: config => this._applyUndoRedo(config),
     currentConfig: () => this._config!,
-  });
+  })
 
   protected willUpdate(changedProps) {
-    super.willUpdate(changedProps);
+    super.willUpdate(changedProps)
 
     if (
       this._entityRegCreated &&
       this._newAutomationId &&
-      changedProps.has("_entityRegistry")
+      changedProps.has('_entityRegistry')
     ) {
       const automation = this._entityRegistry.find(
         (entity: EntityRegistryEntry) =>
-          entity.platform === "automation" &&
+          entity.platform === 'automation' &&
           entity.unique_id === this._newAutomationId
-      );
+      )
       if (automation) {
-        this._entityRegCreated(automation);
-        this._entityRegCreated = undefined;
+        this._entityRegCreated(automation)
+        this._entityRegCreated = undefined
       }
     }
   }
@@ -212,17 +212,17 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
         <ha-fade-in .delay=${500}>
           <ha-spinner size="large"></ha-spinner>
         </ha-fade-in>
-      `;
+      `
     }
 
     const stateObj = this._entityId
       ? this.hass.states[this._entityId]
-      : undefined;
+      : undefined
 
-    const useBlueprint = "use_blueprint" in this._config;
+    const useBlueprint = 'use_blueprint' in this._config
     const shortcutIcon = isMac
       ? html`<ha-svg-icon .path=${mdiAppleKeyboardCommand}></ha-svg-icon>`
-      : this.hass.localize("ui.panel.config.automation.editor.ctrl");
+      : this.hass.localize('ui.panel.config.automation.editor.ctrl')
 
     return html`
       <hass-subpage
@@ -231,20 +231,23 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
         .route=${this.route}
         .backCallback=${this._backTapped}
         .header=${this._config.alias ||
-        this.hass.localize("ui.panel.config.automation.editor.default_name")}
+        this.hass.localize('ui.panel.config.automation.editor.default_name')}
       >
-        ${this._mode === "gui" && !this.narrow
+        ${this._mode === 'gui' && !this.narrow
           ? html`<ha-icon-button
                 slot="toolbar-icon"
-                .label=${this.hass.localize("ui.common.undo")}
+                .label=${this.hass.localize('ui.common.undo')}
                 .path=${mdiUndo}
                 @click=${this._undo}
                 .disabled=${!this._undoRedoController.canUndo}
                 id="button-undo"
               >
               </ha-icon-button>
-              <ha-tooltip placement="bottom" for="button-undo">
-                ${this.hass.localize("ui.common.undo")}
+              <ha-tooltip
+                placement="bottom"
+                for="button-undo"
+              >
+                ${this.hass.localize('ui.common.undo')}
                 <span class="shortcut"
                   >(
                   <span>${shortcutIcon}</span>
@@ -254,15 +257,18 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
               </ha-tooltip>
               <ha-icon-button
                 slot="toolbar-icon"
-                .label=${this.hass.localize("ui.common.redo")}
+                .label=${this.hass.localize('ui.common.redo')}
                 .path=${mdiRedo}
                 @click=${this._redo}
                 .disabled=${!this._undoRedoController.canRedo}
                 id="button-redo"
               >
               </ha-icon-button>
-              <ha-tooltip placement="bottom" for="button-redo">
-                ${this.hass.localize("ui.common.redo")}
+              <ha-tooltip
+                placement="bottom"
+                for="button-redo"
+              >
+                ${this.hass.localize('ui.common.redo')}
                 <span class="shortcut">
                   (
                   ${isMac
@@ -286,34 +292,40 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
                 slot="toolbar-icon"
               >
                 ${this.hass.localize(
-                  "ui.panel.config.automation.editor.show_trace"
+                  'ui.panel.config.automation.editor.show_trace'
                 )}
               </ha-button>
             `
-          : ""}
+          : ''}
         <ha-button-menu slot="toolbar-icon">
           <ha-icon-button
             slot="trigger"
-            .label=${this.hass.localize("ui.common.menu")}
+            .label=${this.hass.localize('ui.common.menu')}
             .path=${mdiDotsVertical}
           ></ha-icon-button>
 
-          ${this._mode === "gui" && this.narrow
+          ${this._mode === 'gui' && this.narrow
             ? html`<ha-list-item
                   graphic="icon"
                   @click=${this._undo}
                   .disabled=${!this._undoRedoController.canUndo}
                 >
-                  ${this.hass.localize("ui.common.undo")}
-                  <ha-svg-icon slot="graphic" .path=${mdiUndo}></ha-svg-icon>
+                  ${this.hass.localize('ui.common.undo')}
+                  <ha-svg-icon
+                    slot="graphic"
+                    .path=${mdiUndo}
+                  ></ha-svg-icon>
                 </ha-list-item>
                 <ha-list-item
                   graphic="icon"
                   @click=${this._redo}
                   .disabled=${!this._undoRedoController.canRedo}
                 >
-                  ${this.hass.localize("ui.common.redo")}
-                  <ha-svg-icon slot="graphic" .path=${mdiRedo}></ha-svg-icon>
+                  ${this.hass.localize('ui.common.redo')}
+                  <ha-svg-icon
+                    slot="graphic"
+                    .path=${mdiRedo}
+                  ></ha-svg-icon>
                 </ha-list-item>`
             : nothing}
 
@@ -322,7 +334,7 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
             .disabled=${!stateObj}
             @click=${this._showInfo}
           >
-            ${this.hass.localize("ui.panel.config.automation.editor.show_info")}
+            ${this.hass.localize('ui.panel.config.automation.editor.show_info')}
             <ha-svg-icon
               slot="graphic"
               .path=${mdiInformationOutline}
@@ -335,9 +347,12 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
             @click=${this._showSettings}
           >
             ${this.hass.localize(
-              "ui.panel.config.automation.picker.show_settings"
+              'ui.panel.config.automation.picker.show_settings'
             )}
-            <ha-svg-icon slot="graphic" .path=${mdiCog}></ha-svg-icon>
+            <ha-svg-icon
+              slot="graphic"
+              .path=${mdiCog}
+            ></ha-svg-icon>
           </ha-list-item>
 
           <ha-list-item
@@ -346,9 +361,12 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
             @click=${this._editCategory}
           >
             ${this.hass.localize(
-              `ui.panel.config.scene.picker.${this._registryEntry?.categories?.automation ? "edit_category" : "assign_category"}`
+              `ui.panel.config.scene.picker.${this._registryEntry?.categories?.automation ? 'edit_category' : 'assign_category'}`
             )}
-            <ha-svg-icon slot="graphic" .path=${mdiTag}></ha-svg-icon>
+            <ha-svg-icon
+              slot="graphic"
+              .path=${mdiTag}
+            ></ha-svg-icon>
           </ha-list-item>
 
           <ha-list-item
@@ -356,8 +374,11 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
             .disabled=${!stateObj}
             @click=${this._runActions}
           >
-            ${this.hass.localize("ui.panel.config.automation.editor.run")}
-            <ha-svg-icon slot="graphic" .path=${mdiPlay}></ha-svg-icon>
+            ${this.hass.localize('ui.panel.config.automation.editor.run')}
+            <ha-svg-icon
+              slot="graphic"
+              .path=${mdiPlay}
+            ></ha-svg-icon>
           </ha-list-item>
 
           ${stateObj && this.narrow
@@ -368,7 +389,7 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
               >
                 <ha-list-item graphic="icon">
                   ${this.hass.localize(
-                    "ui.panel.config.automation.editor.show_trace"
+                    'ui.panel.config.automation.editor.show_trace'
                   )}
                   <ha-svg-icon
                     slot="graphic"
@@ -383,20 +404,23 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
             @click=${this._promptAutomationAlias}
             .disabled=${this._readOnly ||
             !this.automationId ||
-            this._mode === "yaml"}
+            this._mode === 'yaml'}
           >
-            ${this.hass.localize("ui.panel.config.automation.editor.rename")}
-            <ha-svg-icon slot="graphic" .path=${mdiRenameBox}></ha-svg-icon>
+            ${this.hass.localize('ui.panel.config.automation.editor.rename')}
+            <ha-svg-icon
+              slot="graphic"
+              .path=${mdiRenameBox}
+            ></ha-svg-icon>
           </ha-list-item>
           ${!useBlueprint
             ? html`
                 <ha-list-item
                   graphic="icon"
                   @click=${this._promptAutomationMode}
-                  .disabled=${this._readOnly || this._mode === "yaml"}
+                  .disabled=${this._readOnly || this._mode === 'yaml'}
                 >
                   ${this.hass.localize(
-                    "ui.panel.config.automation.editor.change_mode"
+                    'ui.panel.config.automation.editor.change_mode'
                   )}
                   <ha-svg-icon
                     slot="graphic"
@@ -414,8 +438,8 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
           >
             ${this.hass.localize(
               this._readOnly
-                ? "ui.panel.config.automation.editor.migrate"
-                : "ui.panel.config.automation.editor.duplicate"
+                ? 'ui.panel.config.automation.editor.migrate'
+                : 'ui.panel.config.automation.editor.duplicate'
             )}
             <ha-svg-icon
               slot="graphic"
@@ -431,7 +455,7 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
                   .disabled=${this._readOnly}
                 >
                   ${this.hass.localize(
-                    "ui.panel.config.automation.editor.take_control"
+                    'ui.panel.config.automation.editor.take_control'
                   )}
                   <ha-svg-icon
                     slot="graphic"
@@ -443,29 +467,35 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
 
           <ha-list-item
             graphic="icon"
-            @click=${this._mode === "gui"
+            @click=${this._mode === 'gui'
               ? this._switchYamlMode
               : this._switchUiMode}
           >
             ${this.hass.localize(
-              `ui.panel.config.automation.editor.edit_${this._mode === "gui" ? "yaml" : "ui"}`
+              `ui.panel.config.automation.editor.edit_${this._mode === 'gui' ? 'yaml' : 'ui'}`
             )}
-            <ha-svg-icon slot="graphic" .path=${mdiPlaylistEdit}></ha-svg-icon>
+            <ha-svg-icon
+              slot="graphic"
+              .path=${mdiPlaylistEdit}
+            ></ha-svg-icon>
           </ha-list-item>
 
-          <li divider role="separator"></li>
+          <li
+            divider
+            role="separator"
+          ></li>
 
           <ha-list-item
             graphic="icon"
             .disabled=${!stateObj}
             @click=${this._toggle}
           >
-            ${stateObj?.state === "off"
-              ? this.hass.localize("ui.panel.config.automation.editor.enable")
-              : this.hass.localize("ui.panel.config.automation.editor.disable")}
+            ${stateObj?.state === 'off'
+              ? this.hass.localize('ui.panel.config.automation.editor.enable')
+              : this.hass.localize('ui.panel.config.automation.editor.disable')}
             <ha-svg-icon
               slot="graphic"
-              .path=${stateObj?.state === "off"
+              .path=${stateObj?.state === 'off'
                 ? mdiPlayCircleOutline
                 : mdiStopCircleOutline}
             ></ha-svg-icon>
@@ -477,7 +507,7 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
             graphic="icon"
             @click=${this._deleteConfirm}
           >
-            ${this.hass.localize("ui.panel.config.automation.picker.delete")}
+            ${this.hass.localize('ui.panel.config.automation.picker.delete')}
             <ha-svg-icon
               class=${classMap({ warning: Boolean(this.automationId) })}
               slot="graphic"
@@ -487,10 +517,10 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
           </ha-list-item>
         </ha-button-menu>
         <div
-          class=${this._mode === "yaml" ? "yaml-mode" : ""}
+          class=${this._mode === 'yaml' ? 'yaml-mode' : ''}
           @subscribe-automation-config=${this._subscribeAutomationConfig}
         >
-          ${this._mode === "gui"
+          ${this._mode === 'gui'
             ? html`
                 <div>
                   ${useBlueprint
@@ -522,13 +552,16 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
                           @save-automation=${this._handleSaveAutomation}
                           @editor-save=${this._handleSaveAutomation}
                         >
-                          <div class="alert-wrapper" slot="alerts">
+                          <div
+                            class="alert-wrapper"
+                            slot="alerts"
+                          >
                             ${this._errors || stateObj?.state === UNAVAILABLE
                               ? html`<ha-alert
                                   alert-type="error"
                                   .title=${stateObj?.state === UNAVAILABLE
                                     ? this.hass.localize(
-                                        "ui.panel.config.automation.editor.unavailable"
+                                        'ui.panel.config.automation.editor.unavailable'
                                       )
                                     : undefined}
                                 >
@@ -544,21 +577,24 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
                             ${this._blueprintConfig
                               ? html`<ha-alert alert-type="info">
                                   ${this.hass.localize(
-                                    "ui.panel.config.automation.editor.confirm_take_control"
+                                    'ui.panel.config.automation.editor.confirm_take_control'
                                   )}
-                                  <div slot="action" style="display: flex;">
+                                  <div
+                                    slot="action"
+                                    style="display: flex;"
+                                  >
                                     <ha-button
                                       appearance="plain"
                                       @click=${this._takeControlSave}
                                       >${this.hass.localize(
-                                        "ui.common.yes"
+                                        'ui.common.yes'
                                       )}</ha-button
                                     >
                                     <ha-button
                                       appearance="plain"
                                       @click=${this._revertBlueprint}
                                       >${this.hass.localize(
-                                        "ui.common.no"
+                                        'ui.common.no'
                                       )}</ha-button
                                     >
                                   </div>
@@ -568,7 +604,7 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
                                     alert-type="warning"
                                     dismissable
                                     >${this.hass.localize(
-                                      "ui.panel.config.automation.editor.read_only"
+                                      'ui.panel.config.automation.editor.read_only'
                                     )}
                                     <ha-button
                                       appearance="filled"
@@ -578,16 +614,16 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
                                       @click=${this._duplicate}
                                     >
                                       ${this.hass.localize(
-                                        "ui.panel.config.automation.editor.migrate"
+                                        'ui.panel.config.automation.editor.migrate'
                                       )}
                                     </ha-button>
                                   </ha-alert>`
                                 : nothing}
-                            ${stateObj?.state === "off"
+                            ${stateObj?.state === 'off'
                               ? html`
                                   <ha-alert alert-type="info">
                                     ${this.hass.localize(
-                                      "ui.panel.config.automation.editor.disabled"
+                                      'ui.panel.config.automation.editor.disabled'
                                     )}
                                     <ha-button
                                       size="small"
@@ -595,7 +631,7 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
                                       @click=${this._toggle}
                                     >
                                       ${this.hass.localize(
-                                        "ui.panel.config.automation.editor.enable"
+                                        'ui.panel.config.automation.editor.enable'
                                       )}
                                     </ha-button>
                                   </ha-alert>
@@ -606,12 +642,12 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
                       `}
                 </div>
               `
-            : this._mode === "yaml"
-              ? html`${stateObj?.state === "off"
+            : this._mode === 'yaml'
+              ? html`${stateObj?.state === 'off'
                     ? html`
                         <ha-alert alert-type="info">
                           ${this.hass.localize(
-                            "ui.panel.config.automation.editor.disabled"
+                            'ui.panel.config.automation.editor.disabled'
                           )}
                           <ha-button
                             appearance="filled"
@@ -620,7 +656,7 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
                             @click=${this._toggle}
                           >
                             ${this.hass.localize(
-                              "ui.panel.config.automation.editor.enable"
+                              'ui.panel.config.automation.editor.enable'
                             )}
                           </ha-button>
                         </ha-alert>
@@ -637,8 +673,8 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
                   ></ha-yaml-editor>
                   <ha-fab
                     slot="fab"
-                    class=${this._dirty ? "dirty" : ""}
-                    .label=${this.hass.localize("ui.common.save")}
+                    class=${this._dirty ? 'dirty' : ''}
+                    .label=${this.hass.localize('ui.common.save')}
                     .disabled=${this._saving}
                     extended
                     @click=${this._handleSaveAutomation}
@@ -651,106 +687,104 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
               : nothing}
         </div>
       </hass-subpage>
-    `;
+    `
   }
 
   protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
+    super.updated(changedProps)
 
-    const oldAutomationId = changedProps.get("automationId");
+    const oldAutomationId = changedProps.get('automationId')
     if (
-      changedProps.has("automationId") &&
+      changedProps.has('automationId') &&
       this.automationId &&
       this.hass &&
       // Only refresh config if we picked a new automation. If same ID, don't fetch it.
       oldAutomationId !== this.automationId
     ) {
-      this._setEntityId();
-      this._loadConfig();
+      this._setEntityId()
+      this._loadConfig()
     }
 
     if (
-      changedProps.has("automationId") &&
+      changedProps.has('automationId') &&
       !this.automationId &&
       !this.entityId &&
       this.hass
     ) {
-      const initData = getAutomationEditorInitData();
-      this._dirty = !!initData;
-      let baseConfig: Partial<AutomationConfig> = { description: "" };
-      if (!initData || !("use_blueprint" in initData)) {
+      const initData = getAutomationEditorInitData()
+      this._dirty = !!initData
+      let baseConfig: Partial<AutomationConfig> = { description: '' }
+      if (!initData || !('use_blueprint' in initData)) {
         baseConfig = {
           ...baseConfig,
-          mode: "single",
+          mode: 'single',
           triggers: [],
           conditions: [],
           actions: [],
-        };
+        }
       }
       this._config = {
         ...baseConfig,
         ...(initData ? normalizeAutomationConfig(initData) : initData),
-      } as AutomationConfig;
-      this._entityId = undefined;
-      this._readOnly = false;
+      } as AutomationConfig
+      this._entityId = undefined
+      this._readOnly = false
     }
 
-    if (changedProps.has("entityId") && this.entityId) {
-      getAutomationStateConfig(this.hass, this.entityId).then((c) => {
-        this._config = normalizeAutomationConfig(c.config);
-        this._checkValidation();
-      });
-      this._entityId = this.entityId;
-      this._dirty = false;
-      this._readOnly = true;
+    if (changedProps.has('entityId') && this.entityId) {
+      getAutomationStateConfig(this.hass, this.entityId).then(c => {
+        this._config = normalizeAutomationConfig(c.config)
+        this._checkValidation()
+      })
+      this._entityId = this.entityId
+      this._dirty = false
+      this._readOnly = true
     }
 
     if (
-      changedProps.has("automations") &&
+      changedProps.has('automations') &&
       this.automationId &&
       !this._entityId
     ) {
-      this._setEntityId();
+      this._setEntityId()
     }
 
-    if (changedProps.has("_config")) {
-      Object.values(this._configSubscriptions).forEach((sub) =>
-        sub(this._config)
-      );
+    if (changedProps.has('_config')) {
+      Object.values(this._configSubscriptions).forEach(sub => sub(this._config))
     }
   }
 
   private _setEntityId() {
     const automation = this.automations.find(
       (entity: AutomationEntity) => entity.attributes.id === this.automationId
-    );
-    this._entityId = automation?.entity_id;
+    )
+    this._entityId = automation?.entity_id
   }
 
   private async _checkValidation() {
-    this._validationErrors = undefined;
+    this._validationErrors = undefined
     if (!this._entityId || !this._config) {
-      return;
+      return
     }
-    const stateObj = this.hass.states[this._entityId];
+    const stateObj = this.hass.states[this._entityId]
     if (stateObj?.state !== UNAVAILABLE) {
-      return;
+      return
     }
     const validation = await validateConfig(this.hass, {
       triggers: this._config.triggers,
       conditions: this._config.conditions,
       actions: this._config.actions,
-    });
+    })
     this._validationErrors = (
       Object.entries(validation) as Entries<typeof validation>
     ).map(([key, value]) =>
       value.valid
-        ? ""
+        ? ''
         : html`${this.hass.localize(
               `ui.panel.config.automation.editor.${key}.name`
             )}:
             ${value.error}<br />`
-    );
+    )
   }
 
   private async _loadConfig() {
@@ -758,165 +792,165 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
       const config = await fetchAutomationFileConfig(
         this.hass,
         this.automationId as string
-      );
-      this._dirty = false;
-      this._readOnly = false;
-      this._config = normalizeAutomationConfig(config);
-      this._checkValidation();
+      )
+      this._dirty = false
+      this._readOnly = false
+      this._config = normalizeAutomationConfig(config)
+      this._checkValidation()
     } catch (err: any) {
       const entity = this._entityRegistry.find(
-        (ent) =>
-          ent.platform === "automation" && ent.unique_id === this.automationId
-      );
+        ent =>
+          ent.platform === 'automation' && ent.unique_id === this.automationId
+      )
       if (entity) {
         navigate(`/config/automation/show/${entity.entity_id}`, {
           replace: true,
-        });
-        return;
+        })
+        return
       }
       await showAlertDialog(this, {
         text:
           err.status_code === 404
             ? this.hass.localize(
-                "ui.panel.config.automation.editor.load_error_not_editable"
+                'ui.panel.config.automation.editor.load_error_not_editable'
               )
             : this.hass.localize(
-                "ui.panel.config.automation.editor.load_error_unknown",
+                'ui.panel.config.automation.editor.load_error_unknown',
                 { err_no: err.status_code }
               ),
-      });
-      goBack("/config");
+      })
+      goBack('/config')
     }
   }
 
   private _valueChanged(ev: CustomEvent<{ value: AutomationConfig }>) {
-    ev.stopPropagation();
+    ev.stopPropagation()
 
     if (this._config) {
-      this._undoRedoController.commit(this._config);
+      this._undoRedoController.commit(this._config)
     }
 
-    this._config = ev.detail.value;
+    this._config = ev.detail.value
     if (this._readOnly) {
-      return;
+      return
     }
-    this._dirty = true;
-    this._errors = undefined;
+    this._dirty = true
+    this._errors = undefined
   }
 
   private _showInfo() {
     if (!this.hass || !this._entityId) {
-      return;
+      return
     }
-    fireEvent(this, "hass-more-info", { entityId: this._entityId });
+    fireEvent(this, 'hass-more-info', { entityId: this._entityId })
   }
 
   private _showSettings() {
     showMoreInfoDialog(this, {
       entityId: this._entityId!,
-      view: "settings",
-    });
+      view: 'settings',
+    })
   }
 
   private _editCategory() {
     if (!this._registryEntry) {
       showAlertDialog(this, {
         title: this.hass.localize(
-          "ui.panel.config.scene.picker.no_category_support"
+          'ui.panel.config.scene.picker.no_category_support'
         ),
         text: this.hass.localize(
-          "ui.panel.config.scene.picker.no_category_entity_reg"
+          'ui.panel.config.scene.picker.no_category_entity_reg'
         ),
-      });
-      return;
+      })
+      return
     }
     showAssignCategoryDialog(this, {
-      scope: "automation",
+      scope: 'automation',
       entityReg: this._registryEntry,
-    });
+    })
   }
 
   private async _showTrace() {
     if (this._config?.id) {
-      const result = await this._confirmUnsavedChanged();
+      const result = await this._confirmUnsavedChanged()
       if (result) {
         navigate(
           `/config/automation/trace/${encodeURIComponent(this._config.id)}`
-        );
+        )
       }
     }
   }
 
   private _runActions() {
     if (!this.hass || !this._entityId) {
-      return;
+      return
     }
     triggerAutomationActions(
       this.hass,
       this.hass.states[this._entityId].entity_id
-    );
+    )
   }
 
   private async _toggle(): Promise<void> {
     if (!this.hass || !this._entityId) {
-      return;
+      return
     }
-    const stateObj = this.hass.states[this._entityId];
-    const service = stateObj.state === "off" ? "turn_on" : "turn_off";
-    await this.hass.callService("automation", service, {
+    const stateObj = this.hass.states[this._entityId]
+    const service = stateObj.state === 'off' ? 'turn_on' : 'turn_off'
+    await this.hass.callService('automation', service, {
       entity_id: stateObj.entity_id,
-    });
+    })
   }
 
   private _preprocessYaml() {
     if (!this._config) {
-      return {};
+      return {}
     }
-    const cleanConfig: AutomationConfig = { ...this._config };
-    delete cleanConfig.id;
-    return cleanConfig;
+    const cleanConfig: AutomationConfig = { ...this._config }
+    delete cleanConfig.id
+    return cleanConfig
   }
 
   private _yamlChanged(ev: CustomEvent) {
-    ev.stopPropagation();
-    this._dirty = true;
+    ev.stopPropagation()
+    this._dirty = true
     if (!ev.detail.isValid) {
-      this._yamlErrors = ev.detail.errorMsg;
-      return;
+      this._yamlErrors = ev.detail.errorMsg
+      return
     }
-    this._yamlErrors = undefined;
+    this._yamlErrors = undefined
     this._config = {
       id: this._config?.id,
       ...normalizeAutomationConfig(ev.detail.value),
-    };
-    this._errors = undefined;
+    }
+    this._errors = undefined
   }
 
   private async _confirmUnsavedChanged(): Promise<boolean> {
     if (!this._dirty) {
-      return true;
+      return true
     }
 
-    return new Promise<boolean>((resolve) => {
+    return new Promise<boolean>(resolve => {
       showAutomationSaveDialog(this, {
         config: this._config!,
-        domain: "automation",
+        domain: 'automation',
         updateConfig: async (config, entityRegistryUpdate) => {
-          this._config = config;
-          this._entityRegistryUpdate = entityRegistryUpdate;
-          this._dirty = true;
-          this.requestUpdate();
+          this._config = config
+          this._entityRegistryUpdate = entityRegistryUpdate
+          this._dirty = true
+          this.requestUpdate()
 
-          const id = this.automationId || String(Date.now());
+          const id = this.automationId || String(Date.now())
           try {
-            await this._saveAutomation(id);
+            await this._saveAutomation(id)
           } catch (_err: any) {
-            this.requestUpdate();
-            resolve(false);
-            return;
+            this.requestUpdate()
+            resolve(false)
+            return
           }
 
-          resolve(true);
+          resolve(true)
         },
         onClose: () => resolve(false),
         onDiscard: () => resolve(true),
@@ -924,111 +958,111 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
         entityRegistryEntry: this._registryEntry,
         title: this.hass.localize(
           this.automationId
-            ? "ui.panel.config.automation.editor.leave.unsaved_confirm_title"
-            : "ui.panel.config.automation.editor.leave.unsaved_new_title"
+            ? 'ui.panel.config.automation.editor.leave.unsaved_confirm_title'
+            : 'ui.panel.config.automation.editor.leave.unsaved_new_title'
         ),
         description: this.hass.localize(
           this.automationId
-            ? "ui.panel.config.automation.editor.leave.unsaved_confirm_text"
-            : "ui.panel.config.automation.editor.leave.unsaved_new_text"
+            ? 'ui.panel.config.automation.editor.leave.unsaved_confirm_text'
+            : 'ui.panel.config.automation.editor.leave.unsaved_new_text'
         ),
         hideInputs: this.automationId !== null,
-      });
-    });
+      })
+    })
   }
 
   private _backTapped = async () => {
-    const result = await this._confirmUnsavedChanged();
+    const result = await this._confirmUnsavedChanged()
     if (result) {
-      afterNextRender(() => goBack("/config"));
+      afterNextRender(() => goBack('/config'))
     }
-  };
+  }
 
   private async _takeControl() {
-    const config = this._config as BlueprintAutomationConfig;
+    const config = this._config as BlueprintAutomationConfig
 
     try {
       const result = await substituteBlueprint(
         this.hass,
-        "automation",
+        'automation',
         config.use_blueprint.path,
         config.use_blueprint.input || {}
-      );
+      )
 
       const newConfig = {
         ...normalizeAutomationConfig(result.substituted_config),
         id: config.id,
         alias: config.alias,
         description: config.description,
-      };
-
-      this._blueprintConfig = config;
-      this._config = newConfig;
-      if (this._mode === "yaml") {
-        this.renderRoot.querySelector("ha-yaml-editor")?.setValue(this._config);
       }
-      this._readOnly = true;
-      this._errors = undefined;
+
+      this._blueprintConfig = config
+      this._config = newConfig
+      if (this._mode === 'yaml') {
+        this.renderRoot.querySelector('ha-yaml-editor')?.setValue(this._config)
+      }
+      this._readOnly = true
+      this._errors = undefined
     } catch (err: any) {
-      this._errors = err.message;
+      this._errors = err.message
     }
   }
 
   private _revertBlueprint() {
-    this._config = this._blueprintConfig;
-    if (this._mode === "yaml") {
-      this.renderRoot.querySelector("ha-yaml-editor")?.setValue(this._config);
+    this._config = this._blueprintConfig
+    if (this._mode === 'yaml') {
+      this.renderRoot.querySelector('ha-yaml-editor')?.setValue(this._config)
     }
-    this._blueprintConfig = undefined;
-    this._readOnly = false;
+    this._blueprintConfig = undefined
+    this._readOnly = false
   }
 
   private _takeControlSave() {
-    this._readOnly = false;
-    this._dirty = true;
-    this._blueprintConfig = undefined;
+    this._readOnly = false
+    this._dirty = true
+    this._blueprintConfig = undefined
   }
 
   private async _duplicate() {
     const result = this._readOnly
       ? await showConfirmationDialog(this, {
           title: this.hass.localize(
-            "ui.panel.config.automation.picker.migrate_automation"
+            'ui.panel.config.automation.picker.migrate_automation'
           ),
           text: this.hass.localize(
-            "ui.panel.config.automation.picker.migrate_automation_description"
+            'ui.panel.config.automation.picker.migrate_automation_description'
           ),
         })
-      : await this._confirmUnsavedChanged();
+      : await this._confirmUnsavedChanged()
     if (result) {
       showAutomationEditor({
         ...this._config,
         id: undefined,
         alias: this._readOnly ? this._config?.alias : undefined,
-      });
+      })
     }
   }
 
   private async _deleteConfirm() {
     showConfirmationDialog(this, {
       title: this.hass.localize(
-        "ui.panel.config.automation.picker.delete_confirm_title"
+        'ui.panel.config.automation.picker.delete_confirm_title'
       ),
       text: this.hass.localize(
-        "ui.panel.config.automation.picker.delete_confirm_text",
+        'ui.panel.config.automation.picker.delete_confirm_text',
         { name: this._config?.alias }
       ),
-      confirmText: this.hass!.localize("ui.common.delete"),
+      confirmText: this.hass!.localize('ui.common.delete'),
       destructive: true,
-      dismissText: this.hass!.localize("ui.common.cancel"),
+      dismissText: this.hass!.localize('ui.common.cancel'),
       confirm: () => this._delete(),
-    });
+    })
   }
 
   private async _delete() {
     if (this.automationId) {
-      await deleteAutomation(this.hass, this.automationId);
-      goBack("/config");
+      await deleteAutomation(this.hass, this.automationId)
+      goBack('/config')
     }
   }
 
@@ -1036,125 +1070,125 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
     if (this._yamlErrors) {
       const result = await showConfirmationDialog(this, {
         text: html`${this.hass.localize(
-            "ui.panel.config.automation.editor.switch_ui_yaml_error"
+            'ui.panel.config.automation.editor.switch_ui_yaml_error'
           )}<br /><br />${this._yamlErrors}`,
-        confirmText: this.hass!.localize("ui.common.continue"),
+        confirmText: this.hass!.localize('ui.common.continue'),
         destructive: true,
-        dismissText: this.hass!.localize("ui.common.cancel"),
-      });
+        dismissText: this.hass!.localize('ui.common.cancel'),
+      })
       if (!result) {
-        return;
+        return
       }
     }
-    this._yamlErrors = undefined;
-    this._mode = "gui";
+    this._yamlErrors = undefined
+    this._mode = 'gui'
   }
 
   private _switchYamlMode() {
-    this._mode = "yaml";
+    this._mode = 'yaml'
   }
 
   private async _promptAutomationAlias(): Promise<boolean> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       showAutomationSaveDialog(this, {
         config: this._config!,
-        domain: "automation",
+        domain: 'automation',
         updateConfig: async (config, entityRegistryUpdate) => {
-          this._config = config;
-          this._entityRegistryUpdate = entityRegistryUpdate;
-          this._dirty = true;
-          this.requestUpdate();
-          resolve(true);
+          this._config = config
+          this._entityRegistryUpdate = entityRegistryUpdate
+          this._dirty = true
+          this.requestUpdate()
+          resolve(true)
         },
         onClose: () => resolve(false),
         entityRegistryUpdate: this._entityRegistryUpdate,
         entityRegistryEntry: this._registryEntry,
-      });
-    });
+      })
+    })
   }
 
   private async _promptAutomationMode(): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       showAutomationModeDialog(this, {
         config: this._config!,
-        updateConfig: (config) => {
-          this._config = config;
-          this._dirty = true;
-          this.requestUpdate();
-          resolve();
+        updateConfig: config => {
+          this._config = config
+          this._dirty = true
+          this.requestUpdate()
+          resolve()
         },
         onClose: () => resolve(),
-      });
-    });
+      })
+    })
   }
 
   private async _handleSaveAutomation(): Promise<void> {
     if (this._yamlErrors) {
       showToast(this, {
         message: this._yamlErrors,
-      });
-      return;
+      })
+      return
     }
 
-    this._manualEditor?.resetPastedConfig();
+    this._manualEditor?.resetPastedConfig()
 
-    const id = this.automationId || String(Date.now());
+    const id = this.automationId || String(Date.now())
     if (!this.automationId) {
-      const saved = await this._promptAutomationAlias();
+      const saved = await this._promptAutomationAlias()
       if (!saved) {
-        return;
+        return
       }
     }
 
-    await this._saveAutomation(id);
+    await this._saveAutomation(id)
     if (!this.automationId) {
-      navigate(`/config/automation/edit/${id}`, { replace: true });
+      navigate(`/config/automation/edit/${id}`, { replace: true })
     }
   }
 
   private async _saveAutomation(id): Promise<void> {
-    this._saving = true;
-    this._validationErrors = undefined;
+    this._saving = true
+    this._validationErrors = undefined
 
-    let entityRegPromise: Promise<EntityRegistryEntry> | undefined;
+    let entityRegPromise: Promise<EntityRegistryEntry> | undefined
     if (this._entityRegistryUpdate !== undefined && !this._entityId) {
-      this._newAutomationId = id;
-      entityRegPromise = new Promise<EntityRegistryEntry>((resolve) => {
-        this._entityRegCreated = resolve;
-      });
+      this._newAutomationId = id
+      entityRegPromise = new Promise<EntityRegistryEntry>(resolve => {
+        this._entityRegCreated = resolve
+      })
     }
 
     try {
-      await saveAutomationConfig(this.hass, id, this._config!);
+      await saveAutomationConfig(this.hass, id, this._config!)
 
       if (this._entityRegistryUpdate !== undefined) {
-        let entityId = this._entityId;
+        let entityId = this._entityId
 
         // wait for automation to appear in entity registry when creating a new automation
         if (entityRegPromise) {
           try {
-            const automation = await promiseTimeout(5000, entityRegPromise);
-            entityId = automation.entity_id;
+            const automation = await promiseTimeout(5000, entityRegPromise)
+            entityId = automation.entity_id
           } catch (e) {
-            if (e instanceof Error && e.name === "TimeoutError") {
+            if (e instanceof Error && e.name === 'TimeoutError') {
               // Show the dialog and give user a chance to wait for the registry
               // to respond.
               await showAutomationSaveTimeoutDialog(this, {
                 savedPromise: entityRegPromise,
-                type: "automation",
-              });
+                type: 'automation',
+              })
               try {
                 // We already gave the user a chance to wait once, so if they skipped
                 // the dialog and it's still not there just immediately timeout.
-                const automation = await promiseTimeout(0, entityRegPromise);
-                entityId = automation.entity_id;
+                const automation = await promiseTimeout(0, entityRegPromise)
+                entityId = automation.entity_id
               } catch (e2) {
-                if (!(e2 instanceof Error && e2.name === "TimeoutError")) {
-                  throw e2;
+                if (!(e2 instanceof Error && e2.name === 'TimeoutError')) {
+                  throw e2
                 }
               }
             } else {
-              throw e;
+              throw e
             }
           }
         }
@@ -1166,29 +1200,29 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
             },
             labels: this._entityRegistryUpdate.labels || [],
             area_id: this._entityRegistryUpdate.area || null,
-          });
+          })
         }
       }
 
-      this._dirty = false;
+      this._dirty = false
     } catch (errors: any) {
-      this._errors = errors.body?.message || errors.error || errors.body;
+      this._errors = errors.body?.message || errors.error || errors.body
       showToast(this, {
         message: errors.body?.message || errors.error || errors.body,
-      });
-      throw errors;
+      })
+      throw errors
     } finally {
-      this._saving = false;
+      this._saving = false
     }
   }
 
   private _subscribeAutomationConfig(ev) {
-    const id = this._configSubscriptionsId++;
-    this._configSubscriptions[id] = ev.detail.callback;
+    const id = this._configSubscriptionsId++
+    this._configSubscriptions[id] = ev.detail.callback
     ev.detail.unsub = () => {
-      delete this._configSubscriptions[id];
-    };
-    ev.detail.callback(this._config);
+      delete this._configSubscriptions[id]
+    }
+    ev.detail.callback(this._config)
   }
 
   protected supportedShortcuts(): SupportedShortcuts {
@@ -1201,51 +1235,51 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
       z: () => this._undo(),
       Z: () => this._redo(),
       y: () => this._redo(),
-    };
+    }
   }
 
   protected get isDirty() {
-    return this._dirty;
+    return this._dirty
   }
 
   protected async promptDiscardChanges() {
-    return this._confirmUnsavedChanged();
+    return this._confirmUnsavedChanged()
   }
 
   // @ts-ignore
   private _collapseAll() {
-    this._manualEditor?.collapseAll();
+    this._manualEditor?.collapseAll()
   }
 
   // @ts-ignore
   private _expandAll() {
-    this._manualEditor?.expandAll();
+    this._manualEditor?.expandAll()
   }
 
   private _copySelectedRow() {
-    this._manualEditor?.copySelectedRow();
+    this._manualEditor?.copySelectedRow()
   }
 
   private _cutSelectedRow() {
-    this._manualEditor?.cutSelectedRow();
+    this._manualEditor?.cutSelectedRow()
   }
 
   private _deleteSelectedRow() {
-    this._manualEditor?.deleteSelectedRow();
+    this._manualEditor?.deleteSelectedRow()
   }
 
   private _applyUndoRedo(config: AutomationConfig) {
-    this._manualEditor?.triggerCloseSidebar();
-    this._config = config;
-    this._dirty = true;
+    this._manualEditor?.triggerCloseSidebar()
+    this._config = config
+    this._dirty = true
   }
 
   private _undo() {
-    this._undoRedoController.undo();
+    this._undoRedoController.undo()
   }
 
   private _redo() {
-    this._undoRedoController.redo();
+    this._undoRedoController.redo()
   }
 
   static get styles(): CSSResultGroup {
@@ -1300,7 +1334,7 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
           margin-inline-end: 8px;
           margin-inline-start: initial;
         }
-        li[role="separator"] {
+        li[role='separator'] {
           border-bottom-color: var(--divider-color);
         }
         ha-button-menu a {
@@ -1336,8 +1370,8 @@ export class HaAutomationEditor extends PreventUnsavedMixin(
           gap: 2px;
         }
       `,
-    ];
+    ]
   }
 }
 
-customElements.define("ha-automation-editor", HaAutomationEditor);
+customElements.define('ha-automation-editor', HaAutomationEditor)

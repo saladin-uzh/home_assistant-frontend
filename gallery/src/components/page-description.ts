@@ -1,32 +1,32 @@
-import { css, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { until } from "lit/directives/until";
-import { HaMarkdown } from "../../../src/components/ha-markdown";
-import { PAGES } from "../../build/import-pages";
+import { css, html, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { until } from 'lit/directives/until'
+import { HaMarkdown } from '../../../src/components/ha-markdown'
+import { PAGES } from '../../build/import-pages'
 
-@customElement("page-description")
+@customElement('page-description')
 class PageDescription extends HaMarkdown {
-  @property() public page!: string;
+  @property() public page!: string
 
   render() {
     if (!PAGES[this.page].description) {
-      return nothing;
+      return nothing
     }
 
     return html`
       <div class="heading">
         <div class="title">
-          ${PAGES[this.page].metadata.title || this.page.split("/")[1]}
+          ${PAGES[this.page].metadata.title || this.page.split('/')[1]}
         </div>
         <div class="subtitle">${PAGES[this.page].metadata.subtitle}</div>
       </div>
       ${until(
         PAGES[this.page]
           .description()
-          .then((content) => html`<div class="root">${content}</div>`),
-        ""
+          .then(content => html`<div class="root">${content}</div>`),
+        ''
       )}
-    `;
+    `
   }
 
   static styles = [
@@ -56,11 +56,11 @@ class PageDescription extends HaMarkdown {
         margin-bottom: 0;
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "page-description": PageDescription;
+    'page-description': PageDescription
   }
 }

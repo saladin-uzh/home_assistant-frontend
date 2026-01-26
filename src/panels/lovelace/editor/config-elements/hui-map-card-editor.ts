@@ -1,8 +1,8 @@
-import { mdiPalette } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
+import { mdiPalette } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
 import {
   array,
   assert,
@@ -13,27 +13,27 @@ import {
   optional,
   string,
   union,
-} from "superstruct";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { computeDomain } from "../../../../common/entity/compute_domain";
-import { hasLocation } from "../../../../common/entity/has_location";
-import type { LocalizeFunc } from "../../../../common/translations/localize";
-import "../../../../components/ha-form/ha-form";
-import type { SchemaUnion } from "../../../../components/ha-form/types";
-import "../../../../components/ha-formfield";
-import "../../../../components/ha-selector/ha-selector-select";
-import "../../../../components/ha-switch";
-import type { SelectSelector } from "../../../../data/selector";
-import type { HomeAssistant, ValueChangedEvent } from "../../../../types";
-import { DEFAULT_HOURS_TO_SHOW, DEFAULT_ZOOM } from "../../cards/hui-map-card";
-import type { MapCardConfig, MapEntityConfig } from "../../cards/types";
-import "../../components/hui-entity-editor";
-import type { EntityConfig } from "../../entity-rows/types";
-import type { LovelaceCardEditor } from "../../types";
-import { processEditorEntities } from "../process-editor-entities";
-import { baseLovelaceCardConfig } from "../structs/base-card-struct";
-import type { EntitiesEditorEvent } from "../types";
-import { configElementStyle } from "./config-elements-style";
+} from 'superstruct'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { computeDomain } from '../../../../common/entity/compute_domain'
+import { hasLocation } from '../../../../common/entity/has_location'
+import type { LocalizeFunc } from '../../../../common/translations/localize'
+import '../../../../components/ha-form/ha-form'
+import type { SchemaUnion } from '../../../../components/ha-form/types'
+import '../../../../components/ha-formfield'
+import '../../../../components/ha-selector/ha-selector-select'
+import '../../../../components/ha-switch'
+import type { SelectSelector } from '../../../../data/selector'
+import type { HomeAssistant, ValueChangedEvent } from '../../../../types'
+import { DEFAULT_HOURS_TO_SHOW, DEFAULT_ZOOM } from '../../cards/hui-map-card'
+import type { MapCardConfig, MapEntityConfig } from '../../cards/types'
+import '../../components/hui-entity-editor'
+import type { EntityConfig } from '../../entity-rows/types'
+import type { LovelaceCardEditor } from '../../types'
+import { processEditorEntities } from '../process-editor-entities'
+import { baseLovelaceCardConfig } from '../structs/base-card-struct'
+import type { EntitiesEditorEvent } from '../types'
+import { configElementStyle } from './config-elements-style'
 
 export const mapEntitiesConfigStruct = union([
   object({
@@ -45,7 +45,7 @@ export const mapEntitiesConfigStruct = union([
     name: optional(string()),
   }),
   string(),
-]);
+])
 
 const geoSourcesConfigStruct = union([
   object({
@@ -56,7 +56,7 @@ const geoSourcesConfigStruct = union([
     focus: optional(boolean()),
   }),
   string(),
-]);
+])
 
 const cardConfigStruct = assign(
   baseLovelaceCardConfig,
@@ -72,47 +72,47 @@ const cardConfigStruct = assign(
     fit_zones: optional(boolean()),
     theme_mode: optional(string()),
   })
-);
+)
 
-const themeModes = ["auto", "light", "dark"] as const;
+const themeModes = ['auto', 'light', 'dark'] as const
 
-@customElement("hui-map-card-editor")
+@customElement('hui-map-card-editor')
 export class HuiMapCardEditor extends LitElement implements LovelaceCardEditor {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: MapCardConfig;
+  @state() private _config?: MapCardConfig
 
-  @state() private _configEntities?: EntityConfig[];
+  @state() private _configEntities?: EntityConfig[]
 
-  @state() private _possibleGeoSources?: { value: string; label?: string }[];
+  @state() private _possibleGeoSources?: { value: string; label?: string }[]
 
   private _schema = memoizeOne(
     (localize: LocalizeFunc) =>
       [
-        { name: "title", selector: { text: {} } },
+        { name: 'title', selector: { text: {} } },
         {
-          name: "",
-          type: "expandable",
+          name: '',
+          type: 'expandable',
           iconPath: mdiPalette,
           title: localize(`ui.panel.lovelace.editor.card.map.appearance`),
           schema: [
             {
-              name: "",
-              type: "grid",
+              name: '',
+              type: 'grid',
               schema: [
-                { name: "aspect_ratio", selector: { text: {} } },
+                { name: 'aspect_ratio', selector: { text: {} } },
                 {
-                  name: "default_zoom",
+                  name: 'default_zoom',
                   default: DEFAULT_ZOOM,
-                  selector: { number: { mode: "box", min: 0 } },
+                  selector: { number: { mode: 'box', min: 0 } },
                 },
                 {
-                  name: "theme_mode",
-                  default: "auto",
+                  name: 'theme_mode',
+                  default: 'auto',
                   selector: {
                     select: {
-                      mode: "dropdown",
-                      options: themeModes.map((themeMode) => ({
+                      mode: 'dropdown',
+                      options: themeModes.map(themeMode => ({
                         value: themeMode,
                         label: localize(
                           `ui.panel.lovelace.editor.card.map.theme_modes.${themeMode}`
@@ -122,49 +122,49 @@ export class HuiMapCardEditor extends LitElement implements LovelaceCardEditor {
                   },
                 },
                 {
-                  name: "hours_to_show",
+                  name: 'hours_to_show',
                   default: DEFAULT_HOURS_TO_SHOW,
-                  selector: { number: { mode: "box", min: 0 } },
+                  selector: { number: { mode: 'box', min: 0 } },
                 },
               ],
             },
           ],
         },
       ] as const
-  );
+  )
 
   public setConfig(config: MapCardConfig): void {
-    assert(config, cardConfigStruct);
+    assert(config, cardConfigStruct)
 
     // Migrate legacy dark_mode to theme_mode
-    if (!this._config && !("theme_mode" in config)) {
-      config = { ...config };
+    if (!this._config && !('theme_mode' in config)) {
+      config = { ...config }
       if (config.dark_mode) {
-        config.theme_mode = "dark";
+        config.theme_mode = 'dark'
       } else {
-        config.theme_mode = "auto";
+        config.theme_mode = 'auto'
       }
-      delete config.dark_mode;
-      fireEvent(this, "config-changed", { config: config });
+      delete config.dark_mode
+      fireEvent(this, 'config-changed', { config: config })
     }
 
-    this._config = config;
+    this._config = config
     this._configEntities = config.entities
       ? processEditorEntities(config.entities)
-      : [];
+      : []
   }
 
   private _geoSourcesStrings = memoizeOne((sources): string[] | undefined =>
-    sources?.map((s) => (typeof s === "string" ? s : s.source))
-  );
+    sources?.map(s => (typeof s === 'string' ? s : s.source))
+  )
 
   get _geo_location_sources(): string[] {
-    return this._geoSourcesStrings(this._config!.geo_location_sources) || [];
+    return this._geoSourcesStrings(this._config!.geo_location_sources) || []
   }
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -185,12 +185,12 @@ export class HuiMapCardEditor extends LitElement implements LovelaceCardEditor {
 
       <h3>
         ${this.hass.localize(
-          "ui.panel.lovelace.editor.card.map.geo_location_sources"
+          'ui.panel.lovelace.editor.card.map.geo_location_sources'
         )}
       </h3>
 
       <ha-selector-select
-        .label=${this.hass.localize("ui.panel.lovelace.editor.card.map.source")}
+        .label=${this.hass.localize('ui.panel.lovelace.editor.card.map.source')}
         .required=${false}
         .hass=${this.hass}
         .value=${this._geo_location_sources}
@@ -200,7 +200,7 @@ export class HuiMapCardEditor extends LitElement implements LovelaceCardEditor {
           this.hass.localize
         )}
       ></ha-selector-select>
-    `;
+    `
   }
 
   private _selectSchema = memoizeOne(
@@ -213,77 +213,77 @@ export class HuiMapCardEditor extends LitElement implements LovelaceCardEditor {
           ? options
           : [
               {
-                value: "",
+                value: '',
                 label: localize(
-                  "ui.panel.lovelace.editor.card.map.no_geo_location_sources"
+                  'ui.panel.lovelace.editor.card.map.no_geo_location_sources'
                 ),
               },
             ],
       },
     })
-  );
+  )
 
   private _entitiesValueChanged(
     ev: EntitiesEditorEvent<MapEntityConfig>
   ): void {
     if (ev.detail && ev.detail.entities) {
-      this._config = { ...this._config!, entities: ev.detail.entities };
+      this._config = { ...this._config!, entities: ev.detail.entities }
 
-      this._configEntities = processEditorEntities(this._config.entities || []);
-      fireEvent(this, "config-changed", { config: this._config! });
+      this._configEntities = processEditorEntities(this._config.entities || [])
+      fireEvent(this, 'config-changed', { config: this._config! })
     }
   }
 
   private _geoSourcesChanged(ev: ValueChangedEvent<any>): void {
     if (!this._config || !this.hass) {
-      return;
+      return
     }
 
-    const value = ev.detail.value;
+    const value = ev.detail.value
 
     if (this._geo_location_sources === value) {
-      return;
+      return
     }
 
-    if (value === "") {
-      this._config = { ...this._config };
-      delete this._config.geo_location_sources;
+    if (value === '') {
+      this._config = { ...this._config }
+      delete this._config.geo_location_sources
     } else {
       const newSources = value.map(
-        (newSource) =>
+        newSource =>
           this._config!.geo_location_sources?.find(
-            (oldSource) =>
-              typeof oldSource === "object" && oldSource.source === newSource
+            oldSource =>
+              typeof oldSource === 'object' && oldSource.source === newSource
           ) || newSource
-      );
+      )
       this._config = {
         ...this._config,
         geo_location_sources: newSources,
-      };
+      }
     }
-    fireEvent(this, "config-changed", { config: this._config });
+    fireEvent(this, 'config-changed', { config: this._config })
   }
 
   private _valueChanged(ev: CustomEvent): void {
-    fireEvent(this, "config-changed", { config: ev.detail.value });
+    fireEvent(this, 'config-changed', { config: ev.detail.value })
   }
 
   protected willUpdate() {
     if (this.hass && !this._possibleGeoSources) {
-      const sources: Record<string, string> = {};
+      const sources: Record<string, string> = {}
       Object.entries(this.hass.states).forEach(([entity_id, stateObj]) => {
-        const domain = computeDomain(entity_id);
-        if (domain === "geo_location" && stateObj.attributes.source) {
-          sources[stateObj.attributes.source] = stateObj.attributes.attribution;
+        const domain = computeDomain(entity_id)
+        if (domain === 'geo_location' && stateObj.attributes.source) {
+          sources[stateObj.attributes.source] = stateObj.attributes.attribution
         }
-      });
+      })
 
       this._possibleGeoSources = Object.entries(sources).map(
         ([source, attribution]) => ({
           value: source,
           label: attribution || source,
         })
-      );
+      )
     }
   }
 
@@ -291,28 +291,28 @@ export class HuiMapCardEditor extends LitElement implements LovelaceCardEditor {
     schema: SchemaUnion<ReturnType<typeof this._schema>>
   ) => {
     switch (schema.name) {
-      case "theme_mode":
+      case 'theme_mode':
         return this.hass!.localize(
           `ui.panel.lovelace.editor.card.map.${schema.name}`
-        );
-      case "default_zoom":
+        )
+      case 'default_zoom':
         return this.hass!.localize(
           `ui.panel.lovelace.editor.card.map.${schema.name}`
-        );
+        )
       default:
         return this.hass!.localize(
           `ui.panel.lovelace.editor.card.generic.${schema.name}`
-        );
+        )
     }
-  };
+  }
 
   static get styles(): CSSResultGroup {
-    return [configElementStyle, css``];
+    return [configElementStyle, css``]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-map-card-editor": HuiMapCardEditor;
+    'hui-map-card-editor': HuiMapCardEditor
   }
 }

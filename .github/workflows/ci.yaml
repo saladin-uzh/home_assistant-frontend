@@ -28,7 +28,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
-          node-version-file: ".nvmrc"
+          node-version-file: '.nvmrc'
           cache: yarn
       - name: Install dependencies
         run: yarn install --immutable
@@ -62,7 +62,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
-          node-version-file: ".nvmrc"
+          node-version-file: '.nvmrc'
           cache: yarn
       - name: Install dependencies
         run: yarn install --immutable
@@ -80,14 +80,14 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
-          node-version-file: ".nvmrc"
+          node-version-file: '.nvmrc'
           cache: yarn
       - name: Install dependencies
         run: yarn install --immutable
       - name: Build Application
         run: ./node_modules/.bin/gulp build-app
         env:
-          IS_TEST: "true"
+          IS_TEST: 'true'
       - name: Upload bundle stats
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
@@ -104,14 +104,14 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
-          node-version-file: ".nvmrc"
+          node-version-file: '.nvmrc'
           cache: yarn
       - name: Install dependencies
         run: yarn install --immutable
       - name: Build Application
         run: ./node_modules/.bin/gulp build-hassio
         env:
-          IS_TEST: "true"
+          IS_TEST: 'true'
       - name: Upload bundle stats
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:

@@ -1,56 +1,59 @@
-import { mdiClose } from "@mdi/js";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-alert";
-import "../../../../components/ha-button";
-import "../../../../components/ha-dialog-header";
-import "../../../../components/ha-markdown-element";
-import "../../../../components/ha-md-dialog";
-import type { HaMdDialog } from "../../../../components/ha-md-dialog";
-import "../../../../components/ha-select";
-import "../../../../components/ha-spinner";
-import "../../../../components/ha-textarea";
-import { fetchSupportPackage } from "../../../../data/cloud";
-import type { HomeAssistant } from "../../../../types";
-import { fileDownload } from "../../../../util/file_download";
+import { mdiClose } from '@mdi/js'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-alert'
+import '../../../../components/ha-button'
+import '../../../../components/ha-dialog-header'
+import '../../../../components/ha-markdown-element'
+import '../../../../components/ha-md-dialog'
+import type { HaMdDialog } from '../../../../components/ha-md-dialog'
+import '../../../../components/ha-select'
+import '../../../../components/ha-spinner'
+import '../../../../components/ha-textarea'
+import { fetchSupportPackage } from '../../../../data/cloud'
+import type { HomeAssistant } from '../../../../types'
+import { fileDownload } from '../../../../util/file_download'
 
-@customElement("dialog-cloud-support-package")
+@customElement('dialog-cloud-support-package')
 export class DialogSupportPackage extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _open = false;
+  @state() private _open = false
 
-  @state() private _supportPackage?: string;
+  @state() private _supportPackage?: string
 
-  @query("ha-md-dialog") private _dialog?: HaMdDialog;
+  @query('ha-md-dialog') private _dialog?: HaMdDialog
 
   public showDialog() {
-    this._open = true;
-    this._loadSupportPackage();
+    this._open = true
+    this._loadSupportPackage()
   }
 
   private _dialogClosed(): void {
-    this._open = false;
-    this._supportPackage = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._open = false
+    this._supportPackage = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   public closeDialog() {
-    this._dialog?.close();
-    return true;
+    this._dialog?.close()
+    return true
   }
 
   protected render() {
     if (!this._open) {
-      return nothing;
+      return nothing
     }
     return html`
-      <ha-md-dialog open @closed=${this._dialogClosed}>
+      <ha-md-dialog
+        open
+        @closed=${this._dialogClosed}
+      >
         <ha-dialog-header slot="headline">
           <ha-icon-button
             slot="navigationIcon"
-            .label=${this.hass.localize("ui.common.close")}
+            .label=${this.hass.localize('ui.common.close')}
             .path=${mdiClose}
             @click=${this.closeDialog}
           ></ha-icon-button>
@@ -70,33 +73,38 @@ export class DialogSupportPackage extends LitElement {
                 </div>
               `}
         </div>
-        <div class="footer" slot="actions">
+        <div
+          class="footer"
+          slot="actions"
+        >
           <ha-alert>
             This file may contain personal data about your home. Avoid sharing
             them with unverified or untrusted parties.
           </ha-alert>
           <hr />
           <div class="actions">
-            <ha-button appearance="plain" @click=${this.closeDialog}
+            <ha-button
+              appearance="plain"
+              @click=${this.closeDialog}
               >Close</ha-button
             >
             <ha-button @click=${this._download}>Download</ha-button>
           </div>
         </div>
       </ha-md-dialog>
-    `;
+    `
   }
 
   private async _loadSupportPackage() {
-    this._supportPackage = await fetchSupportPackage(this.hass);
+    this._supportPackage = await fetchSupportPackage(this.hass)
   }
 
   private async _download() {
     fileDownload(
-      "data:text/plain;charset=utf-8," +
-        encodeURIComponent(this._supportPackage || ""),
-      "support-package.md"
-    );
+      'data:text/plain;charset=utf-8,' +
+        encodeURIComponent(this._supportPackage || ''),
+      'support-package.md'
+    )
   }
 
   static styles = css`
@@ -196,11 +204,11 @@ export class DialogSupportPackage extends LitElement {
       font-weight: var(--ha-font-weight-bold);
       cursor: pointer;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-cloud-support-package": DialogSupportPackage;
+    'dialog-cloud-support-package': DialogSupportPackage
   }
 }

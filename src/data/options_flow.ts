@@ -1,21 +1,21 @@
-import type { HomeAssistant } from "../types";
-import type { DataEntryFlowStep } from "./data_entry_flow";
+import type { HomeAssistant } from '../types'
+import type { DataEntryFlowStep } from './data_entry_flow'
 
 export const createOptionsFlow = (hass: HomeAssistant, handler: string) =>
   hass.callApi<DataEntryFlowStep>(
-    "POST",
-    "config/config_entries/options/flow",
+    'POST',
+    'config/config_entries/options/flow',
     {
       handler,
       show_advanced_options: Boolean(hass.userData?.showAdvanced),
     }
-  );
+  )
 
 export const fetchOptionsFlow = (hass: HomeAssistant, flowId: string) =>
   hass.callApi<DataEntryFlowStep>(
-    "GET",
+    'GET',
     `config/config_entries/options/flow/${flowId}`
-  );
+  )
 
 export const handleOptionsFlowStep = (
   hass: HomeAssistant,
@@ -23,10 +23,10 @@ export const handleOptionsFlowStep = (
   data: Record<string, any>
 ) =>
   hass.callApi<DataEntryFlowStep>(
-    "POST",
+    'POST',
     `config/config_entries/options/flow/${flowId}`,
     data
-  );
+  )
 
 export const deleteOptionsFlow = (hass: HomeAssistant, flowId: string) =>
-  hass.callApi("DELETE", `config/config_entries/options/flow/${flowId}`);
+  hass.callApi('DELETE', `config/config_entries/options/flow/${flowId}`)

@@ -1,39 +1,39 @@
-import { mdiCheckCircle, mdiCloseCircle } from "@mdi/js";
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import "../../../../../components/ha-spinner";
-import "../../../../../components/ha-button";
-import { createCloseHeading } from "../../../../../components/ha-dialog";
-import { reinterviewZwaveNode } from "../../../../../data/zwave_js";
-import { haStyleDialog } from "../../../../../resources/styles";
-import type { HomeAssistant } from "../../../../../types";
-import type { ZWaveJSReinterviewNodeDialogParams } from "./show-dialog-zwave_js-reinterview-node";
+import { mdiCheckCircle, mdiCloseCircle } from '@mdi/js'
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import '../../../../../components/ha-spinner'
+import '../../../../../components/ha-button'
+import { createCloseHeading } from '../../../../../components/ha-dialog'
+import { reinterviewZwaveNode } from '../../../../../data/zwave_js'
+import { haStyleDialog } from '../../../../../resources/styles'
+import type { HomeAssistant } from '../../../../../types'
+import type { ZWaveJSReinterviewNodeDialogParams } from './show-dialog-zwave_js-reinterview-node'
 
-@customElement("dialog-zwave_js-reinterview-node")
+@customElement('dialog-zwave_js-reinterview-node')
 class DialogZWaveJSReinterviewNode extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private device_id?: string;
+  @state() private device_id?: string
 
-  @state() private _status?: string;
+  @state() private _status?: string
 
-  @state() private _stages?: string[];
+  @state() private _stages?: string[]
 
-  private _subscribed?: Promise<UnsubscribeFunc>;
+  private _subscribed?: Promise<UnsubscribeFunc>
 
   public async showDialog(
     params: ZWaveJSReinterviewNodeDialogParams
   ): Promise<void> {
-    this._stages = undefined;
-    this.device_id = params.device_id;
+    this._stages = undefined
+    this.device_id = params.device_id
   }
 
   protected render() {
     if (!this.device_id) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -42,31 +42,34 @@ class DialogZWaveJSReinterviewNode extends LitElement {
         @closed=${this.closeDialog}
         .heading=${createCloseHeading(
           this.hass,
-          this.hass.localize("ui.panel.config.zwave_js.reinterview_node.title")
+          this.hass.localize('ui.panel.config.zwave_js.reinterview_node.title')
         )}
       >
         ${!this._status
           ? html`
               <p>
                 ${this.hass.localize(
-                  "ui.panel.config.zwave_js.reinterview_node.introduction"
+                  'ui.panel.config.zwave_js.reinterview_node.introduction'
                 )}
               </p>
               <p>
                 <em>
                   ${this.hass.localize(
-                    "ui.panel.config.zwave_js.reinterview_node.battery_device_warning"
+                    'ui.panel.config.zwave_js.reinterview_node.battery_device_warning'
                   )}
                 </em>
               </p>
-              <ha-button slot="primaryAction" @click=${this._startReinterview}>
+              <ha-button
+                slot="primaryAction"
+                @click=${this._startReinterview}
+              >
                 ${this.hass.localize(
-                  "ui.panel.config.zwave_js.reinterview_node.start_reinterview"
+                  'ui.panel.config.zwave_js.reinterview_node.start_reinterview'
                 )}
               </ha-button>
             `
           : ``}
-        ${this._status === "started"
+        ${this._status === 'started'
           ? html`
               <div class="flex-container">
                 <ha-spinner></ha-spinner>
@@ -74,23 +77,26 @@ class DialogZWaveJSReinterviewNode extends LitElement {
                   <p>
                     <b>
                       ${this.hass.localize(
-                        "ui.panel.config.zwave_js.reinterview_node.in_progress"
+                        'ui.panel.config.zwave_js.reinterview_node.in_progress'
                       )}
                     </b>
                   </p>
                   <p>
                     ${this.hass.localize(
-                      "ui.panel.config.zwave_js.reinterview_node.run_in_background"
+                      'ui.panel.config.zwave_js.reinterview_node.run_in_background'
                     )}
                   </p>
                 </div>
               </div>
-              <ha-button slot="primaryAction" @click=${this.closeDialog}>
-                ${this.hass.localize("ui.common.close")}
+              <ha-button
+                slot="primaryAction"
+                @click=${this.closeDialog}
+              >
+                ${this.hass.localize('ui.common.close')}
               </ha-button>
             `
           : ``}
-        ${this._status === "failed"
+        ${this._status === 'failed'
           ? html`
               <div class="flex-container">
                 <ha-svg-icon
@@ -100,17 +106,20 @@ class DialogZWaveJSReinterviewNode extends LitElement {
                 <div class="status">
                   <p>
                     ${this.hass.localize(
-                      "ui.panel.config.zwave_js.reinterview_node.interview_failed"
+                      'ui.panel.config.zwave_js.reinterview_node.interview_failed'
                     )}
                   </p>
                 </div>
               </div>
-              <ha-button slot="primaryAction" @click=${this.closeDialog}>
-                ${this.hass.localize("ui.common.close")}
+              <ha-button
+                slot="primaryAction"
+                @click=${this.closeDialog}
+              >
+                ${this.hass.localize('ui.common.close')}
               </ha-button>
             `
           : ``}
-        ${this._status === "finished"
+        ${this._status === 'finished'
           ? html`
               <div class="flex-container">
                 <ha-svg-icon
@@ -120,13 +129,16 @@ class DialogZWaveJSReinterviewNode extends LitElement {
                 <div class="status">
                   <p>
                     ${this.hass.localize(
-                      "ui.panel.config.zwave_js.reinterview_node.interview_complete"
+                      'ui.panel.config.zwave_js.reinterview_node.interview_complete'
                     )}
                   </p>
                 </div>
               </div>
-              <ha-button slot="primaryAction" @click=${this.closeDialog}>
-                ${this.hass.localize("ui.common.close")}
+              <ha-button
+                slot="primaryAction"
+                @click=${this.closeDialog}
+              >
+                ${this.hass.localize('ui.common.close')}
               </ha-button>
             `
           : ``}
@@ -134,7 +146,7 @@ class DialogZWaveJSReinterviewNode extends LitElement {
           ? html`
               <div class="stages">
                 ${this._stages.map(
-                  (stage) => html`
+                  stage => html`
                     <span class="stage">
                       <ha-svg-icon
                         .path=${mdiCheckCircle}
@@ -146,58 +158,58 @@ class DialogZWaveJSReinterviewNode extends LitElement {
                 )}
               </div>
             `
-          : ""}
+          : ''}
       </ha-dialog>
-    `;
+    `
   }
 
   private _startReinterview(): void {
     if (!this.hass) {
-      return;
+      return
     }
     this._subscribed = reinterviewZwaveNode(
       this.hass,
       this.device_id!,
       this._handleMessage.bind(this)
-    );
+    )
   }
 
   private _handleMessage(message: any): void {
-    if (message.event === "interview started") {
-      this._status = "started";
+    if (message.event === 'interview started') {
+      this._status = 'started'
     }
-    if (message.event === "interview stage completed") {
+    if (message.event === 'interview stage completed') {
       if (this._stages === undefined) {
-        this._stages = [message.stage];
+        this._stages = [message.stage]
       } else {
-        this._stages = [...this._stages, message.stage];
+        this._stages = [...this._stages, message.stage]
       }
     }
-    if (message.event === "interview failed") {
-      this._unsubscribe();
-      this._status = "failed";
+    if (message.event === 'interview failed') {
+      this._unsubscribe()
+      this._status = 'failed'
     }
-    if (message.event === "interview completed") {
-      this._unsubscribe();
-      this._status = "finished";
+    if (message.event === 'interview completed') {
+      this._unsubscribe()
+      this._status = 'finished'
     }
   }
 
   private _unsubscribe(): void {
     if (this._subscribed) {
-      this._subscribed.then((unsub) => unsub());
-      this._subscribed = undefined;
+      this._subscribed.then(unsub => unsub())
+      this._subscribed = undefined
     }
   }
 
   public closeDialog(): void {
-    this.device_id = undefined;
-    this._status = undefined;
-    this._stages = undefined;
+    this.device_id = undefined
+    this._status = undefined
+    this._stages = undefined
 
-    this._unsubscribe();
+    this._unsubscribe()
 
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   static get styles(): CSSResultGroup {
@@ -241,12 +253,12 @@ class DialogZWaveJSReinterviewNode extends LitElement {
           margin-inline-start: initial;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-zwave_js-reinterview-node": DialogZWaveJSReinterviewNode;
+    'dialog-zwave_js-reinterview-node': DialogZWaveJSReinterviewNode
   }
 }

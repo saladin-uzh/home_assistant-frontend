@@ -1,10 +1,10 @@
-import { assert, assign, boolean, object, optional, string } from "superstruct";
-import type { LocalizeFunc } from "../../../../common/translations/localize";
-import type { HaFormSchema } from "../../../../components/ha-form/types";
-import { headerFooterConfigStructs } from "../../header-footer/structs";
-import type { LovelaceConfigForm } from "../../types";
-import { baseLovelaceCardConfig } from "../structs/base-card-struct";
-import { entityNameStruct } from "../structs/entity-name-struct";
+import { assert, assign, boolean, object, optional, string } from 'superstruct'
+import type { LocalizeFunc } from '../../../../common/translations/localize'
+import type { HaFormSchema } from '../../../../components/ha-form/types'
+import { headerFooterConfigStructs } from '../../header-footer/structs'
+import type { LovelaceConfigForm } from '../../types'
+import { baseLovelaceCardConfig } from '../structs/base-card-struct'
+import { entityNameStruct } from '../structs/entity-name-struct'
 
 const struct = assign(
   baseLovelaceCardConfig,
@@ -18,57 +18,57 @@ const struct = assign(
     state_color: optional(boolean()),
     footer: optional(headerFooterConfigStructs),
   })
-);
+)
 
 const SCHEMA = [
-  { name: "entity", required: true, selector: { entity: {} } },
+  { name: 'entity', required: true, selector: { entity: {} } },
   {
-    name: "name",
+    name: 'name',
     selector: {
       entity_name: {},
     },
-    context: { entity: "entity" },
+    context: { entity: 'entity' },
   },
   {
-    type: "grid",
-    name: "",
+    type: 'grid',
+    name: '',
     schema: [
       {
-        name: "icon",
+        name: 'icon',
         selector: {
           icon: {},
         },
         context: {
-          icon_entity: "entity",
+          icon_entity: 'entity',
         },
       },
       {
-        name: "attribute",
+        name: 'attribute',
         selector: {
           attribute: {},
         },
         context: {
-          filter_entity: "entity",
+          filter_entity: 'entity',
         },
       },
-      { name: "unit", selector: { text: {} } },
-      { name: "theme", selector: { theme: {} } },
-      { name: "state_color", selector: { boolean: {} } },
+      { name: 'unit', selector: { text: {} } },
+      { name: 'theme', selector: { theme: {} } },
+      { name: 'state_color', selector: { boolean: {} } },
     ],
   },
-] as HaFormSchema[];
+] as HaFormSchema[]
 
 const entityCardConfigForm: LovelaceConfigForm = {
   schema: SCHEMA,
-  assertConfig: (config) => assert(config, struct),
+  assertConfig: config => assert(config, struct),
   computeLabel: (schema: HaFormSchema, localize: LocalizeFunc) => {
-    if (schema.name === "theme") {
+    if (schema.name === 'theme') {
       return `${localize(
-        "ui.panel.lovelace.editor.card.generic.theme"
-      )} (${localize("ui.panel.lovelace.editor.card.config.optional")})`;
+        'ui.panel.lovelace.editor.card.generic.theme'
+      )} (${localize('ui.panel.lovelace.editor.card.config.optional')})`
     }
-    return localize(`ui.panel.lovelace.editor.card.generic.${schema.name}`);
+    return localize(`ui.panel.lovelace.editor.card.generic.${schema.name}`)
   },
-};
+}
 
-export default entityCardConfigForm;
+export default entityCardConfigForm

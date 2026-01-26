@@ -1,21 +1,21 @@
-import { fireEvent } from "../../common/dom/fire_event";
+import { fireEvent } from '../../common/dom/fire_event'
 
 export interface TTSTryDialogParams {
-  engine: string;
-  language?: string;
-  voice?: string;
+  engine: string
+  language?: string
+  voice?: string
 }
 
-export const loadTTSTryDialog = () => import("./dialog-tts-try");
+export const loadTTSTryDialog = () => import('./dialog-tts-try')
 
 export const showTTSTryDialog = (
   element: HTMLElement,
   dialogParams: TTSTryDialogParams
 ): void => {
-  fireEvent(element, "show-dialog", {
+  fireEvent(element, 'show-dialog', {
     addHistory: false,
-    dialogTag: "dialog-tts-try",
+    dialogTag: 'dialog-tts-try',
     dialogImport: loadTTSTryDialog,
     dialogParams,
-  });
-};
+  })
+}

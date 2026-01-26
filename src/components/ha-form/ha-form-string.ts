@@ -1,47 +1,47 @@
-import { mdiEye, mdiEyeOff } from "@mdi/js";
-import type { PropertyValues, TemplateResult } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { fireEvent } from "../../common/dom/fire_event";
-import "../ha-icon-button";
-import "../ha-textfield";
-import type { HaTextField } from "../ha-textfield";
+import { mdiEye, mdiEyeOff } from '@mdi/js'
+import type { PropertyValues, TemplateResult } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { fireEvent } from '../../common/dom/fire_event'
+import '../ha-icon-button'
+import '../ha-textfield'
+import type { HaTextField } from '../ha-textfield'
 import type {
   HaFormElement,
   HaFormStringData,
   HaFormStringSchema,
-} from "./types";
+} from './types'
 import type {
   LocalizeFunc,
   LocalizeKeys,
-} from "../../common/translations/localize";
+} from '../../common/translations/localize'
 
-const MASKED_FIELDS = ["password", "secret", "token"];
+const MASKED_FIELDS = ['password', 'secret', 'token']
 
-@customElement("ha-form-string")
+@customElement('ha-form-string')
 export class HaFormString extends LitElement implements HaFormElement {
-  @property({ attribute: false }) public localize?: LocalizeFunc;
+  @property({ attribute: false }) public localize?: LocalizeFunc
 
   @property({ attribute: false }) public localizeBaseKey =
-    "ui.components.selectors.text";
+    'ui.components.selectors.text'
 
-  @property({ attribute: false }) public schema!: HaFormStringSchema;
+  @property({ attribute: false }) public schema!: HaFormStringSchema
 
-  @property() public data!: HaFormStringData;
+  @property() public data!: HaFormStringData
 
-  @property() public label!: string;
+  @property() public label!: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @state() protected unmaskedPassword = false;
+  @state() protected unmaskedPassword = false
 
-  @query("ha-textfield") private _input?: HaTextField;
+  @query('ha-textfield') private _input?: HaTextField
 
   public focus(): void {
     if (this._input) {
-      this._input.focus();
+      this._input.focus()
     }
   }
 
@@ -51,10 +51,10 @@ export class HaFormString extends LitElement implements HaFormElement {
         .type=${!this.isPassword
           ? this.stringType
           : this.unmaskedPassword
-            ? "text"
-            : "password"}
+            ? 'text'
+            : 'password'}
         .label=${this.label}
-        .value=${this.data || ""}
+        .value=${this.data || ''}
         .helper=${this.helper}
         helperPersistent
         .disabled=${this.disabled}
@@ -68,67 +68,67 @@ export class HaFormString extends LitElement implements HaFormElement {
             html`<div style="width: 24px"></div>`
           : this.schema.description?.suffix}
         .validationMessage=${this.schema.required
-          ? this.localize?.("ui.common.error_required")
+          ? this.localize?.('ui.common.error_required')
           : undefined}
         @input=${this._valueChanged}
         @change=${this._valueChanged}
       ></ha-textfield>
       ${this.renderIcon()}
-    `;
+    `
   }
 
   protected renderIcon() {
-    if (!this.isPassword) return nothing;
+    if (!this.isPassword) return nothing
     return html`
       <ha-icon-button
         .label=${this.localize?.(
           `${this.localizeBaseKey}.${
-            this.unmaskedPassword ? "hide_password" : "show_password"
+            this.unmaskedPassword ? 'hide_password' : 'show_password'
           }` as LocalizeKeys
         )}
         @click=${this.toggleUnmaskedPassword}
         .path=${this.unmaskedPassword ? mdiEyeOff : mdiEye}
       ></ha-icon-button>
-    `;
+    `
   }
 
   protected updated(changedProps: PropertyValues): void {
-    if (changedProps.has("schema")) {
-      this.toggleAttribute("own-margin", !!this.schema.required);
+    if (changedProps.has('schema')) {
+      this.toggleAttribute('own-margin', !!this.schema.required)
     }
   }
 
   protected toggleUnmaskedPassword(): void {
-    this.unmaskedPassword = !this.unmaskedPassword;
+    this.unmaskedPassword = !this.unmaskedPassword
   }
 
   protected _valueChanged(ev: Event): void {
-    let value: string | undefined = (ev.target as HaTextField).value;
+    let value: string | undefined = (ev.target as HaTextField).value
     if (this.data === value) {
-      return;
+      return
     }
-    if (value === "" && !this.schema.required) {
-      value = undefined;
+    if (value === '' && !this.schema.required) {
+      value = undefined
     }
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value,
-    });
+    })
   }
 
   protected get stringType(): string {
     if (this.schema.format) {
-      if (["email", "url"].includes(this.schema.format)) {
-        return this.schema.format;
+      if (['email', 'url'].includes(this.schema.format)) {
+        return this.schema.format
       }
-      if (this.schema.format === "fqdnurl") {
-        return "url";
+      if (this.schema.format === 'fqdnurl') {
+        return 'url'
       }
     }
-    return "text";
+    return 'text'
   }
 
   protected get isPassword(): boolean {
-    return MASKED_FIELDS.some((field) => this.schema.name.includes(field));
+    return MASKED_FIELDS.some(field => this.schema.name.includes(field))
   }
 
   static styles = css`
@@ -153,11 +153,11 @@ export class HaFormString extends LitElement implements HaFormElement {
       color: var(--secondary-text-color);
       direction: var(--direction);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-form-string": HaFormString;
+    'ha-form-string': HaFormString
   }
 }

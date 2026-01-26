@@ -3,55 +3,55 @@ import {
   mdiGarageOpen,
   mdiLightbulb,
   mdiLightbulbOff,
-} from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, state } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import { repeat } from "lit/directives/repeat";
-import "../../../../src/components/ha-card";
-import "../../../../src/components/ha-control-switch";
+} from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, state } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import { repeat } from 'lit/directives/repeat'
+import '../../../../src/components/ha-card'
+import '../../../../src/components/ha-control-switch'
 
 const switches: {
-  id: string;
-  label: string;
-  class?: string;
-  reversed?: boolean;
-  disabled?: boolean;
+  id: string
+  label: string
+  class?: string
+  reversed?: boolean
+  disabled?: boolean
 }[] = [
   {
-    id: "switch",
-    label: "Switch",
+    id: 'switch',
+    label: 'Switch',
   },
   {
-    id: "switch-reversed",
-    label: "Switch Reversed",
+    id: 'switch-reversed',
+    label: 'Switch Reversed',
     reversed: true,
   },
   {
-    id: "switch-custom",
-    label: "Switch and custom style",
-    class: "custom",
+    id: 'switch-custom',
+    label: 'Switch and custom style',
+    class: 'custom',
   },
   {
-    id: "switch-disabled",
-    label: "Disabled Switch",
+    id: 'switch-disabled',
+    label: 'Disabled Switch',
     disabled: true,
   },
-];
+]
 
-@customElement("demo-components-ha-control-switch")
+@customElement('demo-components-ha-control-switch')
 export class DemoHaControlSwitch extends LitElement {
-  @state() private checked = false;
+  @state() private checked = false
 
   handleValueChanged(e: any) {
-    this.checked = e.target.checked as boolean;
+    this.checked = e.target.checked as boolean
   }
 
   protected render(): TemplateResult {
     return html`
-      ${repeat(switches, (sw) => {
-        const { id, label, ...config } = sw;
+      ${repeat(switches, sw => {
+        const { id, label, ...config } = sw
         return html`
           <ha-card>
             <div class="card-content">
@@ -70,14 +70,14 @@ export class DemoHaControlSwitch extends LitElement {
               </ha-control-switch>
             </div>
           </ha-card>
-        `;
+        `
       })}
       <ha-card>
         <div class="card-content">
           <p class="title"><b>Vertical</b></p>
           <div class="vertical-switches">
-            ${repeat(switches, (sw) => {
-              const { id, label, ...config } = sw;
+            ${repeat(switches, sw => {
+              const { id, label, ...config } = sw
               return html`
                 <ha-control-switch
                   .checked=${this.checked}
@@ -91,12 +91,12 @@ export class DemoHaControlSwitch extends LitElement {
                   ?reversed=${config.reversed}
                 >
                 </ha-control-switch>
-              `;
+              `
             })}
           </div>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -134,11 +134,11 @@ export class DemoHaControlSwitch extends LitElement {
     .vertical-switches > *:not(:last-child) {
       margin-right: 4px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-components-ha-control-switch": DemoHaControlSwitch;
+    'demo-components-ha-control-switch': DemoHaControlSwitch
   }
 }

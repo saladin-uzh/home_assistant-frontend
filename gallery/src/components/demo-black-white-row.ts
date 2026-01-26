@@ -1,20 +1,20 @@
-import type { TemplateResult } from "lit";
-import { html, LitElement, css, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { applyThemesOnElement } from "../../../src/common/dom/apply_themes_on_element";
-import { fireEvent } from "../../../src/common/dom/fire_event";
-import "../../../src/components/ha-card";
-import "../../../src/components/ha-button";
-import type { HaButton } from "../../../src/components/ha-button";
+import type { TemplateResult } from 'lit'
+import { html, LitElement, css, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { applyThemesOnElement } from '../../../src/common/dom/apply_themes_on_element'
+import { fireEvent } from '../../../src/common/dom/fire_event'
+import '../../../src/components/ha-card'
+import '../../../src/components/ha-button'
+import type { HaButton } from '../../../src/components/ha-button'
 
-@customElement("demo-black-white-row")
+@customElement('demo-black-white-row')
 class DemoBlackWhiteRow extends LitElement {
   // eslint-disable-next-line lit/no-native-attributes
-  @property() title!: string;
+  @property() title!: string
 
-  @property() value?: any;
+  @property() value?: any
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
   protected render(): TemplateResult {
     return html`
@@ -25,7 +25,10 @@ class DemoBlackWhiteRow extends LitElement {
               <slot name="light"></slot>
             </div>
             <div class="card-actions">
-              <ha-button .disabled=${this.disabled} @click=${this.handleSubmit}>
+              <ha-button
+                .disabled=${this.disabled}
+                @click=${this.handleSubmit}
+              >
                 Submit
               </ha-button>
             </div>
@@ -37,7 +40,10 @@ class DemoBlackWhiteRow extends LitElement {
               <slot name="dark"></slot>
             </div>
             <div class="card-actions">
-              <ha-button .disabled=${this.disabled} @click=${this.handleSubmit}>
+              <ha-button
+                .disabled=${this.disabled}
+                @click=${this.handleSubmit}
+              >
                 Submit
               </ha-button>
             </div>
@@ -47,31 +53,31 @@ class DemoBlackWhiteRow extends LitElement {
             : nothing}
         </div>
       </div>
-    `;
+    `
   }
 
   firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
+    super.firstUpdated(changedProps)
     applyThemesOnElement(
-      this.shadowRoot!.querySelector(".dark"),
+      this.shadowRoot!.querySelector('.dark'),
       {
-        default_theme: "default",
-        default_dark_theme: "default",
+        default_theme: 'default',
+        default_dark_theme: 'default',
         themes: {},
         darkMode: true,
-        theme: "default",
+        theme: 'default',
       },
       undefined,
       undefined,
       true
-    );
+    )
   }
 
   handleSubmit(ev) {
-    const content = (ev.target as HaButton).closest(".content")!;
-    fireEvent(this, "submitted" as any, {
-      slot: content.classList.contains("light") ? "light" : "dark",
-    });
+    const content = (ev.target as HaButton).closest('.content')!
+    fireEvent(this, 'submitted' as any, {
+      slot: content.classList.contains('light') ? 'light' : 'dark',
+    })
   }
 
   static styles = css`
@@ -135,11 +141,11 @@ class DemoBlackWhiteRow extends LitElement {
         margin: 16px auto;
       }
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-black-white-row": DemoBlackWhiteRow;
+    'demo-black-white-row': DemoBlackWhiteRow
   }
 }

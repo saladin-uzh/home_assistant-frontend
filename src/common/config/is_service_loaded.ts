@@ -1,4 +1,4 @@
-import type { HomeAssistant } from "../../types";
+import type { HomeAssistant } from '../../types'
 
 /** Return if a service is loaded. */
 export const isServiceLoaded = (
@@ -6,4 +6,4 @@ export const isServiceLoaded = (
   domain: string,
   service: string
 ): boolean =>
-  hass && domain in hass.services && service in hass.services[domain];
+  hass && domain in hass.services && service in hass.services[domain]

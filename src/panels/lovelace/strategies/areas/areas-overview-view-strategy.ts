@@ -1,39 +1,39 @@
-import { ReactiveElement } from "lit";
-import { customElement } from "lit/decorators";
-import { floorDefaultIcon } from "../../../../components/ha-floor-icon";
-import type { LovelaceSectionConfig } from "../../../../data/lovelace/config/section";
-import type { LovelaceViewConfig } from "../../../../data/lovelace/config/view";
-import type { HomeAssistant } from "../../../../types";
-import { getAreaControlEntities } from "../../card-features/hui-area-controls-card-feature";
-import { AREA_CONTROLS, type AreaControl } from "../../card-features/types";
-import type { AreaCardConfig, HeadingCardConfig } from "../../cards/types";
-import type { EntitiesDisplay } from "./area-view-strategy";
+import { ReactiveElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import { floorDefaultIcon } from '../../../../components/ha-floor-icon'
+import type { LovelaceSectionConfig } from '../../../../data/lovelace/config/section'
+import type { LovelaceViewConfig } from '../../../../data/lovelace/config/view'
+import type { HomeAssistant } from '../../../../types'
+import { getAreaControlEntities } from '../../card-features/hui-area-controls-card-feature'
+import { AREA_CONTROLS, type AreaControl } from '../../card-features/types'
+import type { AreaCardConfig, HeadingCardConfig } from '../../cards/types'
+import type { EntitiesDisplay } from './area-view-strategy'
 import {
   computeAreaPath,
   getAreas,
   getFloors,
-} from "./helpers/areas-strategy-helper";
+} from './helpers/areas-strategy-helper'
 
-const UNASSIGNED_FLOOR = "__unassigned__";
+const UNASSIGNED_FLOOR = '__unassigned__'
 
 interface AreaOptions {
-  groups_options?: Record<string, EntitiesDisplay>;
-  card_size?: "small" | "large";
+  groups_options?: Record<string, EntitiesDisplay>
+  card_size?: 'small' | 'large'
 }
 
 export interface AreasViewStrategyConfig {
-  type: "areas-overview";
+  type: 'areas-overview'
   areas_display?: {
-    hidden?: string[];
-    order?: string[];
-  };
+    hidden?: string[]
+    order?: string[]
+  }
   floors_display?: {
-    order?: string[];
-  };
-  areas_options?: Record<string, AreaOptions>;
+    order?: string[]
+  }
+  areas_options?: Record<string, AreaOptions>
 }
 
-@customElement("areas-overview-view-strategy")
+@customElement('areas-overview-view-strategy')
 export class AreasOverviewViewStrategy extends ReactiveElement {
   static async generate(
     config: AreasViewStrategyConfig,
@@ -43,72 +43,72 @@ export class AreasOverviewViewStrategy extends ReactiveElement {
       hass.areas,
       config.areas_display?.hidden,
       config.areas_display?.order
-    );
+    )
 
-    const floors = getFloors(hass.floors, config.floors_display?.order);
+    const floors = getFloors(hass.floors, config.floors_display?.order)
 
     const floorSections = [
       ...floors,
       {
         floor_id: UNASSIGNED_FLOOR,
-        name: hass.localize("ui.panel.lovelace.strategy.areas.other_areas"),
+        name: hass.localize('ui.panel.lovelace.strategy.areas.other_areas'),
         level: null,
         icon: null,
       },
     ]
-      .map((floor) => {
+      .map(floor => {
         const areasInFloors = displayedAreas.filter(
-          (area) =>
+          area =>
             area.floor_id === floor.floor_id ||
             (!area.floor_id && floor.floor_id === UNASSIGNED_FLOOR)
-        );
+        )
 
-        return [floor, areasInFloors] as const;
+        return [floor, areasInFloors] as const
       })
       .filter(([_, areas]) => areas.length)
       .map<LovelaceSectionConfig | undefined>(([floor, areas], _, array) => {
-        const areasCards = areas.map<AreaCardConfig>((area) => {
-          const path = computeAreaPath(area.area_id);
+        const areasCards = areas.map<AreaCardConfig>(area => {
+          const path = computeAreaPath(area.area_id)
 
-          const areaOptions = config.areas_options?.[area.area_id] || {};
+          const areaOptions = config.areas_options?.[area.area_id] || {}
 
           const hiddenEntities = Object.values(areaOptions.groups_options || {})
-            .map((display) => display.hidden || [])
-            .flat();
+            .map(display => display.hidden || [])
+            .flat()
 
           const controls: AreaControl[] = AREA_CONTROLS.filter(
-            (a) => a !== "switch" // Exclude switches control for areas as we don't know what the switches control
-          );
+            a => a !== 'switch' // Exclude switches control for areas as we don't know what the switches control
+          )
           const controlEntities = getAreaControlEntities(
             controls,
             area.area_id,
             hiddenEntities,
             hass
-          );
+          )
 
           const filteredControls = controls.filter(
-            (control) => controlEntities[control].length > 0
-          );
+            control => controlEntities[control].length > 0
+          )
 
-          const sensorClasses: string[] = [];
+          const sensorClasses: string[] = []
           if (area.temperature_entity_id) {
-            sensorClasses.push("temperature");
+            sensorClasses.push('temperature')
           }
           if (area.humidity_entity_id) {
-            sensorClasses.push("humidity");
+            sensorClasses.push('humidity')
           }
 
-          const isLarge = areaOptions.card_size === "large";
+          const isLarge = areaOptions.card_size === 'large'
           return {
-            type: "area",
+            type: 'area',
             area: area.area_id,
-            display_type: isLarge ? "camera" : "compact",
+            display_type: isLarge ? 'camera' : 'compact',
             sensor_classes: sensorClasses,
             exclude_entities: hiddenEntities,
             features: filteredControls.length
               ? [
                   {
-                    type: "area-controls",
+                    type: 'area-controls',
                     controls: filteredControls,
                   },
                 ]
@@ -117,43 +117,43 @@ export class AreasOverviewViewStrategy extends ReactiveElement {
               rows: isLarge ? 4 : 1,
               columns: 12,
             },
-            features_position: "inline",
+            features_position: 'inline',
             navigation_path: path,
-          };
-        });
+          }
+        })
 
         const noFloors =
-          array.length === 1 && floor.floor_id === UNASSIGNED_FLOOR;
+          array.length === 1 && floor.floor_id === UNASSIGNED_FLOOR
 
         const headingTitle = noFloors
-          ? hass.localize("ui.panel.lovelace.strategy.areas.areas")
-          : floor.name;
+          ? hass.localize('ui.panel.lovelace.strategy.areas.areas')
+          : floor.name
 
         const headingCard: HeadingCardConfig = {
-          type: "heading",
-          heading_style: "title",
+          type: 'heading',
+          heading_style: 'title',
           heading: headingTitle,
           icon: floor.icon || floorDefaultIcon(floor),
-        };
+        }
 
         return {
           max_columns: 3,
-          type: "grid",
+          type: 'grid',
           cards: [headingCard, ...areasCards],
-        };
+        }
       })
-      ?.filter((section) => section !== undefined);
+      ?.filter(section => section !== undefined)
 
     return {
-      type: "sections",
+      type: 'sections',
       max_columns: 3,
       sections: floorSections || [],
-    };
+    }
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "areas-overview-view-strategy": AreasOverviewViewStrategy;
+    'areas-overview-view-strategy': AreasOverviewViewStrategy
   }
 }

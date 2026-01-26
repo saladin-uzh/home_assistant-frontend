@@ -1,14 +1,14 @@
-import { OutlinedTextField } from "@material/web/textfield/internal/outlined-text-field";
-import { styles } from "@material/web/textfield/internal/outlined-styles";
-import { styles as sharedStyles } from "@material/web/textfield/internal/shared-styles";
-import { css } from "lit";
-import { customElement } from "lit/decorators";
-import { literal } from "lit/static-html";
-import "./ha-outlined-field";
+import { OutlinedTextField } from '@material/web/textfield/internal/outlined-text-field'
+import { styles } from '@material/web/textfield/internal/outlined-styles'
+import { styles as sharedStyles } from '@material/web/textfield/internal/shared-styles'
+import { css } from 'lit'
+import { customElement } from 'lit/decorators'
+import { literal } from 'lit/static-html'
+import './ha-outlined-field'
 
-@customElement("ha-outlined-text-field")
+@customElement('ha-outlined-text-field')
 export class HaOutlinedTextField extends OutlinedTextField {
-  protected readonly fieldTag = literal`ha-outlined-field`;
+  protected readonly fieldTag = literal`ha-outlined-field`
 
   static override styles = [
     sharedStyles,
@@ -40,11 +40,11 @@ export class HaOutlinedTextField extends OutlinedTextField {
         font-family: var(--ha-font-family-body);
       }
     `,
-  ];
+  ]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-outlined-text-field": HaOutlinedTextField;
+    'ha-outlined-text-field': HaOutlinedTextField
   }
 }

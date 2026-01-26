@@ -1,136 +1,136 @@
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, eventOptions, property, state } from "lit/decorators";
-import type { RenderItemFunction } from "@lit-labs/virtualizer/virtualize";
-import { mdiRestart } from "@mdi/js";
-import { isComponentLoaded } from "../../common/config/is_component_loaded";
-import { restoreScroll } from "../../common/decorators/restore-scroll";
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, eventOptions, property, state } from 'lit/decorators'
+import type { RenderItemFunction } from '@lit-labs/virtualizer/virtualize'
+import { mdiRestart } from '@mdi/js'
+import { isComponentLoaded } from '../../common/config/is_component_loaded'
+import { restoreScroll } from '../../common/decorators/restore-scroll'
 import type {
   HistoryResult,
   LineChartUnit,
   TimelineEntity,
-} from "../../data/history";
-import { loadVirtualizer } from "../../resources/virtualizer";
-import type { HomeAssistant } from "../../types";
-import type { StateHistoryChartLine } from "./state-history-chart-line";
-import type { StateHistoryChartTimeline } from "./state-history-chart-timeline";
-import "../ha-fab";
-import "../ha-svg-icon";
-import "./state-history-chart-line";
-import "./state-history-chart-timeline";
+} from '../../data/history'
+import { loadVirtualizer } from '../../resources/virtualizer'
+import type { HomeAssistant } from '../../types'
+import type { StateHistoryChartLine } from './state-history-chart-line'
+import type { StateHistoryChartTimeline } from './state-history-chart-timeline'
+import '../ha-fab'
+import '../ha-svg-icon'
+import './state-history-chart-line'
+import './state-history-chart-timeline'
 
-const CANVAS_TIMELINE_ROWS_CHUNK = 10; // Split up the canvases to avoid hitting the render limit
+const CANVAS_TIMELINE_ROWS_CHUNK = 10 // Split up the canvases to avoid hitting the render limit
 
 const chunkData = (inputArray: any[], chunks: number) =>
   inputArray.reduce((results, item, idx) => {
-    const chunkIdx = Math.floor(idx / chunks);
+    const chunkIdx = Math.floor(idx / chunks)
     if (!results[chunkIdx]) {
-      results[chunkIdx] = [];
+      results[chunkIdx] = []
     }
-    results[chunkIdx].push(item);
-    return results;
-  }, []);
+    results[chunkIdx].push(item)
+    return results
+  }, [])
 
 declare global {
   interface HASSDomEvents {
-    "y-width-changed": { value: number; chartIndex: number };
-    "chart-zoom-with-index": {
-      start: number;
-      end: number;
-      chartIndex: number;
-    };
+    'y-width-changed': { value: number; chartIndex: number }
+    'chart-zoom-with-index': {
+      start: number
+      end: number
+      chartIndex: number
+    }
   }
 }
 
-@customElement("state-history-charts")
+@customElement('state-history-charts')
 export class StateHistoryCharts extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public historyData?: HistoryResult;
+  @property({ attribute: false }) public historyData?: HistoryResult
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ attribute: false }) public names?: Record<string, string>;
+  @property({ attribute: false }) public names?: Record<string, string>
 
-  @property({ type: Boolean, reflect: true }) public virtualize = false;
+  @property({ type: Boolean, reflect: true }) public virtualize = false
 
-  @property({ attribute: false }) public endTime?: Date;
+  @property({ attribute: false }) public endTime?: Date
 
-  @property({ attribute: false }) public startTime?: Date;
+  @property({ attribute: false }) public startTime?: Date
 
-  @property({ type: Boolean, attribute: "up-to-now" }) public upToNow = false;
+  @property({ type: Boolean, attribute: 'up-to-now' }) public upToNow = false
 
-  @property({ attribute: false, type: Number }) public hoursToShow?: number;
+  @property({ attribute: false, type: Number }) public hoursToShow?: number
 
-  @property({ attribute: "show-names", type: Boolean }) public showNames = true;
+  @property({ attribute: 'show-names', type: Boolean }) public showNames = true
 
-  @property({ attribute: "click-for-more-info", type: Boolean })
-  public clickForMoreInfo = true;
+  @property({ attribute: 'click-for-more-info', type: Boolean })
+  public clickForMoreInfo = true
 
-  @property({ attribute: "is-loading-data", type: Boolean })
-  public isLoadingData = false;
+  @property({ attribute: 'is-loading-data', type: Boolean })
+  public isLoadingData = false
 
-  @property({ attribute: "logarithmic-scale", type: Boolean })
-  public logarithmicScale = false;
+  @property({ attribute: 'logarithmic-scale', type: Boolean })
+  public logarithmicScale = false
 
-  @property({ attribute: false, type: Number }) public minYAxis?: number;
+  @property({ attribute: false, type: Number }) public minYAxis?: number
 
-  @property({ attribute: false, type: Number }) public maxYAxis?: number;
+  @property({ attribute: false, type: Number }) public maxYAxis?: number
 
-  @property({ attribute: "fit-y-data", type: Boolean }) public fitYData = false;
+  @property({ attribute: 'fit-y-data', type: Boolean }) public fitYData = false
 
-  @property({ type: String }) public height?: string;
+  @property({ type: String }) public height?: string
 
-  @property({ attribute: "expand-legend", type: Boolean })
-  public expandLegend?: boolean;
+  @property({ attribute: 'expand-legend', type: Boolean })
+  public expandLegend?: boolean
 
-  @property({ attribute: "sync-charts", type: Boolean })
-  public syncCharts = false;
+  @property({ attribute: 'sync-charts', type: Boolean })
+  public syncCharts = false
 
-  private _computedStartTime!: Date;
+  private _computedStartTime!: Date
 
-  private _computedEndTime!: Date;
+  private _computedEndTime!: Date
 
-  @state() private _maxYWidth = 0;
+  @state() private _maxYWidth = 0
 
-  @state() private _childYWidths: number[] = [];
+  @state() private _childYWidths: number[] = []
 
-  @state() private _chartCount = 0;
+  @state() private _chartCount = 0
 
-  @state() private _hasZoomedCharts = false;
+  @state() private _hasZoomedCharts = false
 
-  private _isSyncing = false;
+  private _isSyncing = false
 
   // @ts-ignore
-  @restoreScroll(".container") private _savedScrollPos?: number;
+  @restoreScroll('.container') private _savedScrollPos?: number
 
   protected render() {
-    if (!isComponentLoaded(this.hass, "history")) {
+    if (!isComponentLoaded(this.hass, 'history')) {
       return html`<div class="info">
-        ${this.hass.localize("ui.components.history_charts.history_disabled")}
-      </div>`;
+        ${this.hass.localize('ui.components.history_charts.history_disabled')}
+      </div>`
     }
 
     if (this.isLoadingData && !this.historyData) {
       return html`<div class="info">
-        ${this.hass.localize("ui.components.history_charts.loading_history")}
-      </div>`;
+        ${this.hass.localize('ui.components.history_charts.loading_history')}
+      </div>`
     }
 
     if (this._isHistoryEmpty()) {
       return html`<div class="info">
-        ${this.hass.localize("ui.components.history_charts.no_history_found")}
-      </div>`;
+        ${this.hass.localize('ui.components.history_charts.no_history_found')}
+      </div>`
     }
     const combinedItems = this.historyData!.timeline.length
       ? (this.virtualize
           ? chunkData(this.historyData!.timeline, CANVAS_TIMELINE_ROWS_CHUNK)
           : [this.historyData!.timeline]
         ).concat(this.historyData!.line)
-      : this.historyData!.line;
+      : this.historyData!.line
 
     // eslint-disable-next-line lit/no-this-assign-in-render
-    this._chartCount = combinedItems.length;
+    this._chartCount = combinedItems.length
 
     return html`
       ${this.virtualize
@@ -154,14 +154,17 @@ export class StateHistoryCharts extends LitElement {
             slot="fab"
             class="reset-button"
             .label=${this.hass.localize(
-              "ui.components.history_charts.zoom_reset"
+              'ui.components.history_charts.zoom_reset'
             )}
             @click=${this._handleGlobalZoomReset}
           >
-            <ha-svg-icon slot="icon" .path=${mdiRestart}></ha-svg-icon>
+            <ha-svg-icon
+              slot="icon"
+              .path=${mdiRestart}
+            ></ha-svg-icon>
           </ha-fab>`
         : nothing}
-    `;
+    `
   }
 
   private _renderHistoryItem: RenderItemFunction<
@@ -169,7 +172,7 @@ export class StateHistoryCharts extends LitElement {
   > = (item, index) => {
     if (!item || index === undefined) {
       // eslint-disable-next-line lit/prefer-nothing
-      return html``;
+      return html``
     }
     if (!Array.isArray(item)) {
       return html`<div class="entry-container line">
@@ -195,7 +198,7 @@ export class StateHistoryCharts extends LitElement {
           .expandLegend=${this.expandLegend}
           ?hide-reset-button=${this.syncCharts}
         ></state-history-chart-line>
-      </div> `;
+      </div> `
     }
     return html`<div class="entry-container timeline">
       <state-history-chart-timeline
@@ -214,49 +217,47 @@ export class StateHistoryCharts extends LitElement {
         @chart-zoom-with-index=${this._handleTimelineSync}
         ?hide-reset-button=${this.syncCharts}
       ></state-history-chart-timeline>
-    </div> `;
-  };
+    </div> `
+  }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    if (changedProps.size === 1 && changedProps.has("hass")) {
-      return false;
+    if (changedProps.size === 1 && changedProps.has('hass')) {
+      return false
     }
     if (
       changedProps.size === 1 &&
-      changedProps.has("_maxYWidth") &&
-      changedProps.get("_maxYWidth") === this._maxYWidth
+      changedProps.has('_maxYWidth') &&
+      changedProps.get('_maxYWidth') === this._maxYWidth
     ) {
-      return false;
+      return false
     }
-    return true;
+    return true
   }
 
   protected willUpdate(changedProps: PropertyValues) {
     if (!this.hasUpdated) {
-      loadVirtualizer();
+      loadVirtualizer()
     }
     if (
       [...changedProps.keys()].some(
-        (prop) =>
+        prop =>
           !(
-            ["_maxYWidth", "_childYWidths", "_chartCount"] as PropertyKey[]
+            ['_maxYWidth', '_childYWidths', '_chartCount'] as PropertyKey[]
           ).includes(prop)
       )
     ) {
       // Don't recompute times when we just want to update layout
-      const now = new Date();
+      const now = new Date()
 
       this._computedEndTime =
-        this.upToNow || !this.endTime || this.endTime > now
-          ? now
-          : this.endTime;
+        this.upToNow || !this.endTime || this.endTime > now ? now : this.endTime
 
       if (this.startTime) {
-        this._computedStartTime = this.startTime;
+        this._computedStartTime = this.startTime
       } else if (this.hoursToShow) {
         this._computedStartTime = new Date(
           new Date().getTime() - 60 * 60 * this.hoursToShow * 1000
-        );
+        )
       } else {
         let minTimeAll = (this.historyData?.timeline ?? []).reduce(
           (minTime, stateInfo) =>
@@ -265,7 +266,7 @@ export class StateHistoryCharts extends LitElement {
               new Date(stateInfo.data[0].last_changed).getTime()
             ),
           new Date().getTime()
-        );
+        )
 
         minTimeAll = (this.historyData?.line ?? []).reduce(
           (minTimeLine, line) =>
@@ -281,38 +282,38 @@ export class StateHistoryCharts extends LitElement {
               )
             ),
           minTimeAll
-        );
+        )
 
-        this._computedStartTime = new Date(minTimeAll);
+        this._computedStartTime = new Date(minTimeAll)
       }
     }
   }
 
   protected updated(changedProps: PropertyValues) {
-    if (changedProps.has("_chartCount")) {
+    if (changedProps.has('_chartCount')) {
       if (this._chartCount < this._childYWidths.length) {
-        this._childYWidths.length = this._chartCount;
-        this._maxYWidth = Math.max(...Object.values(this._childYWidths), 0);
+        this._childYWidths.length = this._chartCount
+        this._maxYWidth = Math.max(...Object.values(this._childYWidths), 0)
       }
     }
   }
 
-  private _yWidthChanged(e: CustomEvent<HASSDomEvents["y-width-changed"]>) {
-    this._childYWidths[e.detail.chartIndex] = e.detail.value;
-    this._maxYWidth = Math.max(...Object.values(this._childYWidths), 0);
+  private _yWidthChanged(e: CustomEvent<HASSDomEvents['y-width-changed']>) {
+    this._childYWidths[e.detail.chartIndex] = e.detail.value
+    this._maxYWidth = Math.max(...Object.values(this._childYWidths), 0)
   }
 
   private _handleTimelineSync(
-    e: CustomEvent<HASSDomEvents["chart-zoom-with-index"]>
+    e: CustomEvent<HASSDomEvents['chart-zoom-with-index']>
   ) {
     if (!this.syncCharts || this._isSyncing) {
-      return;
+      return
     }
 
-    const { start, end, chartIndex } = e.detail;
+    const { start, end, chartIndex } = e.detail
 
-    this._hasZoomedCharts = start !== 0 || end !== 100;
-    this._syncZoomToAllCharts(start, end, chartIndex);
+    this._hasZoomedCharts = start !== 0 || end !== 100
+    this._syncZoomToAllCharts(start, end, chartIndex)
   }
 
   private _syncZoomToAllCharts(
@@ -320,46 +321,46 @@ export class StateHistoryCharts extends LitElement {
     end: number,
     sourceChartIndex?: number
   ) {
-    this._isSyncing = true;
+    this._isSyncing = true
 
     requestAnimationFrame(() => {
       const chartComponents = this.renderRoot.querySelectorAll(
-        "state-history-chart-line, state-history-chart-timeline"
-      ) as unknown as (StateHistoryChartLine | StateHistoryChartTimeline)[];
+        'state-history-chart-line, state-history-chart-timeline'
+      ) as unknown as (StateHistoryChartLine | StateHistoryChartTimeline)[]
 
       chartComponents.forEach((chartComponent, index) => {
         if (index === sourceChartIndex) {
-          return;
+          return
         }
 
-        if ("zoom" in chartComponent) {
-          chartComponent.zoom(start, end);
+        if ('zoom' in chartComponent) {
+          chartComponent.zoom(start, end)
         }
-      });
+      })
 
-      this._isSyncing = false;
-    });
+      this._isSyncing = false
+    })
   }
 
   private _handleGlobalZoomReset() {
-    this._hasZoomedCharts = false;
-    this._isSyncing = true;
+    this._hasZoomedCharts = false
+    this._isSyncing = true
 
     requestAnimationFrame(() => {
       const chartComponents = this.renderRoot.querySelectorAll(
-        "state-history-chart-line, state-history-chart-timeline"
-      );
+        'state-history-chart-line, state-history-chart-timeline'
+      )
 
       chartComponents.forEach((chartComponent: any) => {
         const chartBase =
-          chartComponent.renderRoot?.querySelector("ha-chart-base");
+          chartComponent.renderRoot?.querySelector('ha-chart-base')
 
         if (chartBase && chartBase.chart) {
-          chartBase.zoom(0, 100);
+          chartBase.zoom(0, 100)
         }
-      });
-      this._isSyncing = false;
-    });
+      })
+      this._isSyncing = false
+    })
   }
 
   private _isHistoryEmpty(): boolean {
@@ -368,13 +369,13 @@ export class StateHistoryCharts extends LitElement {
       !this.historyData.timeline ||
       !this.historyData.line ||
       (this.historyData.timeline.length === 0 &&
-        this.historyData.line.length === 0);
-    return !this.isLoadingData && historyDataEmpty;
+        this.historyData.line.length === 0)
+    return !this.isLoadingData && historyDataEmpty
   }
 
   @eventOptions({ passive: true })
   private _saveScrollPos(e: Event) {
-    this._savedScrollPos = (e.target as HTMLDivElement).scrollTop;
+    this._savedScrollPos = (e.target as HTMLDivElement).scrollTop
   }
 
   static styles = css`
@@ -449,11 +450,11 @@ export class StateHistoryCharts extends LitElement {
       right: calc(24px + var(--safe-area-inset-bottom));
       z-index: 1;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "state-history-charts": StateHistoryCharts;
+    'state-history-charts': StateHistoryCharts
   }
 }

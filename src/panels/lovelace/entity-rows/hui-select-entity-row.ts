@@ -1,61 +1,61 @@
-import type { PropertyValues } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { stopPropagation } from "../../../common/dom/stop_propagation";
-import "../../../components/ha-list-item";
-import "../../../components/ha-select";
-import { UNAVAILABLE } from "../../../data/entity";
-import { forwardHaptic } from "../../../data/haptics";
-import type { SelectEntity } from "../../../data/select";
-import { setSelectOption } from "../../../data/select";
-import type { HomeAssistant } from "../../../types";
-import type { EntitiesCardEntityConfig } from "../cards/types";
-import { computeLovelaceEntityName } from "../common/entity/compute-lovelace-entity-name";
-import { hasConfigOrEntityChanged } from "../common/has-changed";
-import "../components/hui-generic-entity-row";
-import { createEntityNotFoundWarning } from "../components/hui-warning";
-import type { LovelaceRow } from "./types";
+import type { PropertyValues } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { stopPropagation } from '../../../common/dom/stop_propagation'
+import '../../../components/ha-list-item'
+import '../../../components/ha-select'
+import { UNAVAILABLE } from '../../../data/entity'
+import { forwardHaptic } from '../../../data/haptics'
+import type { SelectEntity } from '../../../data/select'
+import { setSelectOption } from '../../../data/select'
+import type { HomeAssistant } from '../../../types'
+import type { EntitiesCardEntityConfig } from '../cards/types'
+import { computeLovelaceEntityName } from '../common/entity/compute-lovelace-entity-name'
+import { hasConfigOrEntityChanged } from '../common/has-changed'
+import '../components/hui-generic-entity-row'
+import { createEntityNotFoundWarning } from '../components/hui-warning'
+import type { LovelaceRow } from './types'
 
-@customElement("hui-select-entity-row")
+@customElement('hui-select-entity-row')
 class HuiSelectEntityRow extends LitElement implements LovelaceRow {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: EntitiesCardEntityConfig;
+  @state() private _config?: EntitiesCardEntityConfig
 
   public setConfig(config: EntitiesCardEntityConfig): void {
     if (!config || !config.entity) {
-      throw new Error("Entity must be specified");
+      throw new Error('Entity must be specified')
     }
 
-    this._config = config;
+    this._config = config
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    return hasConfigOrEntityChanged(this, changedProps);
+    return hasConfigOrEntityChanged(this, changedProps)
   }
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
     const stateObj = this.hass.states[this._config.entity] as
       | SelectEntity
-      | undefined;
+      | undefined
 
     if (!stateObj) {
       return html`
         <hui-warning .hass=${this.hass}>
           ${createEntityNotFoundWarning(this.hass, this._config.entity)}
         </hui-warning>
-      `;
+      `
     }
 
     const name = computeLovelaceEntityName(
       this.hass!,
       stateObj,
       this._config.name
-    );
+    )
 
     return html`
       <hui-generic-entity-row
@@ -75,16 +75,16 @@ class HuiSelectEntityRow extends LitElement implements LovelaceRow {
         >
           ${stateObj.attributes.options
             ? stateObj.attributes.options.map(
-                (option) => html`
+                option => html`
                   <ha-list-item .value=${option}>
                     ${this.hass!.formatEntityState(stateObj, option)}
                   </ha-list-item>
                 `
               )
-            : ""}
+            : ''}
         </ha-select>
       </hui-generic-entity-row>
-    `;
+    `
   }
 
   static styles = css`
@@ -96,28 +96,28 @@ class HuiSelectEntityRow extends LitElement implements LovelaceRow {
       width: 100%;
       --ha-select-min-width: 0;
     }
-  `;
+  `
 
   private _handleAction(ev): void {
-    const stateObj = this.hass!.states[this._config!.entity] as SelectEntity;
+    const stateObj = this.hass!.states[this._config!.entity] as SelectEntity
 
-    const option = ev.target.value;
+    const option = ev.target.value
 
     if (
       option === stateObj.state ||
       !stateObj.attributes.options.includes(option)
     ) {
-      return;
+      return
     }
 
-    forwardHaptic(this, "light");
+    forwardHaptic(this, 'light')
 
-    setSelectOption(this.hass!, stateObj.entity_id, option);
+    setSelectOption(this.hass!, stateObj.entity_id, option)
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-select-entity-row": HuiSelectEntityRow;
+    'hui-select-entity-row': HuiSelectEntityRow
   }
 }

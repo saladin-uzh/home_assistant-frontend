@@ -1,21 +1,21 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../components/ha-date-input";
-import "../../../components/ha-time-input";
-import { isUnavailableState, UNAVAILABLE } from "../../../data/entity";
-import { setTimeValue } from "../../../data/time";
-import type { HomeAssistant } from "../../../types";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../components/ha-date-input'
+import '../../../components/ha-time-input'
+import { isUnavailableState, UNAVAILABLE } from '../../../data/entity'
+import { setTimeValue } from '../../../data/time'
+import type { HomeAssistant } from '../../../types'
 
-@customElement("more-info-time")
+@customElement('more-info-time')
 class MoreInfoTime extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj?: HassEntity;
+  @property({ attribute: false }) public stateObj?: HassEntity
 
   protected render() {
     if (!this.stateObj || this.stateObj.state === UNAVAILABLE) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -28,16 +28,16 @@ class MoreInfoTime extends LitElement {
         @value-changed=${this._timeChanged}
         @click=${this._stopEventPropagation}
       ></ha-time-input>
-    `;
+    `
   }
 
   private _stopEventPropagation(ev: Event): void {
-    ev.stopPropagation();
+    ev.stopPropagation()
   }
 
   private _timeChanged(ev: CustomEvent<{ value: string }>): void {
     if (ev.detail.value) {
-      setTimeValue(this.hass!, this.stateObj!.entity_id, ev.detail.value);
+      setTimeValue(this.hass!, this.stateObj!.entity_id, ev.detail.value)
     }
   }
 
@@ -47,11 +47,11 @@ class MoreInfoTime extends LitElement {
       align-items: center;
       justify-content: flex-end;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "more-info-time": MoreInfoTime;
+    'more-info-time': MoreInfoTime
   }
 }

@@ -1,86 +1,86 @@
-import memoizeOne from "memoize-one";
+import memoizeOne from 'memoize-one'
 
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import "../../../../../components/ha-button-menu";
-import "../../../../../components/ha-check-list-item";
-import "../../../../../components/ha-icon-button";
-import "../../../../../components/ha-textfield";
-import type { PersistentNotificationTrigger } from "../../../../../data/automation";
-import type { HomeAssistant } from "../../../../../types";
-import type { TriggerElement } from "../ha-automation-trigger-row";
-import type { LocalizeFunc } from "../../../../../common/translations/localize";
-import type { SchemaUnion } from "../../../../../components/ha-form/types";
-import "../../../../../components/ha-form/ha-form";
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import '../../../../../components/ha-button-menu'
+import '../../../../../components/ha-check-list-item'
+import '../../../../../components/ha-icon-button'
+import '../../../../../components/ha-textfield'
+import type { PersistentNotificationTrigger } from '../../../../../data/automation'
+import type { HomeAssistant } from '../../../../../types'
+import type { TriggerElement } from '../ha-automation-trigger-row'
+import type { LocalizeFunc } from '../../../../../common/translations/localize'
+import type { SchemaUnion } from '../../../../../components/ha-form/types'
+import '../../../../../components/ha-form/ha-form'
 
-const DEFAULT_UPDATE_TYPES = ["added", "removed"];
-const DEFAULT_NOTIFICATION_ID = "";
+const DEFAULT_UPDATE_TYPES = ['added', 'removed']
+const DEFAULT_NOTIFICATION_ID = ''
 
-@customElement("ha-automation-trigger-persistent_notification")
+@customElement('ha-automation-trigger-persistent_notification')
 export class HaPersistentNotificationTrigger
   extends LitElement
   implements TriggerElement
 {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   @property({ attribute: false })
-  public trigger!: PersistentNotificationTrigger;
+  public trigger!: PersistentNotificationTrigger
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
   private _schema = memoizeOne(
     (localize: LocalizeFunc) =>
       [
         {
-          name: "notification_id",
+          name: 'notification_id',
           required: false,
           selector: { text: {} },
         },
         {
-          name: "update_type",
-          type: "multi_select",
+          name: 'update_type',
+          type: 'multi_select',
           required: false,
           options: [
             [
-              "added",
+              'added',
               localize(
-                "ui.panel.config.automation.editor.triggers.type.persistent_notification.update_types.added"
+                'ui.panel.config.automation.editor.triggers.type.persistent_notification.update_types.added'
               ),
             ],
             [
-              "removed",
+              'removed',
               localize(
-                "ui.panel.config.automation.editor.triggers.type.persistent_notification.update_types.removed"
+                'ui.panel.config.automation.editor.triggers.type.persistent_notification.update_types.removed'
               ),
             ],
             [
-              "current",
+              'current',
               localize(
-                "ui.panel.config.automation.editor.triggers.type.persistent_notification.update_types.current"
+                'ui.panel.config.automation.editor.triggers.type.persistent_notification.update_types.current'
               ),
             ],
             [
-              "updated",
+              'updated',
               localize(
-                "ui.panel.config.automation.editor.triggers.type.persistent_notification.update_types.updated"
+                'ui.panel.config.automation.editor.triggers.type.persistent_notification.update_types.updated'
               ),
             ],
           ],
         },
       ] as const
-  );
+  )
 
   public static get defaultConfig(): PersistentNotificationTrigger {
     return {
-      trigger: "persistent_notification",
+      trigger: 'persistent_notification',
       update_type: [...DEFAULT_UPDATE_TYPES],
       notification_id: DEFAULT_NOTIFICATION_ID,
-    };
+    }
   }
 
   protected render() {
-    const schema = this._schema(this.hass.localize);
+    const schema = this._schema(this.hass.localize)
     return html`
       <ha-form
         .schema=${schema}
@@ -90,13 +90,13 @@ export class HaPersistentNotificationTrigger
         .computeLabel=${this._computeLabelCallback}
         @value-changed=${this._valueChanged}
       ></ha-form>
-    `;
+    `
   }
 
   private _valueChanged(ev: CustomEvent): void {
-    ev.stopPropagation();
-    const newTrigger = ev.detail.value;
-    fireEvent(this, "value-changed", { value: newTrigger });
+    ev.stopPropagation()
+    const newTrigger = ev.detail.value
+    fireEvent(this, 'value-changed', { value: newTrigger })
   }
 
   private _computeLabelCallback = (
@@ -104,17 +104,17 @@ export class HaPersistentNotificationTrigger
   ): string =>
     this.hass.localize(
       `ui.panel.config.automation.editor.triggers.type.persistent_notification.${schema.name}`
-    );
+    )
 
   static styles = css`
     ha-textfield {
       display: block;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-trigger-persistent_notification": HaPersistentNotificationTrigger;
+    'ha-automation-trigger-persistent_notification': HaPersistentNotificationTrigger
   }
 }

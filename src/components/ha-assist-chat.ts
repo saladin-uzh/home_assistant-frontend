@@ -1,103 +1,103 @@
-import { mdiAlertCircle, mdiMicrophone, mdiSend } from "@mdi/js";
-import type { PropertyValues, TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { supportsFeature } from "../common/entity/supports-feature";
+import { mdiAlertCircle, mdiMicrophone, mdiSend } from '@mdi/js'
+import type { PropertyValues, TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { supportsFeature } from '../common/entity/supports-feature'
 import {
   runAssistPipeline,
   type AssistPipeline,
   type ConversationChatLogAssistantDelta,
   type ConversationChatLogToolResultDelta,
   type PipelineRunEvent,
-} from "../data/assist_pipeline";
-import { ConversationEntityFeature } from "../data/conversation";
-import { showAlertDialog } from "../dialogs/generic/show-dialog-box";
-import type { HomeAssistant } from "../types";
-import { AudioRecorder } from "../util/audio-recorder";
-import { documentationUrl } from "../util/documentation-url";
-import "./ha-alert";
-import "./ha-markdown";
-import "./ha-textfield";
-import type { HaTextField } from "./ha-textfield";
+} from '../data/assist_pipeline'
+import { ConversationEntityFeature } from '../data/conversation'
+import { showAlertDialog } from '../dialogs/generic/show-dialog-box'
+import type { HomeAssistant } from '../types'
+import { AudioRecorder } from '../util/audio-recorder'
+import { documentationUrl } from '../util/documentation-url'
+import './ha-alert'
+import './ha-markdown'
+import './ha-textfield'
+import type { HaTextField } from './ha-textfield'
 
 interface AssistMessage {
-  who: string;
-  text?: string | TemplateResult;
-  error?: boolean;
+  who: string
+  text?: string | TemplateResult
+  error?: boolean
 }
 
-@customElement("ha-assist-chat")
+@customElement('ha-assist-chat')
 export class HaAssistChat extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public pipeline?: AssistPipeline;
+  @property({ attribute: false }) public pipeline?: AssistPipeline
 
-  @property({ type: Boolean, attribute: "disable-speech" })
-  public disableSpeech = false;
+  @property({ type: Boolean, attribute: 'disable-speech' })
+  public disableSpeech = false
 
   @property({ type: Boolean, attribute: false })
-  public startListening?: boolean;
+  public startListening?: boolean
 
-  @query("#message-input") private _messageInput!: HaTextField;
+  @query('#message-input') private _messageInput!: HaTextField
 
-  @query(".message:last-child")
-  private _lastChatMessage!: LitElement;
+  @query('.message:last-child')
+  private _lastChatMessage!: LitElement
 
-  @query(".message:last-child img:last-of-type")
-  private _lastChatMessageImage: HTMLImageElement | undefined;
+  @query('.message:last-child img:last-of-type')
+  private _lastChatMessageImage: HTMLImageElement | undefined
 
-  @state() private _conversation: AssistMessage[] = [];
+  @state() private _conversation: AssistMessage[] = []
 
-  @state() private _showSendButton = false;
+  @state() private _showSendButton = false
 
-  @state() private _processing = false;
+  @state() private _processing = false
 
-  private _conversationId: string | null = null;
+  private _conversationId: string | null = null
 
-  private _audioRecorder?: AudioRecorder;
+  private _audioRecorder?: AudioRecorder
 
-  private _audioBuffer?: Int16Array[];
+  private _audioBuffer?: Int16Array[]
 
-  private _audio?: HTMLAudioElement;
+  private _audio?: HTMLAudioElement
 
-  private _stt_binary_handler_id?: number | null;
+  private _stt_binary_handler_id?: number | null
 
   protected willUpdate(changedProperties: PropertyValues): void {
-    if (!this.hasUpdated || changedProperties.has("pipeline")) {
+    if (!this.hasUpdated || changedProperties.has('pipeline')) {
       this._conversation = [
         {
-          who: "hass",
-          text: this.hass.localize("ui.dialogs.voice_command.how_can_i_help"),
+          who: 'hass',
+          text: this.hass.localize('ui.dialogs.voice_command.how_can_i_help'),
         },
-      ];
+      ]
     }
   }
 
   protected firstUpdated(changedProperties: PropertyValues): void {
-    super.firstUpdated(changedProperties);
+    super.firstUpdated(changedProperties)
     if (
       this.startListening &&
       this.pipeline &&
       this.pipeline.stt_engine &&
       AudioRecorder.isSupported
     ) {
-      this._toggleListening();
+      this._toggleListening()
     }
-    setTimeout(() => this._messageInput.focus(), 0);
+    setTimeout(() => this._messageInput.focus(), 0)
   }
 
   protected updated(changedProps: PropertyValues) {
-    super.updated(changedProps);
-    if (changedProps.has("_conversation")) {
-      this._scrollMessagesBottom();
+    super.updated(changedProps)
+    if (changedProps.has('_conversation')) {
+      this._scrollMessagesBottom()
     }
   }
 
   public disconnectedCallback() {
-    super.disconnectedCallback();
-    this._audioRecorder?.close();
-    this._unloadAudio();
+    super.disconnectedCallback()
+    this._audioRecorder?.close()
+    this._unloadAudio()
   }
 
   protected render(): TemplateResult {
@@ -109,9 +109,9 @@ export class HaAssistChat extends LitElement {
               this.hass.states[this.pipeline.conversation_engine],
               ConversationEntityFeature.CONTROL
             )
-          : true);
-    const supportsMicrophone = AudioRecorder.isSupported;
-    const supportsSTT = this.pipeline?.stt_engine && !this.disableSpeech;
+          : true)
+    const supportsMicrophone = AudioRecorder.isSupported
+    const supportsSTT = this.pipeline?.stt_engine && !this.disableSpeech
 
     return html`
       <div class="messages">
@@ -120,13 +120,13 @@ export class HaAssistChat extends LitElement {
           : html`
               <ha-alert>
                 ${this.hass.localize(
-                  "ui.dialogs.voice_command.conversation_no_control"
+                  'ui.dialogs.voice_command.conversation_no_control'
                 )}
               </ha-alert>
             `}
         <div class="spacer"></div>
         ${this._conversation!.map(
-          (message) => html`
+          message => html`
             <ha-markdown
               class="message ${classMap({
                 error: !!message.error,
@@ -140,7 +140,10 @@ export class HaAssistChat extends LitElement {
           `
         )}
       </div>
-      <div class="input" slot="primaryAction">
+      <div
+        class="input"
+        slot="primaryAction"
+      >
         <ha-textfield
           id="message-input"
           @keyup=${this._handleKeyUp}
@@ -157,7 +160,7 @@ export class HaAssistChat extends LitElement {
                     @click=${this._handleSendMessage}
                     .disabled=${this._processing}
                     .label=${this.hass.localize(
-                      "ui.dialogs.voice_command.send_text"
+                      'ui.dialogs.voice_command.send_text'
                     )}
                   >
                   </ha-icon-button>
@@ -178,7 +181,7 @@ export class HaAssistChat extends LitElement {
                       @click=${this._handleListeningButton}
                       .disabled=${this._processing}
                       .label=${this.hass.localize(
-                        "ui.dialogs.voice_command.start_listening"
+                        'ui.dialogs.voice_command.start_listening'
                       )}
                     >
                     </ha-icon-button>
@@ -195,85 +198,85 @@ export class HaAssistChat extends LitElement {
           </div>
         </ha-textfield>
       </div>
-    `;
+    `
   }
 
   private async _scrollMessagesBottom() {
-    const lastChatMessage = this._lastChatMessage;
+    const lastChatMessage = this._lastChatMessage
     if (!lastChatMessage.hasUpdated) {
-      await lastChatMessage.updateComplete;
+      await lastChatMessage.updateComplete
     }
     if (
       this._lastChatMessageImage &&
       !this._lastChatMessageImage.naturalHeight
     ) {
       try {
-        await this._lastChatMessageImage.decode();
+        await this._lastChatMessageImage.decode()
       } catch (err: any) {
         // eslint-disable-next-line no-console
-        console.warn("Failed to decode image:", err);
+        console.warn('Failed to decode image:', err)
       }
     }
     const isLastMessageFullyVisible =
       lastChatMessage.getBoundingClientRect().y <
-      this.getBoundingClientRect().top + 24;
+      this.getBoundingClientRect().top + 24
     if (!isLastMessageFullyVisible) {
-      lastChatMessage.scrollIntoView({ behavior: "smooth", block: "start" });
+      lastChatMessage.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }
 
   private _handleKeyUp(ev: KeyboardEvent) {
-    const input = ev.target as HaTextField;
-    if (!this._processing && ev.key === "Enter" && input.value) {
-      this._processText(input.value);
-      input.value = "";
-      this._showSendButton = false;
+    const input = ev.target as HaTextField
+    if (!this._processing && ev.key === 'Enter' && input.value) {
+      this._processText(input.value)
+      input.value = ''
+      this._showSendButton = false
     }
   }
 
   private _handleInput(ev: InputEvent) {
-    const value = (ev.target as HaTextField).value;
+    const value = (ev.target as HaTextField).value
     if (value && !this._showSendButton) {
-      this._showSendButton = true;
+      this._showSendButton = true
     } else if (!value && this._showSendButton) {
-      this._showSendButton = false;
+      this._showSendButton = false
     }
   }
 
   private _handleSendMessage() {
     if (this._messageInput.value) {
-      this._processText(this._messageInput.value.trim());
-      this._messageInput.value = "";
-      this._showSendButton = false;
+      this._processText(this._messageInput.value.trim())
+      this._messageInput.value = ''
+      this._showSendButton = false
     }
   }
 
   private _handleListeningButton(ev) {
-    ev.stopPropagation();
-    ev.preventDefault();
-    this._toggleListening();
+    ev.stopPropagation()
+    ev.preventDefault()
+    this._toggleListening()
   }
 
   private async _toggleListening() {
-    const supportsMicrophone = AudioRecorder.isSupported;
+    const supportsMicrophone = AudioRecorder.isSupported
     if (!supportsMicrophone) {
-      this._showNotSupportedMessage();
-      return;
+      this._showNotSupportedMessage()
+      return
     }
     if (!this._audioRecorder?.active) {
-      this._startListening();
+      this._startListening()
     } else {
-      this._stopListening();
+      this._stopListening()
     }
   }
 
   private _addMessage(message: AssistMessage) {
-    this._conversation = [...this._conversation!, message];
+    this._conversation = [...this._conversation!, message]
   }
 
   private async _showNotSupportedMessage() {
     this._addMessage({
-      who: "hass",
+      who: 'hass',
       text:
         // New lines matter for messages
         // prettier-ignore
@@ -296,251 +299,251 @@ export class HaAssistChat extends LitElement {
                 )}</a>`,
           }
         )}`,
-    });
+    })
   }
 
   private async _startListening() {
-    this._unloadAudio();
-    this._processing = true;
+    this._unloadAudio()
+    this._processing = true
     if (!this._audioRecorder) {
-      this._audioRecorder = new AudioRecorder((audio) => {
+      this._audioRecorder = new AudioRecorder(audio => {
         if (this._audioBuffer) {
-          this._audioBuffer.push(audio);
+          this._audioBuffer.push(audio)
         } else {
-          this._sendAudioChunk(audio);
+          this._sendAudioChunk(audio)
         }
-      });
+      })
     }
-    this._stt_binary_handler_id = undefined;
-    this._audioBuffer = [];
+    this._stt_binary_handler_id = undefined
+    this._audioBuffer = []
     const userMessage: AssistMessage = {
-      who: "user",
-      text: "…",
-    };
-    await this._audioRecorder.start();
+      who: 'user',
+      text: '…',
+    }
+    await this._audioRecorder.start()
 
-    this._addMessage(userMessage);
+    this._addMessage(userMessage)
 
-    const hassMessageProcesser = this._createAddHassMessageProcessor();
+    const hassMessageProcesser = this._createAddHassMessageProcessor()
 
     try {
       const unsub = await runAssistPipeline(
         this.hass,
         (event: PipelineRunEvent) => {
-          if (event.type === "run-start") {
+          if (event.type === 'run-start') {
             this._stt_binary_handler_id =
-              event.data.runner_data.stt_binary_handler_id;
-            this._audio = new Audio(event.data.tts_output!.url);
-            this._audio.play();
-            this._audio.addEventListener("ended", () => {
-              this._unloadAudio();
+              event.data.runner_data.stt_binary_handler_id
+            this._audio = new Audio(event.data.tts_output!.url)
+            this._audio.play()
+            this._audio.addEventListener('ended', () => {
+              this._unloadAudio()
               if (hassMessageProcesser.continueConversation) {
-                this._startListening();
+                this._startListening()
               }
-            });
-            this._audio.addEventListener("pause", this._unloadAudio);
-            this._audio.addEventListener("canplaythrough", () =>
+            })
+            this._audio.addEventListener('pause', this._unloadAudio)
+            this._audio.addEventListener('canplaythrough', () =>
               this._audio?.play()
-            );
-            this._audio.addEventListener("error", () => {
-              this._unloadAudio();
-              showAlertDialog(this, { title: "Error playing audio." });
-            });
+            )
+            this._audio.addEventListener('error', () => {
+              this._unloadAudio()
+              showAlertDialog(this, { title: 'Error playing audio.' })
+            })
           }
 
           // When we start STT stage, the WS has a binary handler
-          else if (event.type === "stt-start" && this._audioBuffer) {
+          else if (event.type === 'stt-start' && this._audioBuffer) {
             // Send the buffer over the WS to the STT engine.
             for (const buffer of this._audioBuffer) {
-              this._sendAudioChunk(buffer);
+              this._sendAudioChunk(buffer)
             }
-            this._audioBuffer = undefined;
+            this._audioBuffer = undefined
           }
 
           // Stop recording if the server is done with STT stage
-          else if (event.type === "stt-end") {
-            this._stt_binary_handler_id = undefined;
-            this._stopListening();
-            userMessage.text = event.data.stt_output.text;
-            this.requestUpdate("_conversation");
+          else if (event.type === 'stt-end') {
+            this._stt_binary_handler_id = undefined
+            this._stopListening()
+            userMessage.text = event.data.stt_output.text
+            this.requestUpdate('_conversation')
             // Add the response message placeholder to the chat when we know the STT is done
-            hassMessageProcesser.addMessage();
-          } else if (event.type.startsWith("intent-")) {
-            hassMessageProcesser.processEvent(event);
-          } else if (event.type === "run-end") {
-            this._stt_binary_handler_id = undefined;
-            unsub();
-          } else if (event.type === "error") {
-            this._unloadAudio();
-            this._stt_binary_handler_id = undefined;
-            if (userMessage.text === "…") {
-              userMessage.text = event.data.message;
-              userMessage.error = true;
+            hassMessageProcesser.addMessage()
+          } else if (event.type.startsWith('intent-')) {
+            hassMessageProcesser.processEvent(event)
+          } else if (event.type === 'run-end') {
+            this._stt_binary_handler_id = undefined
+            unsub()
+          } else if (event.type === 'error') {
+            this._unloadAudio()
+            this._stt_binary_handler_id = undefined
+            if (userMessage.text === '…') {
+              userMessage.text = event.data.message
+              userMessage.error = true
             } else {
-              hassMessageProcesser.setError(event.data.message);
+              hassMessageProcesser.setError(event.data.message)
             }
-            this._stopListening();
-            this.requestUpdate("_conversation");
-            unsub();
+            this._stopListening()
+            this.requestUpdate('_conversation')
+            unsub()
           }
         },
         {
-          start_stage: "stt",
-          end_stage: this.pipeline?.tts_engine ? "tts" : "intent",
+          start_stage: 'stt',
+          end_stage: this.pipeline?.tts_engine ? 'tts' : 'intent',
           input: { sample_rate: this._audioRecorder.sampleRate! },
           pipeline: this.pipeline?.id,
           conversation_id: this._conversationId,
         }
-      );
+      )
     } catch (err: any) {
       await showAlertDialog(this, {
-        title: "Error starting pipeline",
+        title: 'Error starting pipeline',
         text: err.message || err,
-      });
-      this._stopListening();
+      })
+      this._stopListening()
     } finally {
-      this._processing = false;
+      this._processing = false
     }
   }
 
   private _stopListening() {
-    this._audioRecorder?.stop();
-    this.requestUpdate("_audioRecorder");
+    this._audioRecorder?.stop()
+    this.requestUpdate('_audioRecorder')
     // We're currently STTing, so finish audio
     if (this._stt_binary_handler_id) {
       if (this._audioBuffer) {
         for (const chunk of this._audioBuffer) {
-          this._sendAudioChunk(chunk);
+          this._sendAudioChunk(chunk)
         }
       }
       // Send empty message to indicate we're done streaming.
-      this._sendAudioChunk(new Int16Array());
-      this._stt_binary_handler_id = undefined;
+      this._sendAudioChunk(new Int16Array())
+      this._stt_binary_handler_id = undefined
     }
-    this._audioBuffer = undefined;
+    this._audioBuffer = undefined
   }
 
   private _sendAudioChunk(chunk: Int16Array) {
-    this.hass.connection.socket!.binaryType = "arraybuffer";
+    this.hass.connection.socket!.binaryType = 'arraybuffer'
 
     // eslint-disable-next-line eqeqeq
     if (this._stt_binary_handler_id == undefined) {
-      return;
+      return
     }
     // Turn into 8 bit so we can prefix our handler ID.
-    const data = new Uint8Array(1 + chunk.length * 2);
-    data[0] = this._stt_binary_handler_id;
-    data.set(new Uint8Array(chunk.buffer), 1);
+    const data = new Uint8Array(1 + chunk.length * 2)
+    data[0] = this._stt_binary_handler_id
+    data.set(new Uint8Array(chunk.buffer), 1)
 
-    this.hass.connection.socket!.send(data);
+    this.hass.connection.socket!.send(data)
   }
 
   private _unloadAudio = () => {
     if (!this._audio) {
-      return;
+      return
     }
-    this._audio.pause();
-    this._audio.removeAttribute("src");
-    this._audio = undefined;
-  };
+    this._audio.pause()
+    this._audio.removeAttribute('src')
+    this._audio = undefined
+  }
 
   private async _processText(text: string) {
-    this._unloadAudio();
-    this._processing = true;
-    this._addMessage({ who: "user", text });
-    const hassMessageProcesser = this._createAddHassMessageProcessor();
-    hassMessageProcesser.addMessage();
+    this._unloadAudio()
+    this._processing = true
+    this._addMessage({ who: 'user', text })
+    const hassMessageProcesser = this._createAddHassMessageProcessor()
+    hassMessageProcesser.addMessage()
     try {
       const unsub = await runAssistPipeline(
         this.hass,
-        (event) => {
-          if (event.type.startsWith("intent-")) {
-            hassMessageProcesser.processEvent(event);
+        event => {
+          if (event.type.startsWith('intent-')) {
+            hassMessageProcesser.processEvent(event)
           }
-          if (event.type === "intent-end") {
-            unsub();
+          if (event.type === 'intent-end') {
+            unsub()
           }
-          if (event.type === "error") {
-            hassMessageProcesser.setError(event.data.message);
-            unsub();
+          if (event.type === 'error') {
+            hassMessageProcesser.setError(event.data.message)
+            unsub()
           }
         },
         {
-          start_stage: "intent",
+          start_stage: 'intent',
           input: { text },
-          end_stage: "intent",
+          end_stage: 'intent',
           pipeline: this.pipeline?.id,
           conversation_id: this._conversationId,
         }
-      );
+      )
     } catch {
       hassMessageProcesser.setError(
-        this.hass.localize("ui.dialogs.voice_command.error")
-      );
+        this.hass.localize('ui.dialogs.voice_command.error')
+      )
     } finally {
-      this._processing = false;
+      this._processing = false
     }
   }
 
   private _createAddHassMessageProcessor() {
-    let currentDeltaRole = "";
+    let currentDeltaRole = ''
 
     const progressToNextMessage = () => {
-      if (progress.hassMessage.text === "…") {
-        return;
+      if (progress.hassMessage.text === '…') {
+        return
       }
       progress.hassMessage.text = progress.hassMessage.text.substring(
         0,
         progress.hassMessage.text.length - 1
-      );
+      )
 
       progress.hassMessage = {
-        who: "hass",
-        text: "…",
+        who: 'hass',
+        text: '…',
         error: false,
-      };
-      this._addMessage(progress.hassMessage);
-    };
+      }
+      this._addMessage(progress.hassMessage)
+    }
 
     const isAssistantDelta = (
       _delta: any
     ): _delta is Partial<ConversationChatLogAssistantDelta> =>
-      currentDeltaRole === "assistant";
+      currentDeltaRole === 'assistant'
 
     const isToolResult = (
       _delta: any
     ): _delta is ConversationChatLogToolResultDelta =>
-      currentDeltaRole === "tool_result";
+      currentDeltaRole === 'tool_result'
 
     const tools: Record<
       string,
-      ConversationChatLogAssistantDelta["tool_calls"][0]
-    > = {};
+      ConversationChatLogAssistantDelta['tool_calls'][0]
+    > = {}
 
     const progress = {
       continueConversation: false,
       hassMessage: {
-        who: "hass",
-        text: "…",
+        who: 'hass',
+        text: '…',
         error: false,
       },
       addMessage: () => {
-        this._addMessage(progress.hassMessage);
+        this._addMessage(progress.hassMessage)
       },
       setError: (error: string) => {
-        progressToNextMessage();
-        progress.hassMessage.text = error;
-        progress.hassMessage.error = true;
-        this.requestUpdate("_conversation");
+        progressToNextMessage()
+        progress.hassMessage.text = error
+        progress.hassMessage.error = true
+        this.requestUpdate('_conversation')
       },
       processEvent: (event: PipelineRunEvent) => {
-        if (event.type === "intent-progress" && event.data.chat_log_delta) {
-          const delta = event.data.chat_log_delta;
+        if (event.type === 'intent-progress' && event.data.chat_log_delta) {
+          const delta = event.data.chat_log_delta
 
           // new message
           if (delta.role) {
-            progressToNextMessage();
-            currentDeltaRole = delta.role;
+            progressToNextMessage()
+            currentDeltaRole = delta.role
           }
 
           if (isAssistantDelta(delta)) {
@@ -551,38 +554,38 @@ export class HaAssistChat extends LitElement {
                   progress.hassMessage.text.length - 1
                 ) +
                 delta.content +
-                "…";
-              this.requestUpdate("_conversation");
+                '…'
+              this.requestUpdate('_conversation')
             }
             if (delta.tool_calls) {
               for (const toolCall of delta.tool_calls) {
-                tools[toolCall.id] = toolCall;
+                tools[toolCall.id] = toolCall
               }
             }
           } else if (isToolResult(delta)) {
             if (tools[delta.tool_call_id]) {
-              delete tools[delta.tool_call_id];
+              delete tools[delta.tool_call_id]
             }
           }
-        } else if (event.type === "intent-end") {
-          this._conversationId = event.data.intent_output.conversation_id;
+        } else if (event.type === 'intent-end') {
+          this._conversationId = event.data.intent_output.conversation_id
           progress.continueConversation =
-            event.data.intent_output.continue_conversation;
+            event.data.intent_output.continue_conversation
           const response =
-            event.data.intent_output.response.speech?.plain.speech;
+            event.data.intent_output.response.speech?.plain.speech
           if (!response) {
-            return;
+            return
           }
-          if (event.data.intent_output.response.response_type === "error") {
-            progress.setError(response);
+          if (event.data.intent_output.response.response_type === 'error') {
+            progress.setError(response)
           } else {
-            progress.hassMessage.text = response;
-            this.requestUpdate("_conversation");
+            progress.hassMessage.text = response
+            this.requestUpdate('_conversation')
           }
         }
       },
-    };
-    return progress;
+    }
+    return progress
   }
 
   static styles = css`
@@ -731,11 +734,11 @@ export class HaAssistChat extends LitElement {
       inset-inline-start: initial;
       top: 0px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-assist-chat": HaAssistChat;
+    'ha-assist-chat': HaAssistChat
   }
 }

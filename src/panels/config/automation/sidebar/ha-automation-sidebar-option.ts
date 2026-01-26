@@ -3,48 +3,48 @@ import {
   mdiDelete,
   mdiPlusCircleMultipleOutline,
   mdiRenameBox,
-} from "@mdi/js";
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, query } from "lit/decorators";
-import "../../../../components/ha-md-divider";
-import "../../../../components/ha-md-menu-item";
-import "../../../../components/ha-svg-icon";
-import type { OptionSidebarConfig } from "../../../../data/automation";
-import type { HomeAssistant } from "../../../../types";
-import { isMac } from "../../../../util/is_mac";
-import type HaAutomationConditionEditor from "../action/ha-automation-action-editor";
-import { overflowStyles, sidebarEditorStyles } from "../styles";
-import "./ha-automation-sidebar-card";
+} from '@mdi/js'
+import { html, LitElement, nothing } from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import '../../../../components/ha-md-divider'
+import '../../../../components/ha-md-menu-item'
+import '../../../../components/ha-svg-icon'
+import type { OptionSidebarConfig } from '../../../../data/automation'
+import type { HomeAssistant } from '../../../../types'
+import { isMac } from '../../../../util/is_mac'
+import type HaAutomationConditionEditor from '../action/ha-automation-action-editor'
+import { overflowStyles, sidebarEditorStyles } from '../styles'
+import './ha-automation-sidebar-card'
 
-@customElement("ha-automation-sidebar-option")
+@customElement('ha-automation-sidebar-option')
 export default class HaAutomationSidebarOption extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public config!: OptionSidebarConfig;
+  @property({ attribute: false }) public config!: OptionSidebarConfig
 
-  @property({ type: Boolean, attribute: "wide" }) public isWide = false;
+  @property({ type: Boolean, attribute: 'wide' }) public isWide = false
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @query(".sidebar-editor")
-  public editor?: HaAutomationConditionEditor;
+  @query('.sidebar-editor')
+  public editor?: HaAutomationConditionEditor
 
   protected render() {
-    const disabled = this.disabled;
+    const disabled = this.disabled
 
     const subtitle = this.hass.localize(
-      "ui.panel.config.automation.editor.actions.type.choose.label"
-    );
+      'ui.panel.config.automation.editor.actions.type.choose.label'
+    )
 
     const title = this.hass.localize(
-      `ui.panel.config.automation.editor.actions.type.choose.${this.config.defaultOption ? "default_" : ""}option_label`
-    );
+      `ui.panel.config.automation.editor.actions.type.choose.${this.config.defaultOption ? 'default_' : ''}option_label`
+    )
 
     const description = this.hass.localize(
-      `ui.panel.config.automation.editor.actions.type.choose.${this.config.defaultOption ? "default_" : ""}option_description`
-    );
+      `ui.panel.config.automation.editor.actions.type.choose.${this.config.defaultOption ? 'default_' : ''}option_description`
+    )
 
     return html`<ha-automation-sidebar-card
       .hass=${this.hass}
@@ -61,12 +61,15 @@ export default class HaAutomationSidebarOption extends LitElement {
               .clickAction=${this.config.rename}
               .disabled=${!!disabled}
             >
-              <ha-svg-icon slot="start" .path=${mdiRenameBox}></ha-svg-icon>
+              <ha-svg-icon
+                slot="start"
+                .path=${mdiRenameBox}
+              ></ha-svg-icon>
               <div class="overflow-label">
                 ${this.hass.localize(
-                  "ui.panel.config.automation.editor.triggers.rename"
+                  'ui.panel.config.automation.editor.triggers.rename'
                 )}
-                <span class="shortcut-placeholder ${isMac ? "mac" : ""}"></span>
+                <span class="shortcut-placeholder ${isMac ? 'mac' : ''}"></span>
               </div>
             </ha-md-menu-item>
 
@@ -81,9 +84,9 @@ export default class HaAutomationSidebarOption extends LitElement {
               ></ha-svg-icon>
               <div class="overflow-label">
                 ${this.hass.localize(
-                  "ui.panel.config.automation.editor.actions.duplicate"
+                  'ui.panel.config.automation.editor.actions.duplicate'
                 )}
-                <span class="shortcut-placeholder ${isMac ? "mac" : ""}"></span>
+                <span class="shortcut-placeholder ${isMac ? 'mac' : ''}"></span>
               </div>
             </ha-md-menu-item>
             <ha-md-divider
@@ -97,10 +100,13 @@ export default class HaAutomationSidebarOption extends LitElement {
               .disabled=${this.disabled}
               class="warning"
             >
-              <ha-svg-icon slot="start" .path=${mdiDelete}></ha-svg-icon>
+              <ha-svg-icon
+                slot="start"
+                .path=${mdiDelete}
+              ></ha-svg-icon>
               <div class="overflow-label">
                 ${this.hass.localize(
-                  "ui.panel.config.automation.editor.actions.type.choose.remove_option"
+                  'ui.panel.config.automation.editor.actions.type.choose.remove_option'
                 )}
                 ${!this.narrow
                   ? html`<span class="shortcut">
@@ -111,13 +117,13 @@ export default class HaAutomationSidebarOption extends LitElement {
                               .path=${mdiAppleKeyboardCommand}
                             ></ha-svg-icon>`
                           : this.hass.localize(
-                              "ui.panel.config.automation.editor.ctrl"
+                              'ui.panel.config.automation.editor.ctrl'
                             )}</span
                       >
                       <span>+</span>
                       <span
                         >${this.hass.localize(
-                          "ui.panel.config.automation.editor.del"
+                          'ui.panel.config.automation.editor.del'
                         )}</span
                       >
                     </span>`
@@ -127,14 +133,14 @@ export default class HaAutomationSidebarOption extends LitElement {
           `}
 
       <div class="description">${description}</div>
-    </ha-automation-sidebar-card>`;
+    </ha-automation-sidebar-card>`
   }
 
-  static styles = [sidebarEditorStyles, overflowStyles];
+  static styles = [sidebarEditorStyles, overflowStyles]
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-sidebar-option": HaAutomationSidebarOption;
+    'ha-automation-sidebar-option': HaAutomationSidebarOption
   }
 }

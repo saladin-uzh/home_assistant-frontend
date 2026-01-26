@@ -1,92 +1,92 @@
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import "../../../components/ha-alert";
-import "../../../components/ha-card";
-import type { HomeAssistant } from "../../../types";
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import '../../../components/ha-alert'
+import '../../../components/ha-card'
+import type { HomeAssistant } from '../../../types'
 import type {
   LovelaceCard,
   LovelaceCardEditor,
   LovelaceGridOptions,
-} from "../types";
-import type { ClockCardConfig } from "./types";
+} from '../types'
+import type { ClockCardConfig } from './types'
 
-@customElement("hui-clock-card")
+@customElement('hui-clock-card')
 export class HuiClockCard extends LitElement implements LovelaceCard {
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import("../editor/config-elements/hui-clock-card-editor");
-    return document.createElement("hui-clock-card-editor");
+    await import('../editor/config-elements/hui-clock-card-editor')
+    return document.createElement('hui-clock-card-editor')
   }
 
   public static getStubConfig(): ClockCardConfig {
     return {
-      type: "clock",
-    };
+      type: 'clock',
+    }
   }
 
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: ClockCardConfig;
+  @state() private _config?: ClockCardConfig
 
   public setConfig(config: ClockCardConfig): void {
-    this._config = config;
+    this._config = config
     // Dynamically import the clock type based on the configuration
-    if (config.clock_style === "analog") {
-      import("./clock/hui-clock-card-analog");
+    if (config.clock_style === 'analog') {
+      import('./clock/hui-clock-card-analog')
     } else {
-      import("./clock/hui-clock-card-digital");
+      import('./clock/hui-clock-card-digital')
     }
   }
 
   public getCardSize(): number {
-    if (this._config?.clock_size === "small") return 1;
-    return 2;
+    if (this._config?.clock_size === 'small') return 1
+    return 2
   }
 
   public getGridOptions(): LovelaceGridOptions {
     switch (this._config?.clock_style) {
-      case "analog":
+      case 'analog':
         switch (this._config?.clock_size) {
-          case "medium":
+          case 'medium':
             return {
               min_rows: this._config?.title ? 4 : 3,
               rows: 3,
               min_columns: 5,
               columns: 6,
-            };
-          case "large":
+            }
+          case 'large':
             return {
               min_rows: this._config?.title ? 5 : 4,
               rows: 4,
               min_columns: 6,
               columns: 6,
-            };
+            }
           default:
             return {
               min_rows: this._config?.title ? 3 : 2,
               rows: 2,
               min_columns: 2,
               columns: 6,
-            };
+            }
         }
       default:
         switch (this._config?.clock_size) {
-          case "medium":
+          case 'medium':
             return {
               min_rows: this._config?.title ? 2 : 1,
               rows: 2,
               max_rows: 4,
               min_columns: 4,
               columns: 6,
-            };
-          case "large":
+            }
+          case 'large':
             return {
               min_rows: 2,
               rows: 2,
               max_rows: 4,
               min_columns: 6,
               columns: 6,
-            };
+            }
           default:
             return {
               min_rows: 1,
@@ -94,29 +94,29 @@ export class HuiClockCard extends LitElement implements LovelaceCard {
               max_rows: 4,
               min_columns: 3,
               columns: 6,
-            };
+            }
         }
     }
   }
 
   protected render() {
-    if (!this._config) return nothing;
+    if (!this._config) return nothing
 
     return html`
       <ha-card
         class=${classMap({
-          "no-background": this._config.no_background ?? false,
+          'no-background': this._config.no_background ?? false,
         })}
       >
         <div
           class="time-wrapper ${this._config.clock_size
             ? `size-${this._config.clock_size}`
-            : ""}"
+            : ''}"
         >
           ${this._config.title !== undefined
             ? html`<div class="time-title">${this._config.title}</div>`
             : nothing}
-          ${this._config.clock_style === "analog"
+          ${this._config.clock_style === 'analog'
             ? html`
                 <hui-clock-card-analog
                   .hass=${this.hass}
@@ -131,7 +131,7 @@ export class HuiClockCard extends LitElement implements LovelaceCard {
               `}
         </div>
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -183,11 +183,11 @@ export class HuiClockCard extends LitElement implements LovelaceCard {
       font-size: var(--ha-font-size-2xl);
       line-height: var(--ha-line-height-condensed);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-clock-card": HuiClockCard;
+    'hui-clock-card': HuiClockCard
   }
 }

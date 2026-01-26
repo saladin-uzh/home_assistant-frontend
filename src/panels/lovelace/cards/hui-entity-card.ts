@@ -1,149 +1,154 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { CSSResultGroup, PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { ifDefined } from "lit/directives/if-defined";
-import { styleMap } from "lit/directives/style-map";
-import { applyThemesOnElement } from "../../../common/dom/apply_themes_on_element";
-import { fireEvent } from "../../../common/dom/fire_event";
-import { computeStateDomain } from "../../../common/entity/compute_state_domain";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { CSSResultGroup, PropertyValues } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { ifDefined } from 'lit/directives/if-defined'
+import { styleMap } from 'lit/directives/style-map'
+import { applyThemesOnElement } from '../../../common/dom/apply_themes_on_element'
+import { fireEvent } from '../../../common/dom/fire_event'
+import { computeStateDomain } from '../../../common/entity/compute_state_domain'
 import {
   stateColorBrightness,
   stateColorCss,
-} from "../../../common/entity/state_color";
-import { isValidEntityId } from "../../../common/entity/valid_entity_id";
+} from '../../../common/entity/state_color'
+import { isValidEntityId } from '../../../common/entity/valid_entity_id'
 import {
   formatNumber,
   getNumberFormatOptions,
   isNumericState,
-} from "../../../common/number/format_number";
-import { iconColorCSS } from "../../../common/style/icon_color_css";
-import "../../../components/ha-attribute-value";
-import "../../../components/ha-card";
-import "../../../components/ha-icon";
-import { CLIMATE_HVAC_ACTION_TO_MODE } from "../../../data/climate";
-import { isUnavailableState } from "../../../data/entity";
-import type { HomeAssistant } from "../../../types";
-import { computeCardSize } from "../common/compute-card-size";
-import { computeLovelaceEntityName } from "../common/entity/compute-lovelace-entity-name";
-import { findEntities } from "../common/find-entities";
-import { hasConfigOrEntityChanged } from "../common/has-changed";
-import { createEntityNotFoundWarning } from "../components/hui-warning";
-import { createHeaderFooterElement } from "../create-element/create-header-footer-element";
+} from '../../../common/number/format_number'
+import { iconColorCSS } from '../../../common/style/icon_color_css'
+import '../../../components/ha-attribute-value'
+import '../../../components/ha-card'
+import '../../../components/ha-icon'
+import { CLIMATE_HVAC_ACTION_TO_MODE } from '../../../data/climate'
+import { isUnavailableState } from '../../../data/entity'
+import type { HomeAssistant } from '../../../types'
+import { computeCardSize } from '../common/compute-card-size'
+import { computeLovelaceEntityName } from '../common/entity/compute-lovelace-entity-name'
+import { findEntities } from '../common/find-entities'
+import { hasConfigOrEntityChanged } from '../common/has-changed'
+import { createEntityNotFoundWarning } from '../components/hui-warning'
+import { createHeaderFooterElement } from '../create-element/create-header-footer-element'
 import type {
   LovelaceCard,
   LovelaceGridOptions,
   LovelaceHeaderFooter,
-} from "../types";
-import type { HuiErrorCard } from "./hui-error-card";
-import type { EntityCardConfig } from "./types";
+} from '../types'
+import type { HuiErrorCard } from './hui-error-card'
+import type { EntityCardConfig } from './types'
 
-@customElement("hui-entity-card")
+@customElement('hui-entity-card')
 export class HuiEntityCard extends LitElement implements LovelaceCard {
   public static getStubConfig(
     hass: HomeAssistant,
     entities: string[],
     entitiesFill: string[]
   ) {
-    const includeDomains = ["sensor", "light", "switch"];
-    const maxEntities = 1;
+    const includeDomains = ['sensor', 'light', 'switch']
+    const maxEntities = 1
     const foundEntities = findEntities(
       hass,
       maxEntities,
       entities,
       entitiesFill,
       includeDomains
-    );
+    )
 
     return {
-      entity: foundEntities[0] || "",
-    };
+      entity: foundEntities[0] || '',
+    }
   }
 
   public static async getConfigForm() {
-    return (await import("../editor/config-elements/hui-entity-card-editor"))
-      .default;
+    return (await import('../editor/config-elements/hui-entity-card-editor'))
+      .default
   }
 
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property() public layout?: string;
+  @property() public layout?: string
 
-  @state() private _config?: EntityCardConfig;
+  @state() private _config?: EntityCardConfig
 
-  private _footerElement?: HuiErrorCard | LovelaceHeaderFooter;
+  private _footerElement?: HuiErrorCard | LovelaceHeaderFooter
 
   private _getStateColor(stateObj: HassEntity, config: EntityCardConfig) {
-    const domain = stateObj ? computeStateDomain(stateObj) : undefined;
-    return config && (config.state_color ?? domain === "light");
+    const domain = stateObj ? computeStateDomain(stateObj) : undefined
+    return config && (config.state_color ?? domain === 'light')
   }
 
   public setConfig(config: EntityCardConfig): void {
     if (!config.entity) {
-      throw new Error("Entity must be specified");
+      throw new Error('Entity must be specified')
     }
     if (config.entity && !isValidEntityId(config.entity)) {
-      throw new Error("Invalid entity");
+      throw new Error('Invalid entity')
     }
 
-    this._config = config;
+    this._config = config
 
     if (this._config.footer) {
-      this._footerElement = createHeaderFooterElement(this._config.footer);
+      this._footerElement = createHeaderFooterElement(this._config.footer)
     } else if (this._footerElement) {
-      this._footerElement = undefined;
+      this._footerElement = undefined
     }
   }
 
   public async getCardSize(): Promise<number> {
-    let size = 2;
+    let size = 2
     if (this._footerElement) {
-      const footerSize = computeCardSize(this._footerElement);
-      size += footerSize instanceof Promise ? await footerSize : footerSize;
+      const footerSize = computeCardSize(this._footerElement)
+      size += footerSize instanceof Promise ? await footerSize : footerSize
     }
-    return size;
+    return size
   }
 
   protected render() {
     if (!this._config || !this.hass) {
-      return nothing;
+      return nothing
     }
 
-    const stateObj = this.hass.states[this._config.entity];
+    const stateObj = this.hass.states[this._config.entity]
 
     if (!stateObj) {
       return html`
         <hui-warning .hass=${this.hass}>
           ${createEntityNotFoundWarning(this.hass, this._config.entity)}
         </hui-warning>
-      `;
+      `
     }
 
-    const domain = computeStateDomain(stateObj);
+    const domain = computeStateDomain(stateObj)
     const showUnit = this._config.attribute
       ? this._config.attribute in stateObj.attributes
-      : !isUnavailableState(stateObj.state);
+      : !isUnavailableState(stateObj.state)
 
     const name = computeLovelaceEntityName(
       this.hass,
       stateObj,
       this._config.name
-    );
+    )
 
-    const colored = stateObj && this._getStateColor(stateObj, this._config);
+    const colored = stateObj && this._getStateColor(stateObj, this._config)
 
     const fixedFooter =
-      this.layout === "grid" && this._footerElement !== undefined;
+      this.layout === 'grid' && this._footerElement !== undefined
 
     return html`
       <ha-card
         @click=${this._handleClick}
         tabindex="0"
-        class=${classMap({ "with-fixed-footer": fixedFooter })}
+        class=${classMap({ 'with-fixed-footer': fixedFooter })}
       >
         <div class="header">
-          <div class="name" .title=${name}>${name}</div>
+          <div
+            class="name"
+            .title=${name}
+          >
+            ${name}
+          </div>
           <div class="icon">
             <ha-state-icon
               .icon=${this._config.icon}
@@ -156,14 +161,14 @@ export class HuiEntityCard extends LitElement implements LovelaceCard {
                 filter: colored ? stateColorBrightness(stateObj) : undefined,
                 height: this._config.icon_height
                   ? this._config.icon_height
-                  : "",
+                  : '',
               })}
             ></ha-state-icon>
           </div>
         </div>
         <div class="info">
           <span class="value"
-            >${"attribute" in this._config
+            >${'attribute' in this._config
               ? stateObj.attributes[this._config.attribute!] !== undefined
                 ? html`
                     <ha-attribute-value
@@ -174,9 +179,9 @@ export class HuiEntityCard extends LitElement implements LovelaceCard {
                     >
                     </ha-attribute-value>
                   `
-                : this.hass.localize("state.default.unknown")
+                : this.hass.localize('state.default.unknown')
               : (isNumericState(stateObj) || this._config.unit) &&
-                  stateObj.attributes.device_class !== "duration"
+                  stateObj.attributes.device_class !== 'duration'
                 ? formatNumber(
                     stateObj.state,
                     this.hass.locale,
@@ -191,55 +196,55 @@ export class HuiEntityCard extends LitElement implements LovelaceCard {
                 <span class="measurement"
                   >${this._config.unit ||
                   (this._config.attribute ||
-                  stateObj.attributes.device_class === "duration"
-                    ? ""
+                  stateObj.attributes.device_class === 'duration'
+                    ? ''
                     : stateObj.attributes.unit_of_measurement)}</span
                 >
               `
-            : ""}
+            : ''}
         </div>
         <div class="footer">${this._footerElement}</div>
       </ha-card>
-    `;
+    `
   }
 
   private _computeColor(stateObj: HassEntity): string | undefined {
     if (stateObj.attributes.hvac_action) {
-      const hvacAction = stateObj.attributes.hvac_action;
+      const hvacAction = stateObj.attributes.hvac_action
       if (hvacAction in CLIMATE_HVAC_ACTION_TO_MODE) {
-        return stateColorCss(stateObj, CLIMATE_HVAC_ACTION_TO_MODE[hvacAction]);
+        return stateColorCss(stateObj, CLIMATE_HVAC_ACTION_TO_MODE[hvacAction])
       }
-      return undefined;
+      return undefined
     }
     if (stateObj.attributes.rgb_color) {
-      return `rgb(${stateObj.attributes.rgb_color.join(",")})`;
+      return `rgb(${stateObj.attributes.rgb_color.join(',')})`
     }
-    const iconColor = stateColorCss(stateObj);
+    const iconColor = stateColorCss(stateObj)
     if (iconColor) {
-      return iconColor;
+      return iconColor
     }
-    return undefined;
+    return undefined
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     // Side Effect used to update footer hass while keeping optimizations
     if (this._footerElement) {
-      this._footerElement.hass = this.hass;
+      this._footerElement.hass = this.hass
     }
 
-    return hasConfigOrEntityChanged(this, changedProps);
+    return hasConfigOrEntityChanged(this, changedProps)
   }
 
   protected updated(changedProps: PropertyValues) {
-    super.updated(changedProps);
+    super.updated(changedProps)
     if (!this._config || !this.hass) {
-      return;
+      return
     }
 
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
-    const oldConfig = changedProps.get("_config") as
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined
+    const oldConfig = changedProps.get('_config') as
       | EntityCardConfig
-      | undefined;
+      | undefined
 
     if (
       !oldHass ||
@@ -247,12 +252,12 @@ export class HuiEntityCard extends LitElement implements LovelaceCard {
       oldHass.themes !== this.hass.themes ||
       oldConfig.theme !== this._config.theme
     ) {
-      applyThemesOnElement(this, this.hass.themes, this._config!.theme);
+      applyThemesOnElement(this, this.hass.themes, this._config!.theme)
     }
   }
 
   private _handleClick(): void {
-    fireEvent(this, "hass-more-info", { entityId: this._config!.entity });
+    fireEvent(this, 'hass-more-info', { entityId: this._config!.entity })
   }
 
   public getGridOptions(): LovelaceGridOptions {
@@ -261,7 +266,7 @@ export class HuiEntityCard extends LitElement implements LovelaceCard {
       rows: 2,
       min_columns: 6,
       min_rows: 2,
-    };
+    }
   }
 
   static get styles(): CSSResultGroup {
@@ -330,12 +335,12 @@ export class HuiEntityCard extends LitElement implements LovelaceCard {
           bottom: 0;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-entity-card": HuiEntityCard;
+    'hui-entity-card': HuiEntityCard
   }
 }

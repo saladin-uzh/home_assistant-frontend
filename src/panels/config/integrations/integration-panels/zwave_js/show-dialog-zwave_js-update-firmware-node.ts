@@ -1,20 +1,20 @@
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import type { DeviceRegistryEntry } from "../../../../../data/device_registry";
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import type { DeviceRegistryEntry } from '../../../../../data/device_registry'
 
 export interface ZWaveJSUpdateFirmwareNodeDialogParams {
-  device: DeviceRegistryEntry;
+  device: DeviceRegistryEntry
 }
 
 export const loadUpdateFirmwareNodeDialog = () =>
-  import("./dialog-zwave_js-update-firmware-node");
+  import('./dialog-zwave_js-update-firmware-node')
 
 export const showZWaveJSUpdateFirmwareNodeDialog = (
   element: HTMLElement,
   updateFirmwareNodeDialogParams: ZWaveJSUpdateFirmwareNodeDialogParams
 ): void => {
-  fireEvent(element, "show-dialog", {
-    dialogTag: "dialog-zwave_js-update-firmware-node",
+  fireEvent(element, 'show-dialog', {
+    dialogTag: 'dialog-zwave_js-update-firmware-node',
     dialogImport: loadUpdateFirmwareNodeDialog,
     dialogParams: updateFirmwareNodeDialogParams,
-  });
-};
+  })
+}

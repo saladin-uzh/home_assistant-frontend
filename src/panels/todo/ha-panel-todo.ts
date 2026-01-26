@@ -1,4 +1,4 @@
-import { ResizeController } from "@lit-labs/observers/resize-controller";
+import { ResizeController } from '@lit-labs/observers/resize-controller'
 import {
   mdiChevronDown,
   mdiCommentProcessingOutline,
@@ -6,150 +6,150 @@ import {
   mdiDotsVertical,
   mdiInformationOutline,
   mdiPlus,
-} from "@mdi/js";
-import type { CSSResultGroup, PropertyValues, TemplateResult } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { isComponentLoaded } from "../../common/config/is_component_loaded";
-import { storage } from "../../common/decorators/storage";
-import { fireEvent } from "../../common/dom/fire_event";
-import { computeStateName } from "../../common/entity/compute_state_name";
-import { supportsFeature } from "../../common/entity/supports-feature";
-import { navigate } from "../../common/navigate";
-import { constructUrlCurrentPath } from "../../common/url/construct-url";
+} from '@mdi/js'
+import type { CSSResultGroup, PropertyValues, TemplateResult } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { isComponentLoaded } from '../../common/config/is_component_loaded'
+import { storage } from '../../common/decorators/storage'
+import { fireEvent } from '../../common/dom/fire_event'
+import { computeStateName } from '../../common/entity/compute_state_name'
+import { supportsFeature } from '../../common/entity/supports-feature'
+import { navigate } from '../../common/navigate'
+import { constructUrlCurrentPath } from '../../common/url/construct-url'
 import {
   createSearchParam,
   extractSearchParam,
-} from "../../common/url/search-params";
-import "../../components/ha-button";
-import "../../components/ha-fab";
-import "../../components/ha-icon-button";
-import "../../components/ha-list";
-import "../../components/ha-list-item";
-import "../../components/ha-menu-button";
-import "../../components/ha-state-icon";
-import "../../components/ha-svg-icon";
-import "../../components/ha-two-pane-top-app-bar-fixed";
-import { deleteConfigEntry } from "../../data/config_entries";
-import { getExtendedEntityRegistryEntry } from "../../data/entity_registry";
-import { fetchIntegrationManifest } from "../../data/integration";
-import type { LovelaceCardConfig } from "../../data/lovelace/config/card";
-import { TodoListEntityFeature, getTodoLists } from "../../data/todo";
-import { showConfigFlowDialog } from "../../dialogs/config-flow/show-dialog-config-flow";
+} from '../../common/url/search-params'
+import '../../components/ha-button'
+import '../../components/ha-fab'
+import '../../components/ha-icon-button'
+import '../../components/ha-list'
+import '../../components/ha-list-item'
+import '../../components/ha-menu-button'
+import '../../components/ha-state-icon'
+import '../../components/ha-svg-icon'
+import '../../components/ha-two-pane-top-app-bar-fixed'
+import { deleteConfigEntry } from '../../data/config_entries'
+import { getExtendedEntityRegistryEntry } from '../../data/entity_registry'
+import { fetchIntegrationManifest } from '../../data/integration'
+import type { LovelaceCardConfig } from '../../data/lovelace/config/card'
+import { TodoListEntityFeature, getTodoLists } from '../../data/todo'
+import { showConfigFlowDialog } from '../../dialogs/config-flow/show-dialog-config-flow'
 import {
   showAlertDialog,
   showConfirmationDialog,
-} from "../../dialogs/generic/show-dialog-box";
-import { showVoiceCommandDialog } from "../../dialogs/voice-command-dialog/show-ha-voice-command-dialog";
-import { haStyle } from "../../resources/styles";
-import type { HomeAssistant } from "../../types";
-import "../lovelace/cards/hui-card";
-import { showTodoItemEditDialog } from "./show-dialog-todo-item-editor";
+} from '../../dialogs/generic/show-dialog-box'
+import { showVoiceCommandDialog } from '../../dialogs/voice-command-dialog/show-ha-voice-command-dialog'
+import { haStyle } from '../../resources/styles'
+import type { HomeAssistant } from '../../types'
+import '../lovelace/cards/hui-card'
+import { showTodoItemEditDialog } from './show-dialog-todo-item-editor'
 
-@customElement("ha-panel-todo")
+@customElement('ha-panel-todo')
 class PanelTodo extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean, reflect: true }) public narrow = false;
+  @property({ type: Boolean, reflect: true }) public narrow = false
 
-  @property({ type: Boolean, reflect: true }) public mobile = false;
+  @property({ type: Boolean, reflect: true }) public mobile = false
 
   @state()
   @storage({
-    key: "selectedTodoEntity",
+    key: 'selectedTodoEntity',
     state: true,
   })
-  private _entityId?: string;
+  private _entityId?: string
 
-  private _headerHeight = 56;
+  private _headerHeight = 56
 
   private _showPaneController = new ResizeController(this, {
-    callback: (entries) => entries[0]?.contentRect.width > 750,
-  });
+    callback: entries => entries[0]?.contentRect.width > 750,
+  })
 
-  private _mql?: MediaQueryList;
+  private _mql?: MediaQueryList
 
-  private _conversation = memoizeOne((_components) =>
-    isComponentLoaded(this.hass, "conversation")
-  );
+  private _conversation = memoizeOne(_components =>
+    isComponentLoaded(this.hass, 'conversation')
+  )
 
   public connectedCallback() {
-    super.connectedCallback();
+    super.connectedCallback()
     this._mql = window.matchMedia(
-      "(max-width: 450px), all and (max-height: 500px)"
-    );
-    this._mql.addListener(this._setIsMobile);
-    this.mobile = this._mql.matches;
-    const computedStyles = getComputedStyle(this);
+      '(max-width: 450px), all and (max-height: 500px)'
+    )
+    this._mql.addListener(this._setIsMobile)
+    this.mobile = this._mql.matches
+    const computedStyles = getComputedStyle(this)
     this._headerHeight = Number(
-      computedStyles.getPropertyValue("--header-height").replace("px", "")
-    );
+      computedStyles.getPropertyValue('--header-height').replace('px', '')
+    )
   }
 
   public disconnectedCallback() {
-    super.disconnectedCallback();
-    this._mql?.removeListener(this._setIsMobile!);
-    this._mql = undefined;
+    super.disconnectedCallback()
+    this._mql?.removeListener(this._setIsMobile!)
+    this._mql = undefined
   }
 
   private _setIsMobile = (ev: MediaQueryListEvent) => {
-    this.mobile = ev.matches;
-  };
+    this.mobile = ev.matches
+  }
 
   protected willUpdate(changedProperties: PropertyValues): void {
-    super.willUpdate(changedProperties);
+    super.willUpdate(changedProperties)
 
     if (!this.hasUpdated) {
-      this.hass.loadFragmentTranslation("lovelace");
+      this.hass.loadFragmentTranslation('lovelace')
 
-      const urlEntityId = extractSearchParam("entity_id");
+      const urlEntityId = extractSearchParam('entity_id')
       if (urlEntityId) {
-        this._entityId = urlEntityId;
+        this._entityId = urlEntityId
       } else {
         if (this._entityId && !(this._entityId in this.hass.states)) {
-          this._entityId = undefined;
+          this._entityId = undefined
         }
         if (!this._entityId) {
-          this._entityId = getTodoLists(this.hass)[0]?.entity_id;
+          this._entityId = getTodoLists(this.hass)[0]?.entity_id
         }
       }
     }
 
-    if (changedProperties.has("_entityId") || !this.hasUpdated) {
-      this._setupTodoElement();
+    if (changedProperties.has('_entityId') || !this.hasUpdated) {
+      this._setupTodoElement()
     }
   }
 
   private _setupTodoElement(): void {
     if (!this._entityId) {
-      navigate(constructUrlCurrentPath(""), { replace: true });
-      return;
+      navigate(constructUrlCurrentPath(''), { replace: true })
+      return
     }
     navigate(
       constructUrlCurrentPath(createSearchParam({ entity_id: this._entityId })),
       { replace: true }
-    );
+    )
   }
 
   private _cardConfig = memoizeOne(
     (entityId: string) =>
       ({
-        type: "todo-list",
+        type: 'todo-list',
         entity: entityId,
       }) as LovelaceCardConfig
-  );
+  )
 
   protected render(): TemplateResult {
     const entityRegistryEntry = this._entityId
       ? this.hass.entities[this._entityId]
-      : undefined;
+      : undefined
     const entityState = this._entityId
       ? this.hass.states[this._entityId]
-      : undefined;
-    const showPane = this._showPaneController.value ?? !this.narrow;
+      : undefined
+    const showPane = this._showPaneController.value ?? !this.narrow
     const listItems = getTodoLists(this.hass).map(
-      (list) =>
+      list =>
         html`<ha-list-item
           graphic="icon"
           @click=${this._handleEntityPicked}
@@ -163,7 +163,7 @@ class PanelTodo extends LitElement {
           ></ha-state-icon
           >${list.name}
         </ha-list-item> `
-    );
+    )
     return html`
       <ha-two-pane-top-app-bar-fixed
         .pane=${showPane}
@@ -193,39 +193,55 @@ class PanelTodo extends LitElement {
                       ? entityState
                         ? computeStateName(entityState)
                         : this._entityId
-                      : ""}
+                      : ''}
                   </div>
-                  <ha-svg-icon slot="end" .path=${mdiChevronDown}></ha-svg-icon>
+                  <ha-svg-icon
+                    slot="end"
+                    .path=${mdiChevronDown}
+                  ></ha-svg-icon>
                 </ha-button>
                 ${listItems}
                 ${this.hass.user?.is_admin
-                  ? html`<li divider role="separator"></li>
-                      <ha-list-item graphic="icon" @click=${this._addList}>
+                  ? html`<li
+                        divider
+                        role="separator"
+                      ></li>
+                      <ha-list-item
+                        graphic="icon"
+                        @click=${this._addList}
+                      >
                         <ha-svg-icon
                           .path=${mdiPlus}
                           slot="graphic"
                         ></ha-svg-icon>
-                        ${this.hass.localize("ui.panel.todo.create_list")}
+                        ${this.hass.localize('ui.panel.todo.create_list')}
                       </ha-list-item>`
                   : nothing}
               </ha-button-menu>`
-            : this.hass.localize("panel.todo")}
+            : this.hass.localize('panel.todo')}
         </div>
-        <ha-list slot="pane" activatable>${listItems}</ha-list>
+        <ha-list
+          slot="pane"
+          activatable
+          >${listItems}</ha-list
+        >
         ${showPane && this.hass.user?.is_admin
           ? html`<ha-list-item
               graphic="icon"
               slot="pane-footer"
               @click=${this._addList}
             >
-              <ha-svg-icon .path=${mdiPlus} slot="graphic"></ha-svg-icon>
-              ${this.hass.localize("ui.panel.todo.create_list")}
+              <ha-svg-icon
+                .path=${mdiPlus}
+                slot="graphic"
+              ></ha-svg-icon>
+              ${this.hass.localize('ui.panel.todo.create_list')}
             </ha-list-item>`
           : nothing}
         <ha-button-menu slot="actionItems">
           <ha-icon-button
             slot="trigger"
-            .label=${""}
+            .label=${''}
             .path=${mdiDotsVertical}
           ></ha-icon-button>
           ${this._conversation(this.hass.config.components)
@@ -234,19 +250,34 @@ class PanelTodo extends LitElement {
                 @click=${this._showMoreInfoDialog}
                 .disabled=${!this._entityId}
               >
-                <ha-svg-icon .path=${mdiInformationOutline} slot="graphic">
+                <ha-svg-icon
+                  .path=${mdiInformationOutline}
+                  slot="graphic"
+                >
                 </ha-svg-icon>
-                ${this.hass.localize("ui.panel.todo.information")}
+                ${this.hass.localize('ui.panel.todo.information')}
               </ha-list-item>`
             : nothing}
-          <li divider role="separator"></li>
-          <ha-list-item graphic="icon" @click=${this._showVoiceCommandDialog}>
-            <ha-svg-icon .path=${mdiCommentProcessingOutline} slot="graphic">
+          <li
+            divider
+            role="separator"
+          ></li>
+          <ha-list-item
+            graphic="icon"
+            @click=${this._showVoiceCommandDialog}
+          >
+            <ha-svg-icon
+              .path=${mdiCommentProcessingOutline}
+              slot="graphic"
+            >
             </ha-svg-icon>
-            ${this.hass.localize("ui.panel.todo.assist")}
+            ${this.hass.localize('ui.panel.todo.assist')}
           </ha-list-item>
-          ${entityRegistryEntry?.platform === "local_todo"
-            ? html` <li divider role="separator"></li>
+          ${entityRegistryEntry?.platform === 'local_todo'
+            ? html` <li
+                  divider
+                  role="separator"
+                ></li>
                 <ha-list-item
                   graphic="icon"
                   @click=${this._deleteList}
@@ -259,7 +290,7 @@ class PanelTodo extends LitElement {
                     class="warning"
                   >
                   </ha-svg-icon>
-                  ${this.hass.localize("ui.panel.todo.delete_list")}
+                  ${this.hass.localize('ui.panel.todo.delete_list')}
                 </ha-list-item>`
             : nothing}
         </ha-button-menu>
@@ -278,89 +309,92 @@ class PanelTodo extends LitElement {
         ${entityState &&
         supportsFeature(entityState, TodoListEntityFeature.CREATE_TODO_ITEM)
           ? html`<ha-fab
-              .label=${this.hass.localize("ui.panel.todo.add_item")}
+              .label=${this.hass.localize('ui.panel.todo.add_item')}
               extended
               @click=${this._addItem}
             >
-              <ha-svg-icon slot="icon" .path=${mdiPlus}></ha-svg-icon>
+              <ha-svg-icon
+                slot="icon"
+                .path=${mdiPlus}
+              ></ha-svg-icon>
             </ha-fab>`
           : nothing}
       </ha-two-pane-top-app-bar-fixed>
-    `;
+    `
   }
 
   private _handleEntityPicked(ev) {
-    this._entityId = ev.currentTarget.entityId;
+    this._entityId = ev.currentTarget.entityId
   }
 
   private async _addList(): Promise<void> {
     showConfigFlowDialog(this, {
-      startFlowHandler: "local_todo",
+      startFlowHandler: 'local_todo',
       showAdvanced: this.hass.userData?.showAdvanced,
-      manifest: await fetchIntegrationManifest(this.hass, "local_todo"),
-    });
+      manifest: await fetchIntegrationManifest(this.hass, 'local_todo'),
+    })
   }
 
   private _showMoreInfoDialog(): void {
     if (!this._entityId) {
-      return;
+      return
     }
-    fireEvent(this, "hass-more-info", { entityId: this._entityId });
+    fireEvent(this, 'hass-more-info', { entityId: this._entityId })
   }
 
   private async _deleteList(): Promise<void> {
     if (!this._entityId) {
-      return;
+      return
     }
 
     const entityRegistryEntry = await getExtendedEntityRegistryEntry(
       this.hass,
       this._entityId
-    );
+    )
 
-    if (entityRegistryEntry.platform !== "local_todo") {
-      return;
+    if (entityRegistryEntry.platform !== 'local_todo') {
+      return
     }
 
-    const entryId = entityRegistryEntry.config_entry_id;
+    const entryId = entityRegistryEntry.config_entry_id
 
     if (!entryId) {
-      return;
+      return
     }
 
     const confirmed = await showConfirmationDialog(this, {
-      title: this.hass.localize("ui.panel.todo.delete_confirm_title", {
+      title: this.hass.localize('ui.panel.todo.delete_confirm_title', {
         name:
           this._entityId in this.hass.states
             ? computeStateName(this.hass.states[this._entityId])
             : this._entityId,
       }),
-      text: this.hass.localize("ui.panel.todo.delete_confirm_text"),
-      confirmText: this.hass!.localize("ui.common.delete"),
-      dismissText: this.hass!.localize("ui.common.cancel"),
+      text: this.hass.localize('ui.panel.todo.delete_confirm_text'),
+      confirmText: this.hass!.localize('ui.common.delete'),
+      dismissText: this.hass!.localize('ui.common.cancel'),
       destructive: true,
-    });
+    })
 
     if (!confirmed) {
-      return;
+      return
     }
-    const result = await deleteConfigEntry(this.hass, entryId);
+    const result = await deleteConfigEntry(this.hass, entryId)
 
-    this._entityId = getTodoLists(this.hass)[0]?.entity_id;
+    this._entityId = getTodoLists(this.hass)[0]?.entity_id
 
     if (result.require_restart) {
       showAlertDialog(this, {
-        text: this.hass.localize("ui.panel.todo.restart_confirm"),
-      });
+        text: this.hass.localize('ui.panel.todo.restart_confirm'),
+      })
     }
   }
 
   private _showVoiceCommandDialog(): void {
-    showVoiceCommandDialog(this, this.hass, { pipeline_id: "last_used" });
+    showVoiceCommandDialog(this, this.hass, { pipeline_id: 'last_used' })
   }
 
   private _addItem() {
-    showTodoItemEditDialog(this, { entity: this._entityId! });
+    showTodoItemEditDialog(this, { entity: this._entityId! })
   }
 
   static get styles(): CSSResultGroup {
@@ -413,12 +447,12 @@ class PanelTodo extends LitElement {
           inset-inline-start: initial;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-panel-todo": PanelTodo;
+    'ha-panel-todo': PanelTodo
   }
 }

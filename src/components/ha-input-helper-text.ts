@@ -1,13 +1,13 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
-@customElement("ha-input-helper-text")
+@customElement('ha-input-helper-text')
 class InputHelperText extends LitElement {
-  @property({ type: Boolean, reflect: true }) disabled = false;
+  @property({ type: Boolean, reflect: true }) disabled = false
 
   protected render(): TemplateResult {
-    return html`<slot></slot>`;
+    return html`<slot></slot>`
   }
 
   static styles = css`
@@ -28,11 +28,11 @@ class InputHelperText extends LitElement {
     :host([disabled]) {
       color: var(--mdc-text-field-disabled-ink-color, rgba(0, 0, 0, 0.6));
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-input-helper-text": InputHelperText;
+    'ha-input-helper-text': InputHelperText
   }
 }

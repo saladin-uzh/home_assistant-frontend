@@ -1,34 +1,34 @@
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, state } from "lit/decorators";
-import { formatDateTime } from "../../../../common/datetime/format_date_time";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { createCloseHeading } from "../../../../components/ha-dialog";
-import { haStyleDialog } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import "../../../../components/ha-button";
-import type { CloudCertificateParams as CloudCertificateDialogParams } from "./show-dialog-cloud-certificate";
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, state } from 'lit/decorators'
+import { formatDateTime } from '../../../../common/datetime/format_date_time'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { createCloseHeading } from '../../../../components/ha-dialog'
+import { haStyleDialog } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import '../../../../components/ha-button'
+import type { CloudCertificateParams as CloudCertificateDialogParams } from './show-dialog-cloud-certificate'
 
-@customElement("dialog-cloud-certificate")
+@customElement('dialog-cloud-certificate')
 class DialogCloudCertificate extends LitElement {
-  public hass!: HomeAssistant;
+  public hass!: HomeAssistant
 
-  @state() private _params?: CloudCertificateDialogParams;
+  @state() private _params?: CloudCertificateDialogParams
 
   public showDialog(params: CloudCertificateDialogParams) {
-    this._params = params;
+    this._params = params
   }
 
   public closeDialog() {
-    this._params = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
-    const { certificateInfo } = this._params;
+    const { certificateInfo } = this._params
 
     return html`
       <ha-dialog
@@ -38,14 +38,14 @@ class DialogCloudCertificate extends LitElement {
         .heading=${createCloseHeading(
           this.hass,
           this.hass.localize(
-            "ui.panel.config.cloud.dialog_certificate.certificate_information"
+            'ui.panel.config.cloud.dialog_certificate.certificate_information'
           )
         )}
       >
         <div>
           <p>
             ${this.hass!.localize(
-              "ui.panel.config.cloud.dialog_certificate.certificate_expiration_date"
+              'ui.panel.config.cloud.dialog_certificate.certificate_expiration_date'
             )}
             ${formatDateTime(
               new Date(certificateInfo.expire_date),
@@ -53,34 +53,37 @@ class DialogCloudCertificate extends LitElement {
               this.hass!.config
             )}<br />
             (${this.hass!.localize(
-              "ui.panel.config.cloud.dialog_certificate.will_be_auto_renewed"
+              'ui.panel.config.cloud.dialog_certificate.will_be_auto_renewed'
             )})
           </p>
           <p class="break-word">
             ${this.hass!.localize(
-              "ui.panel.config.cloud.dialog_certificate.fingerprint"
+              'ui.panel.config.cloud.dialog_certificate.fingerprint'
             )}
             ${certificateInfo.fingerprint}
           </p>
           <p class="break-word">
             ${this.hass!.localize(
-              "ui.panel.config.cloud.dialog_certificate.alternative_names"
+              'ui.panel.config.cloud.dialog_certificate.alternative_names'
             )}
           </p>
           <ul>
             ${certificateInfo.alternative_names.map(
-              (name) => html`<li><code>${name}</code></li>`
+              name => html`<li><code>${name}</code></li>`
             )}
           </ul>
         </div>
 
-        <ha-button @click=${this.closeDialog} slot="primaryAction">
+        <ha-button
+          @click=${this.closeDialog}
+          slot="primaryAction"
+        >
           ${this.hass!.localize(
-            "ui.panel.config.cloud.dialog_certificate.close"
+            'ui.panel.config.cloud.dialog_certificate.close'
           )}
         </ha-button>
       </ha-dialog>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -101,12 +104,12 @@ class DialogCloudCertificate extends LitElement {
           margin-bottom: 0;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-cloud-certificate": DialogCloudCertificate;
+    'dialog-cloud-certificate': DialogCloudCertificate
   }
 }

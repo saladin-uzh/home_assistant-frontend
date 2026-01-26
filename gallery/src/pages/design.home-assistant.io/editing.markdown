@@ -39,18 +39,18 @@ Any page not listed in `sidebar.js` will be placed at the end of its category.
 Create a file next to the description file with the same name as the description file, but with the `.ts` extension: `usability.ts`. For this example, we assume that the category folder that contains `usability.markdown` and `usability.ts` is called `user-experience`. Add the following content to `usability.ts`:
 
 ```ts
-import { html, css, LitElement } from "lit";
-import { customElement } from "lit/decorators";
-import "../../../../src/components/ha-card";
+import { html, css, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import '../../../../src/components/ha-card'
 
-@customElement("demo-user-experience-usability")
+@customElement('demo-user-experience-usability')
 export class DemoUserExperienceUsability extends LitElement {
   protected render() {
     return html`
       <ha-card>
         <div class="card-content">Hello world!</div>
       </ha-card>
-    `;
+    `
   }
 
   static get styles() {
@@ -59,13 +59,13 @@ export class DemoUserExperienceUsability extends LitElement {
         max-width: 600px;
         margin: 24px auto;
       }
-    `;
+    `
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-user-experience-usability": DemoUserExperienceUsability;
+    'demo-user-experience-usability': DemoUserExperienceUsability
   }
 }
 ```

@@ -1,16 +1,16 @@
-import { LitElement, html } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import type { DeviceRegistryEntry } from "../../../../../../data/device_registry";
-import type { HomeAssistant } from "../../../../../../types";
-import { invokeZWaveCCApi } from "../../../../../../data/zwave_js";
-import "../../../../../../components/ha-alert";
-import "../../../../../../components/ha-spinner";
-import { extractApiErrorMessage } from "../../../../../../data/hassio/common";
-import "./zwave_js-capability-control-multilevel-switch";
+import { LitElement, html } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import type { DeviceRegistryEntry } from '../../../../../../data/device_registry'
+import type { HomeAssistant } from '../../../../../../types'
+import { invokeZWaveCCApi } from '../../../../../../data/zwave_js'
+import '../../../../../../components/ha-alert'
+import '../../../../../../components/ha-spinner'
+import { extractApiErrorMessage } from '../../../../../../data/hassio/common'
+import './zwave_js-capability-control-multilevel-switch'
 
 enum ColorComponent {
-  "Warm White" = 0,
-  "Cold White",
+  'Warm White' = 0,
+  'Cold White',
   Red,
   Green,
   Blue,
@@ -20,34 +20,34 @@ enum ColorComponent {
   Index,
 }
 
-@customElement("zwave_js-capability-control-color_switch")
+@customElement('zwave_js-capability-control-color_switch')
 class ZWaveJSCapabilityColorSwitch extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public device!: DeviceRegistryEntry;
+  @property({ attribute: false }) public device!: DeviceRegistryEntry
 
-  @property({ type: Number }) public endpoint!: number;
+  @property({ type: Number }) public endpoint!: number
 
-  @property({ type: Number }) public command_class!: number;
+  @property({ type: Number }) public command_class!: number
 
-  @property({ type: Number }) public version!: number;
+  @property({ type: Number }) public version!: number
 
-  @state() private _color_components?: ColorComponent[];
+  @state() private _color_components?: ColorComponent[]
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
   protected render() {
     if (this._error) {
-      return html`<ha-alert alert-type="error">${this._error}</ha-alert>`;
+      return html`<ha-alert alert-type="error">${this._error}</ha-alert>`
     }
     if (!this._color_components) {
-      return html`<ha-spinner></ha-spinner>`;
+      return html`<ha-spinner></ha-spinner>`
     }
     return this._color_components.map(
-      (color) =>
+      color =>
         html` <h5>
             ${this.hass.localize(
-              "ui.panel.config.zwave_js.node_installer.capability_controls.color_switch.color_component"
+              'ui.panel.config.zwave_js.node_installer.capability_controls.color_switch.color_component'
             )}:
             ${this.hass.localize(
               `ui.panel.config.zwave_js.node_installer.capability_controls.color_switch.colors.${color}`
@@ -61,7 +61,7 @@ class ZWaveJSCapabilityColorSwitch extends LitElement {
             .version=${this.version}
             .transform_options=${this._transformOptions(color)}
           ></zwave_js-capability-control-multilevel_switch>`
-    );
+    )
   }
 
   protected async firstUpdated() {
@@ -71,28 +71,28 @@ class ZWaveJSCapabilityColorSwitch extends LitElement {
         this.device.id,
         this.command_class,
         this.endpoint,
-        "getSupported",
+        'getSupported',
         [],
         true
-      )) as number[];
+      )) as number[]
     } catch (error) {
-      this._error = extractApiErrorMessage(error);
+      this._error = extractApiErrorMessage(error)
     }
   }
 
   private _transformOptions(color: number) {
     return (opts: Record<string, any>, control: string) =>
-      control === "startLevelChange"
+      control === 'startLevelChange'
         ? {
             ...opts,
             colorComponent: color,
           }
-        : color;
+        : color
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "zwave_js-capability-control-color_switch": ZWaveJSCapabilityColorSwitch;
+    'zwave_js-capability-control-color_switch': ZWaveJSCapabilityColorSwitch
   }
 }

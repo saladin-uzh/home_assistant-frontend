@@ -1,20 +1,20 @@
-import { mdiTelevision } from "@mdi/js";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, state } from "lit/decorators";
-import type { CastManager } from "../../../src/cast/cast_manager";
-import { castSendShowDemo } from "../../../src/cast/receiver_messages";
-import "../../../src/components/ha-icon";
+import { mdiTelevision } from '@mdi/js'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, state } from 'lit/decorators'
+import type { CastManager } from '../../../src/cast/cast_manager'
+import { castSendShowDemo } from '../../../src/cast/receiver_messages'
+import '../../../src/components/ha-icon'
 import type {
   CastConfig,
   LovelaceRow,
-} from "../../../src/panels/lovelace/entity-rows/types";
-import type { HomeAssistant } from "../../../src/types";
+} from '../../../src/panels/lovelace/entity-rows/types'
+import type { HomeAssistant } from '../../../src/types'
 
-@customElement("cast-demo-row")
+@customElement('cast-demo-row')
 class CastDemoRow extends LitElement implements LovelaceRow {
-  public hass!: HomeAssistant;
+  public hass!: HomeAssistant
 
-  @state() private _castManager?: CastManager | null;
+  @state() private _castManager?: CastManager | null
 
   public setConfig(_config: CastConfig): void {
     // No config possible.
@@ -23,9 +23,9 @@ class CastDemoRow extends LitElement implements LovelaceRow {
   protected render() {
     if (
       !this._castManager ||
-      this._castManager.castState === "NO_DEVICES_AVAILABLE"
+      this._castManager.castState === 'NO_DEVICES_AVAILABLE'
     ) {
-      return nothing;
+      return nothing
     }
     return html`
       <ha-svg-icon .path=${mdiTelevision}></ha-svg-icon>
@@ -33,37 +33,37 @@ class CastDemoRow extends LitElement implements LovelaceRow {
         <div class="name">Show Chromecast interface</div>
         <google-cast-launcher></google-cast-launcher>
       </div>
-    `;
+    `
   }
 
   protected firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
-    import("../../../src/cast/cast_manager").then(({ getCastManager }) =>
-      getCastManager().then((mgr) => {
-        this._castManager = mgr;
-        mgr.addEventListener("state-changed", () => {
-          this.requestUpdate();
-        });
+    super.firstUpdated(changedProps)
+    import('../../../src/cast/cast_manager').then(({ getCastManager }) =>
+      getCastManager().then(mgr => {
+        this._castManager = mgr
+        mgr.addEventListener('state-changed', () => {
+          this.requestUpdate()
+        })
         mgr.castContext.addEventListener(
           cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
-          (ev) => {
+          ev => {
             // On Android, opening a new session always results in SESSION_RESUMED.
             // So treat both as the same.
             if (
-              ev.sessionState === "SESSION_STARTED" ||
-              ev.sessionState === "SESSION_RESUMED"
+              ev.sessionState === 'SESSION_STARTED' ||
+              ev.sessionState === 'SESSION_RESUMED'
             ) {
-              castSendShowDemo(mgr);
+              castSendShowDemo(mgr)
             }
           }
-        );
+        )
       })
-    );
+    )
   }
 
   protected updated(changedProps) {
-    super.updated(changedProps);
-    this.style.display = this._castManager ? "" : "none";
+    super.updated(changedProps)
+    this.style.display = this._castManager ? '' : 'none'
   }
 
   static styles = css`
@@ -94,11 +94,11 @@ class CastDemoRow extends LitElement implements LovelaceRow {
       height: 24px;
       width: 24px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "cast-demo-row": CastDemoRow;
+    'cast-demo-row': CastDemoRow
   }
 }

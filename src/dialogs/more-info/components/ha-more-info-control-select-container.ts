@@ -1,12 +1,12 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
 
-@customElement("ha-more-info-control-select-container")
+@customElement('ha-more-info-control-select-container')
 export class HaMoreInfoControlSelectContainer extends LitElement {
   protected render(): TemplateResult {
-    const classname = `items-${this.childElementCount}`;
+    const classname = `items-${this.childElementCount}`
 
     return html`
       <div class="controls">
@@ -19,7 +19,7 @@ export class HaMoreInfoControlSelectContainer extends LitElement {
           <slot></slot>
         </div>
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -68,11 +68,11 @@ export class HaMoreInfoControlSelectContainer extends LitElement {
         width: 140px;
       }
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-more-info-control-select-container": HaMoreInfoControlSelectContainer;
+    'ha-more-info-control-select-container': HaMoreInfoControlSelectContainer
   }
 }

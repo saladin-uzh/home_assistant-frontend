@@ -1,22 +1,22 @@
-import { html, css, LitElement } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { applyThemesOnElement } from "../../../src/common/dom/apply_themes_on_element";
-import "../../../src/components/ha-formfield";
-import "../../../src/components/ha-switch";
-import type { HomeAssistant } from "../../../src/types";
-import "./demo-card";
-import type { DemoCardConfig } from "./demo-card";
-import "../ha-demo-options";
+import { html, css, LitElement } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { applyThemesOnElement } from '../../../src/common/dom/apply_themes_on_element'
+import '../../../src/components/ha-formfield'
+import '../../../src/components/ha-switch'
+import type { HomeAssistant } from '../../../src/types'
+import './demo-card'
+import type { DemoCardConfig } from './demo-card'
+import '../ha-demo-options'
 
-@customElement("demo-cards")
+@customElement('demo-cards')
 class DemoCards extends LitElement {
-  @property({ attribute: false }) public configs!: DemoCardConfig[];
+  @property({ attribute: false }) public configs!: DemoCardConfig[]
 
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _showConfig = false;
+  @state() private _showConfig = false
 
-  @query("#container") private _container!: HTMLElement;
+  @query('#container') private _container!: HTMLElement
 
   render() {
     return html`
@@ -31,7 +31,7 @@ class DemoCards extends LitElement {
       <div id="container">
         <div class="cards">
           ${this.configs.map(
-            (config) => html`
+            config => html`
               <demo-card
                 .config=${config}
                 .showConfig=${this._showConfig}
@@ -41,17 +41,17 @@ class DemoCards extends LitElement {
           )}
         </div>
       </div>
-    `;
+    `
   }
 
   private _showConfigToggled(ev) {
-    this._showConfig = ev.target.checked;
+    this._showConfig = ev.target.checked
   }
 
   private _darkThemeToggled(ev) {
-    applyThemesOnElement(this._container, { themes: {} } as any, "default", {
+    applyThemesOnElement(this._container, { themes: {} } as any, 'default', {
       dark: ev.target.checked,
-    });
+    })
   }
 
   static styles = css`
@@ -69,11 +69,11 @@ class DemoCards extends LitElement {
     #container {
       background-color: var(--primary-background-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-cards": DemoCards;
+    'demo-cards': DemoCards
   }
 }

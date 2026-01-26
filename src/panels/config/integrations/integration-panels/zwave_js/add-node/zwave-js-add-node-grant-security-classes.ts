@@ -1,24 +1,24 @@
-import { customElement, property } from "lit/decorators";
-import { css, html, LitElement, nothing } from "lit";
-import type { HomeAssistant } from "../../../../../../types";
-import { SecurityClass } from "../../../../../../data/zwave_js";
-import type { HaCheckbox } from "../../../../../../components/ha-checkbox";
-import { fireEvent } from "../../../../../../common/dom/fire_event";
+import { customElement, property } from 'lit/decorators'
+import { css, html, LitElement, nothing } from 'lit'
+import type { HomeAssistant } from '../../../../../../types'
+import { SecurityClass } from '../../../../../../data/zwave_js'
+import type { HaCheckbox } from '../../../../../../components/ha-checkbox'
+import { fireEvent } from '../../../../../../common/dom/fire_event'
 
-import "../../../../../../components/ha-alert";
-import "../../../../../../components/ha-formfield";
-import "../../../../../../components/ha-checkbox";
+import '../../../../../../components/ha-alert'
+import '../../../../../../components/ha-formfield'
+import '../../../../../../components/ha-checkbox'
 
-@customElement("zwave-js-add-node-grant-security-classes")
+@customElement('zwave-js-add-node-grant-security-classes')
 export class ZWaveJsAddNodeGrantSecurityClasses extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property() public error?: string;
+  @property() public error?: string
 
-  @property({ attribute: false }) public securityClassOptions!: SecurityClass[];
+  @property({ attribute: false }) public securityClassOptions!: SecurityClass[]
 
   @property({ attribute: false })
-  public selectedSecurityClasses: SecurityClass[] = [];
+  public selectedSecurityClasses: SecurityClass[] = []
 
   render() {
     return html`
@@ -27,19 +27,19 @@ export class ZWaveJsAddNodeGrantSecurityClasses extends LitElement {
         : nothing}
       <p>
         ${this.hass.localize(
-          "ui.panel.config.zwave_js.add_node.grant_security_classes.description"
+          'ui.panel.config.zwave_js.add_node.grant_security_classes.description'
         )}
       </p>
       <div class="flex-column">
         ${this.securityClassOptions
           .sort((a, b) => {
             // Put highest security classes at the top, S0 at the bottom
-            if (a === SecurityClass.S0_Legacy) return 1;
-            if (b === SecurityClass.S0_Legacy) return -1;
-            return b - a;
+            if (a === SecurityClass.S0_Legacy) return 1
+            if (b === SecurityClass.S0_Legacy) return -1
+            return b - a
           })
           .map(
-            (securityClass) =>
+            securityClass =>
               html`<ha-formfield
                 .label=${html`<b
                     >${this.hass.localize(
@@ -63,25 +63,25 @@ export class ZWaveJsAddNodeGrantSecurityClasses extends LitElement {
               </ha-formfield>`
           )}
       </div>
-    `;
+    `
   }
 
   private _handleSecurityClassChange(ev: CustomEvent) {
-    const checkbox = ev.currentTarget as HaCheckbox;
-    const securityClass = Number(checkbox.value);
+    const checkbox = ev.currentTarget as HaCheckbox
+    const securityClass = Number(checkbox.value)
     if (
       checkbox.checked &&
       !this.selectedSecurityClasses.includes(securityClass)
     ) {
-      fireEvent(this, "value-changed", {
+      fireEvent(this, 'value-changed', {
         value: [...this.selectedSecurityClasses, securityClass],
-      });
+      })
     } else if (!checkbox.checked) {
-      fireEvent(this, "value-changed", {
+      fireEvent(this, 'value-changed', {
         value: this.selectedSecurityClasses.filter(
-          (val) => val !== securityClass
+          val => val !== securityClass
         ),
-      });
+      })
     }
   }
 
@@ -97,11 +97,11 @@ export class ZWaveJsAddNodeGrantSecurityClasses extends LitElement {
     .secondary {
       color: var(--secondary-text-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "zwave-js-add-node-grant-security-classes": ZWaveJsAddNodeGrantSecurityClasses;
+    'zwave-js-add-node-grant-security-classes': ZWaveJsAddNodeGrantSecurityClasses
   }
 }

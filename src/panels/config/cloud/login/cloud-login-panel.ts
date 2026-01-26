@@ -1,41 +1,41 @@
-import { mdiDeleteForever, mdiDotsVertical, mdiDownload } from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, query } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { navigate } from "../../../../common/navigate";
-import "../../../../components/ha-alert";
-import "../../../../components/ha-button-menu";
-import "../../../../components/ha-card";
-import "../../../../components/ha-icon-next";
-import "../../../../components/ha-list";
-import "../../../../components/ha-list-item";
-import { removeCloudData } from "../../../../data/cloud";
+import { mdiDeleteForever, mdiDotsVertical, mdiDownload } from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { navigate } from '../../../../common/navigate'
+import '../../../../components/ha-alert'
+import '../../../../components/ha-button-menu'
+import '../../../../components/ha-card'
+import '../../../../components/ha-icon-next'
+import '../../../../components/ha-list'
+import '../../../../components/ha-list-item'
+import { removeCloudData } from '../../../../data/cloud'
 import {
   showAlertDialog,
   showConfirmationDialog,
-} from "../../../../dialogs/generic/show-dialog-box";
-import "../../../../layouts/hass-subpage";
-import { haStyle } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import "../../ha-config-section";
-import { showSupportPackageDialog } from "../account/show-dialog-cloud-support-package";
-import "./cloud-login";
-import type { CloudLogin } from "./cloud-login";
+} from '../../../../dialogs/generic/show-dialog-box'
+import '../../../../layouts/hass-subpage'
+import { haStyle } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import '../../ha-config-section'
+import { showSupportPackageDialog } from '../account/show-dialog-cloud-support-package'
+import './cloud-login'
+import type { CloudLogin } from './cloud-login'
 
-@customElement("cloud-login-panel")
+@customElement('cloud-login-panel')
 export class CloudLoginPanel extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: "is-wide", type: Boolean }) public isWide = false;
+  @property({ attribute: 'is-wide', type: Boolean }) public isWide = false
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property() public email?: string;
+  @property() public email?: string
 
-  @property({ attribute: false }) public flashMessage?: string;
+  @property({ attribute: false }) public flashMessage?: string
 
-  @query("cloud-login") private _cloudLoginElement!: CloudLogin;
+  @query('cloud-login') private _cloudLoginElement!: CloudLogin
 
   protected render(): TemplateResult {
     return html`
@@ -44,24 +44,33 @@ export class CloudLoginPanel extends LitElement {
         .narrow=${this.narrow}
         header="Home Assistant Cloud"
       >
-        <ha-button-menu slot="toolbar-icon" @action=${this._handleMenuAction}>
+        <ha-button-menu
+          slot="toolbar-icon"
+          @action=${this._handleMenuAction}
+        >
           <ha-icon-button
             slot="trigger"
-            .label=${this.hass.localize("ui.common.menu")}
+            .label=${this.hass.localize('ui.common.menu')}
             .path=${mdiDotsVertical}
           ></ha-icon-button>
 
           <ha-list-item graphic="icon">
             ${this.hass.localize(
-              "ui.panel.config.cloud.account.reset_cloud_data"
+              'ui.panel.config.cloud.account.reset_cloud_data'
             )}
-            <ha-svg-icon slot="graphic" .path=${mdiDeleteForever}></ha-svg-icon>
+            <ha-svg-icon
+              slot="graphic"
+              .path=${mdiDeleteForever}
+            ></ha-svg-icon>
           </ha-list-item>
           <ha-list-item graphic="icon">
             ${this.hass.localize(
-              "ui.panel.config.cloud.account.download_support_package"
+              'ui.panel.config.cloud.account.download_support_package'
             )}
-            <ha-svg-icon slot="graphic" .path=${mdiDownload}></ha-svg-icon>
+            <ha-svg-icon
+              slot="graphic"
+              .path=${mdiDownload}
+            ></ha-svg-icon>
           </ha-list-item>
         </ha-button-menu>
         <div class="content">
@@ -70,12 +79,12 @@ export class CloudLoginPanel extends LitElement {
             <div slot="introduction">
               <p>
                 ${this.hass.localize(
-                  "ui.panel.config.cloud.login.introduction"
+                  'ui.panel.config.cloud.login.introduction'
                 )}
               </p>
               <p>
                 ${this.hass.localize(
-                  "ui.panel.config.cloud.login.introduction2"
+                  'ui.panel.config.cloud.login.introduction2'
                 )}
                 <a
                   href="https://www.nabucasa.com"
@@ -84,12 +93,12 @@ export class CloudLoginPanel extends LitElement {
                 >
                   Nabu&nbsp;Casa,&nbsp;Inc</a
                 >${this.hass.localize(
-                  "ui.panel.config.cloud.login.introduction2a"
+                  'ui.panel.config.cloud.login.introduction2a'
                 )}
               </p>
               <p>
                 ${this.hass.localize(
-                  "ui.panel.config.cloud.login.introduction3"
+                  'ui.panel.config.cloud.login.introduction3'
                 )}
               </p>
               <p>
@@ -99,7 +108,7 @@ export class CloudLoginPanel extends LitElement {
                   rel="noreferrer"
                 >
                   ${this.hass.localize(
-                    "ui.panel.config.cloud.login.learn_more_link"
+                    'ui.panel.config.cloud.login.learn_more_link'
                   )}
                 </a>
               </p>
@@ -112,7 +121,7 @@ export class CloudLoginPanel extends LitElement {
                 >
                   ${this.flashMessage}
                 </ha-alert>`
-              : ""}
+              : ''}
 
             <cloud-login
               .hass=${this.hass}
@@ -124,13 +133,17 @@ export class CloudLoginPanel extends LitElement {
 
             <ha-card outlined>
               <ha-list>
-                <ha-list-item @click=${this._handleRegister} twoline hasMeta>
+                <ha-list-item
+                  @click=${this._handleRegister}
+                  twoline
+                  hasMeta
+                >
                   ${this.hass.localize(
-                    "ui.panel.config.cloud.login.start_trial"
+                    'ui.panel.config.cloud.login.start_trial'
                   )}
                   <span slot="secondary">
                     ${this.hass.localize(
-                      "ui.panel.config.cloud.login.trial_info"
+                      'ui.panel.config.cloud.login.trial_info'
                     )}
                   </span>
                   <ha-icon-next slot="meta"></ha-icon-next>
@@ -140,71 +153,71 @@ export class CloudLoginPanel extends LitElement {
           </ha-config-section>
         </div>
       </hass-subpage>
-    `;
+    `
   }
 
   private _handleForgotPassword() {
-    this._dismissFlash();
-    fireEvent(this, "cloud-email-changed", {
+    this._dismissFlash()
+    fireEvent(this, 'cloud-email-changed', {
       value: this._cloudLoginElement.emailField.value,
-    });
-    navigate("/config/cloud/forgot-password");
+    })
+    navigate('/config/cloud/forgot-password')
   }
 
   private _handleRegister() {
-    this._dismissFlash();
+    this._dismissFlash()
 
-    fireEvent(this, "cloud-email-changed", {
+    fireEvent(this, 'cloud-email-changed', {
       value: this._cloudLoginElement.emailField.value,
-    });
-    navigate("/config/cloud/register");
+    })
+    navigate('/config/cloud/register')
   }
 
   private _dismissFlash() {
-    fireEvent(this, "flash-message-changed", { value: "" });
+    fireEvent(this, 'flash-message-changed', { value: '' })
   }
 
   private _handleMenuAction(ev) {
     switch (ev.detail.index) {
       case 0:
-        this._deleteCloudData();
-        break;
+        this._deleteCloudData()
+        break
       case 1:
-        this._downloadSupportPackage();
+        this._downloadSupportPackage()
     }
   }
 
   private async _deleteCloudData() {
     const confirm = await showConfirmationDialog(this, {
       title: this.hass.localize(
-        "ui.panel.config.cloud.account.reset_data_confirm_title"
+        'ui.panel.config.cloud.account.reset_data_confirm_title'
       ),
       text: this.hass.localize(
-        "ui.panel.config.cloud.account.reset_data_confirm_text"
+        'ui.panel.config.cloud.account.reset_data_confirm_text'
       ),
-      confirmText: this.hass.localize("ui.panel.config.cloud.account.reset"),
+      confirmText: this.hass.localize('ui.panel.config.cloud.account.reset'),
       destructive: true,
-    });
+    })
     if (!confirm) {
-      return;
+      return
     }
     try {
-      await removeCloudData(this.hass);
+      await removeCloudData(this.hass)
     } catch (err: any) {
       showAlertDialog(this, {
         title: this.hass.localize(
-          "ui.panel.config.cloud.account.reset_data_failed"
+          'ui.panel.config.cloud.account.reset_data_failed'
         ),
         text: err?.message,
-      });
-      return;
+      })
+      return
     } finally {
-      fireEvent(this, "ha-refresh-cloud-status");
+      fireEvent(this, 'ha-refresh-cloud-status')
     }
   }
 
   private async _downloadSupportPackage() {
-    showSupportPackageDialog(this);
+    showSupportPackageDialog(this)
   }
 
   static get styles() {
@@ -214,10 +227,10 @@ export class CloudLoginPanel extends LitElement {
         .content {
           padding-bottom: 24px;
         }
-        [slot="introduction"] {
+        [slot='introduction'] {
           margin: -1em 0;
         }
-        [slot="introduction"] a {
+        [slot='introduction'] a {
           color: var(--primary-color);
         }
         ha-card {
@@ -230,17 +243,17 @@ export class CloudLoginPanel extends LitElement {
           margin: 0;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "cloud-login-panel": CloudLoginPanel;
+    'cloud-login-panel': CloudLoginPanel
   }
 
   interface HASSDomEvents {
-    "cloud-email-changed": { value: string };
-    "flash-message-changed": { value: string };
+    'cloud-email-changed': { value: string }
+    'flash-message-changed': { value: string }
   }
 }

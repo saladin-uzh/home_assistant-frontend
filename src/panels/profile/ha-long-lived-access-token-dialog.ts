@@ -1,42 +1,42 @@
-import { mdiContentCopy } from "@mdi/js";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../common/dom/fire_event";
-import { createCloseHeading } from "../../components/ha-dialog";
-import "../../components/ha-textfield";
-import "../../components/ha-button";
-import "../../components/ha-icon-button";
-import { haStyleDialog } from "../../resources/styles";
-import type { HomeAssistant } from "../../types";
-import type { LongLivedAccessTokenDialogParams } from "./show-long-lived-access-token-dialog";
-import type { HaTextField } from "../../components/ha-textfield";
-import { copyToClipboard } from "../../common/util/copy-clipboard";
-import { showToast } from "../../util/toast";
+import { mdiContentCopy } from '@mdi/js'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../common/dom/fire_event'
+import { createCloseHeading } from '../../components/ha-dialog'
+import '../../components/ha-textfield'
+import '../../components/ha-button'
+import '../../components/ha-icon-button'
+import { haStyleDialog } from '../../resources/styles'
+import type { HomeAssistant } from '../../types'
+import type { LongLivedAccessTokenDialogParams } from './show-long-lived-access-token-dialog'
+import type { HaTextField } from '../../components/ha-textfield'
+import { copyToClipboard } from '../../common/util/copy-clipboard'
+import { showToast } from '../../util/toast'
 
-const QR_LOGO_URL = "/static/icons/favicon-192x192.png";
+const QR_LOGO_URL = '/static/icons/favicon-192x192.png'
 
-@customElement("ha-long-lived-access-token-dialog")
+@customElement('ha-long-lived-access-token-dialog')
 export class HaLongLivedAccessTokenDialog extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _params?: LongLivedAccessTokenDialogParams;
+  @state() private _params?: LongLivedAccessTokenDialogParams
 
-  @state() private _qrCode?: TemplateResult;
+  @state() private _qrCode?: TemplateResult
 
   public showDialog(params: LongLivedAccessTokenDialogParams): void {
-    this._params = params;
+    this._params = params
   }
 
   public closeDialog() {
-    this._params = undefined;
-    this._qrCode = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    this._qrCode = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._params || !this._params.token) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -51,7 +51,7 @@ export class HaLongLivedAccessTokenDialog extends LitElement {
             dialogInitialFocus
             .value=${this._params.token}
             .label=${this.hass.localize(
-              "ui.panel.profile.long_lived_access_tokens.prompt_copy_token"
+              'ui.panel.profile.long_lived_access_tokens.prompt_copy_token'
             )}
             type="text"
             iconTrailing
@@ -73,52 +73,52 @@ export class HaLongLivedAccessTokenDialog extends LitElement {
                     @click=${this._generateQR}
                   >
                     ${this.hass.localize(
-                      "ui.panel.profile.long_lived_access_tokens.generate_qr_code"
+                      'ui.panel.profile.long_lived_access_tokens.generate_qr_code'
                     )}
                   </ha-button>
                 `}
           </div>
         </div>
       </ha-dialog>
-    `;
+    `
   }
 
   private async _copyToken(ev): Promise<void> {
-    const textField = ev.target.parentElement as HaTextField;
-    await copyToClipboard(textField.value);
+    const textField = ev.target.parentElement as HaTextField
+    await copyToClipboard(textField.value)
     showToast(this, {
-      message: this.hass.localize("ui.common.copied_clipboard"),
-    });
+      message: this.hass.localize('ui.common.copied_clipboard'),
+    })
   }
 
   private async _generateQR() {
-    const qrcode = await import("qrcode");
+    const qrcode = await import('qrcode')
     const canvas = await qrcode.toCanvas(this._params!.token, {
       width: 180,
-      errorCorrectionLevel: "Q",
-    });
-    const context = canvas.getContext("2d");
+      errorCorrectionLevel: 'Q',
+    })
+    const context = canvas.getContext('2d')
 
-    const imageObj = new Image();
-    imageObj.src = QR_LOGO_URL;
-    await new Promise((resolve) => {
-      imageObj.onload = resolve;
-    });
+    const imageObj = new Image()
+    imageObj.src = QR_LOGO_URL
+    await new Promise(resolve => {
+      imageObj.onload = resolve
+    })
     context?.drawImage(
       imageObj,
       canvas.width / 3,
       canvas.height / 3,
       canvas.width / 3,
       canvas.height / 3
-    );
+    )
 
     this._qrCode = html`<img
         alt=${this.hass.localize(
-          "ui.panel.profile.long_lived_access_tokens.qr_code_image",
+          'ui.panel.profile.long_lived_access_tokens.qr_code_image',
           { name: this._params!.name }
         )}
         src=${canvas.toDataURL()}
-      ></img>`;
+      ></img>`
   }
 
   static get styles(): CSSResultGroup {
@@ -143,12 +143,12 @@ export class HaLongLivedAccessTokenDialog extends LitElement {
           direction: var(--direction);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-long-lived-access-token-dialog": HaLongLivedAccessTokenDialog;
+    'ha-long-lived-access-token-dialog': HaLongLivedAccessTokenDialog
   }
 }

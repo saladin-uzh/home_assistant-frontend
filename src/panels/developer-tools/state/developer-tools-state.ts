@@ -1,78 +1,78 @@
-import { mdiContentCopy, mdiRefresh } from "@mdi/js";
-import { addHours } from "date-fns";
+import { mdiContentCopy, mdiRefresh } from '@mdi/js'
+import { addHours } from 'date-fns'
 import type {
   HassEntities,
   HassEntity,
   HassEntityAttributeBase,
-} from "home-assistant-js-websocket";
-import type { CSSResultGroup } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { formatDateTimeWithSeconds } from "../../../common/datetime/format_date_time";
-import { storage } from "../../../common/decorators/storage";
-import { escapeRegExp } from "../../../common/string/escape_regexp";
-import { copyToClipboard } from "../../../common/util/copy-clipboard";
-import "../../../components/entity/ha-entity-picker";
-import "../../../components/ha-alert";
-import "../../../components/ha-button";
-import "../../../components/ha-checkbox";
-import "../../../components/ha-expansion-panel";
-import "../../../components/ha-icon-button";
-import "../../../components/ha-input-helper-text";
-import "../../../components/ha-svg-icon";
-import "../../../components/ha-tip";
-import "../../../components/ha-yaml-editor";
-import type { HaYamlEditor } from "../../../components/ha-yaml-editor";
-import "../../../components/search-input";
-import { showAlertDialog } from "../../../dialogs/generic/show-dialog-box";
-import { haStyle } from "../../../resources/styles";
-import type { HomeAssistant } from "../../../types";
-import { showToast } from "../../../util/toast";
-import "./developer-tools-state-renderer";
+} from 'home-assistant-js-websocket'
+import type { CSSResultGroup } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { formatDateTimeWithSeconds } from '../../../common/datetime/format_date_time'
+import { storage } from '../../../common/decorators/storage'
+import { escapeRegExp } from '../../../common/string/escape_regexp'
+import { copyToClipboard } from '../../../common/util/copy-clipboard'
+import '../../../components/entity/ha-entity-picker'
+import '../../../components/ha-alert'
+import '../../../components/ha-button'
+import '../../../components/ha-checkbox'
+import '../../../components/ha-expansion-panel'
+import '../../../components/ha-icon-button'
+import '../../../components/ha-input-helper-text'
+import '../../../components/ha-svg-icon'
+import '../../../components/ha-tip'
+import '../../../components/ha-yaml-editor'
+import type { HaYamlEditor } from '../../../components/ha-yaml-editor'
+import '../../../components/search-input'
+import { showAlertDialog } from '../../../dialogs/generic/show-dialog-box'
+import { haStyle } from '../../../resources/styles'
+import type { HomeAssistant } from '../../../types'
+import { showToast } from '../../../util/toast'
+import './developer-tools-state-renderer'
 
 // Use virtualizer after threshold to avoid performance issues
 // NOTE: If virtualizer is used when filtered entiity state
 // array size is 1, the virtualizer will scroll up the page on
 // render updates until the view matches to near the top of the
 // virtualized list, an undesirable effect.
-const VIRTUALIZE_THRESHOLD = 100;
+const VIRTUALIZE_THRESHOLD = 100
 
-@customElement("developer-tools-state")
+@customElement('developer-tools-state')
 class HaPanelDevState extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _error = "";
+  @state() private _error = ''
 
-  @state() private _entityId = "";
+  @state() private _entityId = ''
 
-  @state() private _entityFilter = "";
+  @state() private _entityFilter = ''
 
-  @state() private _stateFilter = "";
+  @state() private _stateFilter = ''
 
-  @state() private _attributeFilter = "";
+  @state() private _attributeFilter = ''
 
-  @state() private _entity?: HassEntity;
+  @state() private _entity?: HassEntity
 
-  @state() private _state = "";
+  @state() private _state = ''
 
   @state() private _stateAttributes: HassEntityAttributeBase &
-    Record<string, any> = {};
+    Record<string, any> = {}
 
-  @state() private _expanded = false;
+  @state() private _expanded = false
 
-  @state() private _validJSON = true;
+  @state() private _validJSON = true
 
   @state()
   @storage({
-    key: "devToolsShowAttributes",
+    key: 'devToolsShowAttributes',
     state: true,
   })
-  private _showAttributes = true;
+  private _showAttributes = true
 
-  @property({ type: Boolean, reflect: true }) public narrow = false;
+  @property({ type: Boolean, reflect: true }) public narrow = false
 
-  @query("ha-yaml-editor") private _yamlEditor?: HaYamlEditor;
+  @query('ha-yaml-editor') private _yamlEditor?: HaYamlEditor
 
   private _filteredEntities = memoizeOne(
     (
@@ -87,7 +87,7 @@ class HaPanelDevState extends LitElement {
         attributeFilter,
         states
       )
-  );
+  )
 
   protected render() {
     const entities = this._filteredEntities(
@@ -95,19 +95,19 @@ class HaPanelDevState extends LitElement {
       this._stateFilter,
       this._attributeFilter,
       this.hass.states
-    );
+    )
 
     return html`
       <div class="heading">
         <h1>
           ${this.hass.localize(
-            "ui.panel.developer-tools.tabs.states.current_entities"
+            'ui.panel.developer-tools.tabs.states.current_entities'
           )}
         </h1>
         ${!this.narrow
           ? html` <ha-formfield
               .label=${this.hass.localize(
-                "ui.panel.developer-tools.tabs.states.attributes"
+                'ui.panel.developer-tools.tabs.states.attributes'
               )}
             >
               <ha-checkbox
@@ -120,7 +120,7 @@ class HaPanelDevState extends LitElement {
       </div>
       <ha-expansion-panel
         .header=${this.hass.localize(
-          "ui.panel.developer-tools.tabs.states.set_state"
+          'ui.panel.developer-tools.tabs.states.set_state'
         )}
         outlined
         .expanded=${this._expanded}
@@ -128,10 +128,10 @@ class HaPanelDevState extends LitElement {
       >
         <p>
           ${this.hass.localize(
-            "ui.panel.developer-tools.tabs.states.description1"
+            'ui.panel.developer-tools.tabs.states.description1'
           )}<br />
           ${this.hass.localize(
-            "ui.panel.developer-tools.tabs.states.description2"
+            'ui.panel.developer-tools.tabs.states.description2'
           )}
         </p>
         ${this._error
@@ -155,7 +155,7 @@ class HaPanelDevState extends LitElement {
                       .path=${mdiContentCopy}
                       @click=${this._copyStateEntity}
                       title=${this.hass.localize(
-                        "ui.panel.developer-tools.tabs.states.copy_id"
+                        'ui.panel.developer-tools.tabs.states.copy_id'
                       )}
                     ></ha-icon-button>
                   </div>
@@ -163,7 +163,7 @@ class HaPanelDevState extends LitElement {
               : nothing}
             <ha-textfield
               .label=${this.hass.localize(
-                "ui.panel.developer-tools.tabs.states.state"
+                'ui.panel.developer-tools.tabs.states.state'
               )}
               required
               autocapitalize="none"
@@ -176,7 +176,7 @@ class HaPanelDevState extends LitElement {
             ></ha-textfield>
             <p>
               ${this.hass.localize(
-                "ui.panel.developer-tools.tabs.states.state_attributes"
+                'ui.panel.developer-tools.tabs.states.state_attributes'
               )}
             </p>
             <ha-yaml-editor
@@ -191,12 +191,12 @@ class HaPanelDevState extends LitElement {
                 .disabled=${!this._validJSON}
                 raised
                 >${this.hass.localize(
-                  "ui.panel.developer-tools.tabs.states.set_state"
+                  'ui.panel.developer-tools.tabs.states.set_state'
                 )}</ha-button
               >
               <ha-icon-button
                 @click=${this._updateEntity}
-                .label=${this.hass.localize("ui.common.refresh")}
+                .label=${this.hass.localize('ui.common.refresh')}
                 .path=${mdiRefresh}
               ></ha-icon-button>
             </div>
@@ -206,7 +206,7 @@ class HaPanelDevState extends LitElement {
               ? html`<p>
                     <b
                       >${this.hass.localize(
-                        "ui.panel.developer-tools.tabs.states.last_changed"
+                        'ui.panel.developer-tools.tabs.states.last_changed'
                       )}:</b
                     ><br />
                     <a href=${this._historyFromLastChanged(this._entity)}
@@ -216,7 +216,7 @@ class HaPanelDevState extends LitElement {
                   <p>
                     <b
                       >${this.hass.localize(
-                        "ui.panel.developer-tools.tabs.states.last_updated"
+                        'ui.panel.developer-tools.tabs.states.last_updated'
                       )}:</b
                     ><br />
                     <a href=${this._historyFromLastUpdated(this._entity)}
@@ -239,7 +239,7 @@ class HaPanelDevState extends LitElement {
           slot="filter-entities"
           .hass=${this.hass}
           .label=${this.hass.localize(
-            "ui.panel.developer-tools.tabs.states.filter_entities"
+            'ui.panel.developer-tools.tabs.states.filter_entities'
           )}
           .value=${this._entityFilter}
           @value-changed=${this._entityFilterChanged}
@@ -248,7 +248,7 @@ class HaPanelDevState extends LitElement {
           slot="filter-states"
           .hass=${this.hass}
           .label=${this.hass.localize(
-            "ui.panel.developer-tools.tabs.states.filter_states"
+            'ui.panel.developer-tools.tabs.states.filter_states'
           )}
           type="search"
           .value=${this._stateFilter}
@@ -258,123 +258,123 @@ class HaPanelDevState extends LitElement {
           slot="filter-attributes"
           .hass=${this.hass}
           .label=${this.hass.localize(
-            "ui.panel.developer-tools.tabs.states.filter_attributes"
+            'ui.panel.developer-tools.tabs.states.filter_attributes'
           )}
           type="search"
           .value=${this._attributeFilter}
           @value-changed=${this._attributeFilterChanged}
         ></search-input>
       </developer-tools-state-renderer>
-    `;
+    `
   }
 
   private async _copyStateEntity(ev) {
-    ev.preventDefault();
-    await copyToClipboard(this._entityId);
+    ev.preventDefault()
+    await copyToClipboard(this._entityId)
     showToast(this, {
-      message: this.hass.localize("ui.common.copied_clipboard"),
-    });
+      message: this.hass.localize('ui.common.copied_clipboard'),
+    })
   }
 
   private _entitySelected(ev) {
-    const entityState: HassEntity = ev.detail.entity;
-    this._entityId = entityState.entity_id;
-    this._entity = entityState;
-    this._state = entityState.state;
-    this._stateAttributes = entityState.attributes;
-    this._updateEditor();
-    this._expanded = true;
-    ev.preventDefault();
-    window.scrollTo({ top: 0 });
+    const entityState: HassEntity = ev.detail.entity
+    this._entityId = entityState.entity_id
+    this._entity = entityState
+    this._state = entityState.state
+    this._stateAttributes = entityState.attributes
+    this._updateEditor()
+    this._expanded = true
+    ev.preventDefault()
+    window.scrollTo({ top: 0 })
   }
 
   private _updateEditor() {
-    this._yamlEditor?.setValue(this._stateAttributes);
+    this._yamlEditor?.setValue(this._stateAttributes)
   }
 
   private _entityIdChanged(ev: CustomEvent) {
-    this._entityId = ev.detail.value;
-    this._updateEntity();
+    this._entityId = ev.detail.value
+    this._updateEntity()
   }
 
   private _updateEntity() {
     const entityState = this._entityId
       ? this.hass.states[this._entityId]
-      : undefined;
+      : undefined
     if (!entityState) {
-      this._entity = undefined;
-      this._state = "";
-      this._stateAttributes = {};
-      this._updateEditor();
-      return;
+      this._entity = undefined
+      this._state = ''
+      this._stateAttributes = {}
+      this._updateEditor()
+      return
     }
-    this._entity = entityState;
-    this._state = entityState.state;
-    this._stateAttributes = entityState.attributes;
-    this._updateEditor();
-    this._expanded = true;
+    this._entity = entityState
+    this._state = entityState.state
+    this._stateAttributes = entityState.attributes
+    this._updateEditor()
+    this._expanded = true
   }
 
   private _stateChanged(ev) {
-    this._state = ev.target.value;
+    this._state = ev.target.value
   }
 
   private _entityFilterChanged(ev) {
-    this._entityFilter = ev.detail.value;
+    this._entityFilter = ev.detail.value
   }
 
   private _stateFilterChanged(ev) {
-    this._stateFilter = ev.detail.value;
+    this._stateFilter = ev.detail.value
   }
 
   private _attributeFilterChanged(ev) {
-    this._attributeFilter = ev.detail.value;
+    this._attributeFilter = ev.detail.value
   }
 
   private _getHistoryURL(entityId, inputDate) {
-    const date = new Date(inputDate);
-    const hourBefore = addHours(date, -1).toISOString();
-    return `/history?entity_id=${entityId}&start_date=${hourBefore}`;
+    const date = new Date(inputDate)
+    const hourBefore = addHours(date, -1).toISOString()
+    return `/history?entity_id=${entityId}&start_date=${hourBefore}`
   }
 
   private _historyFromLastChanged(entity) {
-    return this._getHistoryURL(entity.entity_id, entity.last_changed);
+    return this._getHistoryURL(entity.entity_id, entity.last_changed)
   }
 
   private _historyFromLastUpdated(entity) {
-    return this._getHistoryURL(entity.entity_id, entity.last_updated);
+    return this._getHistoryURL(entity.entity_id, entity.last_updated)
   }
 
   private _expandedChanged(ev) {
-    this._expanded = ev.detail.expanded;
+    this._expanded = ev.detail.expanded
     if (!ev.detail.expanded) {
       // lit-virtulizer in state renderer will not show items
       // if none were in view when panel was expanded
       // so we fire scroll event to trigger a re-render
       setTimeout(() => {
-        window.dispatchEvent(new Event("scroll"));
-      }, 100);
+        window.dispatchEvent(new Event('scroll'))
+      }, 100)
     }
   }
 
   private async _handleSetState() {
-    this._error = "";
+    this._error = ''
     if (!this._entityId) {
       showAlertDialog(this, {
         text: this.hass.localize(
-          "ui.panel.developer-tools.tabs.states.alert_entity_field"
+          'ui.panel.developer-tools.tabs.states.alert_entity_field'
         ),
-      });
-      return;
+      })
+      return
     }
-    this._updateEditor();
+    this._updateEditor()
     try {
-      await this.hass.callApi("POST", "states/" + this._entityId, {
+      await this.hass.callApi('POST', 'states/' + this._entityId, {
         state: this._state,
         attributes: this._stateAttributes,
-      });
+      })
     } catch (e: any) {
-      this._error = e.body?.message || "Unknown error";
+      this._error = e.body?.message || 'Unknown error'
     }
   }
 
@@ -386,86 +386,86 @@ class HaPanelDevState extends LitElement {
   ) {
     const entityFilterRegExp =
       entityFilter &&
-      RegExp(escapeRegExp(entityFilter).replace(/\\\*/g, ".*"), "i");
+      RegExp(escapeRegExp(entityFilter).replace(/\\\*/g, '.*'), 'i')
 
     const stateFilterRegExp =
       stateFilter &&
-      RegExp(escapeRegExp(stateFilter).replace(/\\\*/g, ".*"), "i");
+      RegExp(escapeRegExp(stateFilter).replace(/\\\*/g, '.*'), 'i')
 
-    let keyFilterRegExp;
-    let valueFilterRegExp;
-    let multiMode = false;
+    let keyFilterRegExp
+    let valueFilterRegExp
+    let multiMode = false
 
     if (attributeFilter) {
-      const colonIndex = attributeFilter.indexOf(":");
-      multiMode = colonIndex !== -1;
+      const colonIndex = attributeFilter.indexOf(':')
+      multiMode = colonIndex !== -1
 
       const keyFilter = multiMode
         ? attributeFilter.substring(0, colonIndex).trim()
-        : attributeFilter;
+        : attributeFilter
       const valueFilter = multiMode
         ? attributeFilter.substring(colonIndex + 1).trim()
-        : attributeFilter;
+        : attributeFilter
 
       keyFilterRegExp = RegExp(
-        escapeRegExp(keyFilter).replace(/\\\*/g, ".*"),
-        "i"
-      );
+        escapeRegExp(keyFilter).replace(/\\\*/g, '.*'),
+        'i'
+      )
       valueFilterRegExp = multiMode
-        ? RegExp(escapeRegExp(valueFilter).replace(/\\\*/g, ".*"), "i")
-        : keyFilterRegExp;
+        ? RegExp(escapeRegExp(valueFilter).replace(/\\\*/g, '.*'), 'i')
+        : keyFilterRegExp
     }
 
     return Object.values(states)
-      .filter((value) => {
+      .filter(value => {
         if (
           entityFilterRegExp &&
           !entityFilterRegExp.test(value.entity_id) &&
           (value.attributes.friendly_name === undefined ||
             !entityFilterRegExp.test(value.attributes.friendly_name))
         ) {
-          return false;
+          return false
         }
 
         if (stateFilterRegExp && !stateFilterRegExp.test(value.state)) {
-          return false;
+          return false
         }
 
         if (keyFilterRegExp && valueFilterRegExp) {
           for (const [key, attributeValue] of Object.entries(
             value.attributes
           )) {
-            const match = keyFilterRegExp.test(key);
+            const match = keyFilterRegExp.test(key)
             if (match && !multiMode) {
-              return true; // in single mode we're already satisfied with this match
+              return true // in single mode we're already satisfied with this match
             }
             if (!match && multiMode) {
-              continue;
+              continue
             }
 
             if (
               attributeValue !== undefined &&
               valueFilterRegExp.test(JSON.stringify(attributeValue))
             ) {
-              return true;
+              return true
             }
           }
 
           // there are no attributes where the key and/or value can be matched
-          return false;
+          return false
         }
 
-        return true;
+        return true
       })
       .sort((entityA, entityB) => {
         if (entityA.entity_id < entityB.entity_id) {
-          return -1;
+          return -1
         }
         if (entityA.entity_id > entityB.entity_id) {
-          return 1;
+          return 1
         }
-        return 0;
-      });
+        return 0
+      })
   }
 
   private _lastChangedString(entity) {
@@ -473,7 +473,7 @@ class HaPanelDevState extends LitElement {
       new Date(entity.last_changed),
       this.hass.locale,
       this.hass.config
-    );
+    )
   }
 
   private _lastUpdatedString(entity) {
@@ -481,16 +481,16 @@ class HaPanelDevState extends LitElement {
       new Date(entity.last_updated),
       this.hass.locale,
       this.hass.config
-    );
+    )
   }
 
   private _saveAttributeCheckboxState(ev) {
-    this._showAttributes = ev.target.checked;
+    this._showAttributes = ev.target.checked
   }
 
   private _yamlChanged(ev) {
-    this._stateAttributes = ev.detail.value;
-    this._validJSON = ev.detail.isValid;
+    this._stateAttributes = ev.detail.value
+    this._validJSON = ev.detail.isValid
   }
 
   static get styles(): CSSResultGroup {
@@ -597,12 +597,12 @@ class HaPanelDevState extends LitElement {
           flex-direction: row;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "developer-tools-state": HaPanelDevState;
+    'developer-tools-state': HaPanelDevState
   }
 }

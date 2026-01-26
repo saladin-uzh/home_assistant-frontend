@@ -1,5 +1,5 @@
-import { css } from "lit";
-import { extractDerivedVars } from "../../common/style/derived-css-vars";
+import { css } from 'lit'
+import { extractDerivedVars } from '../../common/style/derived-css-vars'
 
 export const coreStyles = css`
   html {
@@ -64,6 +64,6 @@ export const coreStyles = css`
       --ha-animation-base-duration: 0ms;
     }
   }
-`;
+`
 
-export const coreDerivedVariables = extractDerivedVars(coreStyles);
+export const coreDerivedVariables = extractDerivedVars(coreStyles)

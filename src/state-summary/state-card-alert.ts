@@ -1,20 +1,20 @@
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { stateActive } from "../common/entity/state_active";
-import "../components/entity/ha-entity-toggle";
-import "../components/entity/state-info";
-import { haStyle } from "../resources/styles";
-import type { HomeAssistant } from "../types";
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { stateActive } from '../common/entity/state_active'
+import '../components/entity/ha-entity-toggle'
+import '../components/entity/state-info'
+import { haStyle } from '../resources/styles'
+import type { HomeAssistant } from '../types'
 
-@customElement("state-card-alert")
+@customElement('state-card-alert')
 class StateCardAlert extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public stateObj!: HassEntity;
+  @property({ attribute: false }) public stateObj!: HassEntity
 
-  @property({ attribute: "in-dialog", type: Boolean }) public inDialog = false;
+  @property({ attribute: 'in-dialog', type: Boolean }) public inDialog = false
 
   protected render(): TemplateResult {
     return html`
@@ -34,7 +34,7 @@ class StateCardAlert extends LitElement {
             : this.hass.formatEntityState(this.stateObj)}
         </div>
       </div>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -62,12 +62,12 @@ class StateCardAlert extends LitElement {
           padding: 4px 16px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "state-card-alert": StateCardAlert;
+    'state-card-alert': StateCardAlert
   }
 }

@@ -1,97 +1,97 @@
-import { mdiClose } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state, query } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-button";
+import { mdiClose } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state, query } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-button'
 import {
   getMobileOpenFromBottomAnimation,
   getMobileCloseToBottomAnimation,
-} from "../../../../components/ha-md-dialog";
-import type { HaMdDialog } from "../../../../components/ha-md-dialog";
-import "../../../../components/ha-dialog-header";
-import "../../../../components/ha-icon-button-toggle";
-import type { EntityRegistryEntry } from "../../../../data/entity_registry";
-import type { LightColor, LightEntity } from "../../../../data/light";
+} from '../../../../components/ha-md-dialog'
+import type { HaMdDialog } from '../../../../components/ha-md-dialog'
+import '../../../../components/ha-dialog-header'
+import '../../../../components/ha-icon-button-toggle'
+import type { EntityRegistryEntry } from '../../../../data/entity_registry'
+import type { LightColor, LightEntity } from '../../../../data/light'
 import {
   LightColorMode,
   lightSupportsColor,
   lightSupportsColorMode,
-} from "../../../../data/light";
-import { haStyleDialog } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import "./light-color-rgb-picker";
-import "./light-color-temp-picker";
-import type { LightColorFavoriteDialogParams } from "./show-dialog-light-color-favorite";
+} from '../../../../data/light'
+import { haStyleDialog } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import './light-color-rgb-picker'
+import './light-color-temp-picker'
+import type { LightColorFavoriteDialogParams } from './show-dialog-light-color-favorite'
 
-export type LightPickerMode = "color_temp" | "color";
+export type LightPickerMode = 'color_temp' | 'color'
 
-@customElement("dialog-light-color-favorite")
+@customElement('dialog-light-color-favorite')
 class DialogLightColorFavorite extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() _dialogParams?: LightColorFavoriteDialogParams;
+  @state() _dialogParams?: LightColorFavoriteDialogParams
 
-  @state() _entry?: EntityRegistryEntry;
+  @state() _entry?: EntityRegistryEntry
 
-  @state() _color?: LightColor;
+  @state() _color?: LightColor
 
-  @state() private _mode?: LightPickerMode;
+  @state() private _mode?: LightPickerMode
 
-  @state() private _modes: LightPickerMode[] = [];
+  @state() private _modes: LightPickerMode[] = []
 
-  @query("ha-md-dialog") private _dialog?: HaMdDialog;
+  @query('ha-md-dialog') private _dialog?: HaMdDialog
 
   public async showDialog(
     dialogParams: LightColorFavoriteDialogParams
   ): Promise<void> {
-    this._entry = dialogParams.entry;
-    this._dialogParams = dialogParams;
-    this._color = dialogParams.initialColor ?? this._computeCurrentColor();
-    this._updateModes();
+    this._entry = dialogParams.entry
+    this._dialogParams = dialogParams
+    this._color = dialogParams.initialColor ?? this._computeCurrentColor()
+    this._updateModes()
   }
 
   public closeDialog(): void {
-    this._dialog?.close();
+    this._dialog?.close()
   }
 
   private _updateModes() {
     const supportsTemp = lightSupportsColorMode(
       this.stateObj!,
       LightColorMode.COLOR_TEMP
-    );
+    )
 
-    const supportsColor = lightSupportsColor(this.stateObj!);
+    const supportsColor = lightSupportsColor(this.stateObj!)
 
-    const modes: LightPickerMode[] = [];
+    const modes: LightPickerMode[] = []
     if (supportsColor) {
-      modes.push("color");
+      modes.push('color')
     }
     if (supportsTemp) {
-      modes.push("color_temp");
+      modes.push('color_temp')
     }
 
-    this._modes = modes;
+    this._modes = modes
 
     if (this._color) {
-      this._mode = "color_temp_kelvin" in this._color ? "color_temp" : "color";
+      this._mode = 'color_temp_kelvin' in this._color ? 'color_temp' : 'color'
     } else {
-      this._mode = this._modes[0];
+      this._mode = this._modes[0]
     }
   }
 
   private _computeCurrentColor() {
-    const attributes = this.stateObj!.attributes;
-    const color_mode = attributes.color_mode;
+    const attributes = this.stateObj!.attributes
+    const color_mode = attributes.color_mode
 
-    let currentColor: LightColor | undefined;
+    let currentColor: LightColor | undefined
     if (color_mode === LightColorMode.XY) {
       // XY color not supported for favorites. Try to grab the hs or rgb instead.
       if (attributes.hs_color) {
-        currentColor = { hs_color: attributes.hs_color };
+        currentColor = { hs_color: attributes.hs_color }
       } else if (attributes.rgb_color) {
-        currentColor = { rgb_color: attributes.rgb_color };
+        currentColor = { rgb_color: attributes.rgb_color }
       }
     } else if (
       color_mode === LightColorMode.COLOR_TEMP &&
@@ -99,63 +99,63 @@ class DialogLightColorFavorite extends LitElement {
     ) {
       currentColor = {
         color_temp_kelvin: attributes.color_temp_kelvin,
-      };
-    } else if (attributes[color_mode + "_color"]) {
+      }
+    } else if (attributes[color_mode + '_color']) {
       currentColor = {
-        [color_mode + "_color"]: attributes[color_mode + "_color"],
-      } as LightColor;
+        [color_mode + '_color']: attributes[color_mode + '_color'],
+      } as LightColor
     }
 
-    return currentColor;
+    return currentColor
   }
 
   private _colorChanged(ev: CustomEvent) {
-    this._color = ev.detail;
+    this._color = ev.detail
   }
 
   get stateObj() {
     return (
       this._entry &&
       (this.hass.states[this._entry.entity_id] as LightEntity | undefined)
-    );
+    )
   }
 
   private async _cancel() {
-    this._dialogParams?.cancel?.();
+    this._dialogParams?.cancel?.()
   }
 
   private _cancelDialog() {
-    this._cancel();
-    this.closeDialog();
+    this._cancel()
+    this.closeDialog()
   }
 
   private _dialogClosed(): void {
-    this._dialogParams = undefined;
-    this._entry = undefined;
-    this._color = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._dialogParams = undefined
+    this._entry = undefined
+    this._color = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   private async _save() {
     if (!this._color) {
-      this._cancel();
-      return;
+      this._cancel()
+      return
     }
-    this._dialogParams?.submit?.(this._color);
-    this.closeDialog();
+    this._dialogParams?.submit?.(this._color)
+    this.closeDialog()
   }
 
   private _modeChanged(ev): void {
-    const newMode = ev.currentTarget.mode;
+    const newMode = ev.currentTarget.mode
     if (newMode === this._mode) {
-      return;
+      return
     }
-    this._mode = newMode;
+    this._mode = newMode
   }
 
   protected render() {
     if (!this._entry || !this.stateObj) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -171,10 +171,12 @@ class DialogLightColorFavorite extends LitElement {
           <ha-icon-button
             slot="navigationIcon"
             @click=${this.closeDialog}
-            .label=${this.hass.localize("ui.common.close")}
+            .label=${this.hass.localize('ui.common.close')}
             .path=${mdiClose}
           ></ha-icon-button>
-          <span slot="title" id="dialog-light-color-favorite-title"
+          <span
+            slot="title"
+            id="dialog-light-color-favorite-title"
             >${this._dialogParams?.title}</span
           >
         </ha-dialog-header>
@@ -184,7 +186,7 @@ class DialogLightColorFavorite extends LitElement {
               ? html`
                   <div class="modes">
                     ${this._modes.map(
-                      (value) => html`
+                      value => html`
                         <ha-icon-button-toggle
                           border-only
                           .selected=${value === this._mode}
@@ -205,7 +207,7 @@ class DialogLightColorFavorite extends LitElement {
               : nothing}
           </div>
           <div class="content">
-            ${this._mode === "color_temp"
+            ${this._mode === 'color_temp'
               ? html`
                   <light-color-temp-picker
                     .hass=${this.hass}
@@ -215,7 +217,7 @@ class DialogLightColorFavorite extends LitElement {
                   </light-color-temp-picker>
                 `
               : nothing}
-            ${this._mode === "color"
+            ${this._mode === 'color'
               ? html`
                   <light-color-rgb-picker
                     .hass=${this.hass}
@@ -228,15 +230,20 @@ class DialogLightColorFavorite extends LitElement {
           </div>
         </div>
         <div slot="actions">
-          <ha-button appearance="plain" @click=${this._cancelDialog}>
-            ${this.hass.localize("ui.common.cancel")}
+          <ha-button
+            appearance="plain"
+            @click=${this._cancelDialog}
+          >
+            ${this.hass.localize('ui.common.cancel')}
           </ha-button>
-          <ha-button @click=${this._save} .disabled=${!this._color}
-            >${this.hass.localize("ui.common.save")}</ha-button
+          <ha-button
+            @click=${this._save}
+            .disabled=${!this._color}
+            >${this.hass.localize('ui.common.save')}</ha-button
           >
         </div>
       </ha-md-dialog>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -284,7 +291,7 @@ class DialogLightColorFavorite extends LitElement {
           border-radius: var(--ha-border-radius-xl);
         }
         .wheel.color {
-          background-image: url("/static/images/color_wheel.png");
+          background-image: url('/static/images/color_wheel.png');
           background-size: cover;
         }
         .wheel.color_temp {
@@ -296,12 +303,12 @@ class DialogLightColorFavorite extends LitElement {
           );
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-light-color-favorite": DialogLightColorFavorite;
+    'dialog-light-color-favorite': DialogLightColorFavorite
   }
 }

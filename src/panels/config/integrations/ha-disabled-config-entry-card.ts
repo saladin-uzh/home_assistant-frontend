@@ -1,24 +1,24 @@
-import { mdiCog } from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../components/ha-button";
-import "../../../components/ha-icon-button";
-import type { DisableConfigEntryResult } from "../../../data/config_entries";
-import { enableConfigEntry } from "../../../data/config_entries";
-import type { IntegrationManifest } from "../../../data/integration";
-import { showAlertDialog } from "../../../dialogs/generic/show-dialog-box";
-import type { HomeAssistant } from "../../../types";
-import type { ConfigEntryExtended } from "./ha-config-integrations";
-import "./ha-integration-action-card";
+import { mdiCog } from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../components/ha-button'
+import '../../../components/ha-icon-button'
+import type { DisableConfigEntryResult } from '../../../data/config_entries'
+import { enableConfigEntry } from '../../../data/config_entries'
+import type { IntegrationManifest } from '../../../data/integration'
+import { showAlertDialog } from '../../../dialogs/generic/show-dialog-box'
+import type { HomeAssistant } from '../../../types'
+import type { ConfigEntryExtended } from './ha-config-integrations'
+import './ha-integration-action-card'
 
-@customElement("ha-disabled-config-entry-card")
+@customElement('ha-disabled-config-entry-card')
 export class HaDisabledConfigEntryCard extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public entry!: ConfigEntryExtended;
+  @property({ attribute: false }) public entry!: ConfigEntryExtended
 
-  @property({ attribute: false }) public manifest?: IntegrationManifest;
+  @property({ attribute: false }) public manifest?: IntegrationManifest
 
   protected render(): TemplateResult {
     return html`
@@ -26,7 +26,7 @@ export class HaDisabledConfigEntryCard extends LitElement {
         .hass=${this.hass}
         .manifest=${this.manifest}
         .banner=${this.hass.localize(
-          "ui.panel.config.integrations.config_entry.disable.disabled_cause",
+          'ui.panel.config.integrations.config_entry.disable.disabled_cause',
           {
             cause:
               this.hass.localize(
@@ -45,35 +45,38 @@ export class HaDisabledConfigEntryCard extends LitElement {
         >
           <ha-icon-button .path=${mdiCog}></ha-icon-button>
         </a>
-        <ha-button @click=${this._handleEnable} appearance="filled">
-          ${this.hass.localize("ui.common.enable")}
+        <ha-button
+          @click=${this._handleEnable}
+          appearance="filled"
+        >
+          ${this.hass.localize('ui.common.enable')}
         </ha-button>
       </ha-integration-action-card>
-    `;
+    `
   }
 
   private async _handleEnable() {
-    const entryId = this.entry.entry_id;
+    const entryId = this.entry.entry_id
 
-    let result: DisableConfigEntryResult;
+    let result: DisableConfigEntryResult
     try {
-      result = await enableConfigEntry(this.hass, entryId);
+      result = await enableConfigEntry(this.hass, entryId)
     } catch (err: any) {
       showAlertDialog(this, {
         title: this.hass.localize(
-          "ui.panel.config.integrations.config_entry.disable_error"
+          'ui.panel.config.integrations.config_entry.disable_error'
         ),
         text: err.message,
-      });
-      return;
+      })
+      return
     }
 
     if (result.require_restart) {
       showAlertDialog(this, {
         text: this.hass.localize(
-          "ui.panel.config.integrations.config_entry.enable_restart_confirm"
+          'ui.panel.config.integrations.config_entry.enable_restart_confirm'
         ),
-      });
+      })
     }
   }
 
@@ -88,11 +91,11 @@ export class HaDisabledConfigEntryCard extends LitElement {
     a ha-icon-button {
       color: var(--secondary-text-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-disabled-config-entry-card": HaDisabledConfigEntryCard;
+    'ha-disabled-config-entry-card': HaDisabledConfigEntryCard
   }
 }

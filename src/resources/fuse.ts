@@ -4,14 +4,14 @@ import Fuse, {
   type FuseResult,
   type FuseSearchOptions,
   type IFuseOptions,
-} from "fuse.js";
+} from 'fuse.js'
 
 export interface FuseKey {
-  getFn: null;
-  id: string;
-  path: string[];
-  src: string;
-  weight: number;
+  getFn: null
+  id: string
+  path: string[]
+  src: string
+  weight: number
 }
 
 const DEFAULT_OPTIONS: IFuseOptions<any> = {
@@ -19,7 +19,7 @@ const DEFAULT_OPTIONS: IFuseOptions<any> = {
   isCaseSensitive: false,
   threshold: 0.3,
   minMatchCharLength: 2,
-};
+}
 
 export class HaFuse<T> extends Fuse<T> {
   public constructor(
@@ -30,8 +30,8 @@ export class HaFuse<T> extends Fuse<T> {
     const mergedOptions = {
       ...DEFAULT_OPTIONS,
       ...options,
-    };
-    super(list, mergedOptions, index);
+    }
+    super(list, mergedOptions, index)
   }
 
   /**
@@ -50,29 +50,29 @@ export class HaFuse<T> extends Fuse<T> {
     search: string,
     options?: FuseSearchOptions
   ): FuseResult<T>[] | null {
-    const terms = search.toLowerCase().split(" ");
+    const terms = search.toLowerCase().split(' ')
 
     // @ts-expect-error options is not part of the Fuse type
-    const { minMatchCharLength } = this.options as IFuseOptions<T>;
+    const { minMatchCharLength } = this.options as IFuseOptions<T>
 
     const filteredTerms = minMatchCharLength
-      ? terms.filter((term) => term.length >= minMatchCharLength)
-      : terms;
+      ? terms.filter(term => term.length >= minMatchCharLength)
+      : terms
 
     if (filteredTerms.length === 0) {
       // If no valid terms are found, return null to indicate no search was performed
-      return null;
+      return null
     }
 
-    const index = this.getIndex().toJSON();
-    const keys = index.keys as unknown as FuseKey[]; // Fuse type for key is not correct
+    const index = this.getIndex().toJSON()
+    const keys = index.keys as unknown as FuseKey[] // Fuse type for key is not correct
 
     const expression: Expression = {
-      $and: filteredTerms.map((term) => ({
-        $or: keys.map((key) => ({ $path: key.path, $val: term })),
+      $and: filteredTerms.map(term => ({
+        $or: keys.map(key => ({ $path: key.path, $val: term })),
       })),
-    };
+    }
 
-    return this.search(expression, options);
+    return this.search(expression, options)
   }
 }

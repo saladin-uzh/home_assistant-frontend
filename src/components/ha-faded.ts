@@ -1,20 +1,20 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
 
-@customElement("ha-faded")
+@customElement('ha-faded')
 class HaFaded extends LitElement {
-  @property({ type: Number, attribute: "faded-height" })
-  public fadedHeight = 102;
+  @property({ type: Number, attribute: 'faded-height' })
+  public fadedHeight = 102
 
-  @state() _contentShown = false;
+  @state() _contentShown = false
 
   protected render(): TemplateResult {
     return html`
       <div
         class="container ${classMap({ faded: !this._contentShown })}"
-        style=${!this._contentShown ? `max-height: ${this.fadedHeight}px` : ""}
+        style=${!this._contentShown ? `max-height: ${this.fadedHeight}px` : ''}
         @click=${this._showContent}
       >
         <slot
@@ -24,13 +24,13 @@ class HaFaded extends LitElement {
           }
         ></slot>
       </div>
-    `;
+    `
   }
 
   get _slottedHeight(): number {
     return (
       (
-        this.shadowRoot!.querySelector(".container")
+        this.shadowRoot!.querySelector('.container')
           ?.firstElementChild as HTMLSlotElement
       )
         .assignedElements()
@@ -38,21 +38,21 @@ class HaFaded extends LitElement {
           (partial, element) => partial + (element as HTMLElement).offsetHeight,
           0
         ) || 0
-    );
+    )
   }
 
   private _setShowContent() {
-    const height = this._slottedHeight;
-    this._contentShown = height !== 0 && height <= this.fadedHeight + 50;
+    const height = this._slottedHeight
+    this._contentShown = height !== 0 && height <= this.fadedHeight + 50
   }
 
   protected firstUpdated(changedProps) {
-    super.firstUpdated(changedProps);
-    this._setShowContent();
+    super.firstUpdated(changedProps)
+    this._setShowContent()
   }
 
   private _showContent(): void {
-    this._contentShown = true;
+    this._contentShown = true
   }
 
   static styles = css`
@@ -71,14 +71,14 @@ class HaFaded extends LitElement {
       mask-image: linear-gradient(to bottom, black 25%, transparent 100%);
       overflow-y: hidden;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-faded": HaFaded;
+    'ha-faded': HaFaded
   }
   interface HASSDomEvents {
-    "content-resize": undefined;
+    'content-resize': undefined
   }
 }

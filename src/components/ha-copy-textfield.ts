@@ -1,27 +1,27 @@
-import { mdiContentCopy, mdiEye, mdiEyeOff } from "@mdi/js";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
+import { mdiContentCopy, mdiEye, mdiEyeOff } from '@mdi/js'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
 
-import { copyToClipboard } from "../common/util/copy-clipboard";
-import type { HomeAssistant } from "../types";
-import { showToast } from "../util/toast";
-import "./ha-button";
-import "./ha-icon-button";
-import "./ha-svg-icon";
-import "./ha-textfield";
-import type { HaTextField } from "./ha-textfield";
+import { copyToClipboard } from '../common/util/copy-clipboard'
+import type { HomeAssistant } from '../types'
+import { showToast } from '../util/toast'
+import './ha-button'
+import './ha-icon-button'
+import './ha-svg-icon'
+import './ha-textfield'
+import type { HaTextField } from './ha-textfield'
 
-@customElement("ha-copy-textfield")
+@customElement('ha-copy-textfield')
 export class HaCopyTextfield extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: "value" }) public value!: string;
+  @property({ attribute: 'value' }) public value!: string
 
-  @property({ attribute: "masked-value" }) public maskedValue?: string;
+  @property({ attribute: 'masked-value' }) public maskedValue?: string
 
-  @property({ attribute: "label" }) public label?: string;
+  @property({ attribute: 'label' }) public label?: string
 
-  @state() private _showMasked = true;
+  @state() private _showMasked = true
 
   public render() {
     return html`
@@ -41,35 +41,42 @@ export class HaCopyTextfield extends LitElement {
             ? html`<ha-icon-button
                 class="toggle-unmasked"
                 .label=${this.hass.localize(
-                  `ui.common.${this._showMasked ? "show" : "hide"}`
+                  `ui.common.${this._showMasked ? 'show' : 'hide'}`
                 )}
                 @click=${this._toggleMasked}
                 .path=${this._showMasked ? mdiEye : mdiEyeOff}
               ></ha-icon-button>`
             : nothing}
         </div>
-        <ha-button @click=${this._copy} appearance="plain" size="small">
-          <ha-svg-icon slot="start" .path=${mdiContentCopy}></ha-svg-icon>
-          ${this.label || this.hass.localize("ui.common.copy")}
+        <ha-button
+          @click=${this._copy}
+          appearance="plain"
+          size="small"
+        >
+          <ha-svg-icon
+            slot="start"
+            .path=${mdiContentCopy}
+          ></ha-svg-icon>
+          ${this.label || this.hass.localize('ui.common.copy')}
         </ha-button>
       </div>
-    `;
+    `
   }
 
   private _focusInput(ev) {
-    const inputElement = ev.currentTarget as HaTextField;
-    inputElement.select();
+    const inputElement = ev.currentTarget as HaTextField
+    inputElement.select()
   }
 
   private _toggleMasked(): void {
-    this._showMasked = !this._showMasked;
+    this._showMasked = !this._showMasked
   }
 
   private async _copy(): Promise<void> {
-    await copyToClipboard(this.value);
+    await copyToClipboard(this.value)
     showToast(this, {
-      message: this.hass.localize("ui.common.copied_clipboard"),
-    });
+      message: this.hass.localize('ui.common.copied_clipboard'),
+    })
   }
 
   static styles = css`
@@ -100,11 +107,11 @@ export class HaCopyTextfield extends LitElement {
       color: var(--secondary-text-color);
       direction: var(--direction);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-copy-textfield": HaCopyTextfield;
+    'ha-copy-textfield': HaCopyTextfield
   }
 }

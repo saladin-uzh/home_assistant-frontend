@@ -1,3 +1,3 @@
-import "../auth/ha-authorize";
+import '../auth/ha-authorize'
 
-import("../resources/append-ha-style");
+import('../resources/append-ha-style')

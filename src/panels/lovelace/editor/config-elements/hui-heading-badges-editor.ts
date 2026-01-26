@@ -1,62 +1,62 @@
-import "@material/mwc-menu/mwc-menu-surface";
-import { mdiDelete, mdiDragHorizontalVariant, mdiPencil } from "@mdi/js";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { repeat } from "lit/directives/repeat";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { preventDefault } from "../../../../common/dom/prevent_default";
-import { computeStateName } from "../../../../common/entity/compute_state_name";
-import "../../../../components/entity/ha-entity-picker";
-import "../../../../components/ha-button";
-import "../../../../components/ha-icon-button";
-import "../../../../components/ha-sortable";
-import "../../../../components/ha-svg-icon";
-import type { HomeAssistant } from "../../../../types";
-import type { LovelaceHeadingBadgeConfig } from "../../heading-badges/types";
+import '@material/mwc-menu/mwc-menu-surface'
+import { mdiDelete, mdiDragHorizontalVariant, mdiPencil } from '@mdi/js'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { repeat } from 'lit/directives/repeat'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { preventDefault } from '../../../../common/dom/prevent_default'
+import { computeStateName } from '../../../../common/entity/compute_state_name'
+import '../../../../components/entity/ha-entity-picker'
+import '../../../../components/ha-button'
+import '../../../../components/ha-icon-button'
+import '../../../../components/ha-sortable'
+import '../../../../components/ha-svg-icon'
+import type { HomeAssistant } from '../../../../types'
+import type { LovelaceHeadingBadgeConfig } from '../../heading-badges/types'
 
 declare global {
   interface HASSDomEvents {
-    "edit-heading-badge": { index: number };
-    "heading-badges-changed": { badges: LovelaceHeadingBadgeConfig[] };
+    'edit-heading-badge': { index: number }
+    'heading-badges-changed': { badges: LovelaceHeadingBadgeConfig[] }
   }
 }
 
-@customElement("hui-heading-badges-editor")
+@customElement('hui-heading-badges-editor')
 export class HuiHeadingBadgesEditor extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   @property({ attribute: false })
-  public badges?: LovelaceHeadingBadgeConfig[];
+  public badges?: LovelaceHeadingBadgeConfig[]
 
-  private _badgesKeys = new WeakMap<LovelaceHeadingBadgeConfig, string>();
+  private _badgesKeys = new WeakMap<LovelaceHeadingBadgeConfig, string>()
 
   private _getKey(badge: LovelaceHeadingBadgeConfig) {
     if (!this._badgesKeys.has(badge)) {
-      this._badgesKeys.set(badge, Math.random().toString());
+      this._badgesKeys.set(badge, Math.random().toString())
     }
 
-    return this._badgesKeys.get(badge)!;
+    return this._badgesKeys.get(badge)!
   }
 
   private _computeBadgeLabel(badge: LovelaceHeadingBadgeConfig) {
-    const type = badge.type ?? "entity";
+    const type = badge.type ?? 'entity'
 
-    if (type === "entity") {
-      const entityId = "entity" in badge ? (badge.entity as string) : undefined;
-      const stateObj = entityId ? this.hass.states[entityId] : undefined;
+    if (type === 'entity') {
+      const entityId = 'entity' in badge ? (badge.entity as string) : undefined
+      const stateObj = entityId ? this.hass.states[entityId] : undefined
       return (
         (stateObj && computeStateName(stateObj)) ||
         entityId ||
         type ||
-        "Unknown badge"
-      );
+        'Unknown badge'
+      )
     }
-    return type;
+    return type
   }
 
   protected render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
 
     return html`
@@ -69,9 +69,9 @@ export class HuiHeadingBadgesEditor extends LitElement {
               <div class="entities">
                 ${repeat(
                   this.badges,
-                  (badge) => this._getKey(badge),
+                  badge => this._getKey(badge),
                   (badge, index) => {
-                    const label = this._computeBadgeLabel(badge);
+                    const label = this._computeBadgeLabel(badge)
                     return html`
                       <div class="badge">
                         <div class="handle">
@@ -101,7 +101,7 @@ export class HuiHeadingBadgesEditor extends LitElement {
                           @click=${this._removeEntity}
                         ></ha-icon-button>
                       </div>
-                    `;
+                    `
                   }
                 )}
               </div>
@@ -113,10 +113,10 @@ export class HuiHeadingBadgesEditor extends LitElement {
           .hass=${this.hass}
           id="input"
           .placeholder=${this.hass.localize(
-            "ui.components.entity.entity-picker.choose_entity"
+            'ui.components.entity.entity-picker.choose_entity'
           )}
           .searchLabel=${this.hass.localize(
-            "ui.components.entity.entity-picker.choose_entity"
+            'ui.components.entity.entity-picker.choose_entity'
           )}
           @value-changed=${this._entityPicked}
           .value=${undefined}
@@ -125,47 +125,47 @@ export class HuiHeadingBadgesEditor extends LitElement {
           add-button
         ></ha-entity-picker>
       </div>
-    `;
+    `
   }
 
   private _entityPicked(ev) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!ev.detail.value) {
-      return;
+      return
     }
     const newEntity: LovelaceHeadingBadgeConfig = {
-      type: "entity",
+      type: 'entity',
       entity: ev.detail.value,
-    };
-    const newBadges = (this.badges || []).concat(newEntity);
-    fireEvent(this, "heading-badges-changed", { badges: newBadges });
+    }
+    const newBadges = (this.badges || []).concat(newEntity)
+    fireEvent(this, 'heading-badges-changed', { badges: newBadges })
   }
 
   private _badgeMoved(ev: CustomEvent): void {
-    ev.stopPropagation();
-    const { oldIndex, newIndex } = ev.detail;
+    ev.stopPropagation()
+    const { oldIndex, newIndex } = ev.detail
 
-    const newBadges = (this.badges || []).concat();
+    const newBadges = (this.badges || []).concat()
 
-    newBadges.splice(newIndex, 0, newBadges.splice(oldIndex, 1)[0]);
+    newBadges.splice(newIndex, 0, newBadges.splice(oldIndex, 1)[0])
 
-    fireEvent(this, "heading-badges-changed", { badges: newBadges });
+    fireEvent(this, 'heading-badges-changed', { badges: newBadges })
   }
 
   private _removeEntity(ev: CustomEvent): void {
-    const index = (ev.currentTarget as any).index;
-    const newBadges = (this.badges || []).concat();
+    const index = (ev.currentTarget as any).index
+    const newBadges = (this.badges || []).concat()
 
-    newBadges.splice(index, 1);
+    newBadges.splice(index, 1)
 
-    fireEvent(this, "heading-badges-changed", { badges: newBadges });
+    fireEvent(this, 'heading-badges-changed', { badges: newBadges })
   }
 
   private _editBadge(ev: CustomEvent): void {
-    const index = (ev.currentTarget as any).index;
-    fireEvent(this, "edit-heading-badge", {
+    const index = (ev.currentTarget as any).index
+    fireEvent(this, 'edit-heading-badge', {
       index,
-    });
+    })
   }
 
   static styles = css`
@@ -234,11 +234,11 @@ export class HuiHeadingBadgesEditor extends LitElement {
       display: block;
       width: 100%;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-heading-badges-editor": HuiHeadingBadgesEditor;
+    'hui-heading-badges-editor': HuiHeadingBadgesEditor
   }
 }

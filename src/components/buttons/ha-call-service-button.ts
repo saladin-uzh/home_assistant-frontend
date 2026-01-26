@@ -1,32 +1,32 @@
-import type { TemplateResult } from "lit";
-import { LitElement, html } from "lit";
-import { customElement, property } from "lit/decorators";
-import type { HassServiceTarget } from "home-assistant-js-websocket";
-import { showConfirmationDialog } from "../../dialogs/generic/show-dialog-box";
-import "./ha-progress-button";
-import type { HomeAssistant } from "../../types";
-import { fireEvent } from "../../common/dom/fire_event";
-import type { Appearance } from "../ha-button";
+import type { TemplateResult } from 'lit'
+import { LitElement, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import type { HassServiceTarget } from 'home-assistant-js-websocket'
+import { showConfirmationDialog } from '../../dialogs/generic/show-dialog-box'
+import './ha-progress-button'
+import type { HomeAssistant } from '../../types'
+import { fireEvent } from '../../common/dom/fire_event'
+import type { Appearance } from '../ha-button'
 
-@customElement("ha-call-service-button")
+@customElement('ha-call-service-button')
 class HaCallServiceButton extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public progress = false;
+  @property({ type: Boolean }) public progress = false
 
-  @property() public domain!: string;
+  @property() public domain!: string
 
-  @property() public service!: string;
+  @property() public service!: string
 
-  @property({ type: Object }) public target!: HassServiceTarget;
+  @property({ type: Object }) public target!: HassServiceTarget
 
-  @property({ type: Object }) public data = {};
+  @property({ type: Object }) public data = {}
 
-  @property() public confirmation?;
+  @property() public confirmation?
 
-  @property() public appearance: Appearance = "plain";
+  @property() public appearance: Appearance = 'plain'
 
   public render(): TemplateResult {
     return html`
@@ -39,21 +39,21 @@ class HaCallServiceButton extends LitElement {
       >
         <slot></slot
       ></ha-progress-button>
-    `;
+    `
   }
 
   private async _callService() {
-    this.progress = true;
+    this.progress = true
     const eventData = {
       domain: this.domain,
       service: this.service,
       data: this.data,
       target: this.target,
       success: false,
-    };
+    }
 
     const progressElement =
-      this.shadowRoot!.querySelector("ha-progress-button")!;
+      this.shadowRoot!.querySelector('ha-progress-button')!
 
     try {
       await this.hass.callService(
@@ -61,17 +61,17 @@ class HaCallServiceButton extends LitElement {
         this.service,
         this.data,
         this.target
-      );
-      this.progress = false;
-      progressElement.actionSuccess();
-      eventData.success = true;
+      )
+      this.progress = false
+      progressElement.actionSuccess()
+      eventData.success = true
     } catch (_err) {
-      this.progress = false;
-      progressElement.actionError();
-      eventData.success = false;
-      return;
+      this.progress = false
+      progressElement.actionError()
+      eventData.success = false
+      return
     } finally {
-      fireEvent(this, "hass-service-called", eventData);
+      fireEvent(this, 'hass-service-called', eventData)
     }
   }
 
@@ -80,28 +80,28 @@ class HaCallServiceButton extends LitElement {
       showConfirmationDialog(this, {
         text: this.confirmation,
         confirm: () => this._callService(),
-      });
+      })
     } else {
-      this._callService();
+      this._callService()
     }
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-call-service-button": HaCallServiceButton;
+    'ha-call-service-button': HaCallServiceButton
   }
 }
 
 declare global {
   // for fire event
   interface HASSDomEvents {
-    "hass-service-called": {
-      domain: string;
-      service: string;
-      target: HassServiceTarget;
-      data: object;
-      success: boolean;
-    };
+    'hass-service-called': {
+      domain: string
+      service: string
+      target: HassServiceTarget
+      data: object
+      success: boolean
+    }
   }
 }

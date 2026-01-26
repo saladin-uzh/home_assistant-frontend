@@ -1,24 +1,24 @@
-import type { TemplateResult } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, property, query } from "lit/decorators";
-import "../ha-duration-input";
-import type { HaFormElement, HaFormTimeData, HaFormTimeSchema } from "./types";
+import type { TemplateResult } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import '../ha-duration-input'
+import type { HaFormElement, HaFormTimeData, HaFormTimeSchema } from './types'
 
-@customElement("ha-form-positive_time_period_dict")
+@customElement('ha-form-positive_time_period_dict')
 export class HaFormTimePeriod extends LitElement implements HaFormElement {
-  @property({ attribute: false }) public schema!: HaFormTimeSchema;
+  @property({ attribute: false }) public schema!: HaFormTimeSchema
 
-  @property({ attribute: false }) public data!: HaFormTimeData;
+  @property({ attribute: false }) public data!: HaFormTimeData
 
-  @property() public label!: string;
+  @property() public label!: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @query("ha-time-input", true) private _input?: HTMLElement;
+  @query('ha-time-input', true) private _input?: HTMLElement
 
   public focus() {
     if (this._input) {
-      this._input.focus();
+      this._input.focus()
     }
   }
 
@@ -30,12 +30,12 @@ export class HaFormTimePeriod extends LitElement implements HaFormElement {
         .data=${this.data}
         .disabled=${this.disabled}
       ></ha-duration-input>
-    `;
+    `
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-form-positive_time_period_dict": HaFormTimePeriod;
+    'ha-form-positive_time_period_dict': HaFormTimePeriod
   }
 }

@@ -1,58 +1,58 @@
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../src/common/dom/fire_event";
-import "../../../../src/components/ha-dialog";
-import "../../../../src/components/ha-button";
-import "../../../../src/components/ha-form/ha-form";
-import type { SchemaUnion } from "../../../../src/components/ha-form/types";
-import { extractApiErrorMessage } from "../../../../src/data/hassio/common";
-import { changeMountOptions } from "../../../../src/data/supervisor/mounts";
-import { haStyle, haStyleDialog } from "../../../../src/resources/styles";
-import type { HomeAssistant } from "../../../../src/types";
-import type { HassioBackupLocationDialogParams } from "./show-dialog-hassio-backu-location";
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../src/common/dom/fire_event'
+import '../../../../src/components/ha-dialog'
+import '../../../../src/components/ha-button'
+import '../../../../src/components/ha-form/ha-form'
+import type { SchemaUnion } from '../../../../src/components/ha-form/types'
+import { extractApiErrorMessage } from '../../../../src/data/hassio/common'
+import { changeMountOptions } from '../../../../src/data/supervisor/mounts'
+import { haStyle, haStyleDialog } from '../../../../src/resources/styles'
+import type { HomeAssistant } from '../../../../src/types'
+import type { HassioBackupLocationDialogParams } from './show-dialog-hassio-backu-location'
 
 const SCHEMA = memoizeOne(
   () =>
     [
       {
-        name: "default_backup_mount",
+        name: 'default_backup_mount',
         required: true,
         selector: { backup_location: {} },
       },
     ] as const
-);
+)
 
-@customElement("dialog-hassio-backup-location")
+@customElement('dialog-hassio-backup-location')
 class HassioBackupLocationDialog extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _dialogParams?: HassioBackupLocationDialogParams;
+  @state() private _dialogParams?: HassioBackupLocationDialogParams
 
-  @state() private _data?: { default_backup_mount: string | null };
+  @state() private _data?: { default_backup_mount: string | null }
 
-  @state() private _waiting?: boolean;
+  @state() private _waiting?: boolean
 
-  @state() private _error?: string;
+  @state() private _error?: string
 
   public async showDialog(
     dialogParams: HassioBackupLocationDialogParams
   ): Promise<void> {
-    this._dialogParams = dialogParams;
+    this._dialogParams = dialogParams
   }
 
   public closeDialog(): void {
-    this._data = undefined;
-    this._error = undefined;
-    this._waiting = undefined;
-    this._dialogParams = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._data = undefined
+    this._error = undefined
+    this._waiting = undefined
+    this._dialogParams = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._dialogParams) {
-      return nothing;
+      return nothing
     }
     return html`
       <ha-dialog
@@ -60,7 +60,7 @@ class HassioBackupLocationDialog extends LitElement {
         scrimClickAction
         escapeKeyAction
         .heading=${this._dialogParams.supervisor.localize(
-          "dialog.backup_location.title"
+          'dialog.backup_location.title'
         )}
         @closed=${this.closeDialog}
       >
@@ -83,17 +83,17 @@ class HassioBackupLocationDialog extends LitElement {
           @click=${this.closeDialog}
           dialogInitialFocus
         >
-          ${this._dialogParams.supervisor.localize("common.cancel")}
+          ${this._dialogParams.supervisor.localize('common.cancel')}
         </ha-button>
         <ha-button
           .disabled=${this._waiting || !this._data}
           slot="primaryAction"
           @click=${this._changeMount}
         >
-          ${this._dialogParams.supervisor.localize("common.save")}
+          ${this._dialogParams.supervisor.localize('common.save')}
         </ha-button>
       </ha-dialog>
-    `;
+    `
   }
 
   private _computeLabelCallback = (
@@ -102,7 +102,7 @@ class HassioBackupLocationDialog extends LitElement {
   ): string =>
     this._dialogParams!.supervisor.localize(
       `dialog.backup_location.options.${schema.name}.name`
-    ) || schema.name;
+    ) || schema.name
 
   private _computeHelperCallback = (
     // @ts-ignore
@@ -110,29 +110,29 @@ class HassioBackupLocationDialog extends LitElement {
   ): string =>
     this._dialogParams!.supervisor.localize(
       `dialog.backup_location.options.${schema.name}.description`
-    );
+    )
 
   private _valueChanged(ev: CustomEvent) {
-    const newLocation = ev.detail.value.default_backup_mount;
+    const newLocation = ev.detail.value.default_backup_mount
     this._data = {
-      default_backup_mount: newLocation === "/backup" ? null : newLocation,
-    };
+      default_backup_mount: newLocation === '/backup' ? null : newLocation,
+    }
   }
 
   private async _changeMount() {
     if (!this._data) {
-      return;
+      return
     }
-    this._error = undefined;
-    this._waiting = true;
+    this._error = undefined
+    this._waiting = true
     try {
-      await changeMountOptions(this.hass, this._data);
+      await changeMountOptions(this.hass, this._data)
     } catch (err: any) {
-      this._error = extractApiErrorMessage(err);
-      this._waiting = false;
-      return;
+      this._error = extractApiErrorMessage(err)
+      this._waiting = false
+      return
     }
-    this.closeDialog();
+    this.closeDialog()
   }
 
   static get styles(): CSSResultGroup {
@@ -144,12 +144,12 @@ class HassioBackupLocationDialog extends LitElement {
           --mdc-theme-primary: var(--error-color);
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-hassio-backup-location": HassioBackupLocationDialog;
+    'dialog-hassio-backup-location': HassioBackupLocationDialog
   }
 }

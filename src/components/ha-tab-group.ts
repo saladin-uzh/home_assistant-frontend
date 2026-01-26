@@ -1,23 +1,23 @@
-import TabGroup from "@home-assistant/webawesome/dist/components/tab-group/tab-group";
-import { css, type CSSResultGroup } from "lit";
-import { customElement, property } from "lit/decorators";
-import { DragScrollController } from "../common/controllers/drag-scroll-controller";
+import TabGroup from '@home-assistant/webawesome/dist/components/tab-group/tab-group'
+import { css, type CSSResultGroup } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { DragScrollController } from '../common/controllers/drag-scroll-controller'
 
-@customElement("ha-tab-group")
+@customElement('ha-tab-group')
 export class HaTabGroup extends TabGroup {
   private _dragScrollController = new DragScrollController(this, {
-    selector: ".nav",
-  });
+    selector: '.nav',
+  })
 
-  @property({ attribute: "tab-tag" }) override tabTag = "ha-tab-group-tab";
+  @property({ attribute: 'tab-tag' }) override tabTag = 'ha-tab-group-tab'
 
-  @property({ attribute: "tab-only", type: Boolean }) tabOnly = true;
+  @property({ attribute: 'tab-only', type: Boolean }) tabOnly = true
 
   protected override handleClick(event: MouseEvent) {
     if (this._dragScrollController.scrolled) {
-      return;
+      return
     }
-    super.handleClick(event);
+    super.handleClick(event)
   }
 
   static get styles(): CSSResultGroup {
@@ -53,12 +53,12 @@ export class HaTabGroup extends TabGroup {
           background-color: transparent;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-tab-group": HaTabGroup;
+    'ha-tab-group': HaTabGroup
   }
 }

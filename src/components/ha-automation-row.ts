@@ -1,34 +1,34 @@
-import { mdiChevronUp } from "@mdi/js";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query } from "lit/decorators";
-import { fireEvent } from "../common/dom/fire_event";
-import "./ha-icon-button";
+import { mdiChevronUp } from '@mdi/js'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import { fireEvent } from '../common/dom/fire_event'
+import './ha-icon-button'
 
-@customElement("ha-automation-row")
+@customElement('ha-automation-row')
 export class HaAutomationRow extends LitElement {
-  @property({ attribute: "left-chevron", type: Boolean })
-  public leftChevron = false;
+  @property({ attribute: 'left-chevron', type: Boolean })
+  public leftChevron = false
 
   @property({ type: Boolean, reflect: true })
-  public collapsed = false;
+  public collapsed = false
 
   @property({ type: Boolean, reflect: true })
-  public selected = false;
+  public selected = false
 
-  @property({ type: Boolean, reflect: true, attribute: "sort-selected" })
-  public sortSelected = false;
+  @property({ type: Boolean, reflect: true, attribute: 'sort-selected' })
+  public sortSelected = false
 
   @property({ type: Boolean, reflect: true })
-  public disabled = false;
+  public disabled = false
 
-  @property({ type: Boolean, reflect: true, attribute: "building-block" })
-  public buildingBlock = false;
+  @property({ type: Boolean, reflect: true, attribute: 'building-block' })
+  public buildingBlock = false
 
-  @property({ type: Boolean, reflect: true }) public highlight?: boolean;
+  @property({ type: Boolean, reflect: true }) public highlight?: boolean
 
-  @query(".row")
-  private _rowElement?: HTMLDivElement;
+  @query('.row')
+  private _rowElement?: HTMLDivElement
 
   protected render(): TemplateResult {
     return html`
@@ -51,65 +51,68 @@ export class HaAutomationRow extends LitElement {
         <div class="leading-icon-wrapper">
           <slot name="leading-icon"></slot>
         </div>
-        <slot class="header" name="header"></slot>
+        <slot
+          class="header"
+          name="header"
+        ></slot>
         <slot name="icons"></slot>
       </div>
-    `;
+    `
   }
 
   private async _handleExpand(ev) {
     if (ev.defaultPrevented) {
-      return;
+      return
     }
-    if (ev.type === "keydown" && ev.key !== "Enter" && ev.key !== " ") {
-      return;
+    if (ev.type === 'keydown' && ev.key !== 'Enter' && ev.key !== ' ') {
+      return
     }
-    ev.stopPropagation();
-    ev.preventDefault();
+    ev.stopPropagation()
+    ev.preventDefault()
 
-    fireEvent(this, "toggle-collapsed");
+    fireEvent(this, 'toggle-collapsed')
   }
 
   private async _handleKeydown(ev: KeyboardEvent): Promise<void> {
     if (ev.defaultPrevented) {
-      return;
+      return
     }
 
     if (
-      ev.key !== "Enter" &&
-      ev.key !== " " &&
+      ev.key !== 'Enter' &&
+      ev.key !== ' ' &&
       !(
         (this.sortSelected || ev.altKey) &&
         !(ev.ctrlKey || ev.metaKey) &&
         !ev.shiftKey &&
-        (ev.key === "ArrowUp" || ev.key === "ArrowDown")
+        (ev.key === 'ArrowUp' || ev.key === 'ArrowDown')
       )
     ) {
-      return;
+      return
     }
-    ev.preventDefault();
-    ev.stopPropagation();
+    ev.preventDefault()
+    ev.stopPropagation()
 
-    if (ev.key === "ArrowUp" || ev.key === "ArrowDown") {
-      if (ev.key === "ArrowUp") {
-        fireEvent(this, "move-up");
-        return;
+    if (ev.key === 'ArrowUp' || ev.key === 'ArrowDown') {
+      if (ev.key === 'ArrowUp') {
+        fireEvent(this, 'move-up')
+        return
       }
-      fireEvent(this, "move-down");
-      return;
+      fireEvent(this, 'move-down')
+      return
     }
-    if (this.sortSelected && (ev.key === "Enter" || ev.key === " ")) {
-      fireEvent(this, "stop-sort-selection");
-      return;
+    if (this.sortSelected && (ev.key === 'Enter' || ev.key === ' ')) {
+      fireEvent(this, 'stop-sort-selection')
+      return
     }
 
-    this.click();
+    this.click()
   }
 
   public focus() {
     requestAnimationFrame(() => {
-      this._rowElement?.focus();
-    });
+      this._rowElement?.focus()
+    })
   }
 
   static styles = css`
@@ -145,10 +148,10 @@ export class HaAutomationRow extends LitElement {
       align-items: center;
       transform: rotate(45deg);
     }
-    ::slotted([slot="leading-icon"]) {
+    ::slotted([slot='leading-icon']) {
       color: var(--ha-color-on-neutral-quiet);
     }
-    :host([building-block]) ::slotted([slot="leading-icon"]) {
+    :host([building-block]) ::slotted([slot='leading-icon']) {
       --mdc-icon-size: var(--ha-space-5);
       color: var(--white-color);
       transform: rotate(-45deg);
@@ -167,7 +170,7 @@ export class HaAutomationRow extends LitElement {
       border-top-right-radius: var(--ha-border-radius-square);
       border-top-left-radius: var(--ha-border-radius-square);
     }
-    ::slotted([slot="header"]) {
+    ::slotted([slot='header']) {
       flex: 1;
       overflow-wrap: anywhere;
       margin: var(--ha-space-0) var(--ha-space-3);
@@ -188,19 +191,19 @@ export class HaAutomationRow extends LitElement {
     :host([highlight]) .row:hover {
       background-color: rgba(var(--rgb-primary-color), 0.16);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-row": HaAutomationRow;
+    'ha-automation-row': HaAutomationRow
   }
 
   interface HASSDomEvents {
-    "toggle-collapsed": undefined;
-    "stop-sort-selection": undefined;
-    "copy-row": undefined;
-    "cut-row": undefined;
-    "delete-row": undefined;
+    'toggle-collapsed': undefined
+    'stop-sort-selection': undefined
+    'copy-row': undefined
+    'cut-row': undefined
+    'delete-row': undefined
   }
 }

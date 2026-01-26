@@ -1,30 +1,30 @@
-import { mdiClose, mdiMenuDown, mdiMenuUp } from "@mdi/js";
-import type { ComboBoxLitRenderer } from "@vaadin/combo-box/lit";
-import { comboBoxRenderer } from "@vaadin/combo-box/lit";
-import "@vaadin/combo-box/theme/material/vaadin-combo-box-light";
+import { mdiClose, mdiMenuDown, mdiMenuUp } from '@mdi/js'
+import type { ComboBoxLitRenderer } from '@vaadin/combo-box/lit'
+import { comboBoxRenderer } from '@vaadin/combo-box/lit'
+import '@vaadin/combo-box/theme/material/vaadin-combo-box-light'
 import type {
   ComboBoxDataProvider,
   ComboBoxLight,
   ComboBoxLightFilterChangedEvent,
   ComboBoxLightOpenedChangedEvent,
   ComboBoxLightValueChangedEvent,
-} from "@vaadin/combo-box/vaadin-combo-box-light";
-import { registerStyles } from "@vaadin/vaadin-themable-mixin/register-styles";
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import { fireEvent } from "../common/dom/fire_event";
-import type { HomeAssistant } from "../types";
-import "./ha-combo-box-item";
-import "./ha-combo-box-textfield";
-import "./ha-icon-button";
-import "./ha-input-helper-text";
-import "./ha-textfield";
-import type { HaTextField } from "./ha-textfield";
+} from '@vaadin/combo-box/vaadin-combo-box-light'
+import { registerStyles } from '@vaadin/vaadin-themable-mixin/register-styles'
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import { fireEvent } from '../common/dom/fire_event'
+import type { HomeAssistant } from '../types'
+import './ha-combo-box-item'
+import './ha-combo-box-textfield'
+import './ha-icon-button'
+import './ha-input-helper-text'
+import './ha-textfield'
+import type { HaTextField } from './ha-textfield'
 
 registerStyles(
-  "vaadin-combo-box-item",
+  'vaadin-combo-box-item',
   css`
     :host {
       padding: 0 !important;
@@ -41,7 +41,7 @@ registerStyles(
     :host([selected]:not([disabled])):before {
       background-color: var(--mdc-theme-primary);
       opacity: 0.12;
-      content: "";
+      content: '';
       position: absolute;
       top: 0;
       left: 0;
@@ -54,108 +54,108 @@ registerStyles(
     :host(:hover:not([disabled])) {
       background-color: transparent;
     }
-    [part="content"] {
+    [part='content'] {
       width: 100%;
     }
-    [part="checkmark"] {
+    [part='checkmark'] {
       display: none;
     }
   `
-);
+)
 
-@customElement("ha-combo-box")
+@customElement('ha-combo-box')
 export class HaComboBox extends LitElement {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @property() public label?: string;
+  @property() public label?: string
 
-  @property() public value?: string;
+  @property() public value?: string
 
-  @property() public placeholder?: string;
+  @property() public placeholder?: string
 
-  @property({ attribute: false }) public validationMessage?: string;
+  @property({ attribute: false }) public validationMessage?: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ attribute: "error-message" }) public errorMessage?: string;
+  @property({ attribute: 'error-message' }) public errorMessage?: string
 
-  @property({ type: Boolean }) public invalid = false;
+  @property({ type: Boolean }) public invalid = false
 
-  @property({ type: Boolean }) public icon = false;
+  @property({ type: Boolean }) public icon = false
 
-  @property({ attribute: false }) public items?: any[];
+  @property({ attribute: false }) public items?: any[]
 
-  @property({ attribute: false }) public filteredItems?: any[];
+  @property({ attribute: false }) public filteredItems?: any[]
 
   @property({ attribute: false })
-  public dataProvider?: ComboBoxDataProvider<any>;
+  public dataProvider?: ComboBoxDataProvider<any>
 
-  @property({ attribute: "allow-custom-value", type: Boolean })
-  public allowCustomValue = false;
+  @property({ attribute: 'allow-custom-value', type: Boolean })
+  public allowCustomValue = false
 
-  @property({ attribute: "item-value-path" }) public itemValuePath = "value";
+  @property({ attribute: 'item-value-path' }) public itemValuePath = 'value'
 
-  @property({ attribute: "item-label-path" }) public itemLabelPath = "label";
+  @property({ attribute: 'item-label-path' }) public itemLabelPath = 'label'
 
-  @property({ attribute: "item-id-path" }) public itemIdPath?: string;
+  @property({ attribute: 'item-id-path' }) public itemIdPath?: string
 
-  @property({ attribute: false }) public renderer?: ComboBoxLitRenderer<any>;
+  @property({ attribute: false }) public renderer?: ComboBoxLitRenderer<any>
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public required = false;
+  @property({ type: Boolean }) public required = false
 
-  @property({ type: Boolean, reflect: true }) public opened = false;
+  @property({ type: Boolean, reflect: true }) public opened = false
 
-  @property({ type: Boolean, attribute: "hide-clear-icon" })
-  public hideClearIcon = false;
+  @property({ type: Boolean, attribute: 'hide-clear-icon' })
+  public hideClearIcon = false
 
-  @property({ type: Boolean, attribute: "clear-initial-value" })
-  public clearInitialValue = false;
+  @property({ type: Boolean, attribute: 'clear-initial-value' })
+  public clearInitialValue = false
 
-  @query("vaadin-combo-box-light", true) private _comboBox!: ComboBoxLight;
+  @query('vaadin-combo-box-light', true) private _comboBox!: ComboBoxLight
 
-  @query("ha-combo-box-textfield", true) private _inputElement!: HaTextField;
+  @query('ha-combo-box-textfield', true) private _inputElement!: HaTextField
 
-  @state({ type: Boolean }) private _forceBlankValue = false;
+  @state({ type: Boolean }) private _forceBlankValue = false
 
-  private _overlayMutationObserver?: MutationObserver;
+  private _overlayMutationObserver?: MutationObserver
 
-  private _bodyMutationObserver?: MutationObserver;
+  private _bodyMutationObserver?: MutationObserver
 
   public async open() {
-    await this.updateComplete;
-    this._comboBox?.open();
+    await this.updateComplete
+    this._comboBox?.open()
   }
 
   public async focus() {
-    await this.updateComplete;
-    await this._inputElement?.updateComplete;
-    this._inputElement?.focus();
+    await this.updateComplete
+    await this._inputElement?.updateComplete
+    this._inputElement?.focus()
   }
 
   public disconnectedCallback() {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
     if (this._overlayMutationObserver) {
-      this._overlayMutationObserver.disconnect();
-      this._overlayMutationObserver = undefined;
+      this._overlayMutationObserver.disconnect()
+      this._overlayMutationObserver = undefined
     }
     if (this._bodyMutationObserver) {
-      this._bodyMutationObserver.disconnect();
-      this._bodyMutationObserver = undefined;
+      this._bodyMutationObserver.disconnect()
+      this._bodyMutationObserver = undefined
     }
   }
 
   public get selectedItem() {
-    return this._comboBox.selectedItem;
+    return this._comboBox.selectedItem
   }
 
   public setInputValue(value: string) {
-    this._comboBox.value = value;
+    this._comboBox.value = value
   }
 
   public setTextFieldValue(value: string) {
-    this._inputElement.value = value;
+    this._inputElement.value = value
   }
 
   protected render(): TemplateResult {
@@ -166,7 +166,7 @@ export class HaComboBox extends LitElement {
         .itemIdPath=${this.itemIdPath}
         .itemLabelPath=${this.itemLabelPath}
         .items=${this.items}
-        .value=${this.value || ""}
+        .value=${this.value || ''}
         .filteredItems=${this.filteredItems}
         .dataProvider=${this.dataProvider}
         .allowCustomValue=${this.allowCustomValue}
@@ -198,32 +198,35 @@ export class HaComboBox extends LitElement {
           .invalid=${this.invalid}
           .forceBlankValue=${this._forceBlankValue}
         >
-          <slot name="icon" slot="leadingIcon"></slot>
+          <slot
+            name="icon"
+            slot="leadingIcon"
+          ></slot>
         </ha-combo-box-textfield>
         ${this.value && !this.hideClearIcon
           ? html`<ha-svg-icon
               role="button"
               tabindex="-1"
-              aria-label=${ifDefined(this.hass?.localize("ui.common.clear"))}
-              class=${`clear-button ${this.label ? "" : "no-label"}`}
+              aria-label=${ifDefined(this.hass?.localize('ui.common.clear'))}
+              class=${`clear-button ${this.label ? '' : 'no-label'}`}
               .path=${mdiClose}
               ?disabled=${this.disabled}
               @click=${this._clearValue}
             ></ha-svg-icon>`
-          : ""}
+          : ''}
         <ha-svg-icon
           role="button"
           tabindex="-1"
           aria-label=${ifDefined(this.label)}
-          aria-expanded=${this.opened ? "true" : "false"}
-          class=${`toggle-button ${this.label ? "" : "no-label"}`}
+          aria-expanded=${this.opened ? 'true' : 'false'}
+          class=${`toggle-button ${this.label ? '' : 'no-label'}`}
           .path=${this.opened ? mdiMenuUp : mdiMenuDown}
           ?disabled=${this.disabled}
           @click=${this._toggleOpen}
         ></ha-svg-icon>
       </vaadin-combo-box-light>
       ${this._renderHelper()}
-    `;
+    `
   }
 
   private _renderHelper() {
@@ -231,135 +234,135 @@ export class HaComboBox extends LitElement {
       ? html`<ha-input-helper-text .disabled=${this.disabled}
           >${this.helper}</ha-input-helper-text
         >`
-      : "";
+      : ''
   }
 
   private _defaultRowRenderer: ComboBoxLitRenderer<
     string | Record<string, any>
-  > = (item) => html`
+  > = item => html`
     <ha-combo-box-item type="button">
       ${this.itemLabelPath ? item[this.itemLabelPath] : item}
     </ha-combo-box-item>
-  `;
+  `
 
   private _clearValue(ev: Event) {
-    ev.stopPropagation();
-    fireEvent(this, "value-changed", { value: undefined });
+    ev.stopPropagation()
+    fireEvent(this, 'value-changed', { value: undefined })
   }
 
   private _toggleOpen(ev: Event) {
     if (this.opened) {
-      this._comboBox?.close();
-      ev.stopPropagation();
+      this._comboBox?.close()
+      ev.stopPropagation()
     } else {
-      this._comboBox?.inputElement.focus();
+      this._comboBox?.inputElement.focus()
     }
   }
 
   private _openedChanged(ev: ComboBoxLightOpenedChangedEvent) {
-    ev.stopPropagation();
-    const opened = ev.detail.value;
+    ev.stopPropagation()
+    const opened = ev.detail.value
     // delay this so we can handle click event for toggle button before setting _opened
     setTimeout(() => {
-      this.opened = opened;
-      fireEvent(this, "opened-changed", { value: ev.detail.value });
-    }, 0);
+      this.opened = opened
+      fireEvent(this, 'opened-changed', { value: ev.detail.value })
+    }, 0)
 
     if (this.clearInitialValue) {
-      this.setTextFieldValue("");
+      this.setTextFieldValue('')
       if (opened) {
         // Wait 100ms to be sure vaddin-combo-box-light already tried to set the value
         setTimeout(() => {
-          this._forceBlankValue = false;
-        }, 100);
+          this._forceBlankValue = false
+        }, 100)
       } else {
-        this._forceBlankValue = true;
+        this._forceBlankValue = true
       }
     }
 
     if (opened) {
       const overlay = document.querySelector<HTMLElement>(
-        "vaadin-combo-box-overlay"
-      );
+        'vaadin-combo-box-overlay'
+      )
 
       if (overlay) {
-        this._removeInert(overlay);
+        this._removeInert(overlay)
       }
-      this._observeBody();
+      this._observeBody()
     } else {
-      this._bodyMutationObserver?.disconnect();
-      this._bodyMutationObserver = undefined;
+      this._bodyMutationObserver?.disconnect()
+      this._bodyMutationObserver = undefined
     }
   }
 
   private _observeBody() {
-    if ("MutationObserver" in window && !this._bodyMutationObserver) {
-      this._bodyMutationObserver = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          mutation.addedNodes.forEach((node) => {
-            if (node.nodeName === "VAADIN-COMBO-BOX-OVERLAY") {
-              this._removeInert(node as HTMLElement);
+    if ('MutationObserver' in window && !this._bodyMutationObserver) {
+      this._bodyMutationObserver = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+          mutation.addedNodes.forEach(node => {
+            if (node.nodeName === 'VAADIN-COMBO-BOX-OVERLAY') {
+              this._removeInert(node as HTMLElement)
             }
-          });
-          mutation.removedNodes.forEach((node) => {
-            if (node.nodeName === "VAADIN-COMBO-BOX-OVERLAY") {
-              this._overlayMutationObserver?.disconnect();
-              this._overlayMutationObserver = undefined;
+          })
+          mutation.removedNodes.forEach(node => {
+            if (node.nodeName === 'VAADIN-COMBO-BOX-OVERLAY') {
+              this._overlayMutationObserver?.disconnect()
+              this._overlayMutationObserver = undefined
             }
-          });
-        });
-      });
+          })
+        })
+      })
 
       this._bodyMutationObserver.observe(document.body, {
         childList: true,
-      });
+      })
     }
   }
 
   private _removeInert(overlay: HTMLElement) {
     if (overlay.inert) {
-      overlay.inert = false;
-      this._overlayMutationObserver?.disconnect();
-      this._overlayMutationObserver = undefined;
-      return;
+      overlay.inert = false
+      this._overlayMutationObserver?.disconnect()
+      this._overlayMutationObserver = undefined
+      return
     }
-    if ("MutationObserver" in window && !this._overlayMutationObserver) {
-      this._overlayMutationObserver = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.attributeName === "inert") {
-            const target = mutation.target as HTMLElement;
+    if ('MutationObserver' in window && !this._overlayMutationObserver) {
+      this._overlayMutationObserver = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+          if (mutation.attributeName === 'inert') {
+            const target = mutation.target as HTMLElement
             if (target.inert) {
-              this._overlayMutationObserver?.disconnect();
-              this._overlayMutationObserver = undefined;
-              target.inert = false;
+              this._overlayMutationObserver?.disconnect()
+              this._overlayMutationObserver = undefined
+              target.inert = false
             }
           }
-        });
-      });
+        })
+      })
 
       this._overlayMutationObserver.observe(overlay, {
         attributes: true,
-      });
+      })
     }
   }
 
   private _filterChanged(ev: ComboBoxLightFilterChangedEvent) {
-    ev.stopPropagation();
-    fireEvent(this, "filter-changed", { value: ev.detail.value });
+    ev.stopPropagation()
+    fireEvent(this, 'filter-changed', { value: ev.detail.value })
   }
 
   private _valueChanged(ev: ComboBoxLightValueChangedEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
     if (!this.allowCustomValue) {
       // @ts-ignore
-      this._comboBox._closeOnBlurIsPrevented = true;
+      this._comboBox._closeOnBlurIsPrevented = true
     }
     if (!this.opened) {
-      return;
+      return
     }
-    const newValue = ev.detail.value;
+    const newValue = ev.detail.value
     if (newValue !== this.value) {
-      fireEvent(this, "value-changed", { value: newValue || undefined });
+      fireEvent(this, 'value-changed', { value: newValue || undefined })
     }
   }
 
@@ -416,18 +419,18 @@ export class HaComboBox extends LitElement {
     ha-input-helper-text {
       margin-top: 4px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-combo-box": HaComboBox;
+    'ha-combo-box': HaComboBox
   }
 }
 
 declare global {
   interface HASSDomEvents {
-    "filter-changed": { value: string };
-    "opened-changed": { value: boolean };
+    'filter-changed': { value: string }
+    'opened-changed': { value: boolean }
   }
 }

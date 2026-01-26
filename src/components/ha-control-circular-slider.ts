@@ -5,244 +5,236 @@ import {
   Press,
   Tap,
   TouchMouseInput,
-} from "@egjs/hammerjs";
-import type { PropertyValues, TemplateResult } from "lit";
-import { LitElement, css, html, nothing, svg } from "lit";
-import {
-  customElement,
-  property,
-  query,
-  queryAll,
-  state,
-} from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { ifDefined } from "lit/directives/if-defined";
-import { fireEvent } from "../common/dom/fire_event";
-import { clamp } from "../common/number/clamp";
-import { svgArc } from "../resources/svg-arc";
-import { isTouch } from "../util/is_touch";
+} from '@egjs/hammerjs'
+import type { PropertyValues, TemplateResult } from 'lit'
+import { LitElement, css, html, nothing, svg } from 'lit'
+import { customElement, property, query, queryAll, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { ifDefined } from 'lit/directives/if-defined'
+import { fireEvent } from '../common/dom/fire_event'
+import { clamp } from '../common/number/clamp'
+import { svgArc } from '../resources/svg-arc'
+import { isTouch } from '../util/is_touch'
 
-const MAX_ANGLE = 270;
-const ROTATE_ANGLE = 360 - MAX_ANGLE / 2 - 90;
-const RADIUS = 145;
+const MAX_ANGLE = 270
+const ROTATE_ANGLE = 360 - MAX_ANGLE / 2 - 90
+const RADIUS = 145
 
 function xy2polar(x: number, y: number) {
-  const r = Math.sqrt(x * x + y * y);
-  const phi = Math.atan2(y, x);
-  return [r, phi];
+  const r = Math.sqrt(x * x + y * y)
+  const phi = Math.atan2(y, x)
+  return [r, phi]
 }
 
 function rad2deg(rad: number) {
-  return (rad / (2 * Math.PI)) * 360;
+  return (rad / (2 * Math.PI)) * 360
 }
 
-type ActiveSlider = "low" | "high" | "value";
+type ActiveSlider = 'low' | 'high' | 'value'
 
 declare global {
   interface HASSDomEvents {
-    "value-changing": { value: unknown };
-    "low-changing": { value: unknown };
-    "low-changed": { value: unknown };
-    "high-changing": { value: unknown };
-    "high-changed": { value: unknown };
+    'value-changing': { value: unknown }
+    'low-changing': { value: unknown }
+    'low-changed': { value: unknown }
+    'high-changing': { value: unknown }
+    'high-changed': { value: unknown }
   }
 }
 
 const A11Y_KEY_CODES = new Set([
-  "ArrowRight",
-  "ArrowUp",
-  "ArrowLeft",
-  "ArrowDown",
-  "PageUp",
-  "PageDown",
-  "Home",
-  "End",
-]);
+  'ArrowRight',
+  'ArrowUp',
+  'ArrowLeft',
+  'ArrowDown',
+  'PageUp',
+  'PageDown',
+  'Home',
+  'End',
+])
 
-export type ControlCircularSliderMode = "start" | "end" | "full";
+export type ControlCircularSliderMode = 'start' | 'end' | 'full'
 
-@customElement("ha-control-circular-slider")
+@customElement('ha-control-circular-slider')
 export class HaControlCircularSlider extends LitElement {
-  @property({ type: Boolean, reflect: true }) public disabled = false;
+  @property({ type: Boolean, reflect: true }) public disabled = false
 
-  @property({ type: Boolean, reflect: true }) public readonly = false;
+  @property({ type: Boolean, reflect: true }) public readonly = false
 
-  @property({ type: Boolean }) public dual = false;
+  @property({ type: Boolean }) public dual = false
 
-  @property({ type: String }) public mode?: ControlCircularSliderMode;
+  @property({ type: String }) public mode?: ControlCircularSliderMode
 
-  @property({ type: Boolean }) public inactive = false;
+  @property({ type: Boolean }) public inactive = false
 
-  @property({ type: String }) public label?: string;
+  @property({ type: String }) public label?: string
 
-  @property({ type: String, attribute: "low-label" }) public lowLabel?: string;
+  @property({ type: String, attribute: 'low-label' }) public lowLabel?: string
 
-  @property({ type: String, attribute: "high-label" })
-  public highLabel?: string;
+  @property({ type: String, attribute: 'high-label' })
+  public highLabel?: string
 
-  @property({ type: Number }) public value?: number;
+  @property({ type: Number }) public value?: number
 
-  @property({ type: Number }) public low?: number;
+  @property({ type: Number }) public low?: number
 
-  @property({ type: Number }) public high?: number;
+  @property({ type: Number }) public high?: number
 
-  @property({ type: Number }) public current?: number;
+  @property({ type: Number }) public current?: number
 
-  @property({ type: Number }) public step = 1;
+  @property({ type: Number }) public step = 1
 
-  @property({ type: Number }) public min = 0;
+  @property({ type: Number }) public min = 0
 
-  @property({ type: Number }) public max = 100;
+  @property({ type: Number }) public max = 100
 
-  @property({ type: Boolean, attribute: "prevent-interaction-on-scroll" })
-  public preventInteractionOnScroll = false;
+  @property({ type: Boolean, attribute: 'prevent-interaction-on-scroll' })
+  public preventInteractionOnScroll = false
 
-  @state() public _localValue?: number = this.value;
+  @state() public _localValue?: number = this.value
 
-  @state() public _localLow?: number = this.low;
+  @state() public _localLow?: number = this.low
 
-  @state() public _localHigh?: number = this.high;
+  @state() public _localHigh?: number = this.high
 
-  @state() public _activeSlider?: ActiveSlider;
+  @state() public _activeSlider?: ActiveSlider
 
-  @state() public _lastSlider?: ActiveSlider;
+  @state() public _lastSlider?: ActiveSlider
 
   private _valueToPercentage(value: number) {
-    return (
-      (clamp(value, this.min, this.max) - this.min) / (this.max - this.min)
-    );
+    return (clamp(value, this.min, this.max) - this.min) / (this.max - this.min)
   }
 
   private _percentageToValue(value: number) {
-    return (this.max - this.min) * value + this.min;
+    return (this.max - this.min) * value + this.min
   }
 
   private _steppedValue(value: number) {
-    return Math.round(value / this.step) * this.step;
+    return Math.round(value / this.step) * this.step
   }
 
   private _boundedValue(value: number) {
     const min =
-      this._activeSlider === "high"
+      this._activeSlider === 'high'
         ? Math.min(this._localLow ?? this.max)
-        : this.min;
+        : this.min
     const max =
-      this._activeSlider === "low"
+      this._activeSlider === 'low'
         ? Math.max(this._localHigh ?? this.min)
-        : this.max;
-    return Math.min(Math.max(value, min), max);
+        : this.max
+    return Math.min(Math.max(value, min), max)
   }
 
   protected updated(changedProps: PropertyValues): void {
-    super.updated(changedProps);
+    super.updated(changedProps)
     if (!this._activeSlider) {
-      if (changedProps.has("value")) {
-        this._localValue = this.value;
+      if (changedProps.has('value')) {
+        this._localValue = this.value
       }
-      if (changedProps.has("low")) {
-        this._localLow = this.low;
+      if (changedProps.has('low')) {
+        this._localLow = this.low
       }
-      if (changedProps.has("high")) {
-        this._localHigh = this.high;
+      if (changedProps.has('high')) {
+        this._localHigh = this.high
       }
     }
 
     if (
-      (changedProps.has("_localValue") &&
-        changedProps.get("_localValue") == null) ||
-      (changedProps.has("_localLow") &&
-        changedProps.get("_localLow") == null) ||
-      (changedProps.has("_localHigh") &&
-        changedProps.get("_localHigh") == null) ||
-      changedProps.has("preventInteractionOnScroll")
+      (changedProps.has('_localValue') &&
+        changedProps.get('_localValue') == null) ||
+      (changedProps.has('_localLow') &&
+        changedProps.get('_localLow') == null) ||
+      (changedProps.has('_localHigh') &&
+        changedProps.get('_localHigh') == null) ||
+      changedProps.has('preventInteractionOnScroll')
     ) {
-      this._destroyListeners();
-      this._setupListeners();
+      this._destroyListeners()
+      this._setupListeners()
     }
   }
 
   connectedCallback(): void {
-    super.connectedCallback();
-    this._setupListeners();
+    super.connectedCallback()
+    this._setupListeners()
   }
 
   disconnectedCallback(): void {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
   }
 
-  private _managers: HammerManager[] = [];
+  private _managers: HammerManager[] = []
 
   private _getPercentageFromEvent = (e: HammerInput) => {
-    const bound = this._slider.getBoundingClientRect();
-    const x = (2 * (e.center.x - bound.left - bound.width / 2)) / bound.width;
-    const y = (2 * (e.center.y - bound.top - bound.height / 2)) / bound.height;
+    const bound = this._slider.getBoundingClientRect()
+    const x = (2 * (e.center.x - bound.left - bound.width / 2)) / bound.width
+    const y = (2 * (e.center.y - bound.top - bound.height / 2)) / bound.height
 
-    const [, phi] = xy2polar(x, y);
+    const [, phi] = xy2polar(x, y)
 
-    const offset = (360 - MAX_ANGLE) / 2;
+    const offset = (360 - MAX_ANGLE) / 2
 
-    const angle = ((rad2deg(phi) + offset - ROTATE_ANGLE + 360) % 360) - offset;
+    const angle = ((rad2deg(phi) + offset - ROTATE_ANGLE + 360) % 360) - offset
 
-    return Math.max(Math.min(angle / MAX_ANGLE, 1), 0);
-  };
+    return Math.max(Math.min(angle / MAX_ANGLE, 1), 0)
+  }
 
-  @query("#slider")
-  private _slider;
+  @query('#slider')
+  private _slider
 
-  @queryAll("[data-interaction]")
-  private _interactions?: HTMLElement[];
+  @queryAll('[data-interaction]')
+  private _interactions?: HTMLElement[]
 
   private _findActiveSlider(value: number): ActiveSlider {
-    if (!this.dual) return "value";
-    const low = Math.max(this._localLow ?? this.min, this.min);
-    const high = Math.min(this._localHigh ?? this.max, this.max);
+    if (!this.dual) return 'value'
+    const low = Math.max(this._localLow ?? this.min, this.min)
+    const high = Math.min(this._localHigh ?? this.max, this.max)
     if (low >= value) {
-      return "low";
+      return 'low'
     }
     if (high <= value) {
-      return "high";
+      return 'high'
     }
-    const lowDistance = Math.abs(value - low);
-    const highDistance = Math.abs(value - high);
-    return lowDistance <= highDistance ? "low" : "high";
+    const lowDistance = Math.abs(value - low)
+    const highDistance = Math.abs(value - high)
+    return lowDistance <= highDistance ? 'low' : 'high'
   }
 
   private _setActiveValue(value: number) {
     switch (this._activeSlider) {
-      case "high":
-        this._localHigh = value;
-        break;
-      case "low":
-        this._localLow = value;
-        break;
-      case "value":
-        this._localValue = value;
-        break;
+      case 'high':
+        this._localHigh = value
+        break
+      case 'low':
+        this._localLow = value
+        break
+      case 'value':
+        this._localValue = value
+        break
     }
   }
 
   private _getActiveValue(): number | undefined {
     switch (this._activeSlider) {
-      case "high":
-        return this._localHigh;
-      case "low":
-        return this._localLow;
-      case "value":
-        return this._localValue;
+      case 'high':
+        return this._localHigh
+      case 'low':
+        return this._localLow
+      case 'value':
+        return this._localValue
     }
-    return undefined;
+    return undefined
   }
 
   private _setupListeners() {
     if (this._interactions && this._managers.length === 0) {
-      this._interactions.forEach((interaction) => {
+      this._interactions.forEach(interaction => {
         const mc = new Manager(interaction, {
           inputClass: TouchMouseInput,
-        });
+        })
 
-        this._managers.push(mc);
+        this._managers.push(mc)
 
-        const pressToActivate = this.preventInteractionOnScroll && isTouch;
+        const pressToActivate = this.preventInteractionOnScroll && isTouch
 
         // If press to activate is true, a 50ms press is required to activate the slider
         mc.add(
@@ -251,225 +243,225 @@ export class HaControlCircularSlider extends LitElement {
             pointers: 1,
             time: 50,
           })
-        );
+        )
 
         const panRecognizer = new Pan({
           direction: DIRECTION_ALL,
           enable: !pressToActivate,
           threshold: 0,
-        });
+        })
 
-        mc.add(panRecognizer);
+        mc.add(panRecognizer)
 
-        mc.add(new Tap({ event: "singletap" }));
+        mc.add(new Tap({ event: 'singletap' }))
 
-        mc.on("press", (e) => {
-          e.srcEvent.stopPropagation();
-          e.srcEvent.preventDefault();
-          if (this.disabled || this.readonly) return;
-          const percentage = this._getPercentageFromEvent(e);
-          const raw = this._percentageToValue(percentage);
-          this._activeSlider = this._findActiveSlider(raw);
-          const bounded = this._boundedValue(raw);
-          this._setActiveValue(bounded);
-          const stepped = this._steppedValue(bounded);
+        mc.on('press', e => {
+          e.srcEvent.stopPropagation()
+          e.srcEvent.preventDefault()
+          if (this.disabled || this.readonly) return
+          const percentage = this._getPercentageFromEvent(e)
+          const raw = this._percentageToValue(percentage)
+          this._activeSlider = this._findActiveSlider(raw)
+          const bounded = this._boundedValue(raw)
+          this._setActiveValue(bounded)
+          const stepped = this._steppedValue(bounded)
           if (this._activeSlider) {
             fireEvent(this, `${this._activeSlider}-changing`, {
               value: stepped,
-            });
+            })
           }
-          panRecognizer.set({ enable: true });
-        });
+          panRecognizer.set({ enable: true })
+        })
 
-        mc.on("pressup", (e) => {
-          e.srcEvent.stopPropagation();
-          e.srcEvent.preventDefault();
-          const percentage = this._getPercentageFromEvent(e);
-          const raw = this._percentageToValue(percentage);
-          const bounded = this._boundedValue(raw);
-          const stepped = this._steppedValue(bounded);
-          this._setActiveValue(stepped);
-          if (this._activeSlider) {
-            fireEvent(this, `${this._activeSlider}-changing`, {
-              value: undefined,
-            });
-            fireEvent(this, `${this._activeSlider}-changed`, {
-              value: stepped,
-            });
-          }
-          this._activeSlider = undefined;
-        });
-
-        mc.on("pan", (e) => {
-          e.srcEvent.stopPropagation();
-          e.srcEvent.preventDefault();
-        });
-        mc.on("panstart", (e) => {
-          if (this.disabled || this.readonly) return;
-          const percentage = this._getPercentageFromEvent(e);
-          const raw = this._percentageToValue(percentage);
-          this._activeSlider = this._findActiveSlider(raw);
-          this._lastSlider = this._activeSlider;
-          this.shadowRoot?.getElementById("#slider")?.focus();
-        });
-        mc.on("pancancel", () => {
-          if (this.disabled || this.readonly) return;
-          this._activeSlider = undefined;
-          if (pressToActivate) {
-            panRecognizer.set({ enable: false });
-          }
-        });
-        mc.on("panmove", (e) => {
-          if (this.disabled || this.readonly) return;
-          const percentage = this._getPercentageFromEvent(e);
-          const raw = this._percentageToValue(percentage);
-          const bounded = this._boundedValue(raw);
-          this._setActiveValue(bounded);
-          const stepped = this._steppedValue(bounded);
-          if (this._activeSlider) {
-            fireEvent(this, `${this._activeSlider}-changing`, {
-              value: stepped,
-            });
-          }
-        });
-        mc.on("panend", (e) => {
-          if (this.disabled || this.readonly) return;
-          const percentage = this._getPercentageFromEvent(e);
-          const raw = this._percentageToValue(percentage);
-          const bounded = this._boundedValue(raw);
-          const stepped = this._steppedValue(bounded);
-          this._setActiveValue(stepped);
+        mc.on('pressup', e => {
+          e.srcEvent.stopPropagation()
+          e.srcEvent.preventDefault()
+          const percentage = this._getPercentageFromEvent(e)
+          const raw = this._percentageToValue(percentage)
+          const bounded = this._boundedValue(raw)
+          const stepped = this._steppedValue(bounded)
+          this._setActiveValue(stepped)
           if (this._activeSlider) {
             fireEvent(this, `${this._activeSlider}-changing`, {
               value: undefined,
-            });
+            })
             fireEvent(this, `${this._activeSlider}-changed`, {
               value: stepped,
-            });
+            })
           }
-          this._activeSlider = undefined;
+          this._activeSlider = undefined
+        })
+
+        mc.on('pan', e => {
+          e.srcEvent.stopPropagation()
+          e.srcEvent.preventDefault()
+        })
+        mc.on('panstart', e => {
+          if (this.disabled || this.readonly) return
+          const percentage = this._getPercentageFromEvent(e)
+          const raw = this._percentageToValue(percentage)
+          this._activeSlider = this._findActiveSlider(raw)
+          this._lastSlider = this._activeSlider
+          this.shadowRoot?.getElementById('#slider')?.focus()
+        })
+        mc.on('pancancel', () => {
+          if (this.disabled || this.readonly) return
+          this._activeSlider = undefined
           if (pressToActivate) {
-            panRecognizer.set({ enable: false });
+            panRecognizer.set({ enable: false })
           }
-        });
-        mc.on("singletap", (e) => {
-          if (this.disabled || this.readonly) return;
-          const percentage = this._getPercentageFromEvent(e);
-          const raw = this._percentageToValue(percentage);
-          this._activeSlider = this._findActiveSlider(raw);
-          const bounded = this._boundedValue(raw);
-          const stepped = this._steppedValue(bounded);
-          this._setActiveValue(stepped);
+        })
+        mc.on('panmove', e => {
+          if (this.disabled || this.readonly) return
+          const percentage = this._getPercentageFromEvent(e)
+          const raw = this._percentageToValue(percentage)
+          const bounded = this._boundedValue(raw)
+          this._setActiveValue(bounded)
+          const stepped = this._steppedValue(bounded)
+          if (this._activeSlider) {
+            fireEvent(this, `${this._activeSlider}-changing`, {
+              value: stepped,
+            })
+          }
+        })
+        mc.on('panend', e => {
+          if (this.disabled || this.readonly) return
+          const percentage = this._getPercentageFromEvent(e)
+          const raw = this._percentageToValue(percentage)
+          const bounded = this._boundedValue(raw)
+          const stepped = this._steppedValue(bounded)
+          this._setActiveValue(stepped)
           if (this._activeSlider) {
             fireEvent(this, `${this._activeSlider}-changing`, {
               value: undefined,
-            });
+            })
             fireEvent(this, `${this._activeSlider}-changed`, {
               value: stepped,
-            });
+            })
           }
-          this._lastSlider = this._activeSlider;
-          this.shadowRoot?.getElementById("#slider")?.focus();
-          this._activeSlider = undefined;
+          this._activeSlider = undefined
           if (pressToActivate) {
-            panRecognizer.set({ enable: false });
+            panRecognizer.set({ enable: false })
           }
-        });
-      });
+        })
+        mc.on('singletap', e => {
+          if (this.disabled || this.readonly) return
+          const percentage = this._getPercentageFromEvent(e)
+          const raw = this._percentageToValue(percentage)
+          this._activeSlider = this._findActiveSlider(raw)
+          const bounded = this._boundedValue(raw)
+          const stepped = this._steppedValue(bounded)
+          this._setActiveValue(stepped)
+          if (this._activeSlider) {
+            fireEvent(this, `${this._activeSlider}-changing`, {
+              value: undefined,
+            })
+            fireEvent(this, `${this._activeSlider}-changed`, {
+              value: stepped,
+            })
+          }
+          this._lastSlider = this._activeSlider
+          this.shadowRoot?.getElementById('#slider')?.focus()
+          this._activeSlider = undefined
+          if (pressToActivate) {
+            panRecognizer.set({ enable: false })
+          }
+        })
+      })
     }
   }
 
   private get _tenPercentStep() {
-    return Math.max(this.step, (this.max - this.min) / 10);
+    return Math.max(this.step, (this.max - this.min) / 10)
   }
 
   private _handleKeyDown(e: KeyboardEvent) {
-    if (!A11Y_KEY_CODES.has(e.code)) return;
-    e.preventDefault();
+    if (!A11Y_KEY_CODES.has(e.code)) return
+    e.preventDefault()
     if (this._lastSlider) {
-      this.shadowRoot?.getElementById(this._lastSlider)?.focus();
+      this.shadowRoot?.getElementById(this._lastSlider)?.focus()
     }
     this._activeSlider =
-      this._lastSlider ?? ((e.currentTarget as any).id as ActiveSlider);
-    this._lastSlider = undefined;
+      this._lastSlider ?? ((e.currentTarget as any).id as ActiveSlider)
+    this._lastSlider = undefined
 
-    const value = this._getActiveValue();
+    const value = this._getActiveValue()
 
     switch (e.code) {
-      case "ArrowRight":
-      case "ArrowUp":
+      case 'ArrowRight':
+      case 'ArrowUp':
         this._setActiveValue(
           this._boundedValue((value ?? this.min) + this.step)
-        );
-        break;
-      case "ArrowLeft":
-      case "ArrowDown":
+        )
+        break
+      case 'ArrowLeft':
+      case 'ArrowDown':
         this._setActiveValue(
           this._boundedValue((value ?? this.min) - this.step)
-        );
-        break;
-      case "PageUp":
+        )
+        break
+      case 'PageUp':
         this._setActiveValue(
           this._steppedValue(
             this._boundedValue((value ?? this.min) + this._tenPercentStep)
           )
-        );
-        break;
-      case "PageDown":
+        )
+        break
+      case 'PageDown':
         this._setActiveValue(
           this._steppedValue(
             this._boundedValue((value ?? this.min) - this._tenPercentStep)
           )
-        );
-        break;
-      case "Home":
-        this._setActiveValue(this._boundedValue(this.min));
-        break;
-      case "End":
-        this._setActiveValue(this._boundedValue(this.max));
-        break;
+        )
+        break
+      case 'Home':
+        this._setActiveValue(this._boundedValue(this.min))
+        break
+      case 'End':
+        this._setActiveValue(this._boundedValue(this.max))
+        break
     }
     fireEvent(this, `${this._activeSlider}-changing`, {
       value: this._getActiveValue(),
-    });
-    this._activeSlider = undefined;
+    })
+    this._activeSlider = undefined
   }
 
   private _handleKeyUp(e: KeyboardEvent) {
-    if (!A11Y_KEY_CODES.has(e.code)) return;
-    this._activeSlider = (e.currentTarget as any).id as ActiveSlider;
-    e.preventDefault();
+    if (!A11Y_KEY_CODES.has(e.code)) return
+    this._activeSlider = (e.currentTarget as any).id as ActiveSlider
+    e.preventDefault()
     fireEvent(this, `${this._activeSlider}-changing`, {
       value: undefined,
-    });
+    })
     fireEvent(this, `${this._activeSlider}-changed`, {
       value: this._getActiveValue(),
-    });
-    this._activeSlider = undefined;
+    })
+    this._activeSlider = undefined
   }
 
   private _destroyListeners() {
     if (this._managers.length > 0) {
-      this._managers.forEach((manager) => manager.destroy());
-      this._managers = [];
+      this._managers.forEach(manager => manager.destroy())
+      this._managers = []
     }
   }
 
   private _strokeCircleDashArc(value: number): [string, string] {
-    return this._strokeDashArc(value, value);
+    return this._strokeDashArc(value, value)
   }
 
   private _strokeDashArc(from: number, to: number): [string, string] {
-    const start = this._valueToPercentage(from);
-    const end = this._valueToPercentage(to);
+    const start = this._valueToPercentage(from)
+    const end = this._valueToPercentage(to)
 
-    const track = (RADIUS * 2 * Math.PI * MAX_ANGLE) / 360;
-    const arc = Math.max((end - start) * track, 0);
-    const arcOffset = start * track - 0.5;
+    const track = (RADIUS * 2 * Math.PI * MAX_ANGLE) / 360
+    const arc = Math.max((end - start) * track, 0)
+    const arcOffset = start * track - 0.5
 
-    const strokeDasharray = `${arc} ${track - arc}`;
-    const strokeDashOffset = `-${arcOffset}`;
-    return [strokeDasharray, strokeDashOffset];
+    const strokeDasharray = `${arc} ${track - arc}`
+    const strokeDashOffset = `-${arcOffset}`
+    return [strokeDasharray, strokeDashOffset]
   }
 
   protected renderArc(
@@ -477,7 +469,7 @@ export class HaControlCircularSlider extends LitElement {
     value: number | undefined,
     mode: ControlCircularSliderMode
   ) {
-    if (this.disabled) return nothing;
+    if (this.disabled) return nothing
 
     const path = svgArc({
       x: 0,
@@ -485,54 +477,54 @@ export class HaControlCircularSlider extends LitElement {
       start: 0,
       end: MAX_ANGLE,
       r: RADIUS,
-    });
+    })
 
     const angle =
-      value != null ? this._valueToPercentage(value) * MAX_ANGLE : undefined;
+      value != null ? this._valueToPercentage(value) * MAX_ANGLE : undefined
 
-    const limit = mode === "end" ? this.max : this.min;
+    const limit = mode === 'end' ? this.max : this.min
 
-    const current = this.current ?? limit;
-    const target = value ?? limit;
+    const current = this.current ?? limit
+    const target = value ?? limit
 
     const showActive =
-      mode === "end"
+      mode === 'end'
         ? target <= current
-        : mode === "start"
+        : mode === 'start'
           ? current <= target
-          : false;
+          : false
 
-    const showTarget = value != null;
+    const showTarget = value != null
 
     const activeArc = showTarget
       ? showActive
-        ? mode === "end"
+        ? mode === 'end'
           ? this._strokeDashArc(target, current)
           : this._strokeDashArc(current, target)
         : this._strokeCircleDashArc(target)
-      : undefined;
+      : undefined
 
     const coloredArc =
-      mode === "full"
+      mode === 'full'
         ? this._strokeDashArc(this.min, this.max)
-        : mode === "end"
+        : mode === 'end'
           ? this._strokeDashArc(target, limit)
-          : this._strokeDashArc(limit, target);
+          : this._strokeDashArc(limit, target)
 
     const targetCircle = showTarget
       ? this._strokeCircleDashArc(target)
-      : undefined;
+      : undefined
 
     const currentCircle =
       this.current != null &&
       this.current <= this.max &&
       this.current >= this.min &&
-      (showActive || this.mode === "full")
+      (showActive || this.mode === 'full')
         ? this._strokeCircleDashArc(this.current)
-        : undefined;
+        : undefined
 
     const onlyDotInteraction =
-      (this.preventInteractionOnScroll && isTouch) || false;
+      (this.preventInteractionOnScroll && isTouch) || false
 
     return svg`
       <g class=${classMap({ inactive: Boolean(this.inactive) })}>
@@ -618,7 +610,7 @@ export class HaControlCircularSlider extends LitElement {
             : nothing
         }
       </g>
-    `;
+    `
   }
 
   protected render(): TemplateResult {
@@ -628,18 +620,18 @@ export class HaControlCircularSlider extends LitElement {
       start: 0,
       end: MAX_ANGLE,
       r: RADIUS,
-    });
+    })
 
-    const lowValue = this.dual ? this._localLow : this._localValue;
-    const highValue = this._localHigh;
-    const current = this.current;
+    const lowValue = this.dual ? this._localLow : this._localValue
+    const highValue = this._localHigh
+    const current = this.current
 
     const currentStroke = current
       ? this._strokeCircleDashArc(current)
-      : undefined;
+      : undefined
 
     const onlyDotInteraction =
-      (this.preventInteractionOnScroll && isTouch) || false;
+      (this.preventInteractionOnScroll && isTouch) || false
 
     return html`
       <svg
@@ -650,14 +642,20 @@ export class HaControlCircularSlider extends LitElement {
           pressed: Boolean(this._activeSlider),
         })}
         @keydown=${this._handleKeyDown}
-        tabindex=${this._lastSlider ? "0" : "-1"}
+        tabindex=${this._lastSlider ? '0' : '-1'}
       >
         <g
           id="container"
           transform="translate(160 160) rotate(${ROTATE_ANGLE})"
         >
-          <path d=${trackPath} ?data-interaction=${!onlyDotInteraction} />
-          <path class="background" d=${trackPath} />
+          <path
+            d=${trackPath}
+            ?data-interaction=${!onlyDotInteraction}
+          />
+          <path
+            class="background"
+            d=${trackPath}
+          />
           ${currentStroke
             ? svg`
                   <path
@@ -668,19 +666,19 @@ export class HaControlCircularSlider extends LitElement {
                   />
                 `
             : nothing}
-          ${lowValue != null || this.mode === "full"
+          ${lowValue != null || this.mode === 'full'
             ? this.renderArc(
-                this.dual ? "low" : "value",
+                this.dual ? 'low' : 'value',
                 lowValue,
-                (!this.dual && this.mode) || "start"
+                (!this.dual && this.mode) || 'start'
               )
             : nothing}
           ${this.dual && highValue != null
-            ? this.renderArc("high", highValue, "end")
+            ? this.renderArc('high', highValue, 'end')
             : nothing}
         </g>
       </svg>
-    `;
+    `
   }
 
   static styles = css`
@@ -835,11 +833,11 @@ export class HaControlCircularSlider extends LitElement {
     .high {
       stroke: var(--control-circular-slider-high-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-control-circular-slider": HaControlCircularSlider;
+    'ha-control-circular-slider': HaControlCircularSlider
   }
 }

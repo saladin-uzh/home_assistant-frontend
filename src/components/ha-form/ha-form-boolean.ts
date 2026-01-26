@@ -1,33 +1,33 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, query } from "lit/decorators";
-import { fireEvent } from "../../common/dom/fire_event";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import { fireEvent } from '../../common/dom/fire_event'
 import type {
   HaFormBooleanData,
   HaFormBooleanSchema,
   HaFormElement,
-} from "./types";
-import type { HaCheckbox } from "../ha-checkbox";
-import "../ha-checkbox";
-import "../ha-formfield";
+} from './types'
+import type { HaCheckbox } from '../ha-checkbox'
+import '../ha-checkbox'
+import '../ha-formfield'
 
-@customElement("ha-form-boolean")
+@customElement('ha-form-boolean')
 export class HaFormBoolean extends LitElement implements HaFormElement {
-  @property({ attribute: false }) public schema!: HaFormBooleanSchema;
+  @property({ attribute: false }) public schema!: HaFormBooleanSchema
 
-  @property({ attribute: false }) public data!: HaFormBooleanData;
+  @property({ attribute: false }) public data!: HaFormBooleanData
 
-  @property() public label!: string;
+  @property() public label!: string
 
-  @property() public helper?: string;
+  @property() public helper?: string
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @query("ha-checkbox", true) private _input?: HTMLElement;
+  @query('ha-checkbox', true) private _input?: HTMLElement
 
   public focus() {
     if (this._input) {
-      this._input.focus();
+      this._input.focus()
     }
   }
 
@@ -46,13 +46,13 @@ export class HaFormBoolean extends LitElement implements HaFormElement {
             : nothing}
         </span>
       </ha-formfield>
-    `;
+    `
   }
 
   private _valueChanged(ev: Event) {
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: (ev.target as HaCheckbox).checked,
-    });
+    })
   }
 
   static styles = css`
@@ -76,11 +76,11 @@ export class HaFormBoolean extends LitElement implements HaFormElement {
         var(--ha-font-weight-normal)
       );
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-form-boolean": HaFormBoolean;
+    'ha-form-boolean': HaFormBoolean
   }
 }

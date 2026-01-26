@@ -1,4 +1,4 @@
-let textMeasureCanvas: HTMLCanvasElement | undefined;
+let textMeasureCanvas: HTMLCanvasElement | undefined
 
 /**
  * Measures the width of text in pixels using a canvas context
@@ -10,22 +10,22 @@ let textMeasureCanvas: HTMLCanvasElement | undefined;
 export function measureTextWidth(
   text: string,
   fontSize: number,
-  fontFamily = "Roboto, Noto, sans-serif"
+  fontFamily = 'Roboto, Noto, sans-serif'
 ): number {
   if (!textMeasureCanvas) {
-    textMeasureCanvas = document.createElement("canvas");
+    textMeasureCanvas = document.createElement('canvas')
   }
-  const context = textMeasureCanvas.getContext("2d");
+  const context = textMeasureCanvas.getContext('2d')
   if (!context) {
-    return 0;
+    return 0
   }
 
-  context.font = `${fontSize}px ${fontFamily}`;
-  const textMetrics = context.measureText(text);
+  context.font = `${fontSize}px ${fontFamily}`
+  const textMetrics = context.measureText(text)
   return Math.ceil(
     Math.max(
       textMetrics.actualBoundingBoxRight + textMetrics.actualBoundingBoxLeft,
       textMetrics.width
     )
-  );
+  )
 }

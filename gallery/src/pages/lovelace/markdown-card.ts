@@ -1,13 +1,13 @@
-import type { PropertyValues, TemplateResult } from "lit";
-import { html, LitElement } from "lit";
-import { customElement, query } from "lit/decorators";
-import { mockTemplate } from "../../../../demo/src/stubs/template";
-import { provideHass } from "../../../../src/fake_data/provide_hass";
-import "../../components/demo-cards";
+import type { PropertyValues, TemplateResult } from 'lit'
+import { html, LitElement } from 'lit'
+import { customElement, query } from 'lit/decorators'
+import { mockTemplate } from '../../../../demo/src/stubs/template'
+import { provideHass } from '../../../../src/fake_data/provide_hass'
+import '../../components/demo-cards'
 
 const CONFIGS = [
   {
-    heading: "markdown-it demo",
+    heading: 'markdown-it demo',
     config: `
 - type: markdown
   content: |
@@ -280,27 +280,30 @@ const CONFIGS = [
 
     `,
   },
-];
+]
 
-@customElement("demo-lovelace-markdown-card")
+@customElement('demo-lovelace-markdown-card')
 class DemoMarkdown extends LitElement {
-  @query("#demos") private _demoRoot!: HTMLElement;
+  @query('#demos') private _demoRoot!: HTMLElement
 
   protected render(): TemplateResult {
-    return html`<demo-cards id="demos" .configs=${CONFIGS}></demo-cards>`;
+    return html`<demo-cards
+      id="demos"
+      .configs=${CONFIGS}
+    ></demo-cards>`
   }
 
   protected firstUpdated(changedProperties: PropertyValues) {
-    super.firstUpdated(changedProperties);
-    const hass = provideHass(this._demoRoot);
-    hass.updateTranslations(null, "en");
-    hass.updateTranslations("lovelace", "en");
-    mockTemplate(hass);
+    super.firstUpdated(changedProperties)
+    const hass = provideHass(this._demoRoot)
+    hass.updateTranslations(null, 'en')
+    hass.updateTranslations('lovelace', 'en')
+    mockTemplate(hass)
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "demo-lovelace-markdown-card": DemoMarkdown;
+    'demo-lovelace-markdown-card': DemoMarkdown
   }
 }

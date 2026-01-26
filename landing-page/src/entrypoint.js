@@ -1,3 +1,3 @@
-import "./ha-landing-page";
+import './ha-landing-page'
 
-import("../../src/resources/append-ha-style");
+import('../../src/resources/append-ha-style')

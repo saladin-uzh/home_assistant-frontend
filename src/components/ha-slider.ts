@@ -1,17 +1,17 @@
-import Slider from "@home-assistant/webawesome/dist/components/slider/slider";
-import { css, type CSSResultGroup } from "lit";
-import { customElement, property } from "lit/decorators";
-import { mainWindow } from "../common/dom/get_main_window";
+import Slider from '@home-assistant/webawesome/dist/components/slider/slider'
+import { css, type CSSResultGroup } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { mainWindow } from '../common/dom/get_main_window'
 
-@customElement("ha-slider")
+@customElement('ha-slider')
 export class HaSlider extends Slider {
-  @property({ reflect: true }) size: "small" | "medium" = "small";
+  @property({ reflect: true }) size: 'small' | 'medium' = 'small'
 
-  @property({ type: Boolean, attribute: "with-tooltip" }) withTooltip = true;
+  @property({ type: Boolean, attribute: 'with-tooltip' }) withTooltip = true
 
   public connectedCallback() {
-    super.connectedCallback();
-    this.dir = mainWindow.document.dir;
+    super.connectedCallback()
+    this.dir = mainWindow.document.dir
   }
 
   static get styles(): CSSResultGroup {
@@ -60,7 +60,7 @@ export class HaSlider extends Slider {
         }
 
         #thumb:after {
-          content: "";
+          content: '';
           border-radius: 50%;
           position: absolute;
           width: calc(var(--thumb-width) * 2 + 8px);
@@ -77,7 +77,7 @@ export class HaSlider extends Slider {
         }
 
         #track:after {
-          content: "";
+          content: '';
           position: absolute;
           top: calc(-50% - 4px);
           left: 0;
@@ -93,22 +93,22 @@ export class HaSlider extends Slider {
           );
         }
 
-        :host([size="medium"]) {
+        :host([size='medium']) {
           --thumb-width: 20px;
           --thumb-height: 20px;
         }
 
-        :host([size="small"]) {
+        :host([size='small']) {
           --thumb-width: 16px;
           --thumb-height: 16px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-slider": HaSlider;
+    'ha-slider': HaSlider
   }
 }

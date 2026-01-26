@@ -1,57 +1,57 @@
-const path = require("path");
-const env = require("./env.cjs");
-const paths = require("./paths.cjs");
-const { dependencies } = require("../package.json");
+const path = require('path')
+const env = require('./env.cjs')
+const paths = require('./paths.cjs')
+const { dependencies } = require('../package.json')
 
-const BABEL_PLUGINS = path.join(__dirname, "babel-plugins");
+const BABEL_PLUGINS = path.join(__dirname, 'babel-plugins')
 
 // GitHub base URL to use for production source maps
 // Nightly builds use the commit SHA, otherwise assumes there is a tag that matches the version
 module.exports.sourceMapURL = () => {
-  const ref = env.version().endsWith("dev")
-    ? process.env.GITHUB_SHA || "dev"
-    : env.version();
-  return `https://raw.githubusercontent.com/home-assistant/frontend/${ref}/`;
-};
+  const ref = env.version().endsWith('dev')
+    ? process.env.GITHUB_SHA || 'dev'
+    : env.version()
+  return `https://raw.githubusercontent.com/home-assistant/frontend/${ref}/`
+}
 
 // Files from NPM Packages that should not be imported
-module.exports.ignorePackages = () => [];
+module.exports.ignorePackages = () => []
 
 // Files from NPM packages that we should replace with empty file
 module.exports.emptyPackages = ({ isHassioBuild, isLandingPageBuild }) =>
   [
-    require.resolve("@vaadin/vaadin-material-styles/typography.js"),
-    require.resolve("@vaadin/vaadin-material-styles/font-icons.js"),
+    require.resolve('@vaadin/vaadin-material-styles/typography.js'),
+    require.resolve('@vaadin/vaadin-material-styles/font-icons.js'),
     // Icons in supervisor conflict with icons in HA so we don't load.
     (isHassioBuild || isLandingPageBuild) &&
       require.resolve(
-        path.resolve(paths.root_dir, "src/components/ha-icon.ts")
+        path.resolve(paths.root_dir, 'src/components/ha-icon.ts')
       ),
     (isHassioBuild || isLandingPageBuild) &&
       require.resolve(
-        path.resolve(paths.root_dir, "src/components/ha-icon-picker.ts")
+        path.resolve(paths.root_dir, 'src/components/ha-icon-picker.ts')
       ),
-  ].filter(Boolean);
+  ].filter(Boolean)
 
 module.exports.definedVars = ({ isProdBuild, latestBuild, defineOverlay }) => ({
   __DEV__: !isProdBuild,
-  __BUILD__: JSON.stringify(latestBuild ? "modern" : "legacy"),
+  __BUILD__: JSON.stringify(latestBuild ? 'modern' : 'legacy'),
   __VERSION__: JSON.stringify(env.version()),
   __DEMO__: false,
   __SUPERVISOR__: false,
   __BACKWARDS_COMPAT__: false,
-  __STATIC_PATH__: "/static/",
+  __STATIC_PATH__: '/static/',
   __HASS_URL__: `\`${
-    "HASS_URL" in process.env
+    'HASS_URL' in process.env
       ? process.env.HASS_URL
       : // eslint-disable-next-line no-template-curly-in-string
-        "${location.protocol}//${location.host}"
+        '${location.protocol}//${location.host}'
   }\``,
-  "process.env.NODE_ENV": JSON.stringify(
-    isProdBuild ? "production" : "development"
+  'process.env.NODE_ENV': JSON.stringify(
+    isProdBuild ? 'production' : 'development'
   ),
   ...defineOverlay,
-});
+})
 
 module.exports.htmlMinifierOptions = {
   caseSensitive: true,
@@ -61,9 +61,9 @@ module.exports.htmlMinifierOptions = {
   removeComments: true,
   removeRedundantAttributes: true,
   minifyCSS: {
-    compatibility: "*,-properties.zeroUnits",
+    compatibility: '*,-properties.zeroUnits',
   },
-};
+}
 
 module.exports.terserOptions = ({ latestBuild, isTestBuild }) => ({
   safari10: !latestBuild,
@@ -71,20 +71,20 @@ module.exports.terserOptions = ({ latestBuild, isTestBuild }) => ({
   module: latestBuild,
   format: { comments: false },
   sourceMap: !isTestBuild,
-});
+})
 
 /** @type {import('@rspack/core').SwcLoaderOptions} */
 module.exports.swcOptions = () => ({
   jsc: {
     loose: true,
     externalHelpers: true,
-    target: "ES2021",
+    target: 'ES2021',
     parser: {
-      syntax: "typescript",
+      syntax: 'typescript',
       decorators: true,
     },
   },
-});
+})
 
 module.exports.babelOptions = ({
   latestBuild,
@@ -99,13 +99,13 @@ module.exports.babelOptions = ({
     setPublicClassFields: true,
     setSpreadProperties: true,
   },
-  browserslistEnv: latestBuild ? "modern" : `legacy${sw ? "-sw" : ""}`,
+  browserslistEnv: latestBuild ? 'modern' : `legacy${sw ? '-sw' : ''}`,
   presets: [
     [
-      "@babel/preset-env",
+      '@babel/preset-env',
       {
-        useBuiltIns: "usage",
-        corejs: dependencies["core-js"],
+        useBuiltIns: 'usage',
+        corejs: dependencies['core-js'],
         bugfixes: true,
         shippedProposals: true,
       },
@@ -113,28 +113,28 @@ module.exports.babelOptions = ({
   ],
   plugins: [
     [
-      path.join(BABEL_PLUGINS, "inline-constants-plugin.cjs"),
+      path.join(BABEL_PLUGINS, 'inline-constants-plugin.cjs'),
       {
-        modules: ["@mdi/js"],
+        modules: ['@mdi/js'],
         ignoreModuleNotFound: true,
       },
     ],
     // Minify template literals for production
     isProdBuild && [
-      "template-html-minifier",
+      'template-html-minifier',
       {
         modules: {
           ...Object.fromEntries(
-            ["lit", "lit-element", "lit-html"].map((m) => [
+            ['lit', 'lit-element', 'lit-html'].map(m => [
               m,
               [
-                "html",
-                { name: "svg", encapsulation: "svg" },
-                { name: "css", encapsulation: "style" },
+                'html',
+                { name: 'svg', encapsulation: 'svg' },
+                { name: 'css', encapsulation: 'style' },
               ],
             ])
           ),
-          "@polymer/polymer/lib/utils/html-tag.js": ["html"],
+          '@polymer/polymer/lib/utils/html-tag.js': ['html'],
         },
         strictCSS: true,
         htmlMinifier: module.exports.htmlMinifierOptions,
@@ -143,11 +143,11 @@ module.exports.babelOptions = ({
     ],
     // Import helpers and regenerator from runtime package
     [
-      "@babel/plugin-transform-runtime",
-      { version: dependencies["@babel/runtime"] },
+      '@babel/plugin-transform-runtime',
+      { version: dependencies['@babel/runtime'] },
     ],
-    "@babel/plugin-transform-class-properties",
-    "@babel/plugin-transform-private-methods",
+    '@babel/plugin-transform-class-properties',
+    '@babel/plugin-transform-private-methods',
   ].filter(Boolean),
   exclude: [
     // \\ for Windows, / for Mac OS and Linux
@@ -160,42 +160,42 @@ module.exports.babelOptions = ({
       // themselves to prevent self-injection.
       plugins: [
         [
-          path.join(BABEL_PLUGINS, "custom-polyfill-plugin.js"),
-          { method: "usage-global" },
+          path.join(BABEL_PLUGINS, 'custom-polyfill-plugin.js'),
+          { method: 'usage-global' },
         ],
       ],
       exclude: [
-        path.join(paths.root_dir, "src/resources/polyfills"),
+        path.join(paths.root_dir, 'src/resources/polyfills'),
         ...[
-          "@formatjs/(?:ecma402-abstract|intl-\\w+)",
-          "@lit-labs/virtualizer/polyfills",
-          "@webcomponents/scoped-custom-element-registry",
-          "element-internals-polyfill",
-          "proxy-polyfill",
-          "unfetch",
-        ].map((p) => new RegExp(`/node_modules/${p}/`)),
+          '@formatjs/(?:ecma402-abstract|intl-\\w+)',
+          '@lit-labs/virtualizer/polyfills',
+          '@webcomponents/scoped-custom-element-registry',
+          'element-internals-polyfill',
+          'proxy-polyfill',
+          'unfetch',
+        ].map(p => new RegExp(`/node_modules/${p}/`)),
       ],
     },
     {
       // Use unambiguous for dependencies so that require() is correctly injected into CommonJS files
       // Exclusions are needed in some cases where ES modules have no static imports or exports, such as polyfills
-      sourceType: "unambiguous",
+      sourceType: 'unambiguous',
       include: /\/node_modules\//,
       exclude: [
-        "element-internals-polyfill",
-        "@?lit(?:-labs|-element|-html)?",
-      ].map((p) => new RegExp(`/node_modules/${p}/`)),
+        'element-internals-polyfill',
+        '@?lit(?:-labs|-element|-html)?',
+      ].map(p => new RegExp(`/node_modules/${p}/`)),
     },
   ],
-});
+})
 
-const nameSuffix = (latestBuild) => (latestBuild ? "-modern" : "-legacy");
+const nameSuffix = latestBuild => (latestBuild ? '-modern' : '-legacy')
 
 const outputPath = (outputRoot, latestBuild) =>
-  path.resolve(outputRoot, latestBuild ? "frontend_latest" : "frontend_es5");
+  path.resolve(outputRoot, latestBuild ? 'frontend_latest' : 'frontend_es5')
 
-const publicPath = (latestBuild, root = "") =>
-  latestBuild ? `${root}/frontend_latest/` : `${root}/frontend_es5/`;
+const publicPath = (latestBuild, root = '') =>
+  latestBuild ? `${root}/frontend_latest/` : `${root}/frontend_es5/`
 
 /*
   BundleConfig {
@@ -223,19 +223,19 @@ const publicPath = (latestBuild, root = "") =>
 module.exports.config = {
   app({ isProdBuild, latestBuild, isStatsBuild, isTestBuild, isWDS }) {
     return {
-      name: "frontend" + nameSuffix(latestBuild),
+      name: 'frontend' + nameSuffix(latestBuild),
       entry: {
-        "service-worker": !latestBuild
+        'service-worker': !latestBuild
           ? {
-              import: "./src/entrypoints/service-worker.ts",
-              layer: "sw",
+              import: './src/entrypoints/service-worker.ts',
+              layer: 'sw',
             }
-          : "./src/entrypoints/service-worker.ts",
-        app: "./src/entrypoints/app.ts",
-        authorize: "./src/entrypoints/authorize.ts",
-        onboarding: "./src/entrypoints/onboarding.ts",
-        core: "./src/entrypoints/core.ts",
-        "custom-panel": "./src/entrypoints/custom-panel.ts",
+          : './src/entrypoints/service-worker.ts',
+        app: './src/entrypoints/app.ts',
+        authorize: './src/entrypoints/authorize.ts',
+        onboarding: './src/entrypoints/onboarding.ts',
+        core: './src/entrypoints/core.ts',
+        'custom-panel': './src/entrypoints/custom-panel.ts',
       },
       outputPath: outputPath(paths.app_output_root, latestBuild),
       publicPath: publicPath(latestBuild),
@@ -244,14 +244,14 @@ module.exports.config = {
       isStatsBuild,
       isTestBuild,
       isWDS,
-    };
+    }
   },
 
   demo({ isProdBuild, latestBuild, isStatsBuild }) {
     return {
-      name: "demo" + nameSuffix(latestBuild),
+      name: 'demo' + nameSuffix(latestBuild),
       entry: {
-        main: path.resolve(paths.demo_dir, "src/entrypoint.ts"),
+        main: path.resolve(paths.demo_dir, 'src/entrypoint.ts'),
       },
       outputPath: outputPath(paths.demo_output_root, latestBuild),
       publicPath: publicPath(latestBuild),
@@ -262,24 +262,24 @@ module.exports.config = {
       isProdBuild,
       latestBuild,
       isStatsBuild,
-    };
+    }
   },
 
   cast({ isProdBuild, latestBuild }) {
     const entry = {
-      launcher: path.resolve(paths.cast_dir, "src/launcher/entrypoint.ts"),
-      media: path.resolve(paths.cast_dir, "src/media/entrypoint.ts"),
-    };
+      launcher: path.resolve(paths.cast_dir, 'src/launcher/entrypoint.ts'),
+      media: path.resolve(paths.cast_dir, 'src/media/entrypoint.ts'),
+    }
 
     if (latestBuild) {
       entry.receiver = path.resolve(
         paths.cast_dir,
-        "src/receiver/entrypoint.ts"
-      );
+        'src/receiver/entrypoint.ts'
+      )
     }
 
     return {
-      name: "cast" + nameSuffix(latestBuild),
+      name: 'cast' + nameSuffix(latestBuild),
       entry,
       outputPath: outputPath(paths.cast_output_root, latestBuild),
       publicPath: publicPath(latestBuild),
@@ -288,14 +288,14 @@ module.exports.config = {
       defineOverlay: {
         __BACKWARDS_COMPAT__: true,
       },
-    };
+    }
   },
 
   hassio({ isProdBuild, latestBuild, isStatsBuild, isTestBuild }) {
     return {
-      name: "supervisor" + nameSuffix(latestBuild),
+      name: 'supervisor' + nameSuffix(latestBuild),
       entry: {
-        entrypoint: path.resolve(paths.hassio_dir, "src/entrypoint.ts"),
+        entrypoint: path.resolve(paths.hassio_dir, 'src/entrypoint.ts'),
       },
       outputPath: outputPath(paths.hassio_output_root, latestBuild),
       publicPath: publicPath(latestBuild, paths.hassio_publicPath),
@@ -308,14 +308,14 @@ module.exports.config = {
         __SUPERVISOR__: true,
         __STATIC_PATH__: `"${paths.hassio_publicPath}/static/"`,
       },
-    };
+    }
   },
 
   gallery({ isProdBuild, latestBuild }) {
     return {
-      name: "gallery" + nameSuffix(latestBuild),
+      name: 'gallery' + nameSuffix(latestBuild),
       entry: {
-        entrypoint: path.resolve(paths.gallery_dir, "src/entrypoint.js"),
+        entrypoint: path.resolve(paths.gallery_dir, 'src/entrypoint.js'),
       },
       outputPath: outputPath(paths.gallery_output_root, latestBuild),
       publicPath: publicPath(latestBuild),
@@ -324,20 +324,20 @@ module.exports.config = {
       defineOverlay: {
         __DEMO__: true,
       },
-    };
+    }
   },
 
   landingPage({ isProdBuild, latestBuild }) {
     return {
-      name: "landing-page" + nameSuffix(latestBuild),
+      name: 'landing-page' + nameSuffix(latestBuild),
       entry: {
-        entrypoint: path.resolve(paths.landingPage_dir, "src/entrypoint.js"),
+        entrypoint: path.resolve(paths.landingPage_dir, 'src/entrypoint.js'),
       },
       outputPath: outputPath(paths.landingPage_output_root, latestBuild),
       publicPath: publicPath(latestBuild),
       isProdBuild,
       latestBuild,
       isLandingPageBuild: true,
-    };
+    }
   },
-};
+}

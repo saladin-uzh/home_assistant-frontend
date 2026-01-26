@@ -1,4 +1,4 @@
 export interface LovelaceStrategyConfig {
-  type: string;
-  [key: string]: any;
+  type: string
+  [key: string]: any
 }

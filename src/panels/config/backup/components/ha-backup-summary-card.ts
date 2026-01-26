@@ -4,15 +4,15 @@ import {
   mdiCheck,
   mdiInformationOutline,
   mdiSync,
-} from "@mdi/js";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import "../../../../components/ha-button";
-import "../../../../components/ha-card";
-import "../../../../components/ha-icon";
-import "../../../../components/ha-spinner";
+} from '@mdi/js'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import '../../../../components/ha-button'
+import '../../../../components/ha-card'
+import '../../../../components/ha-icon'
+import '../../../../components/ha-spinner'
 
-type SummaryStatus = "success" | "error" | "info" | "warning" | "loading";
+type SummaryStatus = 'success' | 'error' | 'info' | 'warning' | 'loading'
 
 const ICONS: Record<SummaryStatus, string> = {
   success: mdiCheck,
@@ -20,27 +20,27 @@ const ICONS: Record<SummaryStatus, string> = {
   warning: mdiAlertOutline,
   info: mdiInformationOutline,
   loading: mdiSync,
-};
+}
 
-@customElement("ha-backup-summary-card")
+@customElement('ha-backup-summary-card')
 class HaBackupSummaryCard extends LitElement {
   @property()
-  public heading!: string;
+  public heading!: string
 
   @property()
-  public description!: string;
+  public description!: string
 
-  @property({ type: Boolean, attribute: "has-action" })
-  public hasAction = false;
+  @property({ type: Boolean, attribute: 'has-action' })
+  public hasAction = false
 
   @property()
-  public status: SummaryStatus = "info";
+  public status: SummaryStatus = 'info'
 
   render() {
     return html`
       <ha-card outlined>
         <div class="summary">
-          ${this.status === "loading"
+          ${this.status === 'loading'
             ? html`<ha-spinner></ha-spinner>`
             : html`
                 <div class="icon ${this.status}">
@@ -64,7 +64,7 @@ class HaBackupSummaryCard extends LitElement {
           <slot></slot>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   static styles = css`
@@ -104,7 +104,7 @@ class HaBackupSummaryCard extends LitElement {
     }
     .icon::before {
       display: block;
-      content: "";
+      content: '';
       position: absolute;
       inset: 0;
       background-color: var(--icon-color, var(--primary-color));
@@ -155,11 +155,11 @@ class HaBackupSummaryCard extends LitElement {
         justify-content: flex-end;
       }
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-backup-summary-card": HaBackupSummaryCard;
+    'ha-backup-summary-card': HaBackupSummaryCard
   }
 }

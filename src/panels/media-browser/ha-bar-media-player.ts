@@ -1,5 +1,5 @@
-import "@material/mwc-linear-progress/mwc-linear-progress";
-import type { LinearProgress } from "@material/mwc-linear-progress/mwc-linear-progress";
+import '@material/mwc-linear-progress/mwc-linear-progress'
+import type { LinearProgress } from '@material/mwc-linear-progress/mwc-linear-progress'
 import {
   mdiChevronDown,
   mdiMonitor,
@@ -8,33 +8,33 @@ import {
   mdiPlayPause,
   mdiStop,
   mdiVolumeHigh,
-} from "@mdi/js";
-import type { PropertyValues } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { until } from "lit/directives/until";
-import { fireEvent } from "../../common/dom/fire_event";
-import { computeDomain } from "../../common/entity/compute_domain";
-import { computeStateDomain } from "../../common/entity/compute_state_domain";
-import { computeStateName } from "../../common/entity/compute_state_name";
-import { supportsFeature } from "../../common/entity/supports-feature";
-import { debounce } from "../../common/util/debounce";
-import "../../components/ha-button";
-import "../../components/ha-button-menu";
-import "../../components/ha-domain-icon";
-import "../../components/ha-icon-button";
-import "../../components/ha-list-item";
-import "../../components/ha-slider";
-import "../../components/ha-spinner";
-import "../../components/ha-state-icon";
-import "../../components/ha-svg-icon";
-import { UNAVAILABLE } from "../../data/entity";
+} from '@mdi/js'
+import type { PropertyValues } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { until } from 'lit/directives/until'
+import { fireEvent } from '../../common/dom/fire_event'
+import { computeDomain } from '../../common/entity/compute_domain'
+import { computeStateDomain } from '../../common/entity/compute_state_domain'
+import { computeStateName } from '../../common/entity/compute_state_name'
+import { supportsFeature } from '../../common/entity/supports-feature'
+import { debounce } from '../../common/util/debounce'
+import '../../components/ha-button'
+import '../../components/ha-button-menu'
+import '../../components/ha-domain-icon'
+import '../../components/ha-icon-button'
+import '../../components/ha-list-item'
+import '../../components/ha-slider'
+import '../../components/ha-spinner'
+import '../../components/ha-state-icon'
+import '../../components/ha-svg-icon'
+import { UNAVAILABLE } from '../../data/entity'
 import type {
   ControlButton,
   MediaPlayerEntity,
   MediaPlayerItem,
-} from "../../data/media-player";
+} from '../../data/media-player'
 import {
   BROWSER_PLAYER,
   MediaPlayerEntityFeature,
@@ -45,115 +45,115 @@ import {
   getCurrentProgress,
   handleMediaControlClick,
   setMediaPlayerVolume,
-} from "../../data/media-player";
-import type { ResolvedMediaSource } from "../../data/media_source";
-import { showAlertDialog } from "../../dialogs/generic/show-dialog-box";
-import { SubscribeMixin } from "../../mixins/subscribe-mixin";
-import type { HomeAssistant } from "../../types";
-import "../lovelace/components/hui-marquee";
+} from '../../data/media-player'
+import type { ResolvedMediaSource } from '../../data/media_source'
+import { showAlertDialog } from '../../dialogs/generic/show-dialog-box'
+import { SubscribeMixin } from '../../mixins/subscribe-mixin'
+import type { HomeAssistant } from '../../types'
+import '../lovelace/components/hui-marquee'
 import {
   BrowserMediaPlayer,
   ERR_UNSUPPORTED_MEDIA,
-} from "./browser-media-player";
+} from './browser-media-player'
 
 declare global {
   interface HASSDomEvents {
-    "player-picked": { entityId: string };
+    'player-picked': { entityId: string }
   }
 }
 
-@customElement("ha-bar-media-player")
+@customElement('ha-bar-media-player')
 export class BarMediaPlayer extends SubscribeMixin(LitElement) {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public entityId!: string;
+  @property({ attribute: false }) public entityId!: string
 
-  @property({ type: Boolean, reflect: true }) public narrow = false;
+  @property({ type: Boolean, reflect: true }) public narrow = false
 
-  @query("mwc-linear-progress") private _progressBar?: LinearProgress;
+  @query('mwc-linear-progress') private _progressBar?: LinearProgress
 
-  @query("#CurrentProgress") private _currentProgress?: HTMLElement;
+  @query('#CurrentProgress') private _currentProgress?: HTMLElement
 
-  @state() private _marqueeActive = false;
+  @state() private _marqueeActive = false
 
-  @state() private _newMediaExpected = false;
+  @state() private _newMediaExpected = false
 
-  @state() private _browserPlayer?: BrowserMediaPlayer;
+  @state() private _browserPlayer?: BrowserMediaPlayer
 
-  private _progressInterval?: number;
+  private _progressInterval?: number
 
-  private _browserPlayerVolume = 0.8;
+  private _browserPlayerVolume = 0.8
 
   public connectedCallback(): void {
-    super.connectedCallback();
+    super.connectedCallback()
 
-    const stateObj = this._stateObj;
+    const stateObj = this._stateObj
 
     if (!stateObj) {
-      return;
+      return
     }
 
     if (
       !this._progressInterval &&
       this._showProgressBar &&
-      stateObj.state === "playing"
+      stateObj.state === 'playing'
     ) {
       this._progressInterval = window.setInterval(
         () => this._updateProgressBar(),
         1000
-      );
+      )
     }
   }
 
   public disconnectedCallback(): void {
-    super.disconnectedCallback();
+    super.disconnectedCallback()
     if (this._progressInterval) {
-      clearInterval(this._progressInterval);
-      this._progressInterval = undefined;
+      clearInterval(this._progressInterval)
+      this._progressInterval = undefined
     }
-    this._tearDownBrowserPlayer();
+    this._tearDownBrowserPlayer()
   }
 
   public showResolvingNewMediaPicked() {
-    this._tearDownBrowserPlayer();
-    this._newMediaExpected = true;
+    this._tearDownBrowserPlayer()
+    this._newMediaExpected = true
     // Sometimes the state does not update when playing media, like with TTS, so we wait max 2 secs and then stop waiting
-    this._debouncedResetMediaExpected();
+    this._debouncedResetMediaExpected()
   }
 
   private _debouncedResetMediaExpected = debounce(() => {
-    this._newMediaExpected = false;
-  }, 2000);
+    this._newMediaExpected = false
+  }, 2000)
 
   public hideResolvingNewMediaPicked() {
-    this._newMediaExpected = false;
+    this._newMediaExpected = false
   }
 
   public playItem(item: MediaPlayerItem, resolved: ResolvedMediaSource) {
     if (this.entityId !== BROWSER_PLAYER) {
-      throw Error("Only browser supported");
+      throw Error('Only browser supported')
     }
-    this._tearDownBrowserPlayer();
+    this._tearDownBrowserPlayer()
     try {
       this._browserPlayer = new BrowserMediaPlayer(
         this.hass,
         item,
         resolved,
         this._browserPlayerVolume,
-        () => this.requestUpdate("_browserPlayer")
-      );
+        () => this.requestUpdate('_browserPlayer')
+      )
     } catch (err: any) {
       if (err.message === ERR_UNSUPPORTED_MEDIA) {
         showAlertDialog(this, {
           text: this.hass.localize(
-            "ui.components.media-browser.media_not_supported"
+            'ui.components.media-browser.media_not_supported'
           ),
-        });
+        })
       } else {
-        throw err;
+        throw err
       }
     }
-    this._newMediaExpected = false;
+    this._newMediaExpected = false
   }
 
   protected render() {
@@ -162,100 +162,103 @@ export class BarMediaPlayer extends SubscribeMixin(LitElement) {
         <div class="controls-progress buffering">
           ${until(
             // Only show spinner after 500ms
-            new Promise((resolve) => {
-              setTimeout(resolve, 500);
+            new Promise(resolve => {
+              setTimeout(resolve, 500)
             }).then(() => html`<ha-spinner></ha-spinner>`)
           )}
         </div>
-      `;
+      `
     }
 
-    const isBrowser = this.entityId === BROWSER_PLAYER;
-    const stateObj = this._stateObj;
+    const isBrowser = this.entityId === BROWSER_PLAYER
+    const stateObj = this._stateObj
 
     if (!stateObj) {
-      return this._renderChoosePlayer(stateObj);
+      return this._renderChoosePlayer(stateObj)
     }
 
     const controls: ControlButton[] | undefined = !this.narrow
       ? computeMediaControls(stateObj, true)
-      : (stateObj.state === "playing" &&
+      : (stateObj.state === 'playing' &&
             (supportsFeature(stateObj, MediaPlayerEntityFeature.PAUSE) ||
               supportsFeature(stateObj, MediaPlayerEntityFeature.STOP))) ||
-          ((stateObj.state === "paused" || stateObj.state === "idle") &&
+          ((stateObj.state === 'paused' || stateObj.state === 'idle') &&
             supportsFeature(stateObj, MediaPlayerEntityFeature.PLAY)) ||
-          (stateObj.state === "on" &&
+          (stateObj.state === 'on' &&
             (supportsFeature(stateObj, MediaPlayerEntityFeature.PLAY) ||
               supportsFeature(stateObj, MediaPlayerEntityFeature.PAUSE)))
         ? [
             {
               icon:
-                stateObj.state === "on"
+                stateObj.state === 'on'
                   ? mdiPlayPause
-                  : stateObj.state !== "playing"
+                  : stateObj.state !== 'playing'
                     ? mdiPlay
                     : supportsFeature(stateObj, MediaPlayerEntityFeature.PAUSE)
                       ? mdiPause
                       : mdiStop,
               action:
-                stateObj.state !== "playing"
-                  ? "media_play"
+                stateObj.state !== 'playing'
+                  ? 'media_play'
                   : supportsFeature(stateObj, MediaPlayerEntityFeature.PAUSE)
-                    ? "media_pause"
-                    : "media_stop",
+                    ? 'media_pause'
+                    : 'media_stop',
             },
           ]
-        : undefined;
-    const mediaDescription = computeMediaDescription(stateObj);
-    const mediaDuration = formatMediaTime(stateObj.attributes.media_duration);
+        : undefined
+    const mediaDescription = computeMediaDescription(stateObj)
+    const mediaDuration = formatMediaTime(stateObj.attributes.media_duration)
     const mediaTitleClean = cleanupMediaTitle(
       stateObj.attributes.media_title || stateObj.attributes.media_content_id
-    );
+    )
     const mediaArt =
       stateObj.attributes.entity_picture_local ||
-      stateObj.attributes.entity_picture;
+      stateObj.attributes.entity_picture
 
     return html`
       <div
         class=${classMap({
           info: true,
           pointer: !isBrowser,
-          app: this._browserPlayer?.item.media_class === "app",
+          app: this._browserPlayer?.item.media_class === 'app',
         })}
         @click=${this._openMoreInfo}
       >
         ${mediaArt
-          ? html`<img alt="" src=${this.hass.hassUrl(mediaArt)} />`
-          : ""}
+          ? html`<img
+              alt=""
+              src=${this.hass.hassUrl(mediaArt)}
+            />`
+          : ''}
         <div class="media-info">
           <hui-marquee
             .text=${mediaTitleClean ||
             mediaDescription ||
-            (stateObj.state !== "playing" && stateObj.state !== "on"
+            (stateObj.state !== 'playing' && stateObj.state !== 'on'
               ? this.hass.localize(`ui.card.media_player.nothing_playing`)
-              : "")}
+              : '')}
             .active=${this._marqueeActive}
             @mouseover=${this._marqueeMouseOver}
             @mouseleave=${this._marqueeMouseLeave}
           ></hui-marquee>
           <span class="secondary">
-            ${mediaTitleClean ? mediaDescription : ""}
+            ${mediaTitleClean ? mediaDescription : ''}
           </span>
         </div>
       </div>
       <div
-        class="controls-progress ${stateObj.state === "buffering"
-          ? "buffering"
-          : ""}"
+        class="controls-progress ${stateObj.state === 'buffering'
+          ? 'buffering'
+          : ''}"
       >
-        ${stateObj.state === "buffering"
+        ${stateObj.state === 'buffering'
           ? html`<ha-spinner></ha-spinner> `
           : html`
               <div class="controls">
                 ${controls === undefined
-                  ? ""
+                  ? ''
                   : controls.map(
-                      (control) => html`
+                      control => html`
                         <ha-icon-button
                           .label=${this.hass.localize(
                             `ui.card.media_player.${control.action}`
@@ -282,19 +285,22 @@ export class BarMediaPlayer extends SubscribeMixin(LitElement) {
             `}
       </div>
       ${this._renderChoosePlayer(stateObj)}
-    `;
+    `
   }
 
   private _renderChoosePlayer(stateObj: MediaPlayerEntity | undefined) {
-    const isBrowser = this.entityId === BROWSER_PLAYER;
+    const isBrowser = this.entityId === BROWSER_PLAYER
     return html`
-    <div class="choose-player ${isBrowser ? "browser" : ""}">
+    <div class="choose-player ${isBrowser ? 'browser' : ''}">
       ${
         !this.narrow &&
         stateObj &&
         supportsFeature(stateObj, MediaPlayerEntityFeature.VOLUME_SET)
           ? html`
-              <ha-button-menu y="0" x="76">
+              <ha-button-menu
+                y="0"
+                x="76"
+              >
                 <ha-icon-button
                   slot="trigger"
                   .path=${mdiVolumeHigh}
@@ -310,7 +316,7 @@ export class BarMediaPlayer extends SubscribeMixin(LitElement) {
                 </ha-slider>
               </ha-button-menu>
             `
-          : ""
+          : ''
       }
 
           <ha-button-menu>
@@ -330,7 +336,7 @@ export class BarMediaPlayer extends SubscribeMixin(LitElement) {
                         ? nothing
                         : isBrowser
                           ? this.hass.localize(
-                              "ui.components.media-browser.web-browser"
+                              'ui.components.media-browser.web-browser'
                             )
                           : stateObj
                             ? computeStateName(stateObj)
@@ -347,10 +353,10 @@ export class BarMediaPlayer extends SubscribeMixin(LitElement) {
               ?selected=${isBrowser}
               @click=${this._selectPlayer}
             >
-              ${this.hass.localize("ui.components.media-browser.web-browser")}
+              ${this.hass.localize('ui.components.media-browser.web-browser')}
             </ha-list-item>
             ${this._mediaPlayerEntities.map(
-              (source) => html`
+              source => html`
                 <ha-list-item
                   ?selected=${source.entity_id === this.entityId}
                   .disabled=${source.state === UNAVAILABLE}
@@ -365,77 +371,80 @@ export class BarMediaPlayer extends SubscribeMixin(LitElement) {
         </div>
       </div>
 
-    `;
+    `
   }
 
   private _renderIcon(isBrowser: boolean, stateObj?: MediaPlayerEntity) {
     if (isBrowser) {
-      return html`<ha-svg-icon .path=${mdiMonitor}></ha-svg-icon>`;
+      return html`<ha-svg-icon .path=${mdiMonitor}></ha-svg-icon>`
     }
     if (stateObj) {
       return html`
-        <ha-state-icon .hass=${this.hass} .stateObj=${stateObj}></ha-state-icon>
-      `;
+        <ha-state-icon
+          .hass=${this.hass}
+          .stateObj=${stateObj}
+        ></ha-state-icon>
+      `
     }
     return html`
       <ha-domain-icon
         .hass=${this.hass}
         .domain=${computeDomain(this.entityId)}
       ></ha-domain-icon>
-    `;
+    `
   }
 
   public willUpdate(changedProps: PropertyValues) {
-    super.willUpdate(changedProps);
-    if (changedProps.has("entityId")) {
-      this._tearDownBrowserPlayer();
+    super.willUpdate(changedProps)
+    if (changedProps.has('entityId')) {
+      this._tearDownBrowserPlayer()
     }
-    if (!changedProps.has("hass") || this.entityId === BROWSER_PLAYER) {
-      return;
+    if (!changedProps.has('hass') || this.entityId === BROWSER_PLAYER) {
+      return
     }
     // Reset new media expected if media player state changes
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined
     if (
       !oldHass ||
       oldHass.states[this.entityId] !== this.hass.states[this.entityId]
     ) {
-      this._newMediaExpected = false;
+      this._newMediaExpected = false
     }
   }
 
   protected updated(changedProps: PropertyValues) {
-    super.updated(changedProps);
+    super.updated(changedProps)
 
     if (this.entityId === BROWSER_PLAYER) {
-      if (!changedProps.has("_browserPlayer")) {
-        return;
+      if (!changedProps.has('_browserPlayer')) {
+        return
       }
     } else {
-      const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
+      const oldHass = changedProps.get('hass') as HomeAssistant | undefined
       if (oldHass && oldHass.states[this.entityId] === this._stateObj) {
-        return;
+        return
       }
     }
 
-    const stateObj = this._stateObj;
+    const stateObj = this._stateObj
 
-    this._updateProgressBar();
+    this._updateProgressBar()
 
     if (
       !this._progressInterval &&
       this._showProgressBar &&
-      stateObj?.state === "playing"
+      stateObj?.state === 'playing'
     ) {
       this._progressInterval = window.setInterval(
         () => this._updateProgressBar(),
         1000
-      );
+      )
     } else if (
       this._progressInterval &&
-      (!this._showProgressBar || stateObj?.state !== "playing")
+      (!this._showProgressBar || stateObj?.state !== 'playing')
     ) {
-      clearInterval(this._progressInterval);
-      this._progressInterval = undefined;
+      clearInterval(this._progressInterval)
+      this._progressInterval = undefined
     }
   }
 
@@ -443,114 +452,114 @@ export class BarMediaPlayer extends SubscribeMixin(LitElement) {
     if (this.entityId === BROWSER_PLAYER) {
       return this._browserPlayer
         ? this._browserPlayer.toStateObj()
-        : BrowserMediaPlayer.idleStateObj();
+        : BrowserMediaPlayer.idleStateObj()
     }
-    return this.hass!.states[this.entityId] as MediaPlayerEntity | undefined;
+    return this.hass!.states[this.entityId] as MediaPlayerEntity | undefined
   }
 
   private _tearDownBrowserPlayer() {
     if (this._browserPlayer) {
-      this._browserPlayer.remove();
-      this._browserPlayer = undefined;
+      this._browserPlayer.remove()
+      this._browserPlayer = undefined
     }
   }
 
   private _openMoreInfo() {
     if (this.entityId === BROWSER_PLAYER) {
-      return;
+      return
     }
-    fireEvent(this, "hass-more-info", { entityId: this.entityId });
+    fireEvent(this, 'hass-more-info', { entityId: this.entityId })
   }
 
   private get _showProgressBar() {
     if (!this.hass) {
-      return false;
+      return false
     }
 
-    const stateObj = this._stateObj;
+    const stateObj = this._stateObj
 
     return (
       stateObj &&
-      (stateObj.state === "playing" || stateObj.state === "paused") &&
-      "media_duration" in stateObj.attributes &&
-      "media_position" in stateObj.attributes
-    );
+      (stateObj.state === 'playing' || stateObj.state === 'paused') &&
+      'media_duration' in stateObj.attributes &&
+      'media_position' in stateObj.attributes
+    )
   }
 
   private get _mediaPlayerEntities() {
     return Object.values(this.hass!.states).filter(
-      (entity) =>
-        computeStateDomain(entity) === "media_player" &&
+      entity =>
+        computeStateDomain(entity) === 'media_player' &&
         supportsFeature(entity, MediaPlayerEntityFeature.BROWSE_MEDIA) &&
         !this.hass.entities[entity.entity_id]?.hidden
-    );
+    )
   }
 
   private _updateProgressBar(): void {
-    const stateObj = this._stateObj;
+    const stateObj = this._stateObj
 
     if (!this._progressBar || !this._currentProgress || !stateObj) {
-      return;
+      return
     }
 
     if (!stateObj.attributes.media_duration) {
-      this._progressBar.progress = 0;
-      this._currentProgress.innerHTML = "";
-      return;
+      this._progressBar.progress = 0
+      this._currentProgress.innerHTML = ''
+      return
     }
 
-    const currentProgress = getCurrentProgress(stateObj);
+    const currentProgress = getCurrentProgress(stateObj)
     this._progressBar.progress =
-      currentProgress / stateObj.attributes.media_duration;
+      currentProgress / stateObj.attributes.media_duration
 
     if (this._currentProgress) {
-      this._currentProgress.innerHTML = formatMediaTime(currentProgress);
+      this._currentProgress.innerHTML = formatMediaTime(currentProgress)
     }
   }
 
   private _handleControlClick(e: MouseEvent): void {
-    const action = (e.currentTarget! as HTMLElement).getAttribute("action")!;
+    const action = (e.currentTarget! as HTMLElement).getAttribute('action')!
 
     if (!this._browserPlayer) {
       handleMediaControlClick(
         this.hass!,
         this._stateObj!,
-        (e.currentTarget as HTMLElement).getAttribute("action")!
-      );
-      return;
+        (e.currentTarget as HTMLElement).getAttribute('action')!
+      )
+      return
     }
-    if (action === "media_pause") {
-      this._browserPlayer.pause();
-    } else if (action === "media_play") {
-      this._browserPlayer.play();
+    if (action === 'media_pause') {
+      this._browserPlayer.pause()
+    } else if (action === 'media_play') {
+      this._browserPlayer.play()
     }
   }
 
   private _marqueeMouseOver(): void {
     if (!this._marqueeActive) {
-      this._marqueeActive = true;
+      this._marqueeActive = true
     }
   }
 
   private _marqueeMouseLeave(): void {
     if (this._marqueeActive) {
-      this._marqueeActive = false;
+      this._marqueeActive = false
     }
   }
 
   private _selectPlayer(ev: CustomEvent): void {
-    const entityId = (ev.currentTarget as any).player;
-    fireEvent(this, "player-picked", { entityId });
+    const entityId = (ev.currentTarget as any).player
+    fireEvent(this, 'player-picked', { entityId })
   }
 
   private async _handleVolumeChange(ev) {
-    ev.stopPropagation();
-    const value = Number(ev.target.value) / 100;
+    ev.stopPropagation()
+    const value = Number(ev.target.value) / 100
     if (this._browserPlayer) {
-      this._browserPlayerVolume = value;
-      this._browserPlayer.setVolume(value);
+      this._browserPlayerVolume = value
+      this._browserPlayer.setVolume(value)
     } else {
-      await setMediaPlayerVolume(this.hass, this.entityId, value);
+      await setMediaPlayerVolume(this.hass, this.entityId, value)
     }
   }
 
@@ -576,7 +585,7 @@ export class BarMediaPlayer extends SubscribeMixin(LitElement) {
       --mdc-theme-primary: var(--secondary-text-color);
     }
 
-    ha-button-menu ha-button[slot="trigger"] {
+    ha-button-menu ha-button[slot='trigger'] {
       line-height: 1;
       --mdc-theme-primary: var(--primary-text-color);
       --mdc-icon-size: 16px;
@@ -710,11 +719,11 @@ export class BarMediaPlayer extends SubscribeMixin(LitElement) {
     ha-list-item[selected] {
       font-weight: var(--ha-font-weight-bold);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-bar-media-player": BarMediaPlayer;
+    'ha-bar-media-player': BarMediaPlayer
   }
 }

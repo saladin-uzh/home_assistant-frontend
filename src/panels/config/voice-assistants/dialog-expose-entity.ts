@@ -1,80 +1,90 @@
-import "@lit-labs/virtualizer";
-import { mdiClose } from "@mdi/js";
-import type { HassEntity } from "home-assistant-js-websocket";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../common/dom/fire_event";
-import { computeStateName } from "../../../common/entity/compute_state_name";
-import "../../../components/ha-check-list-item";
-import "../../../components/search-input";
-import "../../../components/ha-dialog";
-import "../../../components/ha-button";
-import "../../../components/ha-dialog-header";
-import "../../../components/ha-state-icon";
-import "../../../components/ha-list";
-import type { ExposeEntitySettings } from "../../../data/expose";
-import { voiceAssistants } from "../../../data/expose";
-import { haStyle } from "../../../resources/styles";
-import type { HomeAssistant } from "../../../types";
-import "./entity-voice-settings";
-import type { ExposeEntityDialogParams } from "./show-dialog-expose-entity";
+import '@lit-labs/virtualizer'
+import { mdiClose } from '@mdi/js'
+import type { HassEntity } from 'home-assistant-js-websocket'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../common/dom/fire_event'
+import { computeStateName } from '../../../common/entity/compute_state_name'
+import '../../../components/ha-check-list-item'
+import '../../../components/search-input'
+import '../../../components/ha-dialog'
+import '../../../components/ha-button'
+import '../../../components/ha-dialog-header'
+import '../../../components/ha-state-icon'
+import '../../../components/ha-list'
+import type { ExposeEntitySettings } from '../../../data/expose'
+import { voiceAssistants } from '../../../data/expose'
+import { haStyle } from '../../../resources/styles'
+import type { HomeAssistant } from '../../../types'
+import './entity-voice-settings'
+import type { ExposeEntityDialogParams } from './show-dialog-expose-entity'
 
-@customElement("dialog-expose-entity")
+@customElement('dialog-expose-entity')
 class DialogExposeEntity extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _params?: ExposeEntityDialogParams;
+  @state() private _params?: ExposeEntityDialogParams
 
-  @state() private _filter?: string;
+  @state() private _filter?: string
 
-  @state() private _selected: string[] = [];
+  @state() private _selected: string[] = []
 
   public async showDialog(params: ExposeEntityDialogParams): Promise<void> {
-    this._params = params;
+    this._params = params
   }
 
   public closeDialog(): void {
-    this._params = undefined;
-    this._selected = [];
-    this._filter = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    this._selected = []
+    this._filter = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
 
     const header = this.hass.localize(
-      "ui.panel.config.voice_assistants.expose.expose_dialog.header"
-    );
+      'ui.panel.config.voice_assistants.expose.expose_dialog.header'
+    )
 
     const entities = this._filterEntities(
       this._params.exposedEntities,
       this._filter
-    );
+    )
 
     return html`
-      <ha-dialog open @closed=${this.closeDialog} .heading=${header}>
-        <ha-dialog-header slot="heading" show-border>
-          <h2 class="header" slot="title">
+      <ha-dialog
+        open
+        @closed=${this.closeDialog}
+        .heading=${header}
+      >
+        <ha-dialog-header
+          slot="heading"
+          show-border
+        >
+          <h2
+            class="header"
+            slot="title"
+          >
             ${header}
             <span class="subtitle">
               ${this.hass.localize(
-                "ui.panel.config.voice_assistants.expose.expose_dialog.expose_to",
+                'ui.panel.config.voice_assistants.expose.expose_dialog.expose_to',
                 {
                   assistants: this._params.filterAssistants
-                    .map((ass) => voiceAssistants[ass].name)
-                    .join(", "),
+                    .map(ass => voiceAssistants[ass].name)
+                    .join(', '),
                 }
               )}
             </span>
           </h2>
           <ha-icon-button
-            .label=${this.hass.localize("ui.common.close")}
+            .label=${this.hass.localize('ui.common.close')}
             .path=${mdiClose}
             dialogAction="close"
             slot="navigationIcon"
@@ -100,7 +110,7 @@ class DialogExposeEntity extends LitElement {
           appearance="plain"
           @click=${this.closeDialog}
         >
-          ${this.hass!.localize("ui.common.cancel")}
+          ${this.hass!.localize('ui.common.cancel')}
         </ha-button>
         <ha-button
           slot="primaryAction"
@@ -108,33 +118,33 @@ class DialogExposeEntity extends LitElement {
           .disabled=${this._selected.length === 0}
         >
           ${this.hass.localize(
-            "ui.panel.config.voice_assistants.expose.expose_dialog.expose_entities",
+            'ui.panel.config.voice_assistants.expose.expose_dialog.expose_entities',
             { count: this._selected.length }
           )}
         </ha-button>
       </ha-dialog>
-    `;
+    `
   }
 
-  private _handleSelected = (ev) => {
-    const entityId = ev.target.value;
+  private _handleSelected = ev => {
+    const entityId = ev.target.value
     if (ev.detail.selected) {
       if (this._selected.includes(entityId)) {
-        return;
+        return
       }
-      this._selected = [...this._selected, entityId];
+      this._selected = [...this._selected, entityId]
     } else {
-      this._selected = this._selected.filter((item) => item !== entityId);
+      this._selected = this._selected.filter(item => item !== entityId)
     }
-  };
+  }
 
   private _itemClicked(ev) {
-    const listItem = ev.target.closest("ha-check-list-item");
-    listItem.selected = !listItem.selected;
+    const listItem = ev.target.closest('ha-check-list-item')
+    listItem.selected = !listItem.selected
   }
 
   private _filterChanged(e) {
-    this._filter = e.detail.value;
+    this._filter = e.detail.value
   }
 
   private _filterEntities = memoizeOne(
@@ -142,18 +152,18 @@ class DialogExposeEntity extends LitElement {
       exposedEntities: Record<string, ExposeEntitySettings>,
       filter?: string
     ) => {
-      const lowerFilter = filter?.toLowerCase();
+      const lowerFilter = filter?.toLowerCase()
       return Object.values(this.hass.states).filter(
-        (entity) =>
+        entity =>
           this._params!.filterAssistants.some(
-            (ass) => !exposedEntities[entity.entity_id]?.[ass]
+            ass => !exposedEntities[entity.entity_id]?.[ass]
           ) &&
           (!lowerFilter ||
             entity.entity_id.toLowerCase().includes(lowerFilter) ||
             computeStateName(entity)?.toLowerCase().includes(lowerFilter))
-      );
+      )
     }
-  );
+  )
 
   private _renderItem = (entityState: HassEntity) => html`
     <ha-check-list-item
@@ -172,11 +182,11 @@ class DialogExposeEntity extends LitElement {
       ${computeStateName(entityState)}
       <span slot="secondary">${entityState.entity_id}</span>
     </ha-check-list-item>
-  `;
+  `
 
   private _expose() {
-    this._params!.exposeEntities(this._selected);
-    this.closeDialog();
+    this._params!.exposeEntities(this._selected)
+    this.closeDialog()
   }
 
   static get styles(): CSSResultGroup {
@@ -268,12 +278,12 @@ class DialogExposeEntity extends LitElement {
           }
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-expose-entity": DialogExposeEntity;
+    'dialog-expose-entity': DialogExposeEntity
   }
 }

@@ -1,84 +1,84 @@
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-expansion-panel";
-import "../../../../components/ha-form/ha-form";
-import "../../../../components/ha-formfield";
-import "../../../../components/ha-icon-picker";
-import "../../../../components/ha-radio";
-import type { HaRadio } from "../../../../components/ha-radio";
-import "../../../../components/ha-textfield";
-import type { InputText } from "../../../../data/input_text";
-import { haStyle } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-expansion-panel'
+import '../../../../components/ha-form/ha-form'
+import '../../../../components/ha-formfield'
+import '../../../../components/ha-icon-picker'
+import '../../../../components/ha-radio'
+import type { HaRadio } from '../../../../components/ha-radio'
+import '../../../../components/ha-textfield'
+import type { InputText } from '../../../../data/input_text'
+import { haStyle } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
 
-@customElement("ha-input_text-form")
+@customElement('ha-input_text-form')
 class HaInputTextForm extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public new = false;
+  @property({ type: Boolean }) public new = false
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  private _item?: InputText;
+  private _item?: InputText
 
-  @state() private _name!: string;
+  @state() private _name!: string
 
-  @state() private _icon!: string;
+  @state() private _icon!: string
 
-  @state() private _max?: number;
+  @state() private _max?: number
 
-  @state() private _min?: number;
+  @state() private _min?: number
 
-  @state() private _mode?: string;
+  @state() private _mode?: string
 
-  @state() private _pattern?: string;
+  @state() private _pattern?: string
 
   set item(item: InputText) {
-    this._item = item;
+    this._item = item
     if (item) {
-      this._name = item.name || "";
-      this._icon = item.icon || "";
-      this._max = item.max || 100;
-      this._min = item.min || 0;
-      this._mode = item.mode || "text";
-      this._pattern = item.pattern;
+      this._name = item.name || ''
+      this._icon = item.icon || ''
+      this._max = item.max || 100
+      this._min = item.min || 0
+      this._mode = item.mode || 'text'
+      this._pattern = item.pattern
     } else {
-      this._name = "";
-      this._icon = "";
-      this._max = 100;
-      this._min = 0;
-      this._mode = "text";
+      this._name = ''
+      this._icon = ''
+      this._max = 100
+      this._min = 0
+      this._mode = 'text'
     }
   }
 
   public focus() {
     this.updateComplete.then(() =>
       (
-        this.shadowRoot?.querySelector("[dialogInitialFocus]") as HTMLElement
+        this.shadowRoot?.querySelector('[dialogInitialFocus]') as HTMLElement
       )?.focus()
-    );
+    )
   }
 
   protected render() {
     if (!this.hass) {
-      return nothing;
+      return nothing
     }
 
     return html`
       <div class="form">
         <ha-textfield
           .value=${this._name}
-          .configValue=${"name"}
+          .configValue=${'name'}
           @input=${this._valueChanged}
           .label=${this.hass!.localize(
-            "ui.dialogs.helper_settings.generic.name"
+            'ui.dialogs.helper_settings.generic.name'
           )}
           autoValidate
           required
           .validationMessage=${this.hass!.localize(
-            "ui.dialogs.helper_settings.required_error_msg"
+            'ui.dialogs.helper_settings.required_error_msg'
           )}
           dialogInitialFocus
           .disabled=${this.disabled}
@@ -86,113 +86,113 @@ class HaInputTextForm extends LitElement {
         <ha-icon-picker
           .hass=${this.hass}
           .value=${this._icon}
-          .configValue=${"icon"}
+          .configValue=${'icon'}
           @value-changed=${this._valueChanged}
           .label=${this.hass!.localize(
-            "ui.dialogs.helper_settings.generic.icon"
+            'ui.dialogs.helper_settings.generic.icon'
           )}
           .disabled=${this.disabled}
         ></ha-icon-picker>
         <ha-expansion-panel
           header=${this.hass.localize(
-            "ui.dialogs.helper_settings.generic.advanced_settings"
+            'ui.dialogs.helper_settings.generic.advanced_settings'
           )}
           outlined
         >
           <ha-textfield
             .value=${this._min}
-            .configValue=${"min"}
+            .configValue=${'min'}
             type="number"
             min="0"
             max="255"
             @input=${this._valueChanged}
             .label=${this.hass!.localize(
-              "ui.dialogs.helper_settings.input_text.min"
+              'ui.dialogs.helper_settings.input_text.min'
             )}
             .disabled=${this.disabled}
           ></ha-textfield>
           <ha-textfield
             .value=${this._max}
-            .configValue=${"max"}
+            .configValue=${'max'}
             min="0"
             max="255"
             type="number"
             @input=${this._valueChanged}
             .label=${this.hass!.localize(
-              "ui.dialogs.helper_settings.input_text.max"
+              'ui.dialogs.helper_settings.input_text.max'
             )}
           ></ha-textfield>
           <div class="layout horizontal center justified">
-            ${this.hass.localize("ui.dialogs.helper_settings.input_text.mode")}
+            ${this.hass.localize('ui.dialogs.helper_settings.input_text.mode')}
             <ha-formfield
               .label=${this.hass.localize(
-                "ui.dialogs.helper_settings.input_text.text"
+                'ui.dialogs.helper_settings.input_text.text'
               )}
             >
               <ha-radio
                 name="mode"
                 value="text"
-                .checked=${this._mode === "text"}
+                .checked=${this._mode === 'text'}
                 @change=${this._modeChanged}
                 .disabled=${this.disabled}
               ></ha-radio>
             </ha-formfield>
             <ha-formfield
               .label=${this.hass.localize(
-                "ui.dialogs.helper_settings.input_text.password"
+                'ui.dialogs.helper_settings.input_text.password'
               )}
             >
               <ha-radio
                 name="mode"
                 value="password"
-                .checked=${this._mode === "password"}
+                .checked=${this._mode === 'password'}
                 @change=${this._modeChanged}
                 .disabled=${this.disabled}
               ></ha-radio>
             </ha-formfield>
           </div>
           <ha-textfield
-            .value=${this._pattern || ""}
-            .configValue=${"pattern"}
+            .value=${this._pattern || ''}
+            .configValue=${'pattern'}
             @input=${this._valueChanged}
             .label=${this.hass!.localize(
-              "ui.dialogs.helper_settings.input_text.pattern_label"
+              'ui.dialogs.helper_settings.input_text.pattern_label'
             )}
             .helper=${this.hass!.localize(
-              "ui.dialogs.helper_settings.input_text.pattern_helper"
+              'ui.dialogs.helper_settings.input_text.pattern_helper'
             )}
             .disabled=${this.disabled}
           ></ha-textfield>
         </ha-expansion-panel>
       </div>
-    `;
+    `
   }
 
   private _modeChanged(ev: CustomEvent) {
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: { ...this._item, mode: (ev.target as HaRadio).value },
-    });
+    })
   }
 
   private _valueChanged(ev: CustomEvent) {
     if (!this.new && !this._item) {
-      return;
+      return
     }
-    ev.stopPropagation();
-    const configValue = (ev.target as any).configValue;
-    const value = ev.detail?.value || (ev.target as any).value;
+    ev.stopPropagation()
+    const configValue = (ev.target as any).configValue
+    const value = ev.detail?.value || (ev.target as any).value
     if (this[`_${configValue}`] === value) {
-      return;
+      return
     }
-    const newValue = { ...this._item };
+    const newValue = { ...this._item }
     if (!value) {
-      delete newValue[configValue];
+      delete newValue[configValue]
     } else {
-      newValue[configValue] = value;
+      newValue[configValue] = value
     }
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: newValue,
-    });
+    })
   }
 
   static get styles(): CSSResultGroup {
@@ -214,12 +214,12 @@ class HaInputTextForm extends LitElement {
           margin-top: 16px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-input_text-form": HaInputTextForm;
+    'ha-input_text-form': HaInputTextForm
   }
 }

@@ -1,67 +1,67 @@
-import { consume } from "@lit/context";
-import type { PropertyValues } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import memoizeOne from "memoize-one";
-import { fireEvent } from "../../../../../common/dom/fire_event";
-import "../../../../../components/device/ha-device-action-picker";
-import "../../../../../components/device/ha-device-picker";
-import "../../../../../components/ha-form/ha-form";
-import { fullEntitiesContext } from "../../../../../data/context";
+import { consume } from '@lit/context'
+import type { PropertyValues } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import memoizeOne from 'memoize-one'
+import { fireEvent } from '../../../../../common/dom/fire_event'
+import '../../../../../components/device/ha-device-action-picker'
+import '../../../../../components/device/ha-device-picker'
+import '../../../../../components/ha-form/ha-form'
+import { fullEntitiesContext } from '../../../../../data/context'
 import type {
   DeviceAction,
   DeviceCapabilities,
-} from "../../../../../data/device_automation";
+} from '../../../../../data/device_automation'
 import {
   deviceAutomationsEqual,
   fetchDeviceActionCapabilities,
   localizeExtraFieldsComputeLabelCallback,
   localizeExtraFieldsComputeHelperCallback,
-} from "../../../../../data/device_automation";
-import type { EntityRegistryEntry } from "../../../../../data/entity_registry";
-import type { HomeAssistant } from "../../../../../types";
+} from '../../../../../data/device_automation'
+import type { EntityRegistryEntry } from '../../../../../data/entity_registry'
+import type { HomeAssistant } from '../../../../../types'
 
-@customElement("ha-automation-action-device_id")
+@customElement('ha-automation-action-device_id')
 export class HaDeviceAction extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Object }) public action!: DeviceAction;
+  @property({ type: Object }) public action!: DeviceAction
 
-  @state() private _deviceId?: string;
+  @state() private _deviceId?: string
 
-  @state() private _capabilities?: DeviceCapabilities;
+  @state() private _capabilities?: DeviceCapabilities
 
   @state()
   @consume({ context: fullEntitiesContext, subscribe: true })
-  _entityReg!: EntityRegistryEntry[];
+  _entityReg!: EntityRegistryEntry[]
 
-  private _origAction?: DeviceAction;
+  private _origAction?: DeviceAction
 
   public static get defaultConfig(): DeviceAction {
     return {
-      device_id: "",
-      domain: "",
-      entity_id: "",
-    };
+      device_id: '',
+      domain: '',
+      entity_id: '',
+    }
   }
 
   private _extraFieldsData = memoizeOne(
     (action: DeviceAction, capabilities: DeviceCapabilities) => {
-      const extraFieldsData: Record<string, any> = {};
-      capabilities.extra_fields.forEach((item) => {
+      const extraFieldsData: Record<string, any> = {}
+      capabilities.extra_fields.forEach(item => {
         if (action[item.name] !== undefined) {
-          extraFieldsData![item.name] = action[item.name];
+          extraFieldsData![item.name] = action[item.name]
         }
-      });
-      return extraFieldsData;
+      })
+      return extraFieldsData
     }
-  );
+  )
 
   public shouldUpdate(changedProperties: PropertyValues) {
-    if (!changedProperties.has("action")) {
-      return true;
+    if (!changedProperties.has('action')) {
+      return true
     }
     if (
       this.action.device_id &&
@@ -69,20 +69,20 @@ export class HaDeviceAction extends LitElement {
     ) {
       fireEvent(
         this,
-        "ui-mode-not-available",
+        'ui-mode-not-available',
         Error(
           this.hass.localize(
-            "ui.panel.config.automation.editor.edit_unknown_device"
+            'ui.panel.config.automation.editor.edit_unknown_device'
           )
         )
-      );
-      return false;
+      )
+      return false
     }
-    return true;
+    return true
   }
 
   protected render() {
-    const deviceId = this._deviceId || this.action.device_id;
+    const deviceId = this._deviceId || this.action.device_id
 
     return html`
       <ha-device-picker
@@ -91,7 +91,7 @@ export class HaDeviceAction extends LitElement {
         @value-changed=${this._devicePicked}
         .hass=${this.hass}
         label=${this.hass.localize(
-          "ui.panel.config.automation.editor.actions.type.device_id.label"
+          'ui.panel.config.automation.editor.actions.type.device_id.label'
         )}
       ></ha-device-picker>
       <ha-device-action-picker
@@ -101,7 +101,7 @@ export class HaDeviceAction extends LitElement {
         @value-changed=${this._deviceActionPicked}
         .hass=${this.hass}
         label=${this.hass.localize(
-          "ui.panel.config.automation.editor.actions.type.device_id.action"
+          'ui.panel.config.automation.editor.actions.type.device_id.action'
         )}
       ></ha-device-action-picker>
       ${this._capabilities?.extra_fields?.length
@@ -122,67 +122,67 @@ export class HaDeviceAction extends LitElement {
               @value-changed=${this._extraFieldsChanged}
             ></ha-form>
           `
-        : ""}
-    `;
+        : ''}
+    `
   }
 
   protected firstUpdated() {
-    this.hass.loadBackendTranslation("device_automation");
+    this.hass.loadBackendTranslation('device_automation')
     if (!this._capabilities) {
-      this._getCapabilities();
+      this._getCapabilities()
     }
     if (this.action) {
-      this._origAction = this.action;
+      this._origAction = this.action
     }
   }
 
   protected updated(changedProps) {
-    const prevAction = changedProps.get("action");
+    const prevAction = changedProps.get('action')
     if (
       prevAction &&
       !deviceAutomationsEqual(this._entityReg, prevAction, this.action)
     ) {
-      this._deviceId = undefined;
-      this._getCapabilities();
+      this._deviceId = undefined
+      this._getCapabilities()
     }
   }
 
   private async _getCapabilities() {
     this._capabilities = this.action.domain
       ? await fetchDeviceActionCapabilities(this.hass, this.action)
-      : undefined;
+      : undefined
   }
 
   private _devicePicked(ev) {
-    ev.stopPropagation();
-    this._deviceId = ev.target.value;
+    ev.stopPropagation()
+    this._deviceId = ev.target.value
     if (this._deviceId === undefined) {
-      fireEvent(this, "value-changed", {
+      fireEvent(this, 'value-changed', {
         value: HaDeviceAction.defaultConfig,
-      });
+      })
     }
   }
 
   private _deviceActionPicked(ev) {
-    ev.stopPropagation();
-    let action = ev.detail.value;
+    ev.stopPropagation()
+    let action = ev.detail.value
     if (
       this._origAction &&
       deviceAutomationsEqual(this._entityReg, this._origAction, action)
     ) {
-      action = this._origAction;
+      action = this._origAction
     }
-    fireEvent(this, "value-changed", { value: action });
+    fireEvent(this, 'value-changed', { value: action })
   }
 
   private _extraFieldsChanged(ev) {
-    ev.stopPropagation();
-    fireEvent(this, "value-changed", {
+    ev.stopPropagation()
+    fireEvent(this, 'value-changed', {
       value: {
         ...this.action,
         ...ev.detail.value,
       },
-    });
+    })
   }
 
   static styles = css`
@@ -199,11 +199,11 @@ export class HaDeviceAction extends LitElement {
       display: block;
       margin-top: 24px;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-automation-action-device_id": HaDeviceAction;
+    'ha-automation-action-device_id': HaDeviceAction
   }
 }

@@ -1,27 +1,27 @@
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { atLeastVersion } from "../../../src/common/config/version";
-import type { Supervisor } from "../../../src/data/supervisor/supervisor";
-import "../../../src/layouts/hass-tabs-subpage";
-import { haStyle } from "../../../src/resources/styles";
-import type { HomeAssistant, Route } from "../../../src/types";
-import { supervisorTabs } from "../hassio-tabs";
-import { hassioStyle } from "../resources/hassio-style";
-import "./hassio-core-info";
-import "./hassio-host-info";
-import "./hassio-supervisor-info";
-import "./hassio-supervisor-log";
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { atLeastVersion } from '../../../src/common/config/version'
+import type { Supervisor } from '../../../src/data/supervisor/supervisor'
+import '../../../src/layouts/hass-tabs-subpage'
+import { haStyle } from '../../../src/resources/styles'
+import type { HomeAssistant, Route } from '../../../src/types'
+import { supervisorTabs } from '../hassio-tabs'
+import { hassioStyle } from '../resources/hassio-style'
+import './hassio-core-info'
+import './hassio-host-info'
+import './hassio-supervisor-info'
+import './hassio-supervisor-log'
 
-@customElement("hassio-system")
+@customElement('hassio-system')
 class HassioSystem extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property({ attribute: false }) public supervisor!: Supervisor;
+  @property({ attribute: false }) public supervisor!: Supervisor
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ attribute: false }) public route!: Route;
+  @property({ attribute: false }) public route!: Route
 
   protected render(): TemplateResult | undefined {
     return html`
@@ -35,7 +35,7 @@ class HassioSystem extends LitElement {
         back-path="/config"
         supervisor
       >
-        <span slot="header"> ${this.supervisor.localize("panel.system")} </span>
+        <span slot="header"> ${this.supervisor.localize('panel.system')} </span>
         <div class="content">
           <div class="card-group">
             <hassio-core-info
@@ -57,7 +57,7 @@ class HassioSystem extends LitElement {
           ></hassio-supervisor-log>
         </div>
       </hass-tabs-subpage>
-    `;
+    `
   }
 
   static get styles(): CSSResultGroup {
@@ -82,12 +82,12 @@ class HassioSystem extends LitElement {
           width: 100%;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hassio-system": HassioSystem;
+    'hassio-system': HassioSystem
   }
 }

@@ -1,79 +1,79 @@
-import { animate } from "@lit-labs/motion";
+import { animate } from '@lit-labs/motion'
 
-import { mdiClose, mdiDelete } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { repeat } from "lit/directives/repeat";
-import { isComponentLoaded } from "../../common/config/is_component_loaded";
-import { fireEvent } from "../../common/dom/fire_event";
-import { computeRTLDirection } from "../../common/util/compute_rtl";
-import { deleteImage, getIdFromUrl } from "../../data/image_upload";
-import type { MediaPlayerItem } from "../../data/media-player";
-import { MediaClassBrowserSettings } from "../../data/media-player";
+import { mdiClose, mdiDelete } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { repeat } from 'lit/directives/repeat'
+import { isComponentLoaded } from '../../common/config/is_component_loaded'
+import { fireEvent } from '../../common/dom/fire_event'
+import { computeRTLDirection } from '../../common/util/compute_rtl'
+import { deleteImage, getIdFromUrl } from '../../data/image_upload'
+import type { MediaPlayerItem } from '../../data/media-player'
+import { MediaClassBrowserSettings } from '../../data/media-player'
 import {
   browseLocalMediaPlayer,
   isImageUploadMediaSourceContentId,
   isLocalMediaSourceContentId,
   removeLocalMedia,
-} from "../../data/media_source";
-import { showConfirmationDialog } from "../../dialogs/generic/show-dialog-box";
-import { haStyleDialog, haStyleDialogFixedTop } from "../../resources/styles";
-import type { HomeAssistant } from "../../types";
-import "../ha-button";
-import "../ha-check-list-item";
-import "../ha-dialog";
-import "../ha-dialog-header";
-import "../ha-list";
-import "../ha-spinner";
-import "../ha-svg-icon";
-import "../ha-tip";
-import "./ha-media-player-browse";
-import "./ha-media-upload-button";
-import type { MediaManageDialogParams } from "./show-media-manage-dialog";
+} from '../../data/media_source'
+import { showConfirmationDialog } from '../../dialogs/generic/show-dialog-box'
+import { haStyleDialog, haStyleDialogFixedTop } from '../../resources/styles'
+import type { HomeAssistant } from '../../types'
+import '../ha-button'
+import '../ha-check-list-item'
+import '../ha-dialog'
+import '../ha-dialog-header'
+import '../ha-list'
+import '../ha-spinner'
+import '../ha-svg-icon'
+import '../ha-tip'
+import './ha-media-player-browse'
+import './ha-media-upload-button'
+import type { MediaManageDialogParams } from './show-media-manage-dialog'
 
-@customElement("dialog-media-manage")
+@customElement('dialog-media-manage')
 class DialogMediaManage extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _currentItem?: MediaPlayerItem;
+  @state() private _currentItem?: MediaPlayerItem
 
-  @state() private _params?: MediaManageDialogParams;
+  @state() private _params?: MediaManageDialogParams
 
-  @state() private _uploading = false;
+  @state() private _uploading = false
 
-  @state() private _deleting = false;
+  @state() private _deleting = false
 
-  @state() private _selected = new Set<number>();
+  @state() private _selected = new Set<number>()
 
-  private _filesChanged = false;
+  private _filesChanged = false
 
   public showDialog(params: MediaManageDialogParams): void {
-    this._params = params;
-    this._refreshMedia();
+    this._params = params
+    this._refreshMedia()
   }
 
   public closeDialog() {
     if (this._filesChanged && this._params!.onClose) {
-      this._params!.onClose();
+      this._params!.onClose()
     }
-    this._params = undefined;
-    this._currentItem = undefined;
-    this._uploading = false;
-    this._deleting = false;
-    this._filesChanged = false;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
+    this._params = undefined
+    this._currentItem = undefined
+    this._uploading = false
+    this._deleting = false
+    this._filesChanged = false
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
 
     const children =
-      this._currentItem?.children?.filter((child) => !child.can_expand) || [];
+      this._currentItem?.children?.filter(child => !child.can_expand) || []
 
-    let fileIndex = 0;
+    let fileIndex = 0
 
     return html`
       <ha-dialog
@@ -90,7 +90,7 @@ class DialogMediaManage extends LitElement {
             ? html`
                 <span slot="title">
                   ${this.hass.localize(
-                    "ui.components.media-browser.file_management.title"
+                    'ui.components.media-browser.file_management.title'
                   )}
                 </span>
 
@@ -103,10 +103,10 @@ class DialogMediaManage extends LitElement {
                   slot="actionItems"
                 ></ha-media-upload-button>
                 ${this._uploading
-                  ? ""
+                  ? ''
                   : html`
                       <ha-icon-button
-                        .label=${this.hass.localize("ui.common.close")}
+                        .label=${this.hass.localize('ui.common.close')}
                         .path=${mdiClose}
                         dialogAction="close"
                         slot="navigationIcon"
@@ -121,17 +121,20 @@ class DialogMediaManage extends LitElement {
                   .disabled=${this._deleting}
                   @click=${this._handleDelete}
                 >
-                  <ha-svg-icon .path=${mdiDelete} slot="start"></ha-svg-icon>
+                  <ha-svg-icon
+                    .path=${mdiDelete}
+                    slot="start"
+                  ></ha-svg-icon>
                   ${this.hass.localize(
                     `ui.components.media-browser.file_management.${
-                      this._deleting ? "deleting" : "delete"
+                      this._deleting ? 'deleting' : 'delete'
                     }`,
                     { count: this._selected.size }
                   )}
                 </ha-button>
 
                 ${this._deleting
-                  ? ""
+                  ? ''
                   : html`
                       <ha-button
                         slot="actionItems"
@@ -158,33 +161,36 @@ class DialogMediaManage extends LitElement {
             ? html`<div class="no-items">
                 <p>
                   ${this.hass.localize(
-                    "ui.components.media-browser.file_management.no_items"
+                    'ui.components.media-browser.file_management.no_items'
                   )}
                 </p>
                 ${this._currentItem?.children?.length
                   ? html`<span class="folders"
                       >${this.hass.localize(
-                        "ui.components.media-browser.file_management.folders_not_supported"
+                        'ui.components.media-browser.file_management.folders_not_supported'
                       )}</span
                     >`
-                  : ""}
+                  : ''}
               </div>`
             : html`
-                <ha-list multi @selected=${this._handleSelected}>
+                <ha-list
+                  multi
+                  @selected=${this._handleSelected}
+                >
                   ${repeat(
                     children,
-                    (item) => item.media_content_id,
-                    (item) => {
+                    item => item.media_content_id,
+                    item => {
                       const icon = html`
                         <ha-svg-icon
                           slot="graphic"
                           .path=${MediaClassBrowserSettings[
-                            item.media_class === "directory"
+                            item.media_class === 'directory'
                               ? item.children_media_class || item.media_class
                               : item.media_class
                           ].icon}
                         ></ha-svg-icon>
-                      `;
+                      `
                       return html`
                         <ha-check-list-item
                           ${animate({
@@ -198,22 +204,22 @@ class DialogMediaManage extends LitElement {
                         >
                           ${icon} ${item.title}
                         </ha-check-list-item>
-                      `;
+                      `
                     }
                   )}
                 </ha-list>
               `}
-        ${isComponentLoaded(this.hass, "hassio")
+        ${isComponentLoaded(this.hass, 'hassio')
           ? html`<ha-tip .hass=${this.hass}>
               ${this.hass.localize(
-                "ui.components.media-browser.file_management.tip_media_storage",
+                'ui.components.media-browser.file_management.tip_media_storage',
                 {
                   storage: html`<a
                     href="/config/storage"
                     @click=${this.closeDialog}
                   >
                     ${this.hass.localize(
-                      "ui.components.media-browser.file_management.tip_storage_panel"
+                      'ui.components.media-browser.file_management.tip_storage_panel'
                     )}</a
                   >`,
                 }
@@ -221,26 +227,26 @@ class DialogMediaManage extends LitElement {
             </ha-tip>`
           : nothing}
       </ha-dialog>
-    `;
+    `
   }
 
   private _handleSelected(ev) {
-    this._selected = ev.detail.index;
+    this._selected = ev.detail.index
   }
 
   private _startUploading() {
-    this._uploading = true;
-    this._filesChanged = true;
+    this._uploading = true
+    this._filesChanged = true
   }
 
   private _doneUploading() {
-    this._uploading = false;
-    this._refreshMedia();
+    this._uploading = false
+    this._refreshMedia()
   }
 
   private _handleDeselectAll() {
     if (this._selected.size) {
-      this._selected = new Set();
+      this._selected = new Set()
     }
   }
 
@@ -248,58 +254,58 @@ class DialogMediaManage extends LitElement {
     if (
       !(await showConfirmationDialog(this, {
         text: this.hass.localize(
-          "ui.components.media-browser.file_management.confirm_delete",
+          'ui.components.media-browser.file_management.confirm_delete',
           { count: this._selected.size }
         ),
         warning: true,
       }))
     ) {
-      return;
+      return
     }
-    this._filesChanged = true;
-    this._deleting = true;
+    this._filesChanged = true
+    this._deleting = true
 
-    const toDelete: MediaPlayerItem[] = [];
-    let fileIndex = 0;
-    this._currentItem!.children!.forEach((item) => {
+    const toDelete: MediaPlayerItem[] = []
+    let fileIndex = 0
+    this._currentItem!.children!.forEach(item => {
       if (item.can_expand) {
-        return;
+        return
       }
       if (this._selected.has(fileIndex++)) {
-        toDelete.push(item);
+        toDelete.push(item)
       }
-    });
+    })
 
     try {
       await Promise.all(
-        toDelete.map(async (item) => {
+        toDelete.map(async item => {
           if (isLocalMediaSourceContentId(item.media_content_id)) {
-            await removeLocalMedia(this.hass, item.media_content_id);
+            await removeLocalMedia(this.hass, item.media_content_id)
           } else if (isImageUploadMediaSourceContentId(item.media_content_id)) {
-            const media_id = getIdFromUrl(item.media_content_id);
+            const media_id = getIdFromUrl(item.media_content_id)
             if (media_id) {
-              await deleteImage(this.hass, media_id);
+              await deleteImage(this.hass, media_id)
             }
           }
           this._currentItem = {
             ...this._currentItem!,
-            children: this._currentItem!.children!.filter((i) => i !== item),
-          };
+            children: this._currentItem!.children!.filter(i => i !== item),
+          }
         })
-      );
+      )
     } finally {
-      this._deleting = false;
-      this._selected = new Set();
+      this._deleting = false
+      this._selected = new Set()
     }
   }
 
   private async _refreshMedia() {
-    this._selected = new Set();
-    this._currentItem = undefined;
+    this._selected = new Set()
+    this._currentItem = undefined
     this._currentItem = await browseLocalMediaPlayer(
       this.hass,
       this._params!.currentItem.media_content_id
-    );
+    )
   }
 
   static get styles(): CSSResultGroup {
@@ -348,12 +354,12 @@ class DialogMediaManage extends LitElement {
           font-style: italic;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "dialog-media-manage": DialogMediaManage;
+    'dialog-media-manage': DialogMediaManage
   }
 }

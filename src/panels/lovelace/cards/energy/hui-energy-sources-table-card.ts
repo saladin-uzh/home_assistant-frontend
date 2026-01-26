@@ -1,78 +1,78 @@
 // @ts-ignore
-import dataTableStyles from "@material/data-table/dist/mdc.data-table.min.css";
-import type { UnsubscribeFunc } from "home-assistant-js-websocket";
-import type { CSSResultGroup, PropertyValues } from "lit";
-import { css, html, LitElement, unsafeCSS, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { styleMap } from "lit/directives/style-map";
-import { formatNumber } from "../../../../common/number/format_number";
-import { getEnergyColor } from "./common/color";
-import "../../../../components/ha-card";
-import type { EnergyData, EnergySourceByType } from "../../../../data/energy";
+import dataTableStyles from '@material/data-table/dist/mdc.data-table.min.css'
+import type { UnsubscribeFunc } from 'home-assistant-js-websocket'
+import type { CSSResultGroup, PropertyValues } from 'lit'
+import { css, html, LitElement, unsafeCSS, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { styleMap } from 'lit/directives/style-map'
+import { formatNumber } from '../../../../common/number/format_number'
+import { getEnergyColor } from './common/color'
+import '../../../../components/ha-card'
+import type { EnergyData, EnergySourceByType } from '../../../../data/energy'
 import {
   energySourcesByType,
   getEnergyDataCollection,
-} from "../../../../data/energy";
+} from '../../../../data/energy'
 import {
   calculateStatisticSumGrowth,
   getStatisticLabel,
   isExternalStatistic,
-} from "../../../../data/recorder";
-import { SubscribeMixin } from "../../../../mixins/subscribe-mixin";
-import type { HomeAssistant } from "../../../../types";
-import type { LovelaceCard } from "../../types";
-import type { EnergySourcesTableCardConfig } from "../types";
-import { hasConfigChanged } from "../../common/has-changed";
-import { fireEvent } from "../../../../common/dom/fire_event";
+} from '../../../../data/recorder'
+import { SubscribeMixin } from '../../../../mixins/subscribe-mixin'
+import type { HomeAssistant } from '../../../../types'
+import type { LovelaceCard } from '../../types'
+import type { EnergySourcesTableCardConfig } from '../types'
+import { hasConfigChanged } from '../../common/has-changed'
+import { fireEvent } from '../../../../common/dom/fire_event'
 
 const colorPropertyMap = {
-  grid_return: "--energy-grid-return-color",
-  grid_consumption: "--energy-grid-consumption-color",
-  battery_in: "--energy-battery-in-color",
-  battery_out: "--energy-battery-out-color",
-  solar: "--energy-solar-color",
-  gas: "--energy-gas-color",
-  water: "--energy-water-color",
-};
+  grid_return: '--energy-grid-return-color',
+  grid_consumption: '--energy-grid-consumption-color',
+  battery_in: '--energy-battery-in-color',
+  battery_out: '--energy-battery-out-color',
+  solar: '--energy-solar-color',
+  gas: '--energy-gas-color',
+  water: '--energy-water-color',
+}
 
-@customElement("hui-energy-sources-table-card")
+@customElement('hui-energy-sources-table-card')
 export class HuiEnergySourcesTableCard
   extends SubscribeMixin(LitElement)
   implements LovelaceCard
 {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _config?: EnergySourcesTableCardConfig;
+  @state() private _config?: EnergySourcesTableCardConfig
 
-  @state() private _data?: EnergyData;
+  @state() private _data?: EnergyData
 
-  protected hassSubscribeRequiredHostProps = ["_config"];
+  protected hassSubscribeRequiredHostProps = ['_config']
 
   public hassSubscribe(): UnsubscribeFunc[] {
     return [
       getEnergyDataCollection(this.hass, {
         key: this._config?.collection_key,
-      }).subscribe((data) => {
-        this._data = data;
+      }).subscribe(data => {
+        this._data = data
       }),
-    ];
+    ]
   }
 
   public getCardSize(): Promise<number> | number {
-    return 3;
+    return 3
   }
 
   public setConfig(config: EnergySourcesTableCardConfig): void {
-    this._config = config;
+    this._config = config
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     return (
       hasConfigChanged(this, changedProps) ||
       changedProps.size > 1 ||
-      !changedProps.has("hass")
-    );
+      !changedProps.has('hass')
+    )
   }
 
   protected _renderRow(
@@ -118,7 +118,10 @@ export class HuiEnergySourcesTableCard
           })}
         ></div>
       </td>
-      <th class="mdc-data-table__cell" scope="row">
+      <th
+        class="mdc-data-table__cell"
+        scope="row"
+      >
         ${getStatisticLabel(
           this.hass,
           statId,
@@ -135,13 +138,13 @@ export class HuiEnergySourcesTableCard
                 >
                   ${compareCost !== null
                     ? formatNumber(compareCost, this.hass.locale, {
-                        style: "currency",
+                        style: 'currency',
                         currency: this.hass.config.currency!,
                       })
-                    : ""}
+                    : ''}
                 </td>`
-              : ""}`
-        : ""}
+              : ''}`
+        : ''}
       <td class="mdc-data-table__cell mdc-data-table__cell--numeric">
         ${formatNumber(energy, this.hass.locale)} ${energyUnit}
       </td>
@@ -149,13 +152,13 @@ export class HuiEnergySourcesTableCard
         ? html` <td class="mdc-data-table__cell mdc-data-table__cell--numeric">
             ${cost !== null
               ? formatNumber(cost, this.hass.locale, {
-                  style: "currency",
+                  style: 'currency',
                   currency: this.hass.config.currency!,
                 })
-              : ""}
+              : ''}
           </td>`
-        : ""}
-    </tr>`;
+        : ''}
+    </tr>`
   }
 
   protected _renderTotalRow(
@@ -171,7 +174,7 @@ export class HuiEnergySourcesTableCard
     isFinalTotal?: boolean
   ) {
     return html` <tr
-      class="mdc-data-table__row ${bulletColor && !isFinalTotal ? "" : "total"}"
+      class="mdc-data-table__row ${bulletColor && !isFinalTotal ? '' : 'total'}"
     >
       <td class="mdc-data-table__cell cell-bullet">
         ${bulletColor
@@ -184,11 +187,16 @@ export class HuiEnergySourcesTableCard
             ></div>`
           : nothing}
       </td>
-      <th class="mdc-data-table__cell" scope="row">${label}</th>
+      <th
+        class="mdc-data-table__cell"
+        scope="row"
+      >
+        ${label}
+      </th>
       ${compare
         ? html`<td class="mdc-data-table__cell mdc-data-table__cell--numeric">
               ${compareEnergy === null
-                ? ""
+                ? ''
                 : `${formatNumber(compareEnergy, this.hass.locale)} ${energyUnit}`}
             </td>
             ${showCosts
@@ -197,142 +205,141 @@ export class HuiEnergySourcesTableCard
                 >
                   ${compareCost !== null
                     ? formatNumber(compareCost, this.hass.locale, {
-                        style: "currency",
+                        style: 'currency',
                         currency: this.hass.config.currency!,
                       })
-                    : ""}
+                    : ''}
                 </td>`
-              : ""}`
-        : ""}
+              : ''}`
+        : ''}
       <td class="mdc-data-table__cell mdc-data-table__cell--numeric">
         ${energy === null
-          ? ""
+          ? ''
           : `${formatNumber(energy, this.hass.locale)} ${energyUnit}`}
       </td>
       ${showCosts
         ? html`<td class="mdc-data-table__cell mdc-data-table__cell--numeric">
             ${cost !== null
               ? formatNumber(cost, this.hass.locale, {
-                  style: "currency",
+                  style: 'currency',
                   currency: this.hass.config.currency!,
                 })
-              : ""}
+              : ''}
           </td>`
-        : ""}
-    </tr>`;
+        : ''}
+    </tr>`
   }
 
   protected render() {
     if (!this.hass || !this._config) {
-      return nothing;
+      return nothing
     }
 
     if (!this._data) {
       return html`${this.hass.localize(
-        "ui.panel.lovelace.cards.energy.loading"
-      )}`;
+        'ui.panel.lovelace.cards.energy.loading'
+      )}`
     }
 
-    let totalGrid = 0;
-    let totalGridCost = 0;
-    let totalBattery = 0;
+    let totalGrid = 0
+    let totalGridCost = 0
+    let totalBattery = 0
 
-    let hasGridCost = false;
+    let hasGridCost = false
 
-    let totalGridCompare = 0;
-    let totalGridCostCompare = 0;
-    let totalBatteryCompare = 0;
+    let totalGridCompare = 0
+    let totalGridCostCompare = 0
+    let totalBatteryCompare = 0
 
     const totals = {
       gas: 0,
       water: 0,
       solar: 0,
-    };
+    }
     const totalsCompare = {
       gas: 0,
       water: 0,
       solar: 0,
-    };
+    }
     const totalCosts = {
       gas: 0,
       water: 0,
-    };
+    }
     const totalCostsCompare = {
       gas: 0,
       water: 0,
-    };
+    }
     const hasCosts = {
       gas: false,
       water: false,
-    };
+    }
 
-    const allTypes = energySourcesByType(this._data.prefs);
-    const pickedTypes = this._config?.types;
+    const allTypes = energySourcesByType(this._data.prefs)
+    const pickedTypes = this._config?.types
     const types = pickedTypes
       ? Object.fromEntries(
           Object.entries(allTypes).filter(([key]) =>
             pickedTypes.includes(key as keyof EnergySourceByType)
           )
         )
-      : allTypes;
+      : allTypes
 
-    const computedStyles = getComputedStyle(this);
+    const computedStyles = getComputedStyle(this)
 
     const showCosts = !!(
       types.grid?.[0].flow_from.some(
-        (flow) =>
+        flow =>
           flow.stat_cost || flow.entity_energy_price || flow.number_energy_price
       ) ||
       types.grid?.[0].flow_to.some(
-        (flow) =>
+        flow =>
           flow.stat_compensation ||
           flow.entity_energy_price ||
           flow.number_energy_price
       ) ||
       types.gas?.some(
-        (flow) =>
+        flow =>
           flow.stat_cost || flow.entity_energy_price || flow.number_energy_price
       ) ||
       types.water?.some(
-        (flow) =>
+        flow =>
           flow.stat_cost || flow.entity_energy_price || flow.number_energy_price
       )
-    );
+    )
 
     const units = {
-      solar: "kWh",
+      solar: 'kWh',
       gas: this._data.gasUnit,
       water: this._data.waterUnit,
-    };
+    }
 
-    const compare = this._data.statsCompare !== undefined;
+    const compare = this._data.statsCompare !== undefined
 
     const _extractStatData = (
       statId: string,
       costStatId: string | null
     ): {
-      hasData: boolean;
-      energy: number;
-      energyCompare: number;
-      cost: number;
-      costCompare: number;
+      hasData: boolean
+      energy: number
+      energyCompare: number
+      cost: number
+      costCompare: number
     } => {
-      const energy = calculateStatisticSumGrowth(this._data!.stats[statId]);
+      const energy = calculateStatisticSumGrowth(this._data!.stats[statId])
 
       const compareEnergy =
-        compare &&
-        calculateStatisticSumGrowth(this._data!.statsCompare[statId]);
+        compare && calculateStatisticSumGrowth(this._data!.statsCompare[statId])
 
       const cost =
         (costStatId &&
           calculateStatisticSumGrowth(this._data!.stats[costStatId])) ||
-        0;
+        0
 
       const costCompare =
         (compare &&
           costStatId &&
           calculateStatisticSumGrowth(this._data!.statsCompare[costStatId])) ||
-        0;
+        0
 
       if (energy === null && (!compare || compareEnergy === null)) {
         return {
@@ -341,7 +348,7 @@ export class HuiEnergySourcesTableCard
           energyCompare: compareEnergy || 0,
           cost,
           costCompare,
-        };
+        }
       }
 
       return {
@@ -350,35 +357,35 @@ export class HuiEnergySourcesTableCard
         energyCompare: compareEnergy || 0,
         cost,
         costCompare,
-      };
-    };
+      }
+    }
 
-    const showOnlyTotals = this._config.show_only_totals;
+    const showOnlyTotals = this._config.show_only_totals
 
-    const _renderSimpleCategory = (type: "solar" | "gas" | "water") =>
+    const _renderSimpleCategory = (type: 'solar' | 'gas' | 'water') =>
       html` ${types[type]?.map((source, idx) => {
         const cost_stat =
           type in hasCosts &&
           (source.stat_cost ||
-            this._data!.info.cost_sensors[source.stat_energy_from]);
+            this._data!.info.cost_sensors[source.stat_energy_from])
 
         const { hasData, energy, energyCompare, cost, costCompare } =
-          _extractStatData(source.stat_energy_from, cost_stat || null);
+          _extractStatData(source.stat_energy_from, cost_stat || null)
 
         if (!hasData && !cost && !costCompare) {
-          return nothing;
+          return nothing
         }
 
-        totals[type] += energy;
-        totalsCompare[type] += energyCompare;
+        totals[type] += energy
+        totalsCompare[type] += energyCompare
         if (cost_stat) {
-          hasCosts[type] = true;
-          totalCosts[type] += cost;
-          totalCostsCompare[type] += costCompare;
+          hasCosts[type] = true
+          totalCosts[type] += cost
+          totalCostsCompare[type] += costCompare
         }
 
         if (showOnlyTotals) {
-          return nothing;
+          return nothing
         }
 
         return this._renderRow(
@@ -393,7 +400,7 @@ export class HuiEnergySourcesTableCard
           cost_stat ? costCompare : null,
           showCosts,
           compare
-        );
+        )
       })}
       ${types[type]
         ? this._renderTotalRow(
@@ -428,15 +435,18 @@ export class HuiEnergySourcesTableCard
                 }
               : undefined
           )
-        : ""}`;
+        : ''}`
 
     return html` <ha-card>
       ${this._config.title
         ? html`<h1 class="card-header">${this._config.title}</h1>`
-        : ""}
+        : ''}
       <div class="mdc-data-table">
         <div class="mdc-data-table__table-container">
-          <table class="mdc-data-table__table" aria-label="Energy sources">
+          <table
+            class="mdc-data-table__table"
+            aria-label="Energy sources"
+          >
             <thead>
               <tr class="mdc-data-table__header-row">
                 <th class="mdc-data-table__header-cell"></th>
@@ -446,7 +456,7 @@ export class HuiEnergySourcesTableCard
                   scope="col"
                 >
                   ${this.hass.localize(
-                    "ui.panel.lovelace.cards.energy.energy_sources_table.source"
+                    'ui.panel.lovelace.cards.energy.energy_sources_table.source'
                   )}
                 </th>
                 ${compare
@@ -456,7 +466,7 @@ export class HuiEnergySourcesTableCard
                         scope="col"
                       >
                         ${this.hass.localize(
-                          "ui.panel.lovelace.cards.energy.energy_sources_table.previous_energy"
+                          'ui.panel.lovelace.cards.energy.energy_sources_table.previous_energy'
                         )}
                       </th>
                       ${showCosts
@@ -466,18 +476,18 @@ export class HuiEnergySourcesTableCard
                             scope="col"
                           >
                             ${this.hass.localize(
-                              "ui.panel.lovelace.cards.energy.energy_sources_table.previous_cost"
+                              'ui.panel.lovelace.cards.energy.energy_sources_table.previous_cost'
                             )}
                           </th>`
-                        : ""}`
-                  : ""}
+                        : ''}`
+                  : ''}
                 <th
                   class="mdc-data-table__header-cell mdc-data-table__header-cell--numeric"
                   role="columnheader"
                   scope="col"
                 >
                   ${this.hass.localize(
-                    "ui.panel.lovelace.cards.energy.energy_sources_table.energy"
+                    'ui.panel.lovelace.cards.energy.energy_sources_table.energy'
                   )}
                 </th>
                 ${showCosts
@@ -487,71 +497,71 @@ export class HuiEnergySourcesTableCard
                       scope="col"
                     >
                       ${this.hass.localize(
-                        "ui.panel.lovelace.cards.energy.energy_sources_table.cost"
+                        'ui.panel.lovelace.cards.energy.energy_sources_table.cost'
                       )}
                     </th>`
-                  : ""}
+                  : ''}
               </tr>
             </thead>
             <tbody class="mdc-data-table__content">
-              ${_renderSimpleCategory("solar")}
+              ${_renderSimpleCategory('solar')}
               ${types.battery?.map((source, idx) => {
                 const {
                   hasData: hasFromData,
                   energy: energyFrom,
                   energyCompare: energyFromCompare,
-                } = _extractStatData(source.stat_energy_from, null);
+                } = _extractStatData(source.stat_energy_from, null)
                 const {
                   hasData: hasToData,
                   energy: energyTo,
                   energyCompare: energyToCompare,
-                } = _extractStatData(source.stat_energy_to, null);
+                } = _extractStatData(source.stat_energy_to, null)
 
                 if (!hasFromData && !hasToData) {
-                  return nothing;
+                  return nothing
                 }
 
-                totalBattery += energyFrom - energyTo;
-                totalBatteryCompare += energyFromCompare - energyToCompare;
+                totalBattery += energyFrom - energyTo
+                totalBatteryCompare += energyFromCompare - energyToCompare
 
                 if (showOnlyTotals) {
-                  return nothing;
+                  return nothing
                 }
 
                 return html` ${this._renderRow(
                   computedStyles,
-                  "battery_out",
+                  'battery_out',
                   source.stat_energy_from,
                   idx,
                   energyFrom,
                   energyFromCompare,
-                  "kWh",
+                  'kWh',
                   null,
                   null,
                   showCosts,
                   compare
                 )}${this._renderRow(
                   computedStyles,
-                  "battery_in",
+                  'battery_in',
                   source.stat_energy_to,
                   idx,
                   -energyTo,
                   -energyToCompare,
-                  "kWh",
+                  'kWh',
                   null,
                   null,
                   showCosts,
                   compare
-                )}`;
+                )}`
               })}
               ${types.battery
                 ? this._renderTotalRow(
                     this.hass.localize(
-                      "ui.panel.lovelace.cards.energy.energy_sources_table.battery_total"
+                      'ui.panel.lovelace.cards.energy.energy_sources_table.battery_total'
                     ),
                     totalBattery,
                     totalBatteryCompare,
-                    "kWh",
+                    'kWh',
                     null,
                     null,
                     showCosts,
@@ -577,13 +587,13 @@ export class HuiEnergySourcesTableCard
                         }
                       : undefined
                   )
-                : ""}
+                : ''}
               ${types.grid?.map(
-                (source) =>
+                source =>
                   html`${source.flow_from.map((flow, idx) => {
                     const cost_stat =
                       flow.stat_cost ||
-                      this._data!.info.cost_sensors[flow.stat_energy_from];
+                      this._data!.info.cost_sensors[flow.stat_energy_from]
                     const {
                       hasData,
                       energy,
@@ -593,83 +603,80 @@ export class HuiEnergySourcesTableCard
                     } = _extractStatData(
                       flow.stat_energy_from,
                       cost_stat || null
-                    );
+                    )
 
                     if (!hasData && !cost && !costCompare) {
-                      return nothing;
+                      return nothing
                     }
 
-                    totalGrid += energy;
-                    totalGridCompare += energyCompare;
+                    totalGrid += energy
+                    totalGridCompare += energyCompare
 
                     if (cost_stat) {
-                      hasGridCost = true;
-                      totalGridCost += cost;
-                      totalGridCostCompare += costCompare;
+                      hasGridCost = true
+                      totalGridCost += cost
+                      totalGridCostCompare += costCompare
                     }
 
                     if (showOnlyTotals) {
-                      return nothing;
+                      return nothing
                     }
 
                     return this._renderRow(
                       computedStyles,
-                      "grid_consumption",
+                      'grid_consumption',
                       flow.stat_energy_from,
                       idx,
                       energy,
                       energyCompare,
-                      "kWh",
+                      'kWh',
                       cost,
                       costCompare,
                       showCosts,
                       compare
-                    );
+                    )
                   })}
                   ${source.flow_to.map((flow, idx) => {
                     const cost_stat =
                       flow.stat_compensation ||
-                      this._data!.info.cost_sensors[flow.stat_energy_to];
+                      this._data!.info.cost_sensors[flow.stat_energy_to]
                     const {
                       hasData,
                       energy,
                       energyCompare,
                       cost,
                       costCompare,
-                    } = _extractStatData(
-                      flow.stat_energy_to,
-                      cost_stat || null
-                    );
+                    } = _extractStatData(flow.stat_energy_to, cost_stat || null)
 
                     if (!hasData && !cost && !costCompare) {
-                      return nothing;
+                      return nothing
                     }
-                    totalGrid -= energy;
-                    totalGridCompare -= energyCompare;
+                    totalGrid -= energy
+                    totalGridCompare -= energyCompare
 
                     if (cost_stat !== null) {
-                      hasGridCost = true;
-                      totalGridCost -= cost;
-                      totalGridCostCompare -= costCompare;
+                      hasGridCost = true
+                      totalGridCost -= cost
+                      totalGridCostCompare -= costCompare
                     }
 
                     if (showOnlyTotals) {
-                      return nothing;
+                      return nothing
                     }
 
                     return this._renderRow(
                       computedStyles,
-                      "grid_return",
+                      'grid_return',
                       flow.stat_energy_to,
                       idx,
                       -energy,
                       -energyCompare,
-                      "kWh",
+                      'kWh',
                       -cost,
                       -costCompare,
                       showCosts,
                       compare
-                    );
+                    )
                   })}`
               )}
               ${types.grid &&
@@ -677,11 +684,11 @@ export class HuiEnergySourcesTableCard
                 types.grid?.[0].flow_to?.length)
                 ? this._renderTotalRow(
                     this.hass.localize(
-                      "ui.panel.lovelace.cards.energy.energy_sources_table.grid_total"
+                      'ui.panel.lovelace.cards.energy.energy_sources_table.grid_total'
                     ),
                     totalGrid,
                     totalGridCompare,
-                    "kWh",
+                    'kWh',
                     hasGridCost ? totalGridCost : null,
                     hasGridCost ? totalGridCostCompare : null,
                     showCosts,
@@ -707,17 +714,17 @@ export class HuiEnergySourcesTableCard
                         }
                       : undefined
                   )
-                : ""}
-              ${_renderSimpleCategory("gas")} ${_renderSimpleCategory("water")}
+                : ''}
+              ${_renderSimpleCategory('gas')} ${_renderSimpleCategory('water')}
               ${[hasCosts.gas, hasCosts.water, hasGridCost].filter(Boolean)
                 .length > 1
                 ? this._renderTotalRow(
                     this.hass.localize(
-                      "ui.panel.lovelace.cards.energy.energy_sources_table.total_costs"
+                      'ui.panel.lovelace.cards.energy.energy_sources_table.total_costs'
                     ),
                     null,
                     null,
-                    "",
+                    '',
                     totalCosts.gas + totalGridCost + totalCosts.water,
                     totalCostsCompare.gas +
                       totalGridCostCompare +
@@ -727,18 +734,18 @@ export class HuiEnergySourcesTableCard
                     undefined,
                     true
                   )
-                : ""}
+                : ''}
             </tbody>
           </table>
         </div>
       </div>
-    </ha-card>`;
+    </ha-card>`
   }
 
   private _handleMoreInfo(ev): void {
-    const entityId = ev.currentTarget?.entity;
+    const entityId = ev.currentTarget?.entity
     if (entityId && !isExternalStatistic(entityId)) {
-      fireEvent(this, "hass-more-info", { entityId });
+      fireEvent(this, 'hass-more-info', { entityId })
     }
   }
 
@@ -797,12 +804,12 @@ export class HuiEnergySourcesTableCard
       .mdc-data-table__cell--numeric {
         direction: ltr;
       }
-    `;
+    `
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-energy-sources-table-card": HuiEnergySourcesTableCard;
+    'hui-energy-sources-table-card': HuiEnergySourcesTableCard
   }
 }

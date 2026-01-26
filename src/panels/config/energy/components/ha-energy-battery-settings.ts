@@ -1,82 +1,82 @@
-import { mdiBatteryHigh, mdiDelete, mdiPencil, mdiPlus } from "@mdi/js";
-import type { CSSResultGroup, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import "../../../../components/ha-card";
-import "../../../../components/ha-button";
-import "../../../../components/ha-svg-icon";
-import "../../../../components/ha-icon-button";
-import "../../../../components/ha-settings-row";
+import { mdiBatteryHigh, mdiDelete, mdiPencil, mdiPlus } from '@mdi/js'
+import type { CSSResultGroup, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import '../../../../components/ha-card'
+import '../../../../components/ha-button'
+import '../../../../components/ha-svg-icon'
+import '../../../../components/ha-icon-button'
+import '../../../../components/ha-settings-row'
 import type {
   BatterySourceTypeEnergyPreference,
   EnergyPreferences,
   EnergyPreferencesValidation,
   EnergyValidationIssue,
-} from "../../../../data/energy";
-import { saveEnergyPreferences } from "../../../../data/energy";
-import type { StatisticsMetaData } from "../../../../data/recorder";
-import { getStatisticLabel } from "../../../../data/recorder";
+} from '../../../../data/energy'
+import { saveEnergyPreferences } from '../../../../data/energy'
+import type { StatisticsMetaData } from '../../../../data/recorder'
+import { getStatisticLabel } from '../../../../data/recorder'
 import {
   showAlertDialog,
   showConfirmationDialog,
-} from "../../../../dialogs/generic/show-dialog-box";
-import { haStyle } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import { documentationUrl } from "../../../../util/documentation-url";
-import { showEnergySettingsBatteryDialog } from "../dialogs/show-dialogs-energy";
-import "./ha-energy-validation-result";
-import { energyCardStyles } from "./styles";
+} from '../../../../dialogs/generic/show-dialog-box'
+import { haStyle } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import { documentationUrl } from '../../../../util/documentation-url'
+import { showEnergySettingsBatteryDialog } from '../dialogs/show-dialogs-energy'
+import './ha-energy-validation-result'
+import { energyCardStyles } from './styles'
 
-@customElement("ha-energy-battery-settings")
+@customElement('ha-energy-battery-settings')
 export class EnergyBatterySettings extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
   @property({ attribute: false })
-  public preferences!: EnergyPreferences;
+  public preferences!: EnergyPreferences
 
   @property({ attribute: false })
-  public statsMetadata?: Record<string, StatisticsMetaData>;
+  public statsMetadata?: Record<string, StatisticsMetaData>
 
   @property({ attribute: false })
-  public validationResult?: EnergyPreferencesValidation;
+  public validationResult?: EnergyPreferencesValidation
 
   protected render(): TemplateResult {
-    const batterySources: BatterySourceTypeEnergyPreference[] = [];
-    const batteryValidation: EnergyValidationIssue[][] = [];
+    const batterySources: BatterySourceTypeEnergyPreference[] = []
+    const batteryValidation: EnergyValidationIssue[][] = []
 
     this.preferences.energy_sources.forEach((source, idx) => {
-      if (source.type !== "battery") {
-        return;
+      if (source.type !== 'battery') {
+        return
       }
-      batterySources.push(source);
+      batterySources.push(source)
 
       if (this.validationResult) {
-        batteryValidation.push(this.validationResult.energy_sources[idx]);
+        batteryValidation.push(this.validationResult.energy_sources[idx])
       }
-    });
+    })
 
     return html`
       <ha-card outlined>
         <h1 class="card-header">
           <ha-svg-icon .path=${mdiBatteryHigh}></ha-svg-icon>
-          ${this.hass.localize("ui.panel.config.energy.battery.title")}
+          ${this.hass.localize('ui.panel.config.energy.battery.title')}
         </h1>
 
         <div class="card-content">
           <p>
-            ${this.hass.localize("ui.panel.config.energy.battery.sub")}
+            ${this.hass.localize('ui.panel.config.energy.battery.sub')}
             <a
               target="_blank"
               rel="noopener noreferrer"
-              href=${documentationUrl(this.hass, "/docs/energy/battery/")}
+              href=${documentationUrl(this.hass, '/docs/energy/battery/')}
               >${this.hass.localize(
-                "ui.panel.config.energy.battery.learn_more"
+                'ui.panel.config.energy.battery.learn_more'
               )}</a
             >
           </p>
           ${batteryValidation.map(
-            (result) => html`
+            result => html`
               <ha-energy-validation-result
                 .hass=${this.hass}
                 .issues=${result}
@@ -86,13 +86,16 @@ export class EnergyBatterySettings extends LitElement {
 
           <h3>
             ${this.hass.localize(
-              "ui.panel.config.energy.battery.battery_systems"
+              'ui.panel.config.energy.battery.battery_systems'
             )}
           </h3>
-          ${batterySources.map((source) => {
-            const toEntityState = this.hass.states[source.stat_energy_to];
+          ${batterySources.map(source => {
+            const toEntityState = this.hass.states[source.stat_energy_to]
             return html`
-              <div class="row" .source=${source}>
+              <div
+                class="row"
+                .source=${source}
+              >
                 ${toEntityState?.attributes.icon
                   ? html`<ha-icon
                       .icon=${toEntityState.attributes.icon}
@@ -116,20 +119,20 @@ export class EnergyBatterySettings extends LitElement {
                 </div>
                 <ha-icon-button
                   .label=${this.hass.localize(
-                    "ui.panel.config.energy.battery.edit_battery_system"
+                    'ui.panel.config.energy.battery.edit_battery_system'
                   )}
                   @click=${this._editSource}
                   .path=${mdiPencil}
                 ></ha-icon-button>
                 <ha-icon-button
                   .label=${this.hass.localize(
-                    "ui.panel.config.energy.battery.delete_battery_system"
+                    'ui.panel.config.energy.battery.delete_battery_system'
                   )}
                   @click=${this._deleteSource}
                   .path=${mdiDelete}
                 ></ha-icon-button>
               </div>
-            `;
+            `
           })}
           <div class="row border-bottom">
             <ha-svg-icon .path=${mdiBatteryHigh}></ha-svg-icon>
@@ -138,77 +141,80 @@ export class EnergyBatterySettings extends LitElement {
               appearance="filled"
               size="small"
             >
-              <ha-svg-icon slot="start" .path=${mdiPlus}></ha-svg-icon>
+              <ha-svg-icon
+                slot="start"
+                .path=${mdiPlus}
+              ></ha-svg-icon>
               ${this.hass.localize(
-                "ui.panel.config.energy.battery.add_battery_system"
+                'ui.panel.config.energy.battery.add_battery_system'
               )}</ha-button
             >
           </div>
         </div>
       </ha-card>
-    `;
+    `
   }
 
   private _addSource() {
     showEnergySettingsBatteryDialog(this, {
       battery_sources: this.preferences.energy_sources.filter(
-        (src) => src.type === "battery"
+        src => src.type === 'battery'
       ) as BatterySourceTypeEnergyPreference[],
-      saveCallback: async (source) => {
+      saveCallback: async source => {
         await this._savePreferences({
           ...this.preferences,
           energy_sources: this.preferences.energy_sources.concat(source),
-        });
+        })
       },
-    });
+    })
   }
 
   private _editSource(ev) {
     const origSource: BatterySourceTypeEnergyPreference =
-      ev.currentTarget.closest(".row").source;
+      ev.currentTarget.closest('.row').source
     showEnergySettingsBatteryDialog(this, {
       source: { ...origSource },
       battery_sources: this.preferences.energy_sources.filter(
-        (src) => src.type === "battery"
+        src => src.type === 'battery'
       ) as BatterySourceTypeEnergyPreference[],
-      saveCallback: async (newSource) => {
+      saveCallback: async newSource => {
         await this._savePreferences({
           ...this.preferences,
-          energy_sources: this.preferences.energy_sources.map((src) =>
+          energy_sources: this.preferences.energy_sources.map(src =>
             src === origSource ? newSource : src
           ),
-        });
+        })
       },
-    });
+    })
   }
 
   private async _deleteSource(ev) {
     const sourceToDelete: BatterySourceTypeEnergyPreference =
-      ev.currentTarget.closest(".row").source;
+      ev.currentTarget.closest('.row').source
 
     if (
       !(await showConfirmationDialog(this, {
-        title: this.hass.localize("ui.panel.config.energy.delete_source"),
+        title: this.hass.localize('ui.panel.config.energy.delete_source'),
       }))
     ) {
-      return;
+      return
     }
 
     try {
       await this._savePreferences({
         ...this.preferences,
         energy_sources: this.preferences.energy_sources.filter(
-          (source) => source !== sourceToDelete
+          source => source !== sourceToDelete
         ),
-      });
+      })
     } catch (err: any) {
-      showAlertDialog(this, { title: `Failed to save config: ${err.message}` });
+      showAlertDialog(this, { title: `Failed to save config: ${err.message}` })
     }
   }
 
   private async _savePreferences(preferences: EnergyPreferences) {
-    const result = await saveEnergyPreferences(this.hass, preferences);
-    fireEvent(this, "value-changed", { value: result });
+    const result = await saveEnergyPreferences(this.hass, preferences)
+    fireEvent(this, 'value-changed', { value: result })
   }
 
   static get styles(): CSSResultGroup {
@@ -229,12 +235,12 @@ export class EnergyBatterySettings extends LitElement {
           white-space: nowrap;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-energy-battery-settings": EnergyBatterySettings;
+    'ha-energy-battery-settings': EnergyBatterySettings
   }
 }

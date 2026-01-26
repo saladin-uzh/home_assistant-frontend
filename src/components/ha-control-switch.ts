@@ -5,122 +5,122 @@ import {
   Press,
   Swipe,
   Tap,
-} from "@egjs/hammerjs";
-import type { PropertyValues, TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property, query } from "lit/decorators";
-import { ifDefined } from "lit/directives/if-defined";
-import { fireEvent } from "../common/dom/fire_event";
-import "./ha-svg-icon";
+} from '@egjs/hammerjs'
+import type { PropertyValues, TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, query } from 'lit/decorators'
+import { ifDefined } from 'lit/directives/if-defined'
+import { fireEvent } from '../common/dom/fire_event'
+import './ha-svg-icon'
 
-@customElement("ha-control-switch")
+@customElement('ha-control-switch')
 export class HaControlSwitch extends LitElement {
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public vertical = false;
+  @property({ type: Boolean }) public vertical = false
 
-  @property({ type: Boolean }) public reversed = false;
+  @property({ type: Boolean }) public reversed = false
 
-  @property({ type: Boolean }) public checked = false;
+  @property({ type: Boolean }) public checked = false
 
   // SVG icon path (if you need a non SVG icon instead, use the provided on icon slot to pass an <ha-icon slot="icon-on"> in)
-  @property({ attribute: false, type: String }) pathOn?: string;
+  @property({ attribute: false, type: String }) pathOn?: string
 
   // SVG icon path (if you need a non SVG icon instead, use the provided off icon slot to pass an <ha-icon slot="icon-off"> in)
-  @property({ attribute: false, type: String }) pathOff?: string;
+  @property({ attribute: false, type: String }) pathOff?: string
 
   @property({ type: String })
-  public label?: string;
+  public label?: string
 
-  @property({ attribute: "touch-action" })
-  public touchAction?: string;
+  @property({ attribute: 'touch-action' })
+  public touchAction?: string
 
-  private _mc?: HammerManager;
+  private _mc?: HammerManager
 
   protected firstUpdated(changedProperties: PropertyValues): void {
-    super.firstUpdated(changedProperties);
-    this.setupListeners();
+    super.firstUpdated(changedProperties)
+    this.setupListeners()
   }
 
   private _toggle() {
-    if (this.disabled) return;
-    this.checked = !this.checked;
-    fireEvent(this, "change");
+    if (this.disabled) return
+    this.checked = !this.checked
+    fireEvent(this, 'change')
   }
 
   connectedCallback(): void {
-    super.connectedCallback();
-    this.setupListeners();
+    super.connectedCallback()
+    this.setupListeners()
   }
 
   disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.destroyListeners();
+    super.disconnectedCallback()
+    this.destroyListeners()
   }
 
-  @query("#switch")
-  private switch!: HTMLDivElement;
+  @query('#switch')
+  private switch!: HTMLDivElement
 
   setupListeners() {
     if (this.switch && !this._mc) {
       this._mc = new Manager(this.switch, {
-        touchAction: this.touchAction ?? (this.vertical ? "pan-x" : "pan-y"),
-      });
+        touchAction: this.touchAction ?? (this.vertical ? 'pan-x' : 'pan-y'),
+      })
       this._mc.add(
         new Swipe({
           direction: this.vertical ? DIRECTION_VERTICAL : DIRECTION_HORIZONTAL,
         })
-      );
+      )
 
-      this._mc.add(new Tap({ event: "singletap" }));
-      this._mc.add(new Press());
+      this._mc.add(new Tap({ event: 'singletap' }))
+      this._mc.add(new Press())
 
       if (this.vertical) {
-        this._mc.on("swipeup", () => {
-          if (this.disabled) return;
-          this.checked = !!this.reversed;
-          fireEvent(this, "change");
-        });
+        this._mc.on('swipeup', () => {
+          if (this.disabled) return
+          this.checked = !!this.reversed
+          fireEvent(this, 'change')
+        })
 
-        this._mc.on("swipedown", () => {
-          if (this.disabled) return;
-          this.checked = !this.reversed;
-          fireEvent(this, "change");
-        });
+        this._mc.on('swipedown', () => {
+          if (this.disabled) return
+          this.checked = !this.reversed
+          fireEvent(this, 'change')
+        })
       } else {
-        this._mc.on("swiperight", () => {
-          if (this.disabled) return;
-          this.checked = !this.reversed;
-          fireEvent(this, "change");
-        });
+        this._mc.on('swiperight', () => {
+          if (this.disabled) return
+          this.checked = !this.reversed
+          fireEvent(this, 'change')
+        })
 
-        this._mc.on("swipeleft", () => {
-          if (this.disabled) return;
-          this.checked = !!this.reversed;
-          fireEvent(this, "change");
-        });
+        this._mc.on('swipeleft', () => {
+          if (this.disabled) return
+          this.checked = !!this.reversed
+          fireEvent(this, 'change')
+        })
       }
 
-      this._mc.on("singletap pressup", () => {
-        if (this.disabled) return;
-        this._toggle();
-      });
+      this._mc.on('singletap pressup', () => {
+        if (this.disabled) return
+        this._toggle()
+      })
     }
   }
 
   destroyListeners() {
     if (this._mc) {
-      this._mc.destroy();
-      this._mc = undefined;
+      this._mc.destroy()
+      this._mc = undefined
     }
   }
 
   private _keydown(ev: any) {
-    if (ev.key !== "Enter" && ev.key !== " ") {
-      return;
+    if (ev.key !== 'Enter' && ev.key !== ' ') {
+      return
     }
-    ev.preventDefault();
-    this._toggle();
+    ev.preventDefault()
+    this._toggle()
   }
 
   protected render(): TemplateResult {
@@ -129,7 +129,7 @@ export class HaControlSwitch extends LitElement {
         id="switch"
         class="switch"
         @keydown=${this._keydown}
-        aria-checked=${this.checked ? "true" : "false"}
+        aria-checked=${this.checked ? 'true' : 'false'}
         aria-label=${ifDefined(this.label)}
         role="switch"
         tabindex="0"
@@ -137,7 +137,10 @@ export class HaControlSwitch extends LitElement {
         ?disabled=${this.disabled}
       >
         <div class="background"></div>
-        <div class="button" aria-hidden="true">
+        <div
+          class="button"
+          aria-hidden="true"
+        >
           ${this.checked
             ? this.pathOn
               ? html`<ha-svg-icon .path=${this.pathOn}></ha-svg-icon>`
@@ -147,7 +150,7 @@ export class HaControlSwitch extends LitElement {
               : html`<slot name="icon-off"></slot>`}
         </div>
       </div>
-    `;
+    `
   }
 
   static styles = css`
@@ -245,11 +248,11 @@ export class HaControlSwitch extends LitElement {
     :host([vertical][reversed]) .switch[checked] .button {
       transform: translateY(-100%);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-control-switch": HaControlSwitch;
+    'ha-control-switch': HaControlSwitch
   }
 }

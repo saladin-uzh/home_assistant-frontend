@@ -1,58 +1,61 @@
-import type { PropertyValues } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { isUnavailableState } from "../../../data/entity";
-import type { ActionHandlerEvent } from "../../../data/lovelace/action_handler";
-import type { HomeAssistant } from "../../../types";
-import type { EntitiesCardEntityConfig } from "../cards/types";
-import { actionHandler } from "../common/directives/action-handler-directive";
-import { handleAction } from "../common/handle-action";
-import { hasAction } from "../common/has-action";
-import { hasConfigOrEntityChanged } from "../common/has-changed";
-import "../components/hui-generic-entity-row";
-import "../components/hui-timestamp-display";
-import { createEntityNotFoundWarning } from "../components/hui-warning";
-import type { TimestampRenderingFormat } from "../components/types";
-import type { LovelaceRow } from "./types";
+import type { PropertyValues } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators'
+import { isUnavailableState } from '../../../data/entity'
+import type { ActionHandlerEvent } from '../../../data/lovelace/action_handler'
+import type { HomeAssistant } from '../../../types'
+import type { EntitiesCardEntityConfig } from '../cards/types'
+import { actionHandler } from '../common/directives/action-handler-directive'
+import { handleAction } from '../common/handle-action'
+import { hasAction } from '../common/has-action'
+import { hasConfigOrEntityChanged } from '../common/has-changed'
+import '../components/hui-generic-entity-row'
+import '../components/hui-timestamp-display'
+import { createEntityNotFoundWarning } from '../components/hui-warning'
+import type { TimestampRenderingFormat } from '../components/types'
+import type { LovelaceRow } from './types'
 
 interface EventEntityConfig extends EntitiesCardEntityConfig {
-  format?: TimestampRenderingFormat;
+  format?: TimestampRenderingFormat
 }
 
-@customElement("hui-event-entity-row")
+@customElement('hui-event-entity-row')
 class HuiEventEntityRow extends LitElement implements LovelaceRow {
-  @property({ attribute: false }) public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant
 
-  @state() private _config?: EventEntityConfig;
+  @state() private _config?: EventEntityConfig
 
   public setConfig(config: EventEntityConfig): void {
     if (!config) {
-      throw new Error("Invalid configuration");
+      throw new Error('Invalid configuration')
     }
-    this._config = config;
+    this._config = config
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    return hasConfigOrEntityChanged(this, changedProps);
+    return hasConfigOrEntityChanged(this, changedProps)
   }
 
   protected render() {
     if (!this._config || !this.hass) {
-      return nothing;
+      return nothing
     }
 
-    const stateObj = this.hass.states[this._config.entity];
+    const stateObj = this.hass.states[this._config.entity]
 
     if (!stateObj) {
       return html`
         <hui-warning .hass=${this.hass}>
           ${createEntityNotFoundWarning(this.hass, this._config.entity)}
         </hui-warning>
-      `;
+      `
     }
 
     return html`
-      <hui-generic-entity-row .hass=${this.hass} .config=${this._config}>
+      <hui-generic-entity-row
+        .hass=${this.hass}
+        .config=${this._config}
+      >
         <div
           @action=${this._handleAction}
           .actionHandler=${actionHandler({
@@ -73,15 +76,15 @@ class HuiEventEntityRow extends LitElement implements LovelaceRow {
           <div class="what">
             ${isUnavailableState(stateObj.state)
               ? nothing
-              : this.hass.formatEntityAttributeValue(stateObj, "event_type")}
+              : this.hass.formatEntityAttributeValue(stateObj, 'event_type')}
           </div>
         </div>
       </hui-generic-entity-row>
-    `;
+    `
   }
 
   private _handleAction(ev: ActionHandlerEvent) {
-    handleAction(this, this.hass!, this._config!, ev.detail.action);
+    handleAction(this, this.hass!, this._config!, ev.detail.action)
   }
 
   static styles = css`
@@ -94,11 +97,11 @@ class HuiEventEntityRow extends LitElement implements LovelaceRow {
     .what {
       color: var(--secondary-text-color);
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-event-entity-row": HuiEventEntityRow;
+    'hui-event-entity-row': HuiEventEntityRow
   }
 }

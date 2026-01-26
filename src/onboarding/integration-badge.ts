@@ -1,20 +1,20 @@
-import type { TemplateResult } from "lit";
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators";
-import { brandsUrl } from "../util/brands-url";
+import type { TemplateResult } from 'lit'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators'
+import { brandsUrl } from '../util/brands-url'
 
-@customElement("integration-badge")
+@customElement('integration-badge')
 class IntegrationBadge extends LitElement {
-  @property() public domain!: string;
+  @property() public domain!: string
 
   // eslint-disable-next-line lit/no-native-attributes
-  @property({ attribute: false }) public title!: string;
+  @property({ attribute: false }) public title!: string
 
-  @property({ attribute: "dark-optimized-icon", type: Boolean })
-  public darkOptimizedIcon = false;
+  @property({ attribute: 'dark-optimized-icon', type: Boolean })
+  public darkOptimizedIcon = false
 
   @property({ attribute: false, type: Boolean, reflect: true })
-  public clickable = false;
+  public clickable = false
 
   protected render(): TemplateResult {
     return html`
@@ -23,7 +23,7 @@ class IntegrationBadge extends LitElement {
           alt=""
           src=${brandsUrl({
             domain: this.domain,
-            type: "icon",
+            type: 'icon',
             darkOptimized: this.darkOptimizedIcon,
           })}
           crossorigin="anonymous"
@@ -31,7 +31,7 @@ class IntegrationBadge extends LitElement {
         />
       </div>
       <div class="title">${this.title}</div>
-    `;
+    `
   }
 
   static styles = css`
@@ -61,11 +61,11 @@ class IntegrationBadge extends LitElement {
       min-height: 2.3em;
       word-break: break-word;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "integration-badge": IntegrationBadge;
+    'integration-badge': IntegrationBadge
   }
 }

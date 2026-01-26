@@ -1,71 +1,75 @@
-import { mdiClose, mdiContentCopy, mdiDownload } from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { fireEvent } from "../../../../common/dom/fire_event";
-import { copyToClipboard } from "../../../../common/util/copy-clipboard";
-import "../../../../components/ha-button";
-import "../../../../components/ha-dialog-header";
-import "../../../../components/ha-icon-button";
-import "../../../../components/ha-icon-button-prev";
-import "../../../../components/ha-md-dialog";
-import type { HaMdDialog } from "../../../../components/ha-md-dialog";
-import "../../../../components/ha-md-list";
-import "../../../../components/ha-md-list-item";
-import "../../../../components/ha-password-field";
-import { downloadEmergencyKit } from "../../../../data/backup";
-import type { HassDialog } from "../../../../dialogs/make-dialog-manager";
-import { haStyle, haStyleDialog } from "../../../../resources/styles";
-import type { HomeAssistant } from "../../../../types";
-import { showToast } from "../../../../util/toast";
-import type { ShowBackupEncryptionKeyDialogParams } from "./show-dialog-show-backup-encryption-key";
+import { mdiClose, mdiContentCopy, mdiDownload } from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { fireEvent } from '../../../../common/dom/fire_event'
+import { copyToClipboard } from '../../../../common/util/copy-clipboard'
+import '../../../../components/ha-button'
+import '../../../../components/ha-dialog-header'
+import '../../../../components/ha-icon-button'
+import '../../../../components/ha-icon-button-prev'
+import '../../../../components/ha-md-dialog'
+import type { HaMdDialog } from '../../../../components/ha-md-dialog'
+import '../../../../components/ha-md-list'
+import '../../../../components/ha-md-list-item'
+import '../../../../components/ha-password-field'
+import { downloadEmergencyKit } from '../../../../data/backup'
+import type { HassDialog } from '../../../../dialogs/make-dialog-manager'
+import { haStyle, haStyleDialog } from '../../../../resources/styles'
+import type { HomeAssistant } from '../../../../types'
+import { showToast } from '../../../../util/toast'
+import type { ShowBackupEncryptionKeyDialogParams } from './show-dialog-show-backup-encryption-key'
 
-@customElement("ha-dialog-show-backup-encryption-key")
+@customElement('ha-dialog-show-backup-encryption-key')
 class DialogShowBackupEncryptionKey extends LitElement implements HassDialog {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @state() private _params?: ShowBackupEncryptionKeyDialogParams;
+  @state() private _params?: ShowBackupEncryptionKeyDialogParams
 
-  @query("ha-md-dialog") private _dialog!: HaMdDialog;
+  @query('ha-md-dialog') private _dialog!: HaMdDialog
 
   public showDialog(params: ShowBackupEncryptionKeyDialogParams): void {
-    this._params = params;
+    this._params = params
   }
 
   public closeDialog() {
-    this._params = undefined;
-    fireEvent(this, "dialog-closed", { dialog: this.localName });
-    return true;
+    this._params = undefined
+    fireEvent(this, 'dialog-closed', { dialog: this.localName })
+    return true
   }
 
   private _closeDialog() {
-    this._dialog.close();
+    this._dialog.close()
   }
 
   protected render() {
     if (!this._params) {
-      return nothing;
+      return nothing
     }
 
     return html`
-      <ha-md-dialog disable-cancel-action open @closed=${this.closeDialog}>
+      <ha-md-dialog
+        disable-cancel-action
+        open
+        @closed=${this.closeDialog}
+      >
         <ha-dialog-header slot="headline">
           <ha-icon-button
             slot="navigationIcon"
-            .label=${this.hass.localize("ui.common.close")}
+            .label=${this.hass.localize('ui.common.close')}
             .path=${mdiClose}
             @click=${this._closeDialog}
           ></ha-icon-button>
           <span slot="title">
             ${this.hass.localize(
-              "ui.panel.config.backup.dialogs.show_encryption_key.title"
+              'ui.panel.config.backup.dialogs.show_encryption_key.title'
             )}
           </span>
         </ha-dialog-header>
         <div slot="content">
           <p>
             ${this.hass.localize(
-              "ui.panel.config.backup.dialogs.show_encryption_key.description"
+              'ui.panel.config.backup.dialogs.show_encryption_key.description'
             )}
           </p>
           <div class="encryption-key">
@@ -79,12 +83,12 @@ class DialogShowBackupEncryptionKey extends LitElement implements HassDialog {
             <ha-md-list-item>
               <span slot="headline">
                 ${this.hass.localize(
-                  "ui.panel.config.backup.encryption_key.download_emergency_kit"
+                  'ui.panel.config.backup.encryption_key.download_emergency_kit'
                 )}
               </span>
               <span slot="supporting-text">
                 ${this.hass.localize(
-                  "ui.panel.config.backup.encryption_key.download_emergency_kit_description"
+                  'ui.panel.config.backup.encryption_key.download_emergency_kit_description'
                 )}
               </span>
               <ha-button
@@ -93,9 +97,12 @@ class DialogShowBackupEncryptionKey extends LitElement implements HassDialog {
                 slot="end"
                 @click=${this._download}
               >
-                <ha-svg-icon .path=${mdiDownload} slot="start"></ha-svg-icon>
+                <ha-svg-icon
+                  .path=${mdiDownload}
+                  slot="start"
+                ></ha-svg-icon>
                 ${this.hass.localize(
-                  "ui.panel.config.backup.encryption_key.download_emergency_kit_action"
+                  'ui.panel.config.backup.encryption_key.download_emergency_kit_action'
                 )}
               </ha-button>
             </ha-md-list-item>
@@ -103,31 +110,31 @@ class DialogShowBackupEncryptionKey extends LitElement implements HassDialog {
         </div>
         <div slot="actions">
           <ha-button @click=${this._closeDialog}>
-            ${this.hass.localize("ui.common.close")}
+            ${this.hass.localize('ui.common.close')}
           </ha-button>
         </div>
       </ha-md-dialog>
-    `;
+    `
   }
 
   private async _copyKeyToClipboard() {
     if (!this._params?.currentKey) {
-      return;
+      return
     }
     await copyToClipboard(
       this._params?.currentKey,
-      this.renderRoot.querySelector("div")!
-    );
+      this.renderRoot.querySelector('div')!
+    )
     showToast(this, {
-      message: this.hass.localize("ui.common.copied_clipboard"),
-    });
+      message: this.hass.localize('ui.common.copied_clipboard'),
+    })
   }
 
   private _download() {
     if (!this._params?.currentKey) {
-      return;
+      return
     }
-    downloadEmergencyKit(this.hass, this._params.currentKey, "old");
+    downloadEmergencyKit(this.hass, this._params.currentKey, 'old')
   }
 
   static get styles(): CSSResultGroup {
@@ -173,7 +180,7 @@ class DialogShowBackupEncryptionKey extends LitElement implements HassDialog {
           ha-md-dialog {
             max-width: none;
           }
-          div[slot="content"] {
+          div[slot='content'] {
             margin-top: 0;
           }
         }
@@ -181,12 +188,12 @@ class DialogShowBackupEncryptionKey extends LitElement implements HassDialog {
           margin-top: 0;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-dialog-show-backup-encryption-key": DialogShowBackupEncryptionKey;
+    'ha-dialog-show-backup-encryption-key': DialogShowBackupEncryptionKey
   }
 }

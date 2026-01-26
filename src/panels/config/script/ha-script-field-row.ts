@@ -3,70 +3,69 @@ import {
   mdiDelete,
   mdiDotsVertical,
   mdiPlaylistEdit,
-} from "@mdi/js";
-import type { CSSResultGroup } from "lit";
-import { LitElement, css, html, nothing } from "lit";
-import { customElement, property, query, state } from "lit/decorators";
-import { classMap } from "lit/directives/class-map";
-import { fireEvent } from "../../../common/dom/fire_event";
-import { preventDefaultStopPropagation } from "../../../common/dom/prevent_default_stop_propagation";
-import { stopPropagation } from "../../../common/dom/stop_propagation";
-import type { LocalizeKeys } from "../../../common/translations/localize";
-import "../../../components/ha-automation-row";
-import type { HaAutomationRow } from "../../../components/ha-automation-row";
-import "../../../components/ha-card";
-import "../../../components/ha-md-button-menu";
-import "../../../components/ha-md-menu-item";
-import type { ScriptFieldSidebarConfig } from "../../../data/automation";
-import type { Field } from "../../../data/script";
-import { SELECTOR_SELECTOR_BUILDING_BLOCKS } from "../../../data/selector/selector_selector";
-import { haStyle } from "../../../resources/styles";
-import type { HomeAssistant } from "../../../types";
-import { isMac } from "../../../util/is_mac";
-import { indentStyle, overflowStyles } from "../automation/styles";
-import "./ha-script-field-selector-editor";
-import type HaScriptFieldSelectorEditor from "./ha-script-field-selector-editor";
-import { showToast } from "../../../util/toast";
+} from '@mdi/js'
+import type { CSSResultGroup } from 'lit'
+import { LitElement, css, html, nothing } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators'
+import { classMap } from 'lit/directives/class-map'
+import { fireEvent } from '../../../common/dom/fire_event'
+import { preventDefaultStopPropagation } from '../../../common/dom/prevent_default_stop_propagation'
+import { stopPropagation } from '../../../common/dom/stop_propagation'
+import type { LocalizeKeys } from '../../../common/translations/localize'
+import '../../../components/ha-automation-row'
+import type { HaAutomationRow } from '../../../components/ha-automation-row'
+import '../../../components/ha-card'
+import '../../../components/ha-md-button-menu'
+import '../../../components/ha-md-menu-item'
+import type { ScriptFieldSidebarConfig } from '../../../data/automation'
+import type { Field } from '../../../data/script'
+import { SELECTOR_SELECTOR_BUILDING_BLOCKS } from '../../../data/selector/selector_selector'
+import { haStyle } from '../../../resources/styles'
+import type { HomeAssistant } from '../../../types'
+import { isMac } from '../../../util/is_mac'
+import { indentStyle, overflowStyles } from '../automation/styles'
+import './ha-script-field-selector-editor'
+import type HaScriptFieldSelectorEditor from './ha-script-field-selector-editor'
+import { showToast } from '../../../util/toast'
 
-@customElement("ha-script-field-row")
+@customElement('ha-script-field-row')
 export default class HaScriptFieldRow extends LitElement {
-  @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant
 
-  @property() public key!: string;
+  @property() public key!: string
 
-  @property({ attribute: false, type: Array }) public excludeKeys: string[] =
-    [];
+  @property({ attribute: false, type: Array }) public excludeKeys: string[] = []
 
-  @property({ attribute: false }) public field!: Field;
+  @property({ attribute: false }) public field!: Field
 
-  @property({ type: Boolean }) public disabled = false;
+  @property({ type: Boolean }) public disabled = false
 
-  @property({ type: Boolean }) public narrow = false;
+  @property({ type: Boolean }) public narrow = false
 
-  @property({ type: Boolean }) public highlight?: boolean;
+  @property({ type: Boolean }) public highlight?: boolean
 
-  @state() private _yamlMode = false;
+  @state() private _yamlMode = false
 
-  @state() private _selected = false;
+  @state() private _selected = false
 
-  @state() private _collapsed = false;
+  @state() private _collapsed = false
 
-  @state() private _selectorRowSelected = false;
+  @state() private _selectorRowSelected = false
 
-  @state() private _selectorRowCollapsed = false;
+  @state() private _selectorRowCollapsed = false
 
-  @query("ha-script-field-selector-editor")
-  private _selectorEditor?: HaScriptFieldSelectorEditor;
+  @query('ha-script-field-selector-editor')
+  private _selectorEditor?: HaScriptFieldSelectorEditor
 
-  @query("ha-automation-row:first-of-type")
-  private _fieldRowElement?: HaAutomationRow;
+  @query('ha-automation-row:first-of-type')
+  private _fieldRowElement?: HaAutomationRow
 
-  @query(".selector-row ha-automation-row")
-  private _selectorRowElement?: HaAutomationRow;
+  @query('.selector-row ha-automation-row')
+  private _selectorRowElement?: HaAutomationRow
 
   protected render() {
     const hasSelector =
-      this.field.selector && typeof this.field.selector === "object";
+      this.field.selector && typeof this.field.selector === 'object'
     return html`
       <ha-card outlined>
         <ha-automation-row
@@ -91,16 +90,19 @@ export default class HaScriptFieldRow extends LitElement {
           >
             <ha-icon-button
               slot="trigger"
-              .label=${this.hass.localize("ui.common.menu")}
+              .label=${this.hass.localize('ui.common.menu')}
               .path=${mdiDotsVertical}
             ></ha-icon-button>
             <ha-md-menu-item .clickAction=${this._toggleYamlMode}>
-              <ha-svg-icon slot="start" .path=${mdiPlaylistEdit}></ha-svg-icon>
+              <ha-svg-icon
+                slot="start"
+                .path=${mdiPlaylistEdit}
+              ></ha-svg-icon>
               <div class="overflow-label">
                 ${this.hass.localize(
-                  `ui.panel.config.automation.editor.edit_${!this._yamlMode ? "yaml" : "ui"}`
+                  `ui.panel.config.automation.editor.edit_${!this._yamlMode ? 'yaml' : 'ui'}`
                 )}
-                <span class="shortcut-placeholder ${isMac ? "mac" : ""}"></span>
+                <span class="shortcut-placeholder ${isMac ? 'mac' : ''}"></span>
               </div>
             </ha-md-menu-item>
             <ha-md-menu-item
@@ -108,10 +110,13 @@ export default class HaScriptFieldRow extends LitElement {
               .disabled=${this.disabled}
               class="warning"
             >
-              <ha-svg-icon slot="start" .path=${mdiDelete}></ha-svg-icon>
+              <ha-svg-icon
+                slot="start"
+                .path=${mdiDelete}
+              ></ha-svg-icon>
               <div class="overflow-label">
                 ${this.hass.localize(
-                  "ui.panel.config.automation.editor.actions.delete"
+                  'ui.panel.config.automation.editor.actions.delete'
                 )}
                 ${!this.narrow
                   ? html`<span class="shortcut">
@@ -122,13 +127,13 @@ export default class HaScriptFieldRow extends LitElement {
                               .path=${mdiAppleKeyboardCommand}
                             ></ha-svg-icon>`
                           : this.hass.localize(
-                              "ui.panel.config.automation.editor.ctrl"
+                              'ui.panel.config.automation.editor.ctrl'
                             )}</span
                       >
                       <span>+</span>
                       <span
                         >${this.hass.localize(
-                          "ui.panel.config.automation.editor.del"
+                          'ui.panel.config.automation.editor.del'
                         )}</span
                       >
                     </span>`
@@ -139,15 +144,18 @@ export default class HaScriptFieldRow extends LitElement {
 
           <h3 slot="header">${this.key}</h3>
 
-          <slot name="icons" slot="icons"></slot>
+          <slot
+            name="icons"
+            slot="icons"
+          ></slot>
         </ha-automation-row>
       </ha-card>
       ${hasSelector
         ? html`
             <div
               class=${classMap({
-                "selector-row": true,
-                "parent-selected": this._selected,
+                'selector-row': true,
+                'parent-selected': this._selected,
                 hidden: this._collapsed,
               })}
             >
@@ -167,7 +175,7 @@ export default class HaScriptFieldRow extends LitElement {
                       `ui.components.selectors.selector.types.${Object.keys(this.field.selector)[0]}` as LocalizeKeys
                     )}
                     ${this.hass.localize(
-                      "ui.panel.config.script.editor.field.selector"
+                      'ui.panel.config.script.editor.field.selector'
                     )}
                   </h3>
                   <ha-md-button-menu
@@ -182,7 +190,7 @@ export default class HaScriptFieldRow extends LitElement {
                   >
                     <ha-icon-button
                       slot="trigger"
-                      .label=${this.hass.localize("ui.common.menu")}
+                      .label=${this.hass.localize('ui.common.menu')}
                       .path=${mdiDotsVertical}
                     ></ha-icon-button>
                     <ha-md-menu-item
@@ -195,10 +203,10 @@ export default class HaScriptFieldRow extends LitElement {
                       ></ha-svg-icon>
                       <div class="overflow-label">
                         ${this.hass.localize(
-                          `ui.panel.config.automation.editor.edit_${!this._yamlMode ? "yaml" : "ui"}`
+                          `ui.panel.config.automation.editor.edit_${!this._yamlMode ? 'yaml' : 'ui'}`
                         )}
                         <span
-                          class="shortcut-placeholder ${isMac ? "mac" : ""}"
+                          class="shortcut-placeholder ${isMac ? 'mac' : ''}"
                         ></span>
                       </div>
                     </ha-md-menu-item>
@@ -213,7 +221,7 @@ export default class HaScriptFieldRow extends LitElement {
                       ></ha-svg-icon>
                       <div class="overflow-label">
                         ${this.hass.localize(
-                          "ui.panel.config.automation.editor.actions.delete"
+                          'ui.panel.config.automation.editor.actions.delete'
                         )}
                         ${!this.narrow
                           ? html`<span class="shortcut">
@@ -224,13 +232,13 @@ export default class HaScriptFieldRow extends LitElement {
                                       .path=${mdiAppleKeyboardCommand}
                                     ></ha-svg-icon>`
                                   : this.hass.localize(
-                                      "ui.panel.config.automation.editor.ctrl"
+                                      'ui.panel.config.automation.editor.ctrl'
                                     )}</span
                               >
                               <span>+</span>
                               <span
                                 >${this.hass.localize(
-                                  "ui.panel.config.automation.editor.del"
+                                  'ui.panel.config.automation.editor.del'
                                 )}</span
                               >
                             </span>`
@@ -240,13 +248,13 @@ export default class HaScriptFieldRow extends LitElement {
                   </ha-md-button-menu>
                 </ha-automation-row>
               </ha-card>
-              ${typeof this.field.selector === "object" &&
+              ${typeof this.field.selector === 'object' &&
               SELECTOR_SELECTOR_BUILDING_BLOCKS.includes(
                 Object.keys(this.field.selector)[0]
               )
                 ? html`
                     <ha-script-field-selector-editor
-                      class=${this._selectorRowCollapsed ? "hidden" : ""}
+                      class=${this._selectorRowCollapsed ? 'hidden' : ''}
                       .selected=${this._selectorRowSelected}
                       .hass=${this.hass}
                       .field=${this.field}
@@ -260,111 +268,111 @@ export default class HaScriptFieldRow extends LitElement {
             </div>
           `
         : nothing}
-    `;
+    `
   }
 
   private _toggleCollapse() {
-    this._collapsed = !this._collapsed;
+    this._collapsed = !this._collapsed
   }
 
   public expand() {
-    this._collapsed = false;
+    this._collapsed = false
   }
 
   public collapse() {
-    this._collapsed = true;
+    this._collapsed = true
   }
 
   public expandSelectorRow() {
-    this._selectorRowCollapsed = false;
+    this._selectorRowCollapsed = false
   }
 
   public collapseSelectorRow() {
-    this._selectorRowCollapsed = true;
+    this._selectorRowCollapsed = true
   }
 
   private _toggleSelectorRowCollapse() {
-    this._selectorRowCollapsed = !this._selectorRowCollapsed;
+    this._selectorRowCollapsed = !this._selectorRowCollapsed
   }
 
   public expandAll() {
-    this.expand();
-    this.expandSelectorRow();
+    this.expand()
+    this.expandSelectorRow()
 
-    this._selectorEditor?.expandAll();
+    this._selectorEditor?.expandAll()
   }
 
   public collapseAll() {
-    this.collapse();
-    this.collapseSelectorRow();
+    this.collapse()
+    this.collapseSelectorRow()
 
-    this._selectorEditor?.collapseAll();
+    this._selectorEditor?.collapseAll()
   }
 
   private _toggleSidebar(ev: Event) {
-    ev?.stopPropagation();
+    ev?.stopPropagation()
 
     if (this._selected) {
-      fireEvent(this, "request-close-sidebar");
-      return;
+      fireEvent(this, 'request-close-sidebar')
+      return
     }
 
-    this._selected = true;
-    this._collapsed = false;
-    this.openSidebar();
+    this._selected = true
+    this._collapsed = false
+    this.openSidebar()
   }
 
   private _toggleSelectorSidebar(ev: Event) {
-    ev?.stopPropagation();
+    ev?.stopPropagation()
 
     if (this._selectorRowSelected) {
-      fireEvent(this, "request-close-sidebar");
-      return;
+      fireEvent(this, 'request-close-sidebar')
+      return
     }
 
-    this._selectorRowSelected = true;
-    this._selectorRowCollapsed = false;
-    this.openSidebar(true);
+    this._selectorRowSelected = true
+    this._selectorRowCollapsed = false
+    this.openSidebar(true)
   }
 
   private _selectorValueChanged(ev: CustomEvent) {
-    ev.stopPropagation();
+    ev.stopPropagation()
 
-    fireEvent(this, "value-changed", {
+    fireEvent(this, 'value-changed', {
       value: {
         ...this.field,
         key: this.key,
         ...ev.detail.value,
       },
-    });
+    })
   }
 
   public openSidebar(selectorEditor = false): void {
     if (!selectorEditor) {
-      this._selected = true;
+      this._selected = true
     }
 
-    fireEvent(this, "open-sidebar", {
-      save: (value) => {
-        fireEvent(this, "value-changed", { value });
+    fireEvent(this, 'open-sidebar', {
+      save: value => {
+        fireEvent(this, 'value-changed', { value })
       },
       close: (focus?: boolean) => {
         if (selectorEditor) {
-          this._selectorRowSelected = false;
+          this._selectorRowSelected = false
           if (focus) {
-            this.focusSelector();
+            this.focusSelector()
           }
         } else {
-          this._selected = false;
+          this._selected = false
           if (focus) {
-            this.focus();
+            this.focus()
           }
         }
-        fireEvent(this, "close-sidebar");
+        fireEvent(this, 'close-sidebar')
       },
       toggleYamlMode: () => {
-        this._toggleYamlMode();
-        this.openSidebar();
+        this._toggleYamlMode()
+        this.openSidebar()
       },
       delete: this._onDelete,
       config: {
@@ -374,50 +382,50 @@ export default class HaScriptFieldRow extends LitElement {
         excludeKeys: this.excludeKeys,
       },
       yamlMode: this._yamlMode,
-    } satisfies ScriptFieldSidebarConfig);
+    } satisfies ScriptFieldSidebarConfig)
 
     if (this.narrow) {
       window.setTimeout(() => {
         this.scrollIntoView({
-          block: "start",
-          behavior: "smooth",
-        });
-      }, 180); // duration of transition of added padding for bottom sheet
+          block: 'start',
+          behavior: 'smooth',
+        })
+      }, 180) // duration of transition of added padding for bottom sheet
     }
   }
 
   private _toggleYamlMode = (item?: HTMLElement) => {
-    this._yamlMode = !this._yamlMode;
+    this._yamlMode = !this._yamlMode
 
     if (item) {
-      this.openSidebar(item.hasAttribute("selector-row"));
+      this.openSidebar(item.hasAttribute('selector-row'))
     }
-  };
+  }
 
   private _onDelete = () => {
-    fireEvent(this, "value-changed", { value: null });
+    fireEvent(this, 'value-changed', { value: null })
     if (this._selected || this._selectorRowSelected) {
-      fireEvent(this, "close-sidebar");
+      fireEvent(this, 'close-sidebar')
     }
 
     showToast(this, {
-      message: this.hass.localize("ui.common.successfully_deleted"),
+      message: this.hass.localize('ui.common.successfully_deleted'),
       duration: 4000,
       action: {
-        text: this.hass.localize("ui.common.undo"),
+        text: this.hass.localize('ui.common.undo'),
         action: () => {
-          fireEvent(window, "undo-change");
+          fireEvent(window, 'undo-change')
         },
       },
-    });
-  };
+    })
+  }
 
   public focus() {
-    this._fieldRowElement?.focus();
+    this._fieldRowElement?.focus()
   }
 
   public focusSelector() {
-    this._selectorRowElement?.focus();
+    this._selectorRowElement?.focus()
   }
 
   static get styles(): CSSResultGroup {
@@ -477,7 +485,7 @@ export default class HaScriptFieldRow extends LitElement {
         .selected_menu_item {
           color: var(--primary-color);
         }
-        li[role="separator"] {
+        li[role='separator'] {
           border-bottom-color: var(--divider-color);
         }
         .selector-row {
@@ -487,12 +495,12 @@ export default class HaScriptFieldRow extends LitElement {
           padding-inline-end: 0px;
         }
       `,
-    ];
+    ]
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-script-field-row": HaScriptFieldRow;
+    'ha-script-field-row': HaScriptFieldRow
   }
 }

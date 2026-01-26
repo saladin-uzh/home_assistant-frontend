@@ -1,19 +1,19 @@
-import type { TemplateResult } from "lit";
-import { css, LitElement, svg } from "lit";
-import { customElement, property } from "lit/decorators";
+import type { TemplateResult } from 'lit'
+import { css, LitElement, svg } from 'lit'
+import { customElement, property } from 'lit/decorators'
 import {
   getValueInPercentage,
   normalize,
   roundWithOneDecimal,
-} from "../util/calculate";
+} from '../util/calculate'
 
-@customElement("ha-bar")
+@customElement('ha-bar')
 export class HaBar extends LitElement {
-  @property({ type: Number }) public min = 0;
+  @property({ type: Number }) public min = 0
 
-  @property({ type: Number }) public max = 100;
+  @property({ type: Number }) public max = 100
 
-  @property({ type: Number }) public value!: number;
+  @property({ type: Number }) public value!: number
 
   protected render(): TemplateResult {
     const valuePrecentage = roundWithOneDecimal(
@@ -22,7 +22,7 @@ export class HaBar extends LitElement {
         this.min,
         this.max
       )
-    );
+    )
 
     return svg`
       <svg>
@@ -31,7 +31,7 @@ export class HaBar extends LitElement {
           <rect width="${valuePrecentage}%"/>
         </g>
       </svg>
-    `;
+    `
   }
 
   static styles = css`
@@ -50,11 +50,11 @@ export class HaBar extends LitElement {
       height: 12px;
       width: 100%;
     }
-  `;
+  `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ha-bar": HaBar;
+    'ha-bar': HaBar
   }
 }
