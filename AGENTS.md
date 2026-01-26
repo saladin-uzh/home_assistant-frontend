@@ -62,10 +62,10 @@ script/build_frontend # Production build
 **Lit Component Structure:**
 
 ```typescript
-@customElement("ha-my-component")
+@customElement('ha-my-component')
 export class HaMyComponent extends LitElement {
-  @property({ attribute: false }) hass!: HomeAssistant;
-  @state() private _config?: MyConfig;
+  @property({ attribute: false }) hass!: HomeAssistant
+  @state() private _config?: MyConfig
   // ...
 }
 ```
@@ -73,8 +73,8 @@ export class HaMyComponent extends LitElement {
 **Import Conventions:**
 
 ```typescript
-import type { HomeAssistant } from "../types";
-import { fireEvent } from "../common/dom/fire_event";
+import type { HomeAssistant } from '../types'
+import { fireEvent } from '../common/dom/fire_event'
 ```
 
 **Styling:**

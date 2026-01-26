@@ -9,7 +9,7 @@
   "scripts": {
     "build": "script/build_frontend",
     "lint:eslint": "eslint --flag v10_config_lookup_from_file \"**/src/**/*.{js,ts,html}\" --cache --cache-strategy=content --cache-location=node_modules/.cache/eslint/.eslintcache --ignore-pattern=.gitignore --max-warnings=0",
-    "format:eslint": "eslint --flag v10_config_lookup_from_file \"**/src/**/*.{js,ts,html}\" --cache --cache-strategy=content --cache-location=node_modules/.cache/eslint/.eslintcache --ignore-pattern=.gitignore --fix",
+    "format:eslint": "eslint --flag v10_config_lookup_from_file \"**/src/**/*.{js,ts,html}\" --cache --cache-strategy=content --cache-location=node_modules/.cache/eslint/.eslintcache --ignore-pattern=.gitignore",
     "lint:prettier": "prettier . --cache --check",
     "format:prettier": "prettier . --cache --write",
     "lint:types": "tsc",
@@ -181,6 +181,7 @@
     "@vitest/coverage-v8": "4.0.14",
     "babel-loader": "10.0.0",
     "babel-plugin-template-html-minifier": "4.1.0",
+    "baseline-browser-mapping": "2.9.18",
     "browserslist-useragent-regexp": "4.1.3",
     "del": "8.0.1",
     "eslint": "9.39.1",
